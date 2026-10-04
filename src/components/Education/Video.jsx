@@ -57,7 +57,7 @@ const Video = ({ show, size, setSize, video }) => {
     };
   }, []);
   return (
-    <Container isMobile={isMobile} size={size} show={show}>
+    <Container isMobile={isMobile} $size={size} show={show}>
       {size && (
         <Icon>
           <div />

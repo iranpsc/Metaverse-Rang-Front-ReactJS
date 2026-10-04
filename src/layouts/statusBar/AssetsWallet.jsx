@@ -15,12 +15,7 @@ const Asset = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 13%;
-  min-height: 35px;
-   @media (max-width: 1024px) {
-     min-height: 25px;
 
-  }
 `;
 
 const ImgAsset = styled.img`
@@ -45,11 +40,15 @@ const TextAsset = styled.p`
 `;
 
 const Line = styled.div`
+  display: none;
   width: 100%;
   height: 2px;
   background-color: #efefef;
-`;
 
+  @media (min-height: 451px) {
+    display: block;
+  }
+`;
 const AssetItem = ({  value, img, index, totalassets }) => (
   <>
     <Asset>

@@ -73,13 +73,17 @@ const Div = styled.div`
   justify-content: space-between;
 `;
 
-const Content = styled.p`
+const Content = styled.div`
   color: ${(props) => props.theme.colors.newColors.shades.title};
   background-color: ${(props) =>
     props.theme.colors.newColors.otherColors.inputBg};
   padding: 15px;
   border-radius: 5px;
   margin-top: 20px;
+`;
+
+const Text = styled.p`
+  margin: 0;
   line-height: 1.6;
 `;
 
@@ -140,7 +144,9 @@ const CurrentYears = () => {
 
       <Content>
         <Label>{getTranslation("804")}</Label>
-        لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ... سال 1403
+        <Text>
+          لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ... سال 1403
+        </Text>
       </Content>
     </Container>
   );

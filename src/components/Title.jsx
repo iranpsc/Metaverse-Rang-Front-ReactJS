@@ -12,7 +12,7 @@ const TitleName = styled.h3`
 `;
 const Title = ({ title, payed, right,small }) => {
   return (
-    <TitleName right={right} payed={payed} size={small}>
+    <TitleName $right={right} $payed={payed} $size={small}>
       {title}
     </TitleName>
   );

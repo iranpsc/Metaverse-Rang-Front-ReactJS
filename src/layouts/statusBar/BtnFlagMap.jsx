@@ -9,8 +9,8 @@ const Btn = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 40px;
-  border-radius: 0 5px 5px 0;
+  min-height: 30px;
+    border-radius: 0 5px 5px 0;
   &.active {
     border: ${(props) => `${props.border} 3px solid`};
   }
@@ -46,7 +46,7 @@ const TitleFlag = styled.p`
 const ContainerIcon = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 13px;
 `;
 
 const BtnFlagMap = () => {

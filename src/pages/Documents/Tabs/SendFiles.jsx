@@ -58,15 +58,16 @@ const FileImage = styled.img`
   margin-bottom: 5px;
 `;
 
-const RemoveButton = styled.img`
+const RemoveButton = styled.button`
+  background: transparent;
   border: none;
-  color: white;
   padding: 5px;
   border-radius: 3px;
   cursor: pointer;
   position: absolute;
   left: 5px;
   bottom: 10px;
+  z-index: 1;
 `;
 
 const ErrorMessage = styled.div`
@@ -102,8 +103,7 @@ const SendFiles = ({ files = [], onFilesChange }) => {
   };
 
   const removeFile = (indexToRemove) => {
-    const updatedFiles = files.filter((_, index) => index !== indexToRemove);
-    onFilesChange(updatedFiles);
+    onFilesChange(files.filter((_, index) => index !== indexToRemove));
   };
 
   const getPreview = (file) => {
@@ -124,12 +124,12 @@ const SendFiles = ({ files = [], onFilesChange }) => {
           <FilePreview key={index}>
             <FileImage src={getPreview(file)} alt={`preview-${index}`} />
             <RemoveButton
-              src={remove}
-              alt="remove"
-              width={36}
-              height={36}
+              type="button"
+              aria-label={getTranslation("738")}
               onClick={() => removeFile(index)}
-            />
+            >
+              <img src={remove} alt="" width={36} height={36} />
+            </RemoveButton>
           </FilePreview>
         ))}
         {files.length < MAX_FILES && (

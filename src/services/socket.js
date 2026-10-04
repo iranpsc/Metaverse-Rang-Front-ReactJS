@@ -80,8 +80,8 @@ export function connectSocket(token = resolveToken()) {
   });
 
   socket.on("connect", () => {
+    console.log("Socket connected");
   });
-
   socket.on("connect_error", () => {
   });
 

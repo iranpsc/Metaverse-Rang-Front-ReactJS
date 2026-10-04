@@ -250,7 +250,7 @@ const RequestsList = ({
                 </StatusFilter>
               )}
             </TableHeader>
-            <TableHeader title>
+            <TableHeader $title>
               <Div>
                 {getTranslation(146)}
 

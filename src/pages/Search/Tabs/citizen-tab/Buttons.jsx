@@ -4,12 +4,12 @@ import { Tooltip as ReactTooltip } from "react-tooltip";
 import { TiUserAddOutline } from "react-icons/ti";
 import { RiUserUnfollowLine } from "react-icons/ri";
 import styled from "styled-components";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { FollowContext } from "../../../../services/reducers/FollowContext";
 import useRequest from "../../../../services/Hooks/useRequest";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import _ from "lodash";
-import { getTranslation } from "../../../../services/Utility";
+import { getTranslation, ToastError } from "../../../../services/Utility";
 
 const IconWrapper = styled.div`
   width: 36px;
@@ -27,6 +27,7 @@ const IconWrapper = styled.div`
     props.theme.colors.newColors.otherColors.buttonPrimaryText};
   }
 `;
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -36,45 +37,63 @@ const Container = styled.div`
   gap: 18px;
 `;
 
+const showError = (err) => {
+  const message =
+    err?.response?.data?.error ||
+    err?.message ||
+    "خطایی رخ داد، لطفاً دوباره تلاش کنید";
+  ToastError(message);
+};
+
 const Buttons = ({ user }) => {
   const [follow, dispatch] = useContext(FollowContext);
+  const [loading, setLoading] = useState(false);
   const { Request } = useRequest();
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  //Function to handle when user follows another user
-  const onFollowHandler = (id) => {
-    Request(`follow/${id}`).then(() => {
-      Request("following").then((response) => {
-        dispatch(response.data.data);
-      });
-    });
+  // دریافت دوباره لیست فالوینگ‌ها
+  const refreshFollowing = async () => {
+    const response = await Request("following");
+    dispatch(response.data.data);
   };
 
-  //Function to handle when user unfollows another user
-  const onUnFollowHandler = (id) => {
-    Request(`unfollow/${id}`).then(() => {
-      Request("following").then((response) => {
-        dispatch(response.data.data);
-      });
-    });
+  const handleFollowToggle = async (id, shouldFollow) => {
+    if (loading || !id) return;
+    setLoading(true);
+
+    try {
+      await Request(`${shouldFollow ? "follow" : "unfollow"}/${id}`);
+    } catch (err) {
+      showError(err);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await refreshFollowing();
+    } catch (err) {
+      showError(err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Determine if the user is already followed
   const isFollowed =
     _.findIndex(follow, (o) => parseInt(o.id) === parseInt(user?.id)) > -1;
+
   const items = [
     {
       id: 1,
       icon: isFollowed ? <RiUserUnfollowLine /> : <TiUserAddOutline />,
       label: getTranslation("467"),
-      onClick: isFollowed
-        ? () => onUnFollowHandler(user?.id)
-        : () => onFollowHandler(user?.id),
+      onClick: () => handleFollowToggle(user?.id, !isFollowed),
+      disabled: loading || !user?.id,
     },
     {
       id: 2,
       icon: <BiCommentDots />,
-      label: null, //getTranslation("468")
+      label: null, // getTranslation("468")
       onClick: null,
       disabled: true,
     },
@@ -83,9 +102,14 @@ const Buttons = ({ user }) => {
       icon: <MdOutlineMailOutline />,
       label: getTranslation("469"),
       onClick: () =>
-        Navigate("/documents/write", {
-          state: { code: user?.code, user: user?.id, from: location.pathname, },
+        navigate("/documents/write", {
+          state: {
+            code: user?.code,
+            user: user?.id,
+            from: location.pathname,
+          },
         }),
+      disabled: !user?.id,
     },
   ];
 
@@ -94,7 +118,7 @@ const Buttons = ({ user }) => {
       {items.map((item) => (
         <div
           key={item.id}
-          onClick={item.disabled ? undefined : item.onClick} // فقط اگر غیرفعال نبود
+          onClick={item.disabled ? undefined : item.onClick}
         >
           <IconWrapper disabled={item.disabled} data-tooltip-id={item.label}>
             {item.icon}

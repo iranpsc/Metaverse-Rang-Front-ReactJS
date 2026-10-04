@@ -79,7 +79,7 @@ const Education = ({ setOpenEducation, adviserData }) => {
 
   return (
     <DraggableContainer
-      size={size}
+      $size={size}
       position={position}
       dragging={dragging}
       ref={draggableRef}

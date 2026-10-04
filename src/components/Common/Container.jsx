@@ -17,7 +17,7 @@ const StyledContainer = styled.div`
 
 const DIRECTION_THRESHOLD = 12; 
 const TOP_OFFSET = 10; 
-const MIN_SCROLLABLE = 80; 
+const MIN_SCROLLABLE = 0; //80 defalut value 
 
 function BaseContainer({ children, className }, forwardedRef) {
   const internalRef = useRef(null);

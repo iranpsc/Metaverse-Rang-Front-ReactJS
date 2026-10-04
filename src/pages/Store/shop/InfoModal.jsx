@@ -1,39 +1,47 @@
+import { useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import styled from "styled-components";
 import { getTranslation } from "../../../services/Utility";
 import { ExitIcon } from "../../../components/Icons/IconsHeader";
+
 const BackGround = styled.div`
-  z-index: 999;
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
+  z-index: 9999;
   display: flex;
   align-items: center;
   justify-content: center;
   backdrop-filter: blur(5px);
   background-color: rgba(0, 0, 0, 0.713);
+  
 `;
+
 const Modal = styled.div`
-  border-radius: 10px;
-  background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
-  overflow-y: auto;
-  padding: 20px;
+  width: 100%;
   max-width: 680px;
   max-height: 577px;
+    padding: 16px;
+
+  border-radius: 10px;
+  overflow-y: auto;
+  background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
+
   @media (max-width: 850px) {
-    max-width: 590px !important;
+    max-width: 590px;
   }
+
   @media (max-width: 1023px) {
-    height: 80%;
-    overflow-y: auto;
+    height: 90%;
+        padding: 10px;
+
   }
 `;
+
 const Header = styled.div`
   display: flex;
-
   justify-content: space-between;
   margin-bottom: 30px;
+
   @media (max-width: 1023px) {
     & img {
       width: 100px;
@@ -41,70 +49,93 @@ const Header = styled.div`
     }
   }
 `;
+
+const CloseButton = styled.button`
+  display: flex;
+  align-items: flex-start;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+`;
+
 const Title = styled.h3`
   font-size: 24px;
   font-weight: 600;
-
   color: ${(props) => props.theme.colors.newColors.shades.title};
+
   @media (max-width: 1023px) {
     font-size: 18px;
   }
 `;
+
 const Info = styled.p`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  font-weight: 400;
-  text-align: justify;
   margin: 20px 0;
   font-size: 16px;
+  font-weight: 400;
+  text-align: justify;
+  color: ${(props) => props.theme.colors.newColors.shades.title};
 `;
 
+// کد ترجمه‌ی عنوان و توضیحات برای هر دارایی
+const ASSET_TRANSLATIONS = {
+  yellow: { title: "11", description: "506" },
+  red: { title: "12", description: "507" },
+  blue: { title: "49", description: "508" },
+  irr: { title: "906", description: "514" },
+  psc: { title: "47", description: "515" },
+};
 
 const InfoModal = ({ data, setOpenModal }) => {
-  const getAssetTranslation = () => {
-    if (data.asset === "yellow") {
-      return getTranslation("11");
-    } else if (data.asset === "red") {
-      return getTranslation("12");
-    } else if (data.asset === "blue") {
-      return getTranslation("13");
-    } else if (data.asset === "irr") {
-      return getTranslation("906");
-    } else if (data.asset === "psc") {
-      return getTranslation("47");
-    }
-  };
-  const getAssetTranslationDescription = () => {
-    if (data.asset === "yellow") {
-      return getTranslation("506");
-    } else if (data.asset === "red") {
-      return getTranslation("507");
-    } else if (data.asset === "blue") {
-      return getTranslation("508");
-    } else if (data.asset === "irr") {
-      return getTranslation("514");
-    } else if (data.asset === "psc") {
-      return getTranslation("515");
-    }
-  };
-  return (
-    <BackGround>
-      <Modal>
+  const codes = ASSET_TRANSLATIONS[data?.asset];
+
+  const closeModal = useCallback(() => setOpenModal(false), [setOpenModal]);
+
+  useEffect(() => {
+    const onKeyDown = (e) => {
+      if (e.key === "Escape") closeModal();
+    };
+    const previousOverflow = document.body.style.overflow;
+
+    document.addEventListener("keydown", onKeyDown);
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [closeModal]);
+
+  if (!data) return null;
+
+  return createPortal(
+    <BackGround onClick={closeModal}>
+      <Modal
+        role="dialog"
+        aria-modal="true"
+        onClick={(e) => e.stopPropagation()}
+      >
         <Header>
           <img
             src={data.image}
-            alt={data.image}
+            alt={codes ? getTranslation(codes.title) : ""}
             width={160}
             height={160}
             loading="lazy"
           />
-          <ExitIcon onClick={() => setOpenModal(false)} />
+          <CloseButton type="button" onClick={closeModal} aria-label="close">
+            <ExitIcon />
+          </CloseButton>
         </Header>
-        <div>
-          <Title>{getAssetTranslation()}</Title>
-          <Info>{getAssetTranslationDescription()}</Info>
-        </div>
+        {codes && (
+          <div>
+            <Title>{getTranslation(codes.title)}</Title>
+            <Info>{getTranslation(codes.description)}</Info>
+          </div>
+        )}
       </Modal>
-    </BackGround>
+    </BackGround>,
+    document.body
   );
 };
 

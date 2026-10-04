@@ -238,7 +238,7 @@ const TransactionsList = ({
                 <FilterArrows
                   onClick={() => setFilters({ status: !filters.status })}
                 >
-                  <RotatingArrow isOpen={filters.status} />
+                  <RotatingArrow $isOpen={filters.status} />
                 </FilterArrows>
               </FilterContainer>
               {filters.status && (
@@ -308,13 +308,13 @@ const TransactionsList = ({
                 </StatusFilter>
               )}
             </TableHeader>
-            <TableHeader title>
+            <TableHeader $title>
               <FilterContainer>
                 <TableHeaderText>{getTranslation("746")}</TableHeaderText>
                 <FilterArrows
                   onClick={() => setFilters({ title: !filters.title })}
                 >
-                  <RotatingArrow isOpen={filters.title} />
+                  <RotatingArrow $isOpen={filters.title} />
                 </FilterArrows>
               </FilterContainer>
               {filters.title && (
@@ -357,7 +357,7 @@ const TransactionsList = ({
                 <FilterArrows
                   onClick={() => setFilters({ subject: !filters.subject })}
                 >
-                  <RotatingArrow isOpen={filters.subject} />
+                  <RotatingArrow $isOpen={filters.subject} />
                 </FilterArrows>
               </FilterContainer>
               {filters.subject && (

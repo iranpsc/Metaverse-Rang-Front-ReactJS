@@ -28,7 +28,6 @@ const WriteVodTab = () => {
     dispatch({ type: "SET_FILES", payload: [] });
     dispatch({ type: "SET_SELECTED_CITIZENS", payload: [] });
   };
-console.log("state",state.files)
 const sendVod = () => {
   if (!state.subject || !state.title || !state.description) return;
 

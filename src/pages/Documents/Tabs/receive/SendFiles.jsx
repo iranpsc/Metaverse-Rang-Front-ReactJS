@@ -83,7 +83,7 @@ const SendFiles = ({ files, setFiles }) => {
     const selectedFiles = Array.from(e.target.files);
 
     if (selectedFiles.some((file) => file.size > MAX_FILE_SIZE)) {
-      ToastError("حجم هر فایل نباید بیشتر از ۵ مگابایت باشد.");
+      ToastError(getTranslation(1846));
       e.target.value = "";
       return;
     }

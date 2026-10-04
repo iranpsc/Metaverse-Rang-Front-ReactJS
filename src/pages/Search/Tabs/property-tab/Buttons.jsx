@@ -48,7 +48,6 @@ const Buttons = ({ item, system }) => {
   const mapRef = useMap();
   const isOwner =
     user.code?.toUpperCase() === item.owner_code?.toUpperCase();
-//console.log("item",item)
   const items = [
     {
       id: 1,

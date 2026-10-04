@@ -136,6 +136,7 @@ const ContainerMain = styled.div`
   gap: 4px;
   width: 100%;
   overflow-y: auto;
+    overflow-x: hidden;
   border-top: 2px solid
     ${({ theme }) => theme.colors.newColors.otherColors.iconBg};
   background-color: ${(props) => props.theme.colors.newColors.shades.bgOne};
