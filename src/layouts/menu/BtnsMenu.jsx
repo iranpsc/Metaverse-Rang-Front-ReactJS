@@ -13,11 +13,14 @@ import NotifIcon from "../../assets/svg/notif.svg";
 import ReportIcon from "../../assets/svg/report.svg";
 import Wallet from "../../assets/svg/wallet.svg";
 import GiftIcon from "../../assets/svg/gifts.svg";
+import LogoutIcon from "../../assets/svg/logout.svg";
 import { useMenuContext } from "../../services/reducers/MenuContext";
 import { useNavigate, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { UserContext } from "../../services/reducers/UserContext";
 import ToolTip from "../../components/Tooltip";
+import useRequest from "../../services/Hooks/useRequest";
+import { removeItem } from "../../services/Utility/LocalStorage";
 
 const Container = styled.div`
   height: 100vh;
@@ -45,12 +48,20 @@ const Btn = styled.button`
     props.isSelected
       ? props.theme.colors.newColors.otherColors.iconBackground
       : "transparent"};
+      &:hover{
+border-radius:10px ;
+
+   background-color: ${(props) =>
+    props.isDanger ? "rgba(224, 49, 49, 0.12)" : "transparent"};      }
 `;
 const Icon = styled.img`
   width: 20px;
   height: 40px;
-
   filter: ${(props) => {
+    if (props.isDanger) {
+      return "brightness(0) saturate(100%) invert(27%) sepia(95%) saturate(5000%) hue-rotate(350deg) brightness(90%) contrast(95%)";
+    }
+
     if (props.isCompleted) {
       return "brightness(0) saturate(100%) invert(44%) sepia(96%) saturate(1400%) hue-rotate(85deg) brightness(90%) contrast(100%)";
     }
@@ -64,10 +75,12 @@ const Icon = styled.img`
 `;
 
 const Text = styled.p`
-  color: ${(props) =>
-    props.isSelected
+  color: ${(props) => {
+    if (props.isDanger) return "#e03131";
+    return props.isSelected
       ? props.theme.colors.newColors.otherColors.iconText
-      : "#868b90"};
+      : "#868b90";
+  }};
   font-style: normal;
   font-weight: 500;
   line-height: 180%;
@@ -100,9 +113,11 @@ const BtnsMenu = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const lang = useTranslation();
   const [user] = useContext(UserContext);
+  const { Request, HTTP_METHOD } = useRequest();
+
   useEffect(() => {
     const currentItem = menuItems.find(
-      (item) => `/${item.navigate}` === location.pathname,
+      (item) => item.navigate && `/${item.navigate}` === location.pathname,
     );
     if (currentItem) {
       setSelectedItem(currentItem.translationId);
@@ -110,7 +125,24 @@ const BtnsMenu = () => {
       setSelectedItem(null);
     }
   }, [location.pathname]);
+
+  const logoutHandler = () => {
+    Request("auth/logout", HTTP_METHOD.POST, {}, {}, "development")
+      .then(() => {
+        removeItem("user");
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.error("logout error", err);
+      });
+  };
+
   const handleClick = (item) => {
+    if (item.onClick) {
+      item.onClick();
+      return;
+    }
+
     if (!item.navigate) return;
 
     const targetPath = `/${item.navigate}`;
@@ -122,6 +154,7 @@ const BtnsMenu = () => {
     setSelectedItem(item.translationId);
     navigate(targetPath);
   };
+
   const menuItems = [
     { icon: GiftIcon, translationId: "231", navigate: "challenges" },
 
@@ -185,6 +218,13 @@ const BtnsMenu = () => {
       translationId: user?.has_wallet ? "1781" : "1668",
       navigate: "connectWallet",
     },
+    {
+      icon: LogoutIcon,
+      translationId: "230",
+      onClick: logoutHandler,
+      isDanger: true,
+
+    },
   ];
 
   return (
@@ -194,26 +234,32 @@ const BtnsMenu = () => {
           key={index}
           lang={lang.i18n.language}
           place="left"
-          disabled={isOpen} 
+          disabled={isOpen}
           ContentToltip={getTranslation(item.translationId)}
           Chidren={
             <Btn
               isOpen={isOpen}
               isSelected={selectedItem === item.translationId}
               onClick={() => handleClick(item)}
-              disabled={item.navigate === "" && item.translationId !== "sign out"}
+              isDanger={item.isDanger}
+
+              disabled={
+                !item.onClick &&
+                item.navigate === "" &&
+                item.translationId !== "sign out"
+              }
             >
               <div>
                 <Icon
                   src={item.icon}
                   isSelected={selectedItem === item.translationId}
-                  isCompleted={
-                    item.navigate == "connectWallet" && user.has_wallet
-                  }
+                  isCompleted={item.navigate == "connectWallet" && user?.has_wallet}
+                  isDanger={item.isDanger}
                 />
                 <Text
                   isOpen={isOpen}
                   isSelected={selectedItem === item.translationId}
+                  isDanger={item.isDanger}
                 >
                   {getTranslation(item.translationId)}
                 </Text>
@@ -224,7 +270,9 @@ const BtnsMenu = () => {
                 </ValueBtn>
               )}
               {item.translationId === "238" && user && (
-                <ValueBtn isOpen={isOpen}>{convertToPersian(user.unread_notifications_count)}</ValueBtn>
+                <ValueBtn isOpen={isOpen}>
+                  {convertToPersian(user.unread_notifications_count)}
+                </ValueBtn>
               )}
             </Btn>
           }

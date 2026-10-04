@@ -6,7 +6,6 @@ import PrivateComponent from "../../middleware/PrivateComponent";
 import PublicComponent from "../../middleware/PublicComponent";
 import BtnsAfterLogin from "./BtnsAfterLogin";
 import BtnLogin from "./BtnAction/BtnLogin";
-import BtnAction from "./BtnAction/BtnAction";
 import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext";
 import { useLanguage } from "../../services/reducers/LanguageContext";
 
@@ -97,9 +96,7 @@ const Menu = () => {
         <PublicComponent>
           <BtnLogin />
         </PublicComponent>
-        <PrivateComponent>
-          <BtnAction />
-        </PrivateComponent>
+       
       </Container>
     </>
   );

@@ -11,9 +11,8 @@ import ProfileMember from "../../assets/svg/profileMember.svg";
 import Ticket from "../../assets/svg/ticket.svg";
 import Setting from "../../assets/svg/setting.svg";
 import { useNavigate } from "react-router";
-import { getTranslation } from "../../services/Utility";
+import { getTranslation, metarangUrlCitizen } from "../../services/Utility";
 import { useLanguage } from "../../services/reducers/LanguageContext";
-
 const MessageIcon = styled(Message)`
   fill: #868b907c;
 `;
@@ -248,7 +247,13 @@ const Profile = () => {
               <Icon src={Setting} />
               {getTranslation("642")}
             </BtnNavigator>
-
+            <BtnNavigator
+              onClick={() => {
+                if (user?.code) window.location.href = metarangUrlCitizen(user.code);
+              }}
+            >
+              {getTranslation("162")}
+            </BtnNavigator>
             <Union />
           </SubMenu>
         </Container>
