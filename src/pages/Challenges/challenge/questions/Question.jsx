@@ -12,7 +12,6 @@ const Container = styled.div`
   padding: 10px;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
   cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
-  border-bottom: 3px solid transparent;
   border-bottom-color: ${({ $showCorrect, $showWrong }) => {
     if ($showCorrect) return CORRECT_COLOR;
     if ($showWrong) return WRONG_COLOR;
@@ -28,12 +27,18 @@ const Container = styled.div`
     if ($showWrong) return "0px 30px 20px -20px #FF000033";
     return "none";
   }};
+  @media (min-width: 500px) and (max-width: 1000px) {
+  padding: 5px;
+}
 `;
 
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+    @media (min-width: 500px) and (max-width: 1000px) {
+  gap: 5px;
+}
 `;
 
 const Photo = styled.div`
@@ -68,9 +73,9 @@ const OptionTitle = styled.h3`
     if ($showWrong) return WRONG_COLOR;
     return "inherit";
   }};
-  @media (max-width: 1280px) {
-    font-size: 13px;
-  }
+@media (min-width: 500px) and (max-width: 1000px) {
+  font-size: 13px;
+}
 `;
 
 const PercentWrapper = styled.div`
@@ -83,7 +88,11 @@ const PercentWrapper = styled.div`
     color: #a0a0ab;
     font-size: 13px;
     font-weight: 500;
+    @media (min-width: 500px) and (max-width: 1000px) {
+  font-size: 13px;
+}
   }
+  
 `;
 
 const Progress = styled.div`

@@ -23,15 +23,14 @@ export const Container = styled(animated.div)`
   display: ${({ show }) => (show ? "none" : "show")};
   top: 0;
   bottom: 0;
-  padding: 15px;
+  padding: 15px 0;
   z-index: 10;
   position: relative;
-
   height: 100%;
-
   @media screen and (min-width: 1280px) {
     min-width: 490px;
   }
+
 `;
 
 export const ContainerIcon = styled.div`

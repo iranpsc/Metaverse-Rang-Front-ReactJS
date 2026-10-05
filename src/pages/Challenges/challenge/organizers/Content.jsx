@@ -11,9 +11,19 @@ import { metarangUrlCitizen } from "../../../../services/Utility";
 import red from "../../../../assets/gif/red-color.gif";
 import blue from "../../../../assets/gif/blue-color.gif";
 import yellow from "../../../../assets/gif/yellow-color.gif";
-import Container from "../../../../components/Common/Container";
 import useLanguage from "../../../../services/Hooks/useLanguage";
+const Container = styled.div`
+  padding: 15px;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 
+  @media (max-height: 500px) and (max-width: 1000px) {
+  padding: 5px;
+  }
+`;
 const MainPhoto = styled.div`
   position: relative;
   width: 100%;

@@ -8,7 +8,7 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   position: sticky;
-  bottom: 15px;
+  bottom: 0px;
   justify-content: space-between;
   gap: 10px;
   div {
@@ -30,11 +30,9 @@ const Container = styled.div`
     img {
       width: 26px;
     }
-    @media (max-width: 1280px) {
-      span {
-        font-size: 14px;
-      }
-    }
+    @media (min-width: 500px) and (max-width: 1000px) {
+  font-size: 13px;
+}
   }
 `;
 
