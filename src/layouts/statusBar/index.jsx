@@ -17,14 +17,14 @@ const TopSection = styled.div`
   display: flex;
   flex-direction: column;
   flex: 1;
+  gap: 5px;
   min-height: 0; /* برای اینکه overflow-y در فرزندها کار کنه */
   width: 100%;
 `;
 
 const WalletContainer = styled.div`
   width: 100%;
-  border-radius: 10px;
-  margin-bottom: 10px;
+border-radius: 10px 10px 0 0;
   background-color: ${(props) =>
     props.theme.colors.newColors.otherColors.menuBg};
   display: flex;
@@ -38,11 +38,13 @@ const WalletContainer = styled.div`
 
   @media (min-width: 1024px) {
     border-radius: 20px;
+    border-radius: 20px 20px 0 0;
+
   }
 
-  @media (max-height: 541px) {
-    gap: 3px;
-      padding: 10px;
+  @media (max-height: 420px) {
+    gap: 0px;
+      padding: 5px 10px;
 
   }
 `;
@@ -53,16 +55,13 @@ const FlagMapContainer = styled.div`
   flex: 1;
   width: 100%;
   min-height: 0;
-  border-radius: 10px;
   background-color: ${(props) =>
     props.theme.colors.newColors.otherColors.menuBg};
   padding: 4px 7px 4px 10px;
   overflow-y: auto;
   transition: all 0.3s ease 0s;
 
-  @media (min-width: 1024px) {
-    border-radius: 20px;
-  }
+ 
 `;
 const StatusContainer = styled.div`
   display: flex;
@@ -72,7 +71,7 @@ const StatusContainer = styled.div`
   height: 10%;
   gap: 5px;
   padding: 10px;
-  border-radius: 10px;
+border-radius: 0 0 10px 10px;
   background-color: ${(props) =>
     props.theme.colors.newColors.otherColors.menuBg};
   flex-shrink: 0;
@@ -80,7 +79,12 @@ const StatusContainer = styled.div`
 
   @media (min-width: 1024px) {
     height: 6%;
-    border-radius: 20px;
+border-radius: 0 0 20px 20px;
+  }
+   @media (max-height: 400px) {
+  padding: 5px;
+border-radius: 0 0 10px 10px;
+
   }
 `;
 

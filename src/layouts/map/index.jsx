@@ -202,7 +202,7 @@ const MapTreeD = () => {
               RTLTextPlugin="https://map.irpsc.com/rtl.js"
               interactiveLayerIds={["polygon-fill-layer"]}
               maxPitch={89}
-              style={{ borderRadius: "15px" }}
+              style={{ borderRadius: "10px" }}
               initialViewState={{
                 latitude: 25.229,
                 longitude: 54.2199,

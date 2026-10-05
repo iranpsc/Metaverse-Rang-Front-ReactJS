@@ -1,5 +1,5 @@
 import styled from "styled-components";
-
+const TAB_BAR_HEIGHT = 40;
 export const Container = styled.div`
   background-color: ${(props) =>
     props.theme.colors.newColors.otherColors.bgContainer};
@@ -10,16 +10,28 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
-  overflow-y: auto;
-  margin-bottom: 60px;
-
   min-width: fit-content;
+
+  /* اسکرول داخلی */
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 
   @media (min-width: 998px) {
     font-size: 18px;
+    margin-bottom: 60px;
+  }
+
+  @media (max-height: 500px) and (max-width: 1000px) {
+    margin-top: 0;
+    margin-bottom: 0;
+    height: 100%;
+    max-height: 100%;
+    /* جبران نوار تب و منوی پایین */
+    padding-bottom: ${60 + TAB_BAR_HEIGHT}px;
+    box-sizing: border-box;
   }
 `;
-
 export const Label = styled.div`
   font-weight: 500;
   white-space: wrap;

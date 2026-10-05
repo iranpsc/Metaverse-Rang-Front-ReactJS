@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useRef, useEffect, forwardRef } from "react";
 import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext";
-
+const TAB_BAR_HEIGHT = 40;
 const StyledContainer = styled.div`
   padding: 15px;
   width: 100%;
@@ -11,13 +11,14 @@ const StyledContainer = styled.div`
   overscroll-behavior: contain;
 
   @media (max-height: 500px) and (max-width: 1000px) {
-    padding-bottom: 60px;
+    /* ${TAB_BAR_HEIGHT}px جبران جابجایی محتوا به‌خاطر نوار تب */
+    padding-bottom: ${60 + TAB_BAR_HEIGHT}px;
   }
 `;
 
-const DIRECTION_THRESHOLD = 12; 
-const TOP_OFFSET = 10; 
-const MIN_SCROLLABLE = 0; //80 defalut value 
+const DIRECTION_THRESHOLD = 12;
+const TOP_OFFSET = 10;
+const MIN_SCROLLABLE = 80; //80 defalut value 
 
 function BaseContainer({ children, className }, forwardedRef) {
   const internalRef = useRef(null);
@@ -32,7 +33,7 @@ function BaseContainer({ children, className }, forwardedRef) {
     if (!element) return;
 
     let lastY = element.scrollTop;
-    let lastDirection = null; 
+    let lastDirection = null;
     let ticking = false;
 
     const setDirection = (goingDown) => {

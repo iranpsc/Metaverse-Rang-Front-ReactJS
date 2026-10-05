@@ -1,262 +1,245 @@
 import { useState, useEffect } from "react";
 import styled from "styled-components";
+import { FaChevronDown } from "react-icons/fa";
+import { useNavigate } from "react-router";
 import useAuth from "../../services/Hooks/useAuth";
 import { useMenuContext } from "../../services/reducers/MenuContext";
+import { getTranslation, metarangUrlCitizen } from "../../services/Utility";
 import Union from "./Union/Union";
 import BtnsMenu from "./BtnsMenu";
-import { FaChevronDown } from "react-icons/fa";
 import DefaultProfile from "../../assets/images/defulte-profile.png";
 import Message from "../../assets/svg/message.svg?react";
 import ProfileMember from "../../assets/svg/profileMember.svg";
 import Ticket from "../../assets/svg/ticket.svg";
 import Setting from "../../assets/svg/setting.svg";
-import { useNavigate } from "react-router";
-import { getTranslation, metarangUrlCitizen } from "../../services/Utility";
-import { useLanguage } from "../../services/reducers/LanguageContext";
-const MessageIcon = styled(Message)`
-  fill: #868b907c;
-`;
 
-const Container = styled.div`
+const mobileLandscape = "@media (max-height: 500px) and (max-width: 1000px)";
+
+const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-self: center;
-  align-items: center;
   width: 100%;
-  height: fit-content;
-  text-decoration: none;
-  transition: all 0.5s ease-out;
+  min-height: 0;
+  /* حداکثر ۶۰٪ ارتفاع سایدبار برای پروفایل و ساب‌منو */
+  max-height: 60%;
+  flex-shrink: 1;
 `;
 
-const Btn = styled.button`
-  display: ${({ isHidden }) => (isHidden ? "none" : "flex")};
+
+const ProfileBtn = styled.button`
+  display: flex;
   width: 100%;
   align-items: center;
   justify-content: space-around;
   gap: 8px;
+  height: 49px;
   border: none;
+  border-radius: 10px;
   background: transparent;
-  height: 49px;
-  border-radius: 10px;
   cursor: pointer;
 `;
 
-const BtbContainer = styled.div`
-  display: ${({ isHidden }) => (isHidden ? "none" : "flex")};
-  width: 100%;
-  align-items: center;
-  justify-content: ${({ isOpen }) => (isOpen ? "start" : "center")};
-  gap: 8px;
-  height: 49px;
-`;
-
-const BtbContainer2 = styled.div`
+const UserInfo = styled.div`
   display: flex;
-  width: 100%;
+  flex: 1;
   align-items: center;
-  justify-content: start;
+  justify-content: ${({ $isOpen }) => ($isOpen ? "start" : "center")};
   gap: 8px;
-  height: 49px;
+  height: 100%;
 `;
 
-const BtnNavigator = styled.button`
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: start;
-  gap: 8px;
-  padding: 0 10px;
-  border: none;
-  background: ${({ $isOpenDrop, theme }) =>
-    $isOpenDrop ? theme.colors.newColors.shades.menuBg : "transparent"};
-  height: 40px;
-  border-radius: 10px;
-  color: #868b90;
-  font-size: 16px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 180%;
-  text-transform: capitalize;
-  cursor: pointer;
-
-  @media (max-height: 500px) and (max-width: 1000px) {
-    font-size: 14px;
-  }
-`;
-
-const SubMenu = styled.div`
-  display: ${({ $isOpenDrop }) => ($isOpenDrop ? "block" : "none")};
-  padding-left: 20px;
-  position: ${({ $isOpen }) => ($isOpen ? "relative" : "fixed")};
-  top: ${({ $isOpen }) => ($isOpen ? "0" : "10%")};
-margin-top: 5px;
-  ${({ $isPersian, $isOpen }) =>
-    $isPersian
-      ? `right: ${!$isOpen ? "5.1%" : "0"};`
-      : `left: ${!$isOpen ? "5.1%" : "0"};`}
-
-  z-index: 1;
-  background-color: ${({ theme }) => theme.colors.newColors.primaryText};
-  padding: ${({ isOpen }) => (isOpen ? "0" : "10px")};
-  border-radius: ${({ isOpen }) => (isOpen ? "0" : "10px")};
-  width: ${({ isOpen }) => (isOpen ? "100%" : "16.6%")};
-  min-width: ${({ isOpen }) => (isOpen ? "" : "210px")};
-  max-height: ${({ isOpen }) => (isOpen ? "none" : "88vh")};
-  overflow-y: ${({ isOpen }) => (isOpen ? "visible" : "auto")};
-`;
-
-const Icon = styled.img`
-  width: 22px;
-`;
-
-const Text = styled.p`
-  color: #868b90;
-  font-size: 14px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 180%;
-  text-transform: capitalize;
-  display: ${({ isOpen }) => (isOpen ? "block" : "none")};
-  white-space: nowrap;
-`;
-
-const ImgUser = styled.img`
+const UserImage = styled.img`
   min-width: 30px;
   height: 30px;
   margin: 5px 0;
-  border-radius: 100%;
   border: 1px solid white;
-`;
-
-const ContainerMain = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  width: 100%;
-  overflow-y: auto;
-    overflow-x: hidden;
-  border-top: 2px solid
-    ${({ theme }) => theme.colors.newColors.otherColors.iconBg};
-  background-color: ${(props) => props.theme.colors.newColors.shades.bgOne};
+  border-radius: 100%;
 `;
 
 const Level = styled.div`
+  display: ${({ $isOpen }) => ($isOpen ? "flex" : "none")};
+  align-items: center;
+  justify-content: center;
   width: 22px;
   height: 22px;
   border-radius: 5px;
   background: ${({ theme }) => theme.colors.primary};
   color: ${({ theme }) => theme.colors.newColors.primaryText};
   font-size: 16px;
-  font-style: normal;
   font-weight: 700;
   line-height: 180%;
-  display: ${({ isOpen }) => (isOpen ? "flex" : "none")};
-  align-items: center;
-  justify-content: center;
 `;
 
-const ChevronIcon = styled(FaChevronDown)`
-  min-width: 12px;
-  min-height: 12px;
-  color: ${({ theme }) => theme.colors.primary};
-  transition: transform 0.3s ease;
-  transform: ${({ $isOpenDrop }) =>
-    $isOpenDrop ? "rotate(180deg)" : "rotate(0deg)"};
+const UserCode = styled.p`
+  display: ${({ $isOpen }) => ($isOpen ? "block" : "none")};
+  color: #868b90;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 180%;
+  text-transform: capitalize;
+  white-space: nowrap;
+`;
+
+const Chevron = styled(FaChevronDown)`
   display: ${({ $isOpen }) => ($isOpen ? "flex" : "none")};
-`;
-
-const ChevronIcon2 = styled(FaChevronDown)`
   min-width: 12px;
   min-height: 12px;
   color: ${({ theme }) => theme.colors.primary};
   transition: transform 0.3s ease;
-  transform: ${({ $isOpenDrop }) =>
-    $isOpenDrop ? "rotate(180deg)" : "rotate(0deg)"};
+  transform: ${({ $isDropOpen }) =>
+    $isDropOpen ? "rotate(180deg)" : "rotate(0deg)"};
+`;
+
+const SubMenu = styled.div`
+  display: ${({ $show }) => ($show ? "block" : "none")};
+  margin-top: 5px;
+  padding-inline-start: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  background-color: ${({ theme }) => theme.colors.newColors.primaryText};
+`;
+
+const MenuItem = styled.button`
+  display: flex;
+  flex-shrink: 0;
+  width: 100%;
+  align-items: center;
+  justify-content: start;
+  gap: 8px;
+  height: 40px;
+  padding: 0 10px;
+  border: none;
+  border-radius: 10px;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 180%;
+  color: #868b90;
+  text-transform: capitalize;
+  cursor: ${({ $disabled }) => ($disabled ? "default" : "pointer")};
+  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
+
+  ${mobileLandscape} {
+    font-size: 14px;
+  }
+`;
+
+const ItemIcon = styled.img`
+  width: 22px;
+`;
+
+const MessageIcon = styled(Message)`
+  fill: #868b907c;
+`;
+
+const ContainerMain = styled.div`
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-top: 2px solid
+    ${({ theme }) => theme.colors.newColors.otherColors.iconBg};
+  background-color: ${({ theme }) => theme.colors.newColors.shades.bgOne};
 `;
 
 const Profile = () => {
-  const [isOpenDrop, setIsOpenDrop] = useState(false);
+  const [isDropOpen, setIsDropOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const { isOpen } = useMenuContext();
   const { getUser } = useAuth();
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const isPersian = useLanguage();
 
   useEffect(() => {
     setUser(getUser());
   }, [getUser]);
 
-  const handleToggleDrop = () => {
-    setIsOpenDrop((prev) => !prev);
+  // ساب‌منو فقط وقتی منوی اصلی بازه نمایش داده میشه؛
+  // isDropOpen دست‌نخورده می‌مونه تا با باز شدن دوباره، حالت قبلی برگرده
+  const showSubMenu = isOpen && isDropOpen;
+
+  const toggleDrop = () => {
+    if (isOpen) setIsDropOpen((prev) => !prev);
   };
+
+  const handleImgError = (e) => {
+    e.target.src = DefaultProfile;
+  };
+
+  const goCitizen = () => {
+    if (user?.code) window.location.href = metarangUrlCitizen(user.code);
+  };
+
+  const menuItems = [
+    {
+      key: "documents",
+      icon: <ItemIcon src={Ticket} />,
+      label: getTranslation("241"),
+      onClick: () => navigate("/documents"),
+    },
+    {
+      key: "messages",
+      icon: <MessageIcon />,
+      label: getTranslation("242"),
+      disabled: true,
+    },
+    {
+      key: "profile",
+      icon: <ItemIcon src={ProfileMember} />,
+      label: getTranslation("243"),
+      onClick: () => navigate("/profile"),
+    },
+    {
+      key: "settings",
+      icon: <ItemIcon src={Setting} />,
+      label: getTranslation("642"),
+      onClick: () => navigate("/settings"),
+    },
+    {
+      key: "citizen",
+      label: getTranslation("162"),
+      onClick: goCitizen,
+    },
+  ];
 
   return (
     <>
-      <Btn onClick={handleToggleDrop}>
-        <BtbContainer isOpen={isOpen}>
-          <ImgUser
-            src={user?.image || DefaultProfile}
-            onError={(e) => {
-              e.target.src = DefaultProfile;
-            }}
-          />
-          <Level isOpen={isOpen}>{user?.level?.slug || 0}</Level>
-          <Text isOpen={isOpen}>{user?.code?.toUpperCase() || ""}</Text>
-        </BtbContainer>
-        <ChevronIcon $isOpenDrop={isOpenDrop} $isOpen={isOpen} />
-      </Btn>
+      <Wrapper>
+        <ProfileBtn onClick={toggleDrop}>
+          <UserInfo $isOpen={isOpen}>
+            <UserImage
+              src={user?.image || DefaultProfile}
+              onError={handleImgError}
+            />
+            <Level $isOpen={isOpen}>{user?.level?.slug || 0}</Level>
+            <UserCode $isOpen={isOpen}>
+              {user?.code?.toUpperCase() || ""}
+            </UserCode>
+          </UserInfo>
+          <Chevron $isOpen={isOpen} $isDropOpen={isDropOpen} />
+        </ProfileBtn>
+
+        <SubMenu $show={showSubMenu}>
+          {menuItems.map(({ key, icon, label, onClick, disabled }) => (
+            <MenuItem
+              key={key}
+              $disabled={disabled}
+              onClick={disabled ? undefined : onClick}
+            >
+              {icon}
+              {label}
+            </MenuItem>
+          ))}
+          <Union />
+        </SubMenu>
+      </Wrapper>
 
       <ContainerMain>
-        <Container>
-          <SubMenu
-            $isOpenDrop={isOpenDrop}
-            $isOpen={isOpen}
-            $isPersian={isPersian}
-          >
-            <Btn isHidden={isOpen} onClick={handleToggleDrop}>
-              <BtbContainer2>
-                <ImgUser
-                  src={user?.image || DefaultProfile}
-                  onError={(e) => {
-                    e.target.src = DefaultProfile;
-                  }}
-                />
-                <Level isOpen={!isOpen}>{user?.level?.slug || 0}</Level>
-                <Text isOpen={!isOpen}>{user?.code || ""}</Text>
-              </BtbContainer2>
-              <ChevronIcon2 $isOpenDrop={isOpenDrop} />
-            </Btn>
-
-            <BtnNavigator onClick={() => navigate("/documents")}>
-              <Icon src={Ticket} />
-              {getTranslation("241")}
-            </BtnNavigator>
-
-            <BtnNavigator style={{ color: "#868b907c", cursor: "default" }}>
-              <MessageIcon />
-              {getTranslation("242")}
-            </BtnNavigator>
-
-            <BtnNavigator onClick={() => navigate("/profile")}>
-              <Icon src={ProfileMember} />
-              {getTranslation("243")}
-            </BtnNavigator>
-
-            <BtnNavigator onClick={() => navigate("/settings")}>
-              <Icon src={Setting} />
-              {getTranslation("642")}
-            </BtnNavigator>
-            <BtnNavigator
-              onClick={() => {
-                if (user?.code) window.location.href = metarangUrlCitizen(user.code);
-              }}
-            >
-              {getTranslation("162")}
-            </BtnNavigator>
-            <Union />
-          </SubMenu>
-        </Container>
         <BtnsMenu />
       </ContainerMain>
     </>
