@@ -92,6 +92,7 @@ const Wrapper = styled.div`
 const SendNote = ({ files, setFiles }) => {
   const [previews, setPreviews] = useState([]);
   const [error, setError] = useState("");
+  const MAX_FILES = 5;
 
   useEffect(() => {
     const filePreviews = files.map((file) =>
@@ -142,6 +143,12 @@ const SendNote = ({ files, setFiles }) => {
       return;
     }
 
+    if (files.length + validFiles.length > MAX_FILES) {
+      event.target.value = "";
+      setError(getTranslation("1636"));
+      return;
+    }
+
     setFiles([...files, ...validFiles]);
     event.target.value = "";
   };
@@ -155,7 +162,7 @@ const SendNote = ({ files, setFiles }) => {
     <Container>
       <Title title={getTranslation("1362")} />
       <Wrapper>
-        {files.length < 5 && (
+        {files.length < MAX_FILES && (
           <Div onClick={handleDivClick}>
             <span>+</span>
             <HiddenInput

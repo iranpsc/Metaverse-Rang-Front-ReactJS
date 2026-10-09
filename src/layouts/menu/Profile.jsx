@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import useAuth from "../../services/Hooks/useAuth";
 import { useMenuContext } from "../../services/reducers/MenuContext";
@@ -10,10 +10,11 @@ import Message from "../../assets/svg/message.svg?react";
 import ProfileMember from "../../assets/svg/profileMember.svg";
 import Ticket from "../../assets/svg/ticket.svg";
 import Setting from "../../assets/svg/setting.svg";
-import { useNavigate } from "react-router";
-import { getTranslation } from "../../services/Utility";
-import { useLanguage } from "../../services/reducers/LanguageContext";
+import userEdit from "../../assets/svg/user-edit.svg";
 
+import { useNavigate } from "react-router";
+import { getTranslation, metarangUrlCitizen } from "../../services/Utility";
+import { useLanguage } from "../../services/reducers/LanguageContext";
 const MessageIcon = styled(Message)`
   fill: #868b907c;
 `;
@@ -87,17 +88,12 @@ const BtnNavigator = styled.button`
 `;
 
 const SubMenu = styled.div`
-  display: ${({ $isOpenDrop }) => ($isOpenDrop ? "block" : "none")};
-  padding-left: 20px;
-  position: ${({ $isOpen }) => ($isOpen ? "relative" : "fixed")};
+  display: ${({ $isOpenDrop, $isOpen }) =>
+    $isOpen && $isOpenDrop ? "block" : "none"};  padding-left: 20px;
   top: ${({ $isOpen }) => ($isOpen ? "0" : "10%")};
 margin-top: 5px;
-  ${({ $isPersian, $isOpen }) =>
-    $isPersian
-      ? `right: ${!$isOpen ? "5.1%" : "0"};`
-      : `left: ${!$isOpen ? "5.1%" : "0"};`}
 
-  z-index: 1;
+
   background-color: ${({ theme }) => theme.colors.newColors.primaryText};
   padding: ${({ isOpen }) => (isOpen ? "0" : "10px")};
   border-radius: ${({ isOpen }) => (isOpen ? "0" : "10px")};
@@ -136,6 +132,7 @@ const ContainerMain = styled.div`
   gap: 4px;
   width: 100%;
   overflow-y: auto;
+    overflow-x: hidden;
   border-top: 2px solid
     ${({ theme }) => theme.colors.newColors.otherColors.iconBg};
   background-color: ${(props) => props.theme.colors.newColors.shades.bgOne};
@@ -182,15 +179,22 @@ const Profile = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const isPersian = useLanguage();
+  const containerMainRef = useRef(null);
 
   useEffect(() => {
     setUser(getUser());
   }, [getUser]);
-
+  useEffect(() => {
+    if (!isOpen) setIsOpenDrop(false);
+  }, [isOpen]);
   const handleToggleDrop = () => {
     setIsOpenDrop((prev) => !prev);
   };
-
+  useEffect(() => {
+    if (isOpenDrop && containerMainRef.current) {
+      containerMainRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isOpenDrop]);
   return (
     <>
       <Btn onClick={handleToggleDrop}>
@@ -207,7 +211,7 @@ const Profile = () => {
         <ChevronIcon $isOpenDrop={isOpenDrop} $isOpen={isOpen} />
       </Btn>
 
-      <ContainerMain>
+      <ContainerMain ref={containerMainRef}>
         <Container>
           <SubMenu
             $isOpenDrop={isOpenDrop}
@@ -247,7 +251,15 @@ const Profile = () => {
               <Icon src={Setting} />
               {getTranslation("642")}
             </BtnNavigator>
+            <BtnNavigator
+              onClick={() => {
+                if (user?.code) window.location.href = metarangUrlCitizen(user.code);
+              }}
+            >
+              <Icon src={userEdit} />
 
+              {getTranslation("162")}
+            </BtnNavigator>
             <Union />
           </SubMenu>
         </Container>

@@ -105,10 +105,10 @@ const Title = styled.h2`
 
 const Icons = styled.div`
   display: flex;
-  flex-direction: row-reverse;
+  flex-direction: row;
   align-items: center;
-  gap: 15px;
-
+  gap: 13px;
+flex-wrap: wrap;
   svg {
     color: ${(props) => props.theme.colors.newColors.otherColors.iconText};
   }

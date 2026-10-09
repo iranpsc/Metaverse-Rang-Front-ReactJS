@@ -62,7 +62,7 @@ const titleTranslations = {
   tools: "109",
   currency: "110",
   notifications: "238",
-  connectWallet: "1668",
+  connectWallet: "1760",
   following: "55",
   followers: "38",
   members: "112",

@@ -125,6 +125,7 @@ const RequestList = ({
         member={member}
         status={status}
         rows={filteredItems}
+        setRows={setRows}
         type={requestType}
         isLoading={loading} // این خط کلید حل مشکله
       />

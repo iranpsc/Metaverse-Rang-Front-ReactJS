@@ -3,6 +3,7 @@ import Title from "../Title";
 import { getTranslation } from "../../services/Utility";
 import { ExitIcon, ReportIcon } from "../Icons/IconsHeader";
 import { useNavigate } from "react-router";
+import { createPortal } from "react-dom";
 const ModalBackdrop = styled.div`
   position: fixed;
   top: 0;
@@ -14,7 +15,7 @@ const ModalBackdrop = styled.div`
   justify-content: center;
   backdrop-filter: blur(5px);
   background-color: rgba(0, 0, 0, 0.315);
-  z-index: 999;
+  z-index: 9999;
 `;
 
 const ModalContainer = styled.div`
@@ -67,28 +68,31 @@ const ModalHeader = styled.div`
 const ModalLg = ({ children, titleId, setShowModal, report }) => {
   const Navigate = useNavigate();
   return (
-    <ModalBackdrop>
-      <ModalContainer>
-        <ModalHeader>
-          <Title title={getTranslation(titleId)} />
-          <div>
-            {report && (
-              <ReportIcon
-                onClick={() =>
-                  Navigate("/report/send", {
-                    state: {
-                      from: location.pathname,
-                    },
-                  })
-                }
-              />
-            )}{" "}
-            <ExitIcon onClick={() => setShowModal(false)}>X</ExitIcon>
-          </div>
-        </ModalHeader>
-        {children}
-      </ModalContainer>
-    </ModalBackdrop>
+    createPortal(
+      <ModalBackdrop>
+        <ModalContainer>
+          <ModalHeader>
+            <Title title={getTranslation(titleId)} />
+            <div>
+              {report && (
+                <ReportIcon
+                  onClick={() =>
+                    Navigate("/report/send", {
+                      state: {
+                        from: location.pathname,
+                      },
+                    })
+                  }
+                />
+              )}{" "}
+              <ExitIcon onClick={() => setShowModal(false)} />
+            </div>
+          </ModalHeader>
+          {children}
+        </ModalContainer>
+      </ModalBackdrop>,
+      document.body
+    )
   );
 };
 

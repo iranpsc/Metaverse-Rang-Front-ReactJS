@@ -1,10 +1,28 @@
 
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+
 import useRequest from "../../services/Hooks/useRequest";
 import { setItem } from "../../services/Utility/LocalStorage";
-import { getTranslation, ToastError } from "../../services/Utility";
+import {
+  getTranslation,
+  ToastError,
+  formatTime,
+  convertToPersian,
+  convertToEnglish,
+} from "../../services/Utility";
 import Button from "../../components/Button";
+
+const CODE_LENGTH = 6;
+const INITIAL_TIMER = 2 * 60;
+const EMPTY_CODE = () => Array(CODE_LENGTH).fill("");
+
+const normalizeDigits = (value) =>
+  convertToEnglish(String(value ?? ""))
+    .replace(/[٠-٩]/g, (digit) =>
+      String("٠١٢٣٤٥٦٧٨٩".indexOf(digit))
+    )
+    .replace(/\D/g, "");
 
 const Codes = styled.div`
   display: flex;
@@ -57,7 +75,7 @@ const Container = styled.div`
   input {
     border-radius: 5px;
     background-color: ${(props) =>
-      props.theme.colors.newColors.otherColors.inputBg};
+    props.theme.colors.newColors.otherColors.inputBg};
     border: 1px solid
       ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
     padding: 14px 18px 14px 18px;
@@ -78,13 +96,13 @@ const Container = styled.div`
     height: 50px;
     width: 100%;
     background-color: ${(props) =>
-      props.theme.colors.newColors.otherColors.secondaryBtn};
+    props.theme.colors.newColors.otherColors.secondaryBtn};
     border: 1px solid
       ${(props) => props.theme.colors.newColors.otherColors.secondaryBtnBorder};
     margin-top: 30px;
     margin-bottom: 15px;
     color: ${(props) =>
-      props.theme.colors.newColors.otherColors.secondaryBtnText};
+    props.theme.colors.newColors.otherColors.secondaryBtnText};
     cursor: pointer;
   }
 
@@ -119,226 +137,161 @@ const Container = styled.div`
 
 const SecondStep = ({ setStep, time }) => {
   const inputRefs = useRef([]);
-  const timerInterval = useRef(null);
-
-  const [timer, setTimer] = useState(2 * 60);
+  const [timer, setTimer] = useState(INITIAL_TIMER);
   const [errors, setErrors] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [codeValues, setCodeValues] = useState([
-    "",
-    "",
-    "",
-    "",
-    "",
-    "",
-  ]);
+  const [resending, setResending] = useState(false);
+  const [codeValues, setCodeValues] = useState(EMPTY_CODE);
 
   const { Request, HTTP_METHOD } = useRequest();
 
-  useEffect(() => {
-    timerInterval.current = setInterval(() => {
-      setTimer((prevTimer) => {
-        if (prevTimer > 0) {
-          return prevTimer - 1;
-        }
+  const isCodeComplete = codeValues.every((value) => value !== "");
+  const isBusy = loading || resending;
 
-        clearInterval(timerInterval.current);
-        return 0;
-      });
+  useEffect(() => {
+    if (timer <= 0) return;
+
+    const timeoutId = setTimeout(() => {
+      setTimer((previous) => Math.max(0, previous - 1));
     }, 1000);
 
-    return () => {
-      clearInterval(timerInterval.current);
-    };
-  }, []);
+    return () => clearTimeout(timeoutId);
+  }, [timer]);
 
-  const handleKeyDown = (index, event) => {
-    if (event.key === "Backspace") {
-      if (codeValues[index] === "") {
-        if (index > 0) {
-          const newValues = [...codeValues];
-
-          newValues[index - 1] = "";
-
-          setCodeValues(newValues);
-
-          inputRefs.current[index - 1]?.focus();
-        }
-      } else {
-        const newValues = [...codeValues];
-
-        newValues[index] = "";
-
-        setCodeValues(newValues);
-      }
-    }
+  const focusInput = (index) => {
+    inputRefs.current[index]?.focus();
   };
 
-  const formatTime = (time) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
+  const updateCode = (values) => {
+    setCodeValues(values);
+    setErrors(false);
+  };
 
-    const formattedMinutes = String(minutes).padStart(2, "۰");
-    const formattedSeconds = String(seconds).padStart(2, "۰");
+  const nextStep = async (values = codeValues) => {
+    if (isBusy) return;
 
-    return `${formattedMinutes}:${formattedSeconds}`;
+    if (!values.every((value) => value !== "")) {
+      setErrors(true);
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      await Request(
+        "account/security/verify",
+        HTTP_METHOD.POST,
+        { code: values.join("") }
+      );
+
+      const duration = Number.parseInt(time, 10) * 60 * 1000;
+
+      setItem("account_security", {
+        account_security: Date.now() + duration,
+        time,
+      });
+
+      setStep(3);
+    } catch {
+      setErrors(true);
+      ToastError(getTranslation("1639"));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleInputChange = (index, event) => {
-    let value = event.target.value;
-
-    value = value.replace(/[^\d]/g, "");
-
-    if (value.length > 1) {
-      value = value.slice(-1);
-    }
-
+    const digits = normalizeDigits(event.target.value);
+    const value = digits.slice(-1);
     const newValues = [...codeValues];
 
     newValues[index] = value;
 
-    setCodeValues(newValues);
+    updateCode(newValues);
 
-    setErrors(false);
+    if (value && index < CODE_LENGTH - 1) {
+      focusInput(index + 1);
+    }
+  };
 
-    if (value !== "") {
-      if (index < inputRefs.current.length - 1) {
-        inputRefs.current[index + 1]?.focus();
+  const handleKeyDown = (index, event) => {
+    if (event.key === "Enter") {
+      event.preventDefault();
+
+      if (isCodeComplete) {
+        nextStep();
       }
+
+      return;
+    }
+
+    if (event.key !== "Backspace") return;
+
+    event.preventDefault();
+
+    const newValues = [...codeValues];
+
+    if (newValues[index] !== "") {
+      newValues[index] = "";
+      updateCode(newValues);
+      return;
+    }
+
+    if (index > 0) {
+      newValues[index - 1] = "";
+
+      updateCode(newValues);
+      focusInput(index - 1);
     }
   };
 
   const handlePaste = (event) => {
     event.preventDefault();
 
-    const pasteData = event.clipboardData
-      .getData("text/plain")
-      .replace(/[^\d]/g, "");
+    const pastedCode = normalizeDigits(
+      event.clipboardData.getData("text/plain")
+    ).slice(0, CODE_LENGTH);
 
-    const digits = pasteData.split("").slice(0, 6);
+    if (!pastedCode) return;
 
-    const newValues = ["", "", "", "", "", ""];
+    const newValues = EMPTY_CODE();
 
-    digits.forEach((digit, index) => {
+    [...pastedCode].forEach((digit, index) => {
       newValues[index] = digit;
-
-      if (inputRefs.current[index]) {
-        inputRefs.current[index].value = digit;
-      }
     });
 
-    setCodeValues(newValues);
-    setErrors(false);
+    updateCode(newValues);
 
-    if (digits.length === 6 && newValues.every((value) => value !== "")) {
-      inputRefs.current[5]?.focus();
-
+    if (pastedCode.length === CODE_LENGTH) {
+      focusInput(CODE_LENGTH - 1);
       nextStep(newValues);
-    } else {
-      const firstEmpty = newValues.findIndex((value) => value === "");
-
-      if (firstEmpty !== -1) {
-        inputRefs.current[firstEmpty]?.focus();
-      } else if (digits.length > 0) {
-        const lastFilled = Math.min(digits.length - 1, 5);
-
-        inputRefs.current[lastFilled]?.focus();
-      }
-    }
-  };
-
-  const allValuesNotEmpty = codeValues.every(
-    (value) => value !== ""
-  );
-
-  const nextStep = (valuesArg) => {
-    if (loading) return;
-
-    const valuesToUse = valuesArg || codeValues;
-
-    if (!valuesToUse.every((value) => value !== "")) {
-      setErrors(true);
       return;
     }
 
-    const code = valuesToUse.join("");
-
-    setLoading(true);
-
-    Request(
-      "account/security/verify",
-      HTTP_METHOD.POST,
-      { code }
-    )
-      .then(() => {
-        const duration = parseInt(time, 10) * 60 * 1000;
-
-        setItem("account_security", {
-          account_security: Date.now() + duration,
-          time,
-        });
-
-        setStep(3);
-      })
-      .catch(() => {
-        setErrors(true);
-
-        ToastError(getTranslation("1639"));
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    focusInput(pastedCode.length);
   };
 
-  const resetInputs = () => {
-    inputRefs.current.forEach((inputRef) => {
-      if (inputRef) {
-        inputRef.value = "";
-      }
-    });
+  const resetHandler = async () => {
+    if (isBusy) return;
 
-    inputRefs.current[0]?.focus();
-  };
+    setResending(true);
 
-  const resetHandler = () => {
-    if (loading) return;
+    try {
+      await Request(
+        "account/security",
+        HTTP_METHOD.POST,
+        { time }
+      );
 
-    resetInputs();
-
-    setCodeValues([
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-    ]);
-
-    clearInterval(timerInterval.current);
-
-    Request(
-      "account/security",
-      HTTP_METHOD.POST,
-      { time }
-    )
-      .then(() => {
-        setErrors(false);
-        setTimer(2 * 60);
-
-        timerInterval.current = setInterval(() => {
-          setTimer((prevTimer) => {
-            if (prevTimer > 0) {
-              return prevTimer - 1;
-            }
-
-            clearInterval(timerInterval.current);
-            return 0;
-          });
-        }, 1000);
-      })
-      .catch((err) => {
-        console.error("Error resending code:", err);
-      });
+      setCodeValues(EMPTY_CODE());
+      setErrors(false);
+      setTimer(INITIAL_TIMER);
+      focusInput(0);
+    } catch {
+      ToastError(getTranslation("1639"));
+    } finally {
+      setResending(false);
+    }
   };
 
   return (
@@ -348,54 +301,20 @@ const SecondStep = ({ setStep, time }) => {
       <p>{getTranslation("861")}</p>
 
       <Codes>
-        {[...Array(6)].map((_, index) => (
+        {codeValues.map((value, index) => (
           <input
-            placeholder="-"
             key={index}
+            placeholder="-"
             type="text"
             inputMode="numeric"
+            autoComplete={index === 0 ? "one-time-code" : "off"}
             maxLength={1}
-            ref={(el) => {
-              inputRefs.current[index] = el;
+            ref={(element) => {
+              inputRefs.current[index] = element;
             }}
-            value={codeValues[index]}
-            onChange={(event) =>
-              handleInputChange(index, event)
-            }
-            onKeyDown={(event) => {
-              if (
-                event.key === "." ||
-                event.key === "٫" ||
-                event.key === "e" ||
-                event.key === "E"
-              ) {
-                event.preventDefault();
-                return;
-              }
-
-              if (event.key === "Backspace") {
-                if (
-                  !codeValues[index] &&
-                  index > 0
-                ) {
-                  inputRefs.current[index - 1]?.focus();
-                }
-
-                handleKeyDown(index, event);
-                return;
-              }
-
-              if (
-                event.key === "Enter" &&
-                allValuesNotEmpty
-              ) {
-                event.preventDefault();
-                nextStep();
-                return;
-              }
-
-              handleKeyDown(index, event);
-            }}
+            value={value}
+            onChange={(event) => handleInputChange(index, event)}
+            onKeyDown={(event) => handleKeyDown(index, event)}
             onPaste={handlePaste}
             className={errors ? "invalid-input" : ""}
           />
@@ -404,18 +323,16 @@ const SecondStep = ({ setStep, time }) => {
 
       <div>
         <h4>
-          {formatTime(timer)
-            .toLocaleString()
-            .replace(
-              /\d/g,
-              (digit) => "۰۱۲۳۴۵۶۷۸۹"[digit]
-            )}
+          {convertToPersian(formatTime(timer))}
         </h4>
 
         {timer !== 0 ? (
           <span>{getTranslation("863")}</span>
         ) : (
-          <h2 onClick={resetHandler}>
+          <h2
+            onClick={resetHandler}
+            style={{ pointerEvents: isBusy ? "none" : "auto" }}
+          >
             {getTranslation(1642)}
           </h2>
         )}
@@ -426,7 +343,7 @@ const SecondStep = ({ setStep, time }) => {
         disabled={
           loading
             ? "pending"
-            : !allValuesNotEmpty
+            : !isCodeComplete || resending
         }
         onClick={() => nextStep()}
       />
@@ -435,4 +352,3 @@ const SecondStep = ({ setStep, time }) => {
 };
 
 export default SecondStep;
-

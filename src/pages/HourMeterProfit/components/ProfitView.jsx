@@ -14,12 +14,7 @@ import {
   WalletContext,
   WalletContextTypes,
 } from "../../../services/reducers/WalletContext";
-
-const Scroll = styled.div`
-  padding: 30px 15px 20px;
-  overflow-y: auto;
-  height: 100vh;
-`;
+import Container from "../../../components/Common/Container";
 
 const Buttons = styled.div`
   display: flex;
@@ -35,8 +30,10 @@ const ProfitView = () => {
   const { Request, HTTP_METHOD } = useRequest();
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
-  const [wallet, dispatch] = useContext(WalletContext); 
+  const [wallet, dispatch] = useContext(WalletContext);
   const fetchingRef = useRef(false);
+  const sentinelRef = useRef(null);
+
   const karbariMapping = {
     m: {
       title: getTranslation("477"),
@@ -57,91 +54,86 @@ const ProfitView = () => {
       background: "#0066ff21",
     },
   };
-const fetchData = useCallback(async () => {
-  if (!hasMore || fetchingRef.current) return;
 
-  fetchingRef.current = true;
+  const fetchData = useCallback(async () => {
+    if (!hasMore || fetchingRef.current) return;
 
-  try {
-    const { data } = await Request(
-      `hourly-profits?page=${page}`,
-      HTTP_METHOD.GET,
-    );
+    fetchingRef.current = true;
 
-    const filteredData = data.data
-      .filter((item) => item.is_active)
-      .map((item) => ({
-        ...item,
-        ...karbariMapping[item.karbari],
-      }));
-
-    setCards((prev) => {
-      const existingIds = new Set(
-        prev.map((card) => String(card.id))
+    try {
+      const { data } = await Request(
+        `hourly-profits?page=${page}`,
+        HTTP_METHOD.GET,
       );
 
-      const uniqueCards = filteredData.filter(
-        (card) => !existingIds.has(String(card.id))
-      );
+      const filteredData = data.data
+        .filter((item) => item.is_active)
+        .map((item) => ({
+          ...item,
+          ...karbariMapping[item.karbari],
+        }));
 
-      return [...prev, ...uniqueCards];
+      setCards((prev) => {
+        const existingIds = new Set(prev.map((card) => String(card.id)));
+
+        const uniqueCards = filteredData.filter(
+          (card) => !existingIds.has(String(card.id)),
+        );
+
+        return [...prev, ...uniqueCards];
+      });
+
+      setHasMore(Boolean(data.links.next));
+
+      setPage((prev) => prev + 1);
+
+      setButtons((prev) =>
+        prev.length
+          ? prev
+          : [
+              {
+                id: 1,
+                title: getTranslation("28"),
+                logo: building,
+                value: +data.additional.total_tejari_profit,
+                color: "#FF0000",
+              },
+              {
+                id: 2,
+                title: getTranslation("29"),
+                logo: house,
+                value: +data.additional.total_maskoni_profit,
+                color: "#FFC700",
+              },
+              {
+                id: 3,
+                title: getTranslation("474"),
+                logo: education,
+                value: +data.additional.total_amozeshi_profit,
+                color: "#0066FF",
+              },
+            ],
+      );
+    } catch (err) {
+      console.error(err);
+    } finally {
+      fetchingRef.current = false;
+    }
+  }, [page, hasMore, Request, HTTP_METHOD]);
+
+  // Infinite scroll: whenever the sentinel at the end of the list is visible,
+  // load the next page. This also handles the first load and short lists.
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el || !hasMore) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) fetchData();
     });
 
-    setHasMore(Boolean(data.links.next));
-
-    setPage((prev) => prev + 1);
-
-    setButtons((prev) =>
-      prev.length
-        ? prev
-        : [
-            {
-              id: 1,
-              title: getTranslation("28"),
-              logo: building,
-              value: +data.additional.total_tejari_profit,
-              color: "#FF0000",
-            },
-            {
-              id: 2,
-              title: getTranslation("29"),
-              logo: house,
-              value: +data.additional.total_maskoni_profit,
-              color: "#FFC700",
-            },
-            {
-              id: 3,
-              title: getTranslation("474"),
-              logo: education,
-              value: +data.additional.total_amozeshi_profit,
-              color: "#0066FF",
-            },
-          ],
-    );
-  } catch (err) {
-    console.error(err);
-  } finally {
-    fetchingRef.current = false;
-  }
-}, [page, hasMore, Request, HTTP_METHOD]);
-  useEffect(() => {
-    fetchData();
-  }, []);
-const handleScroll = (e) => {
-  const {
-    scrollTop,
-    scrollHeight,
-    clientHeight,
-  } = e.target;
-
-  if (
-    scrollHeight - scrollTop <= clientHeight + 800 &&
-    !fetchingRef.current &&
-    hasMore
-  ) {
-    fetchData();
-  }
-};
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [fetchData, hasMore, cards.length]);
 
   const sumHandler = ({ color }) => {
     const sameColorCards = cards.filter((card) => card.color === color);
@@ -157,8 +149,6 @@ const handleScroll = (e) => {
         ([, value]) => value.color === color,
       )?.[0];
 
-      const totalValue = buttons.find((btn) => btn.color === color)?.value ?? 0;
-
       Request(`hourly-profits`, HTTP_METHOD.POST, { karbari })
         .then(() => {
           setButtons((prevButtons) =>
@@ -170,6 +160,7 @@ const handleScroll = (e) => {
           setCards((prevCards) =>
             prevCards.filter((card) => card.color !== color),
           );
+
           const updatedWallet = {
             ...wallet,
             yellow:
@@ -190,6 +181,7 @@ const handleScroll = (e) => {
             type: WalletContextTypes.ADD_WALLET,
             payload: updatedWallet,
           });
+
           userDispatch({
             type: UserContextTypes.UPDATE_FIELD,
             payload: {
@@ -208,6 +200,7 @@ const handleScroll = (e) => {
         .catch(console.error);
     }
   };
+
   const handelClick = ({ color, amount, id }) => {
     const numericAmount = +amount;
 
@@ -221,7 +214,9 @@ const handleScroll = (e) => {
           ),
         );
 
-        setCards((prevCards) => prevCards.filter((card) => card.id !== id));
+        setCards((prevCards) =>
+          prevCards.filter((card) => String(card.id) !== String(id)),
+        );
 
         const updatedWallet = {
           ...wallet,
@@ -259,7 +254,7 @@ const handleScroll = (e) => {
   };
 
   return (
-    <Scroll onScroll={handleScroll}>
+    <Container>
       <Buttons>
         {buttons.map((button) => (
           <Button
@@ -269,8 +264,11 @@ const handleScroll = (e) => {
           />
         ))}
       </Buttons>
+
       <ProfitList cards={cards} onClick={handelClick} />
-    </Scroll>
+
+      <div ref={sentinelRef} style={{ height: 1 }} />
+    </Container>
   );
 };
 

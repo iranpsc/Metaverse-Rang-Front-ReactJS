@@ -32,11 +32,11 @@ const VodReply = ({ responseId, setAllMessages }) => {
     const formData = new FormData();
     formData.append("response", cleanMessage);
 
-    const file = files[0]?.file;
-
-    if (file instanceof File) {
-      formData.append("attachment", file);
-    }
+    files.forEach(({ file }) => {
+      if (file instanceof File) {
+        formData.append("attachments[]", file);
+      }
+    });
 
     Request(
       `tickets/response/${responseId}`,

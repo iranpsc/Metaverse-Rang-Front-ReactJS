@@ -36,9 +36,11 @@ const Timer = styled.div`
   padding: 5px 15px;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
   border-radius: 5px;
+width: 100%;
   @media (max-width: 1280px) {
     display: flex;
   }
+   
 `;
 
 const Time = styled.div`
@@ -46,6 +48,13 @@ const Time = styled.div`
     color: ${({ theme }) => theme.colors.primary};
     font-size: 20px;
     font-weight: 700;
+  }
+
+  @media (min-width: 500px) and (max-width: 1000px) {
+    p,
+    span {
+      font-size: 13px;
+    }
   }
 `;
 
@@ -72,6 +81,13 @@ const Gif = styled.div`
       font-size: 10px;
     }
   }
+
+  @media (min-width: 500px) and (max-width: 1000px) {
+    p,
+    span {
+      font-size: 13px;
+    }
+  }
 `;
 
 const Video = styled.video`
@@ -85,7 +101,7 @@ const Wrapper = styled.div`
   display: grid;
   overflow-x: hidden;
   grid-template-columns: 1fr 200px;
-  gap: 20px;
+  gap: 8px;
   margin-top: 20px;
   height: calc(100% - 100px);
   overflow-y: auto;
@@ -95,7 +111,11 @@ const Wrapper = styled.div`
     border-radius: 10px;
     width: 100%;
   }
+  @media (min-width: 500px) and (max-width: 1000px) {
+  grid-template-columns: 1fr 170px;
+    padding: 0 5px;
 
+}
   @media (min-width: 1180px) {
     padding-right: 0;
   }
@@ -107,6 +127,8 @@ const Wrapper = styled.div`
     height: calc(100% - 150px);
     padding-right: 15px;
     grid-template-columns: 1fr;
+      gap: 20px;
+
   }
 
   @media (min-width: 1920px) {
@@ -130,6 +152,12 @@ const Div = styled.div`
     }
     span {
       font-size: 16px;
+    }
+  }
+    @media (min-width: 500px) and (max-width: 1000px) {
+    p,
+    span {
+      font-size: 13px;
     }
   }
   @media (min-width: 1280px) {

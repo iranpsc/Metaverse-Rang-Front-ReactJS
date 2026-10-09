@@ -8,19 +8,14 @@ import YellowSpray from "../../assets/gif/yellow-color.gif";
 import Satisfaction from "../../assets/gif/satisfaction.gif";
 import Psc from "../../assets/gif/psc.gif";
 import Irr from "../../assets/gif/rial.gif";
-import { convertToPersian,formatAmount } from "../../services/Utility";
+import { convertToPersian, formatAmount } from "../../services/Utility";
 
 const Asset = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 13%;
-  min-height: 35px;
-   @media (max-width: 1024px) {
-     min-height: 25px;
 
-  }
 `;
 
 const ImgAsset = styled.img`
@@ -29,6 +24,10 @@ const ImgAsset = styled.img`
   @media (min-width: 1024px) {
     width: 35px;
     height: 35px;
+  }
+    @media (max-height: 400px) {
+    width: 20px;
+    height: 20px;
   }
 `;
 
@@ -42,15 +41,23 @@ const TextAsset = styled.p`
   @media (min-width: 1024px) {
     font-size: 17px;
   }
+      @media (max-height: 400px) {
+  font-size: 12px;
+
+  }
 `;
 
 const Line = styled.div`
+  display: none;
   width: 100%;
   height: 2px;
   background-color: #efefef;
-`;
 
-const AssetItem = ({  value, img, index, totalassets }) => (
+  @media (min-height: 451px) {
+    display: block;
+  }
+`;
+const AssetItem = ({ value, img, index, totalassets }) => (
   <>
     <Asset>
       <TextAsset>{convertToPersian(formatAmount(value) || "0.000")}</TextAsset>

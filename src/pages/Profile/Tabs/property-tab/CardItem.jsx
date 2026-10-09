@@ -207,8 +207,6 @@ const CardItem = ({
   color,
   address,
   stability,
-  price_psc,
-  price_irr,
   photo,
   navigateId,
   forSale,
@@ -320,7 +318,7 @@ const CardItem = ({
             onClick={handlePriceDefine}
           />
         ) : (
-          <Delete loading={isDeleteLoading} onClick={handleDelete}>
+          <Delete $loading={isDeleteLoading} onClick={handleDelete}>
             {isDeleteLoading && <DeleteSpinner />}
             {getTranslation("736")}
           </Delete>

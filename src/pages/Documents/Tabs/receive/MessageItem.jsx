@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import avatar from "../../../../assets/images/defulte-profile.png";
 import downloadIcon from "../../../../assets/images/download.png";
-import nonPhoto from "../../../../assets/images/file.png";
+import fileIcon from "../../../../assets/images/file.png";
 import {
   SanitizeHTML,
   metarangUrlCitizen,
@@ -9,55 +9,51 @@ import {
   convertToPersian,
 } from "../../../../services/Utility";
 
-const IMAGE_EXTENSIONS = new Set([
-  "jpg",
-  "jpeg",
-  "png",
-  "gif",
-  "bmp",
-  "webp",
-  "svg",
-]);
+/* ---------- Helpers ---------- */
 
+const IMAGE_EXTENSIONS = new Set(["jpg", "jpeg", "png", "gif", "bmp", "webp", "svg"]);
 
-const isImage = (url) => {
-  if (!url) return false;
+const stripQuery = (url) => url.split(/[?#]/)[0];
 
-  const extension = url
-    .split(/[?#]/)[0]
-    .split(".")
-    .pop()
-    ?.toLowerCase();
+const isImage = (url) =>
+  Boolean(url) && IMAGE_EXTENSIONS.has(stripQuery(url).split(".").pop().toLowerCase());
 
-  return IMAGE_EXTENSIONS.has(extension);
-};
-
-const getFileName = (url) => {
-  if (!url) return "file";
-
-  return (
-    url
-      .split("/")
-      .pop()
-      ?.split(/[?#]/)[0] || "file"
-  );
-};
+const getFileName = (url) => (url && stripQuery(url).split("/").pop()) || "file";
 
 const downloadFile = (url) => {
   if (!url) return;
 
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = getFileName(url);
-  link.target = "_blank";
-  link.rel = "noopener noreferrer";
+  const link = Object.assign(document.createElement("a"), {
+    href: url,
+    download: getFileName(url),
+    target: "_blank",
+    rel: "noopener noreferrer",
+  });
 
   document.body.appendChild(link);
   link.click();
   link.remove();
 };
 
+const getAttachments = ({ attachments, attachment }) => {
+  if (Array.isArray(attachments) && attachments.length > 0) return attachments;
+  if (typeof attachment !== "string" || !attachment) return [];
+
+  try {
+    const parsed = JSON.parse(attachment);
+    return Array.isArray(parsed) ? parsed : [attachment];
+  } catch {
+    return [attachment];
+  }
+};
+
+/* ---------- Styles ---------- */
+
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+padding: 0 10px;
+`;
 
 const Container = styled.div`
   display: flex;
@@ -65,9 +61,7 @@ const Container = styled.div`
   gap: 12px;
   width: 100%;
   margin: 20px 0;
-
-  flex-direction: ${({ $isCurrentUser }) =>
-    $isCurrentUser ? "row" : "row-reverse"};
+  flex-direction: ${({ $isCurrentUser }) => ($isCurrentUser ? "row" : "row-reverse")};
 
   > img {
     flex-shrink: 0;
@@ -85,8 +79,7 @@ const MessageWrapper = styled.div`
 const Header = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: ${({ $isCurrentUser }) =>
-    $isCurrentUser ? "flex-start" : "flex-end"};
+  align-items: ${({ $isCurrentUser }) => ($isCurrentUser ? "flex-start" : "flex-end")};
   margin-bottom: 10px;
 
   span {
@@ -103,12 +96,13 @@ const Header = styled.div`
   }
 `;
 
-const Message = styled.div`
+const Bubble = styled.div`
   padding: 12px;
   border-radius: 10px;
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.bgContainer};
+  background-color: ${({ theme }) => theme.colors.newColors.otherColors.bgContainer};
+`;
 
+const Message = styled(Bubble)`
   p {
     margin: 0;
     color: ${({ theme }) => theme.colors.newColors.shades.title};
@@ -129,13 +123,16 @@ const MessageTime = styled.time`
   font-weight: 400;
 `;
 
-const Attachment = styled.div`
+const AttachmentList = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  flex-direction: ${({ $isCurrentUser }) => ($isCurrentUser ? "row" : "row-reverse")};
+`;
+
+const Attachment = styled(Bubble)`
   width: fit-content;
   margin-top: 10px;
-  padding: 12px;
-  border-radius: 10px;
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.bgContainer};
 `;
 
 const AttachmentTime = styled(MessageTime)`
@@ -174,7 +171,6 @@ const DownloadButton = styled.button`
   border: 0;
   border-radius: 50%;
   background: transparent;
-
   cursor: pointer;
 
   img {
@@ -183,88 +179,66 @@ const DownloadButton = styled.button`
   }
 `;
 
+/* ---------- Components ---------- */
+
+const AttachmentItem = ({ url, time }) => (
+  <Attachment>
+    <FilePreview>
+      <img src={isImage(url) ? url : fileIcon} alt="attachment" />
+
+      <DownloadButton
+        type="button"
+        onClick={() => downloadFile(url)}
+        aria-label="Download attachment"
+      >
+        <img src={downloadIcon} alt="" aria-hidden="true" />
+      </DownloadButton>
+    </FilePreview>
+
+    <AttachmentTime>{time}</AttachmentTime>
+  </Attachment>
+);
 
 const MessageItem = ({ data, isCurrentUser }) => {
   if (!data) return null;
 
-  const {
-    author = {},
-    text,
-    date,
-    time,
-    attachment,
-  } = data;
+  const { author = {}, text, date, time } = data;
+  const { name, code, "profile-photo": profilePhoto = avatar } = author;
 
-  const {
-    name,
-    code,
-    ["profile-photo"]: profilePhoto = avatar,
-  } = author;
-
-  const attachmentPreview = isImage(attachment)
-    ? attachment
-    : nonPhoto;
-
+  const attachments = getAttachments(data);
   const messageTime = `${ConvertJalali(date)} | ${convertToPersian(time)}`;
 
   return (
-    <Container $isCurrentUser={isCurrentUser}>
-      <img
-        src={profilePhoto}
-        alt={`${name || "user"} avatar`}
-        width={50}
-        height={50}
-      />
+    <Wrapper>
+      <Container $isCurrentUser={isCurrentUser}>
+        <img src={profilePhoto} alt={`${name || "user"} avatar`} width={50} height={50} />
 
-      <MessageWrapper>
-        <Header $isCurrentUser={isCurrentUser}>
-          <span>{name}</span>
+        <MessageWrapper>
+          <Header $isCurrentUser={isCurrentUser}>
+            <span>{name}</span>
 
-          {code && (
-            <a
-              href={metarangUrlCitizen(code)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {code}
-            </a>
-          )}
-        </Header>
+            {code && (
+              <a href={metarangUrlCitizen(code)} target="_blank" rel="noopener noreferrer">
+                {code}
+              </a>
+            )}
+          </Header>
 
-        <Message>
-          <p>{SanitizeHTML(text)}</p>
+          <Message>
+            <p>{SanitizeHTML(text)}</p>
+            <MessageTime>{messageTime}</MessageTime>
+          </Message>
+        </MessageWrapper>
+      </Container>
 
-          <MessageTime>{messageTime}</MessageTime>
-        </Message>
-
-        {attachment && (
-          <Attachment>
-            <FilePreview>
-              <img
-                src={attachmentPreview}
-                alt="attachment"
-              />
-
-              <DownloadButton
-                type="button"
-                onClick={() => downloadFile(attachment)}
-                aria-label="Download attachment"
-              >
-                <img
-                  src={downloadIcon}
-                  alt=""
-                  aria-hidden="true"
-                />
-              </DownloadButton>
-            </FilePreview>
-
-            <AttachmentTime>
-              {messageTime}
-            </AttachmentTime>
-          </Attachment>
-        )}
-      </MessageWrapper>
-    </Container>
+      {attachments.length > 0 && (
+        <AttachmentList $isCurrentUser={isCurrentUser}>
+          {attachments.map((url, index) => (
+            <AttachmentItem key={`${url}-${index}`} url={url} time={messageTime} />
+          ))}
+        </AttachmentList>
+      )}
+    </Wrapper>
   );
 };
 

@@ -110,7 +110,7 @@ const RequestRow = ({
   psc,
   id,
   type,
-  isLoading,
+  isLoading, setRows,
 }) => {
   const [showDetails, setShowDetails] = useState(false);
   const { data, loading, fetchRequestDetails } = useRequestDetails(type);
@@ -121,7 +121,6 @@ const RequestRow = ({
     همسر: 825,
     فرزند: 129,
   };
-
   const family = familyMap[member] ?? 127;
   // اگر در حال لودینگ هستیم، اسکلتون نشون بده
   if (isLoading) {
@@ -194,13 +193,12 @@ const RequestRow = ({
         <TableCell>
           <Title
             style={{
-              color: `${
-                status === "confirmed"
+              color: `${status === "confirmed"
                   ? "#18C08F"
                   : status === "pending"
                     ? "#FFC700"
                     : "#FF0000"
-              }`,
+                }`,
             }}
           >
             {status === "confirmed"
@@ -246,6 +244,7 @@ const RequestRow = ({
           date={date}
           time={time}
           code={code}
+          setRows={setRows}
           gif={gif}
           psc={psc}
           data={data}

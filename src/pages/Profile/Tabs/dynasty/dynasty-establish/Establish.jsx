@@ -4,8 +4,14 @@ import { getTranslation } from "../../../../../services/Utility";
 import List from "./List";
 
 const Container = styled.div`
-  width: 100%;
+
+display: flex;
+flex-direction: column;
+width: 100%;
+
 `;
+
+
 
 const Top = styled.div`
 

@@ -6,7 +6,7 @@ import { isMobile } from "../../services/Utility";
 import "react-tooltip/dist/react-tooltip.css";
 
 const TooltipContainer = styled.div`
-  width: ${(props) => props.$width || 146}px;
+  width: ${(props) => props.$width || 170}px;
   height: ${(props) => props.$height || 40}px;
   display: flex;
   flex-direction: column;

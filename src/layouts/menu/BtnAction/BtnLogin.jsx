@@ -87,7 +87,7 @@ const BtnLogin = () => {
   return (
     <Btn
       isOpen={isOpen}
-      loading={loading}
+      $loading={loading}
       onClick={handleClick}
     >
       {loading ? <Loader /> : <Icon />}

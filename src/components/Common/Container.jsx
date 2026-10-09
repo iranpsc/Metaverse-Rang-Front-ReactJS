@@ -1,18 +1,7 @@
 import styled from "styled-components";
-import { useRef, useEffect, forwardRef, useCallback } from "react";
+import { useRef, useEffect, forwardRef } from "react";
 import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext";
-
-const throttle = (func, limit) => {
-  let inThrottle;
-  return function (...args) {
-    if (!inThrottle) {
-      func.apply(this, args);
-      inThrottle = true;
-      setTimeout(() => (inThrottle = false), limit);
-    }
-  };
-};
-
+const TAB_BAR_HEIGHT = 40;
 const StyledContainer = styled.div`
   padding: 15px;
   width: 100%;
@@ -22,58 +11,68 @@ const StyledContainer = styled.div`
   overscroll-behavior: contain;
 
   @media (max-height: 500px) and (max-width: 1000px) {
-    padding-bottom: 60px;
+    /* ${TAB_BAR_HEIGHT}px جبران جابجایی محتوا به‌خاطر نوار تب */
+    padding-bottom: ${60 + TAB_BAR_HEIGHT}px;
   }
 `;
+
+const DIRECTION_THRESHOLD = 12;
+const TOP_OFFSET = 10;
+const MIN_SCROLLABLE = 80; //80 defalut value 
 
 function BaseContainer({ children, className }, forwardedRef) {
   const internalRef = useRef(null);
   const ref = forwardedRef || internalRef;
-  const lastScrollY = useRef(0);
   const { updateScrollDirection } = useScrollDirectionContext();
 
-  const handleScroll = useCallback(() => {
-    if (!ref.current) return;
-
-    const currentScrollY = ref.current.scrollTop;
-    const maxScroll = ref.current.scrollHeight - ref.current.clientHeight;
-
-    if (currentScrollY > maxScroll - 5) {
-      return;
-    }
-
-    if (currentScrollY < 3) {
-      if (lastScrollY.current > 3) {
-        updateScrollDirection(false);
-      }
-      lastScrollY.current = currentScrollY;
-      return;
-    }
-
-    const difference = currentScrollY - lastScrollY.current;
-    const isScrollingDown = difference > 5;
-
-    if (Math.abs(difference) > 5) {
-      updateScrollDirection(isScrollingDown);
-    }
-
-    lastScrollY.current = currentScrollY;
-  }, [ref, updateScrollDirection]);
+  const updateRef = useRef(updateScrollDirection);
+  updateRef.current = updateScrollDirection;
 
   useEffect(() => {
     const element = ref.current;
     if (!element) return;
 
-    const throttledHandleScroll = throttle(handleScroll, 100); // throttle 100ms
+    let lastY = element.scrollTop;
+    let lastDirection = null;
+    let ticking = false;
 
-    element.addEventListener("scroll", throttledHandleScroll, {
-      passive: true,
-    });
-
-    return () => {
-      element.removeEventListener("scroll", throttledHandleScroll);
+    const setDirection = (goingDown) => {
+      if (lastDirection === goingDown) return;
+      lastDirection = goingDown;
+      updateRef.current(goingDown);
     };
-  }, [handleScroll, ref]);
+
+    const update = () => {
+      ticking = false;
+
+      const y = element.scrollTop;
+      const maxScroll = element.scrollHeight - element.clientHeight;
+
+      if (y < 0 || y > maxScroll) return;
+
+      if (maxScroll < MIN_SCROLLABLE || y < TOP_OFFSET) {
+        setDirection(false);
+        lastY = y;
+        return;
+      }
+
+      const diff = y - lastY;
+
+      if (Math.abs(diff) < DIRECTION_THRESHOLD) return;
+
+      setDirection(diff > 0);
+      lastY = y;
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(update);
+    };
+
+    element.addEventListener("scroll", onScroll, { passive: true });
+    return () => element.removeEventListener("scroll", onScroll);
+  }, [ref]);
 
   return (
     <StyledContainer ref={ref} className={className}>

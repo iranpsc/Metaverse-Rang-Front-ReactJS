@@ -5,13 +5,8 @@ import { Toaster } from "react-hot-toast";
 import "./App.css";
 import "./i18n/i18n.js";
 
-import {
-  connectSocket,
-  disconnectSocket,
-} from "./services/socket";
-
+import { connectSocket } from "./services/socket";
 import { getItem } from "./services/Utility/LocalStorage";
-
 import UserProvider from "./services/reducers/UserContext.jsx";
 import WalletProvider from "./services/reducers/WalletContext";
 import FollowProvider from "./services/reducers/FollowContext";
@@ -32,31 +27,24 @@ function App() {
   useAppHeight();
 
   useLayoutEffect(() => {
-    // اتصال اولیه در صورت وجود توکن
+    // قبل از لاگین توکن نیست => اتصال public؛ بعد از لاگین => authenticated
     const token = getItem("user")?.token;
+    connectSocket(token || "");
 
-    if (token) {
-      connectSocket(token);
-    }
-
-    // هماهنگ شدن Socket بین تب‌های مختلف
+    // هماهنگ شدن بین تب‌ها (این رویداد فقط در تب‌های دیگر فایر می‌شود).
+    // در همین تب، useAuth بعد از لاگین/لاگ‌اوت connectSocket صدا می‌زند.
     const onStorage = (event) => {
       if (event.key !== "user") return;
 
       const nextToken = getItem("user")?.token;
-
-      if (nextToken) {
-        connectSocket(nextToken);
-      } else {
-        disconnectSocket();
-      }
+      connectSocket(nextToken || "");
     };
 
     window.addEventListener("storage", onStorage);
 
     return () => {
       window.removeEventListener("storage", onStorage);
-      disconnectSocket();
+      // عمداً disconnect نمی‌کنیم تا با StrictMode سوکت قطع و وصل نشود.
     };
   }, []);
 

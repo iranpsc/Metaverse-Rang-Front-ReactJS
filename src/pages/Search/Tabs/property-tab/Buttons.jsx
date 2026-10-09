@@ -7,10 +7,11 @@ import { LuShoppingCart } from "react-icons/lu";
 import { useMap } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
+import { useContext } from "react";
 import { getTranslation } from "../../../../services/Utility";
 import { flyToMapPosition } from "../../../../services/Utility/flyToMapPosition";
 import { calculatePolygonCentroid } from "../../../../services/Utility/calculatePolygonCentroid";
-
+import { UserContext } from "../../../../services/reducers/UserContext";
 const IconWrapper = styled.div`
   border-radius: 60px;
   background-color: ${(props) => props.theme.colors.primary};
@@ -26,6 +27,7 @@ const IconWrapper = styled.div`
     padding-top: 5px;
   }
   h2 {
+    white-space: nowrap;
     font-size: 16px;
     font-weight: 700;
   }
@@ -40,20 +42,27 @@ const Container = styled.div`
 `;
 
 const Buttons = ({ item, system }) => {
+  const [user] = useContext(UserContext);
   const Navigate = useNavigate();
   const center = calculatePolygonCentroid(item?.coordinates);
   const mapRef = useMap();
+  const isOwner =
+    user.code?.toUpperCase() === item.owner_code?.toUpperCase();
   const items = [
     {
       id: 1,
-      label: getTranslation("353"),
+      label: !isOwner ? getTranslation("353") : getTranslation("519"),
       icon: <LuShoppingCart />,
-      onClick: () =>
-        Navigate(`/feature/${item?.id}/buy/price`, {
-          state: {
-            from: location.pathname,
-          },
-        }),
+      onClick: () => !isOwner ? Navigate(`/feature/${item?.id}/buy/price`, {
+        state: {
+          from: location.pathname,
+        }
+      }) : Navigate(`/feature/${item?.id}/sell/PriceDefine`, {
+        state: {
+          from: location.pathname,
+        }
+      })
+
     },
     {
       id: 3,
@@ -70,7 +79,7 @@ const Buttons = ({ item, system }) => {
     },
   ];
 
-  if (!system) {
+  if (!system && !isOwner) {
     items.splice(1, 0, {
       id: 2,
       label: getTranslation("472"),

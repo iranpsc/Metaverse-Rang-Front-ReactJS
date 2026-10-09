@@ -19,10 +19,9 @@ import {
 } from "../../Utility/LocalStorage";
 
 import useRequest from "../useRequest";
-
 import {
   connectSocket,
-  disconnectSocket,
+  connectPublicSocket,
 } from "../../socket";
 
 export default function useAuth() {
@@ -34,7 +33,8 @@ export default function useAuth() {
   const logout = useCallback(() => {
     removeItem("user");
 
-    disconnectSocket();
+    // قطع نکن؛ به حالت public برگرد تا فیچرهای نقشه کار کنند
+    connectPublicSocket();
 
     setUserState(DeleteUserAction());
 
@@ -42,7 +42,6 @@ export default function useAuth() {
       type: WalletContextTypes.DELETE_WALLET,
     });
   }, [setUserState, setWallet]);
-
   const getStoredUser = useCallback(() => {
     const user = getItem("user");
 

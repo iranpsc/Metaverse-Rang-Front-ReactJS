@@ -16,6 +16,7 @@ import { convertToPersian, ConvertJalali } from "../../../../services/Utility";
 import { Skeleton } from "../../../../components/Skeleton";
 
 const Container = styled.div`
+  min-width: 0;
   padding: 15px;
   background-color: ${(props) =>
     props.theme.colors.newColors.otherColors.inputBg};
@@ -34,25 +35,29 @@ const Container = styled.div`
 
 const Header = styled.div`
   display: flex;
-  white-space: nowrap;
-  align-items: end;
+  flex-wrap: wrap;
+  align-items: center;
   justify-content: space-between;
+  gap: 8px;
   padding-bottom: 10px;
   border-bottom: 1px solid #454545;
   span {
     color: ${(props) => props.theme.colors.newColors.shades.title};
     font-size: 13px;
     font-weight: 500;
+    overflow-wrap: anywhere;
   }
 `;
 
 const Title = styled.h2`
+  overflow-wrap: anywhere;
   color: ${(props) => props.theme.colors.newColors.shades.title};
   font-size: 20px;
   font-weight: 600;
 `;
 
 const Code = styled.a`
+  overflow-wrap: anywhere;
   color: #0066ff;
   font-weight: 500;
   text-decoration: none;

@@ -1,8 +1,9 @@
-import member from "../../../../../assets/images/user.png";
+import defulte from "../../../../../assets/images/defulte-profile.png";
 import styled from "styled-components";
 import { getTranslation } from "../../../../../services/Utility";
 import Message from "../../../../../assets/svg/message.svg?react";
 import { metarangUrlCitizen } from "../../../../../services/Utility";
+import { useFollow } from "../../../../../services/reducers/FollowContext";
 const Container = styled.div`
   background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
   border-radius: 5px;
@@ -15,6 +16,30 @@ const Container = styled.div`
   width: 140px;
   position: relative;
 
+  @media (max-width: 768px) {
+    flex: 0 1 calc(50% - 6px);
+    width: auto;
+    max-width: 140px;
+    min-width: 0;
+    padding: 12px 8px;
+    gap: 10px;
+
+    &:not(:first-child)::after {
+      display: none;
+    }
+
+    h3 {
+      font-size: 14px;
+      text-align: center;
+    }
+
+    a {
+      font-size: 12px;
+      overflow-wrap: anywhere;
+      text-align: center;
+    }
+  }
+
   &:not(:first-child)::after {
     content: "";
     position: absolute;
@@ -23,7 +48,7 @@ const Container = styled.div`
     width: 10px;
     height: 2px;
     background-color: ${({ theme }) =>
-      theme.colors.newColors.otherColors.menuBg};
+    theme.colors.newColors.otherColors.menuBg};
   }
 
   h3 {
@@ -83,19 +108,19 @@ const TreeMember = ({ item }) => {
     { value: "spouse", label: 825 },
     { value: "offspring ", label: 129 },
   ];
+  const { isOnline } = useFollow();
 
   const getRelationshipLabel = (relationship) => {
     const found = relationTypes.find((type) => type.value === relationship);
     return found ? getTranslation(found.label) : relationship;
   };
-
   return (
     <Container>
       <Image>
-        <Status online={item.online} />
+        <Status online={isOnline(item.id)} />
         <Chat width={28} height={28} alt="chat" />
         <img
-          src={item.profile_photo || member}
+          src={item.profile_photo || defulte}
           alt="member"
           width={80}
           height={80}

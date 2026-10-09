@@ -2,7 +2,10 @@ import remove from "../../../../assets/images/remove.png";
 import styled from "styled-components";
 import { useState } from "react";
 import Title from "../../../../components/Title";
-import { getTranslation } from "../../../../services/Utility";
+import { getTranslation, ToastError } from "../../../../services/Utility";
+import fileIcon from "../../../../assets/images/file.png";
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const Files = styled.div`
   display: flex;
@@ -79,8 +82,14 @@ const SendFiles = ({ files, setFiles }) => {
   const fileHandler = (e) => {
     const selectedFiles = Array.from(e.target.files);
 
+    if (selectedFiles.some((file) => file.size > MAX_FILE_SIZE)) {
+      ToastError(getTranslation(1846));
+      e.target.value = "";
+      return;
+    }
+
     if (files.length + selectedFiles.length > 5) {
-      setError("You can only upload up to 5 files.");
+      setError(getTranslation("1636"));
       return;
     }
 
@@ -120,7 +129,7 @@ const SendFiles = ({ files, setFiles }) => {
         {files.map((file, index) => (
           <FilePreview key={`${file.name}-${index}`}>
             <FileImage
-              src={file.url}
+              src={file.file?.type?.startsWith("image/") ? file.url : fileIcon}
               alt={`file-preview-${index}`}
             />
 

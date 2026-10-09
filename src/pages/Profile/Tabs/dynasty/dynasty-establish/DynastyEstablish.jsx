@@ -1,12 +1,24 @@
 import Establish from "./Establish";
 import PropertySelect from "./PropertySelect";
 import Container from "../../../../../components/Common/Container";
+import styled from "styled-components";
 
-const DynastyEstablish = ({ data, setMode, setData }) => {
+const Wrapper = styled.div`
+  display: flex;
+  width: 100%;
+  flex-direction: row-reverse;
+  gap: 20px;
+  @media (max-width: 1280px) {
+    flex-direction: column-reverse;
+  }
+`;
+const DynastyEstablish = ({ data, setData, member }) => {
   return (
     <Container>
-      <PropertySelect setMode={setMode} data={data} setData={setData} />
-      <Establish members={data} />
+      <Wrapper>
+        <PropertySelect data={data} setData={setData} />
+        <Establish members={member} />
+      </Wrapper>
     </Container>
   );
 };

@@ -3,11 +3,13 @@ import SliderContainer from "./SliderContainer";
 import styled from "styled-components";
 
 const Container = styled.div`
+  width: 100%;
+  min-width: 0;
   border-radius: 10px;
   overflow: hidden;
   position: relative;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   height: 280px;
   @media (min-width: 740px) {
     height: 300px;

@@ -8,25 +8,7 @@ const Container = styled.div`
   gap: 10px;
   margin-top: 10px;
 `;
-/*
-const Select = styled.select`
-  border-radius: 5px;
-  border: 1px solid ${(props) => (props.identityError ? "#C30000" : "#454545")};
-  display: flex;
-  flex-grow: 1;
-  align-items: center;
-  justify-content: space-between;
-  overflow: hidden;
-  background-color: #2c2c2c;
-  height: 48px;
-  padding: 0 10px;
-  color: #84858f;
-  width: 100%;
-  height: 100%;
-  outline: none;
-  font-size: 16px;
-`;
-*/
+
 const identityInfoFields = [
   { id: 1, slug: "fname", label: "647" },
   { id: 2, slug: "lname", label: "646" },

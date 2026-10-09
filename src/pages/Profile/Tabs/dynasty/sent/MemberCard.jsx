@@ -1,4 +1,4 @@
-import avatar from "../../../../../assets/images/user.png";
+import defulte from "../../../../../assets/images/defulte-profile.png";
 import styled from "styled-components";
 import { getTranslation } from "../../../../../services/Utility";
 import { metarangUrlCitizen } from "../../../../../services/Utility";
@@ -49,7 +49,7 @@ const Status = styled.div`
     font-size: 16px;
     font-weight: 400;
     color: ${(props) =>
-      props.theme.colors.newColors.otherColors.secondaryBtnText};
+    props.theme.colors.newColors.otherColors.secondaryBtnText};
     margin-top: 4px;
   }
 `;
@@ -67,19 +67,19 @@ const Date = styled.div`
   }
 `;
 
-const MemberCard = ({ status, code, date, time ,name ,image }) => {
+const MemberCard = ({ status, code, date, time, name, image }) => {
   return (
     <Container>
       <Profile>
-        <img src={image || avatar}  width={80} height={80} />
+        <img src={image || defulte} width={80} height={80} />
         <div>
           <h3>{name}</h3>
           <a
-            
+
             href={metarangUrlCitizen(code)}
             target="_blank" rel="noreferrer"
           >
-           {code}
+            {code}
           </a>
         </div>
       </Profile>
@@ -87,20 +87,19 @@ const MemberCard = ({ status, code, date, time ,name ,image }) => {
         <h2>{getTranslation(146)}</h2>
         <h3
           style={{
-            color: `${
-              status === "confirmed"
-                ? "#18C08F"
-                : status === "pending"
+            color: `${status === "confirmed"
+              ? "#18C08F"
+              : status === "pending"
                 ? "#FFC700"
                 : "#FF0000"
-            }`,
+              }`,
           }}
         >
           {status === "confirmed"
             ? getTranslation(854)
             : status === "pending"
-            ? getTranslation(852)
-            : getTranslation(853)}
+              ? getTranslation(852)
+              : getTranslation(853)}
         </h3>
       </Status>
       <Date>

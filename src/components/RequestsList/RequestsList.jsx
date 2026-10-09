@@ -158,6 +158,7 @@ const Loader = styled.div`
 
 const RequestsList = ({
   rows,
+  setRows,
   member,
   status,
   setStatus,
@@ -250,7 +251,7 @@ const RequestsList = ({
                 </StatusFilter>
               )}
             </TableHeader>
-            <TableHeader title>
+            <TableHeader $title>
               <Div>
                 {getTranslation(146)}
 
@@ -297,6 +298,7 @@ const RequestsList = ({
                   key={request.id}
                   {...request}
                   type={type}
+                  setRows={setRows}
                   setShowDetails={setShowDetails}
                   isLoading={false}
                 />

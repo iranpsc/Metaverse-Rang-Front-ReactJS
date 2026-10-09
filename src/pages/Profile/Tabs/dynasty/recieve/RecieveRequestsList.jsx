@@ -1,9 +1,10 @@
 import RequestsList from "../../../../../components/RequestsList/RequestsList";
 
-const RecieveRequestsList = ({ rows, member, status, setStatus, setMember, type, isLoading }) => {
+const RecieveRequestsList = ({ rows,setRows, member, status, setStatus, setMember, type, isLoading }) => {
   return (
     <RequestsList
       rows={rows}
+      setRows={setRows}
       member={member}
       status={status}
       setStatus={setStatus}

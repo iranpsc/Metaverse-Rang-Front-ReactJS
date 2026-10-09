@@ -6,10 +6,10 @@ import { convertToPersian, formatTime } from "../../../../services/Utility";
 
 const Wrapper = styled.div`
   height: 100%;
+  width: 100%;
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: 65px;
   @media (min-width: 1400px) {
     gap: 115px;
   }

@@ -14,9 +14,14 @@ import { Skeleton } from "../../../../components/Skeleton";
 import { WalletContext } from "../../../../services/reducers/WalletContext";
 const Container = styled.div`
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
+  min-width: 0;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   margin-top: 20px;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
 `;
 
 const RealEstate = () => {

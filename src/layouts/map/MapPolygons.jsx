@@ -11,7 +11,6 @@ import { useSelectedEnvironment } from "../../services/reducers/SelectedEnvironm
 import { useMapLands } from "../../services/reducers/MapLandsContext";
 import { showPolygons } from "../../services/Hooks/useMapUrlState";
 import {
-  connectSocket,
   onSocketEvent,
 } from "../../services/socket";
 import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils";
@@ -78,7 +77,6 @@ const MapPolygons = () => {
   const requestIdRef = useRef(0);
 
   useEffect(() => {
-    connectSocket();
 
     const unsubscribe = onSocketEvent(
       "feature-status-changed",
@@ -285,7 +283,6 @@ const MapPolygons = () => {
 
     loadFeatures();
 
-    mapInstance.on("moveend", handleMoveEnd);
 
     requestTimeoutRef.current = setTimeout(() => {
       loadFeatures();

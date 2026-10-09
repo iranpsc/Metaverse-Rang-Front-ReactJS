@@ -274,7 +274,7 @@ const TransactionsTab = () => {
       }
     };
   }, [hasMore, isLoading, searched, status, title, subject, dateRange]);
- 
+
   const handleSearch = useCallback((e) => {
     const searchValue = e.target.value;
     setSearched(searchValue);

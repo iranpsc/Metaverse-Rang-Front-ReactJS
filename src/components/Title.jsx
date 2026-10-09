@@ -1,18 +1,28 @@
 import styled from "styled-components";
 
+const SIZES = {
+  default: { base: "16px", desktop: "18px" },
+  small: { base: "13px", desktop: "14px" },
+};
+
 const TitleName = styled.h3`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  font-size: 16px;
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
+  font-size: ${({ $small }) => (SIZES[$small ? "small" : "default"].base)};
   font-weight: 600;
-  margin-top: ${(props) => props.payed && "30px"};
-  font-size: ${(props) => props.size? "13px" : "16px"};
+  margin-top: ${({ $payed }) => ($payed ? "30px" : "0")};
+
+  @media (min-width: 500px) and (max-width: 1000px) {
+    font-size: 13px;
+  }
+
   @media (min-width: 1280px) {
-    font-size: 18px;
+    font-size: ${({ $small }) => SIZES[$small ? "small" : "default"].desktop};
   }
 `;
-const Title = ({ title, payed, right,small }) => {
+
+const Title = ({ title, payed, small }) => {
   return (
-    <TitleName right={right} payed={payed} size={small}>
+    <TitleName $payed={payed} $small={small}>
       {title}
     </TitleName>
   );

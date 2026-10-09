@@ -109,6 +109,7 @@ a {
 
 ::-webkit-scrollbar-thumb {
   background: #0066ff;
+  border-radius: 10px;
 }
 
 /* dark mode */

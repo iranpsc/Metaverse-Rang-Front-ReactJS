@@ -5,7 +5,7 @@ import SearchInput from "../../../../components/SearchInput";
 import useRequest from "../../../../services/Hooks/useRequest";
 import { getTranslation } from "../../../../services/Utility";
 import { Skeleton } from "../../../../components/Skeleton";
-
+import Container from "../../../../components/Common/Container";
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -17,12 +17,6 @@ const Wrapper = styled.div`
   }
 `;
 
-const Container = styled.div`
-  height: 90%;
-  padding: 15px;
-  overflow-y: auto;
-  padding-bottom: 60px;
-`;
 
 const P = styled.p`
   color: ${(props) => props.theme.colors.newColors.shades[30]};

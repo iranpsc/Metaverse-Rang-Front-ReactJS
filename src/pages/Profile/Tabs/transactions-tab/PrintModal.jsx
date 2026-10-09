@@ -1,4 +1,5 @@
 // Print-only CSS: Only show Header, center it, hide print button and modal background
+import { ExitIcon } from "../../../../components/Icons/IconsHeader";
 const PrintOnlyStyles = () => (
   <style>{`
     @media print {
@@ -32,14 +33,14 @@ const PrintOnlyStyles = () => (
 );
 import { AiFillCloseCircle } from "react-icons/ai";
 import { BsCheckCircleFill } from "react-icons/bs";
-import Exit from "../../../../assets/svg/close.svg?react";
 import { IoReloadCircleSharp } from "react-icons/io5";
+import { createPortal } from "react-dom";
 import styled from "styled-components";
 import Button from "../../../../components/Button";
-import { getTranslation,ConvertJalali,convertToPersian } from "../../../../services/Utility";
+import { getTranslation, ConvertJalali, convertToPersian } from "../../../../services/Utility";
 
 const BackGround = styled.div`
-  z-index: 999;
+  z-index: 9999;
   position: fixed;
   top: 0;
   left: 0;
@@ -58,27 +59,21 @@ const Modal = styled.div`
   overflow-y: auto;
   padding: 10px;
   z-index: 999;
-  width: 415px;
-  height: 600px;
+  width: min(415px, calc(100vw - 24px));
+  height: auto;
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
 
   &::-webkit-scrollbar-track {
     margin: 5px 0;
   }
 
-  @media (min-width: 660px) {
-    height: 300px;
-  }
-  @media (min-width: 840px) {
-    height: 300px;
-  }
-  @media (min-width: 930px) {
-    height: 350px;
-  }
-  @media (min-width: 1024px) {
-    height: 600px;
+  @media (max-width: 1000px) {
+    padding: 8px;
+      width: min(380px, calc(100vw - 24px));
+
   }
 `;
-
 const Header = styled.div`
   width: 100%;
   display: flex;
@@ -86,18 +81,29 @@ const Header = styled.div`
   align-items: center;
   p {
     color: ${(props) =>
-      props.status == "0"
-        ? "#00966d"
-        : props.status == "-138" || props.status == "-1"
-          ? "#C30000"
-          : "#FFC700"};
+    props.status == "0"
+      ? "#00966d"
+      : props.status == "-138" || props.status == "-1"
+        ? "#C30000"
+        : "#FFC700"};
     font-size: 24px;
     font-weight: 600;
+    margin: 0;
   }
   span {
     color: ${(props) => props.theme.colors.newColors.shades.title};
     font-size: 16px;
     font-weight: 400;
+    text-align: center;
+  }
+
+  @media (max-width: 1000px) {
+    p {
+      font-size: 18px;
+    }
+    span {
+      font-size: 13px;
+    }
   }
 `;
 const Div = styled.div`
@@ -123,43 +129,71 @@ const Div = styled.div`
   svg {
     z-index: 1;
   }
-`;
 
+  @media (max-width: 1000px) {
+    margin-bottom: 4px;
+    div {
+      width: 34px;
+      height: 34px;
+    }
+    svg {
+      width: 56px;
+      height: 56px;
+    }
+  }
+`;
 const Info = styled.div`
   background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
   padding: 0 20px;
   width: 100%;
   border-radius: 10px;
   margin-top: 20px;
+
+
 `;
+
 const Row = styled.div`
   display: flex;
   align-items: center;
+  gap: 12px;
   padding: 8px 0;
   border-bottom: ${(props) => props.not !== false && "1px solid #454545"};
   justify-content: space-between;
+
+  @media (max-width: 480px) {
+    padding: 5px 0;
+    gap: 8px;
+  }
 `;
+
 const Title = styled.h3`
   font-size: 16px;
+  margin: 0;
+  white-space: nowrap;
   color: ${(props) => props.theme.colors.newColors.shades.title};
   font-weight: 500;
+
+  @media (max-width: 1000px) {
+    font-size: 13px;
+  }
 `;
+
 const Value = styled.h3`
   color: ${(props) => props.theme.colors.newColors.shades.title};
   font-size: 16px;
+  margin: 0;
   font-weight: 400;
+  text-align: left;
+  word-break: break-word;
+
+  @media (max-width: 1000px) {
+    font-size: 13px;
+  }
 `;
 const Gif = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
-`;
-
-const ExitIcon = styled(Exit)`
-  width: 40px;
-  float: left;
-  height: 40px;
-  cursor: pointer;
 `;
 
 const PrintModal = ({
@@ -176,10 +210,10 @@ const PrintModal = ({
     window.print();
   };
 
-  return (
+  return createPortal(
     <BackGround>
       <Modal>
-        <ExitIcon onClick={() => setOpenPrint(false)}></ExitIcon>
+        <ExitIcon trans={"trans"} onClick={() => setOpenPrint(false)} />
         <PrintOnlyStyles />
         <Header id="print-header" status={status}>
           <Div status={status}>
@@ -242,13 +276,14 @@ const PrintModal = ({
               <Title>{getTranslation("751")}</Title>
               <Value>{convertToPersian(count)}</Value>
             </Row>
-            <div className="print-hide" style={{ marginTop: "10px" }}>
+            <div className="print-hide" style={{ margin: "8px 0" }}>
               <Button full label={getTranslation("67")} onclick={handlePrint} />
             </div>
           </Info>
         </Header>
       </Modal>
-    </BackGround>
+    </BackGround>,
+    document.body
   );
 };
 

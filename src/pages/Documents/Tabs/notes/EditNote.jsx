@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import {
   getTranslation,
-  getPlainText,ToastError,ToastSuccess
+  getPlainText, ToastError, ToastSuccess
 } from "../../../../services/Utility";
 import { GlobalNoteStateContext } from "../GlobalNoteStateProvider";
 import SendFiles from "../SendFiles";
@@ -28,22 +28,26 @@ const EditNote = ({ setIsEditing, data }) => {
   const { Request, HTTP_METHOD } = useRequest();
 
   const handleSave = () => {
-   
+
     const formData = new FormData();
     formData.append("_method", "PUT");
     formData.append("title", data.title);
     formData.append("content", localDescription);
 
-    if (localFiles && localFiles.length > 0) {
-      localFiles.forEach((file) => {
-        if (file instanceof File) {
-          formData.append("attachments[]", file);
-        } else if (typeof file === "string") {
-          formData.append("current_attachments[]", file);
-        }
-      });
-    } else {
-      formData.append("attachments[]", "");
+    const currentAttachments = localFiles.filter(
+      (file) => typeof file === "string",
+    );
+    const newAttachments = localFiles.filter((file) => file instanceof File);
+
+    currentAttachments.forEach((attachment) => {
+      formData.append("current_attachments[]", attachment);
+    });
+    newAttachments.forEach((file) => {
+      formData.append("attachments[]", file);
+    });
+
+    if (currentAttachments.length === 0) {
+      formData.append("current_attachments[]", "");
     }
 
     Request(`notes/${data.id}`, HTTP_METHOD.POST, formData)
@@ -63,7 +67,7 @@ const EditNote = ({ setIsEditing, data }) => {
 
   const plainText = getPlainText(localDescription);
   const trimmedText = plainText.trim();
-  const isTextValid = trimmedText.length >= 3; 
+  const isTextValid = trimmedText.length >= 3;
 
   return (
     <Container>
@@ -84,7 +88,7 @@ const EditNote = ({ setIsEditing, data }) => {
           fit
           label={getTranslation("629")}
           onclick={handleSave}
-          disabled={!isTextValid} 
+          disabled={!isTextValid}
         />
         <Button
           grayTheme

@@ -1,15 +1,9 @@
 import styled from "styled-components";
 
 // Styled components
-export const  Container = styled.div`
-  width: 101%;
-  height: 100%;
+export const Container = styled.div`
+  width: 100%;
   position: relative;
-  border-radius: 10px;
-
-  @media (min-width: 1024px) {
-    border-radius: 20px;
-  }
 `;
 
 export const ZoomContainer = styled.div`

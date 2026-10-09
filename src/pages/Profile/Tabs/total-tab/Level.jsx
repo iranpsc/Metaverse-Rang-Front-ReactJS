@@ -1,5 +1,5 @@
 import styled, { keyframes } from "styled-components";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import { useLanguage } from "../../../../services/reducers/LanguageContext";
@@ -18,17 +18,18 @@ const Container = styled.div`
   margin-top: 20px;
 
   display: grid;
-  grid-template-columns: 4fr 1fr;
+  /* نوار لول بقیه‌ی فضا رو می‌گیره، نگین‌ها به اندازه‌ی خودشون تا حداکثر ۵۰٪ */
+  grid-template-columns: minmax(0, 1fr) fit-content(50%);
   align-items: center;
 `;
 
 const Percent = styled.div`
+  min-width: 0;
   ${(props) => (props.IsPersian ? "border-left" : "border-right")}: 1px solid
     ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
 
   ${(props) => (props.IsPersian ? "padding-left" : "padding-right")}: 25px;
 `;
-
 const Title = styled.div`
   display: flex;
   align-items: center;
@@ -64,55 +65,16 @@ const ProgressBar = styled.div`
   transition: width 0.5s ease;
   height: 100%;
 `;
-
 const LevelCount = styled.div`
   position: relative;
   width: 100%;
   min-width: 0;
-
+min-width: 100px;
   display: flex;
+  flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-start;
-  gap: 4px;
 
-  overflow-x: auto;
-  overflow-y: visible;
-
-  scroll-behavior: smooth;
-  scroll-snap-type: x proximity;
-
-  padding: 6px 4px;
-
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black 16px,
-    black calc(100% - 16px),
-    transparent 100%
-  );
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black 16px,
-    black calc(100% - 16px),
-    transparent 100%
-  );
-
-  scrollbar-width: thin;
-  scrollbar-color: ${(props) => props.theme.colors.primary} transparent;
-
-  &::-webkit-scrollbar {
-    height: 5px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.primary};
-    border-radius: 10px;
-  }
 `;
 
 const popIn = keyframes`
@@ -128,11 +90,9 @@ const popIn = keyframes`
 
 const LevelItemWrapper = styled.div`
   position: relative;
-  width: 55px;
-  height: 55px;
-
-  flex-shrink: 0;
-  scroll-snap-align: center;
+  flex: 0 1 55px;
+  min-width: 0;
+  aspect-ratio: 1 / 1;
 
   display: flex;
   align-items: center;
@@ -142,13 +102,10 @@ const LevelItemWrapper = styled.div`
   animation-delay: ${(props) => `${props.$index * 0.05}s`};
 
   img {
-    width: 55px;
-    height: 55px;
-
+    width: 100%;
+    height: 100%;
     object-fit: contain;
-
     cursor: pointer;
-
     transition:
       transform 0.2s ease,
       filter 0.2s ease;
@@ -162,8 +119,9 @@ const LevelItemWrapper = styled.div`
 const LevelItem = styled.div`
   display: flex;
   position: relative;
+  width: 100%;
+  height: 100%;
 `;
-
 
 const tooltipFade = keyframes`
   from {
@@ -241,7 +199,6 @@ const Level = () => {
   const { Request } = useRequest();
   const { id } = useParams();
 
-  const scrollRef = useRef(null);
   const [tooltip, setTooltip] = useState(null); // { text, top, left }
 
   useEffect(() => {
@@ -267,34 +224,6 @@ const Level = () => {
       });
   }, []);
 
-  useEffect(() => {
-    const node = scrollRef.current;
-    if (!node) return;
-
-    const handleScroll = () => setTooltip(null);
-    node.addEventListener("scroll", handleScroll, { passive: true });
-
-    return () => node.removeEventListener("scroll", handleScroll);
-  }, [levelData]);
-
-
-  useEffect(() => {
-    const node = scrollRef.current;
-    if (!node) return;
-
-    const handleWheel = (e) => {
-      if (node.scrollWidth <= node.clientWidth) return;
-
-      e.preventDefault();
-
-      const delta = Math.abs(e.deltaY) >= Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-      node.scrollBy({ left: delta, behavior: "auto" });
-    };
-
-    node.addEventListener("wheel", handleWheel, { passive: false });
-
-    return () => node.removeEventListener("wheel", handleWheel);
-  }, [levelData]);
 
   const showTooltip = (e, text) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -361,7 +290,7 @@ const Level = () => {
         </ProgressContainer>
       </Percent>
 
-      <LevelCount ref={scrollRef}>
+      <LevelCount >
         {levels.map((level, index) => {
           const levelName = levelIds[level.name] ?? 382;
           const translation = getTranslation(levelName);

@@ -1,8 +1,12 @@
 /**
- * Socket.IO client for MetaRGB websocket-gateway.
- * Compatible with Socket.IO v4 / Engine.IO 4
+ * Socket.IO client for the MetaRGB websocket-gateway.
+ * Socket.IO v4 / Engine.IO 4 (socket.io-client@4.x).
+ *
+ * - Works BEFORE login (public rooms: feature-status, user-status)
+ * - Upgrades to authenticated after login (adds private room user:{id})
+ * - Event handlers registered via onSocketEvent survive reconnects and
+ *   token changes (public -> authenticated -> public)
  */
-
 import { io } from "socket.io-client";
 import { getItem } from "./Utility/LocalStorage";
 
@@ -10,10 +14,15 @@ const DEFAULT_URL = "http://localhost:3002";
 
 let socket = null;
 
+const handlers = new Map();
+
 function resolveSocketURL() {
+  const envUrl =
+    import.meta.env?.VITE_WEBSOCKET_URL || import.meta.env?.VITE_SOCKET_URL;
+  if (envUrl) return envUrl;
+
   const hostname = window.location.hostname;
 
-  // Development server
   if (
     hostname === "dev-reactjs.metarang.com" ||
     hostname === "localhost" ||
@@ -22,12 +31,10 @@ function resolveSocketURL() {
     return "https://dev-ws.metarang.com";
   }
 
-  // Production
   if (hostname === "world.metarang.com") {
     return "https://ws.metarang.com";
   }
 
-  // Fallback
   return DEFAULT_URL;
 }
 
@@ -38,86 +45,96 @@ function resolveToken() {
 
 function currentSocketToken(current) {
   return (
-    current?.io?.opts?.auth?.token ||
-    current?.io?.opts?.query?.token ||
-    ""
+    current?.io?.opts?.auth?.token || current?.io?.opts?.query?.token || ""
   );
 }
 
-export function connectSocket(token = resolveToken()) {
-  if (!token) {
-    disconnectSocket();
-    return null;
-  }
+function attachHandlers(sock) {
+  handlers.forEach((set, event) => {
+    set.forEach((handler) => sock.on(event, handler));
+  });
+}
 
-  const url = resolveSocketURL();
+/**
+ * Connect (or reuse) the shared socket.
+ * token = "" -> public mode. token = "<sanctum>" -> authenticated mode.
+ * Without arguments, uses the token stored in localStorage (if any).
+ */
+export function connectSocket(token = resolveToken()) {
+  const nextToken = token || "";
+
+  if (socket && currentSocketToken(socket) === nextToken) {
+    return socket;
+  }
 
   if (socket) {
-    if (currentSocketToken(socket) === token && socket.connected) {
-      return socket;
-    }
-
     disconnectSocket();
   }
 
-  socket = io(url, {
+  const options = {
     path: "/socket.io/",
     transports: ["websocket", "polling"],
-
-    auth: {
-      token,
-    },
-
-    query: {
-      token,
-    },
-
     reconnection: true,
     reconnectionAttempts: Infinity,
     reconnectionDelay: 1000,
-
     forceNew: true,
+  };
+
+  if (nextToken) {
+    options.auth = { token: nextToken };
+    options.query = { token: nextToken };
+  }
+
+  const sock = io(resolveSocketURL(), options);
+  socket = sock;
+
+  sock.on("connect", () => {
+    console.log("[socket] connected");
   });
 
-  socket.on("connect", () => {
+  sock.on("connect_error", (err) => {
+    if (nextToken && /unauthorized/i.test(err?.message || "")) {
+      connectSocket("");
+    }
   });
 
-  socket.on("connect_error", () => {
-  });
+  attachHandlers(sock);
 
-  socket.on("disconnect", () => {
-  });
+  return sock;
+}
 
-  socket.on("connected", () => {
-  });
-
-  return socket;
+/** Reconnect without auth (public channels only). Use on logout. */
+export function connectPublicSocket() {
+  return connectSocket("");
 }
 
 export function getSocket() {
   return socket;
 }
 
+/** Tear down the connection. Registered handlers are kept for the next connect. */
 export function disconnectSocket() {
-  if (!socket) {
-    return;
-  }
+  if (!socket) return;
 
   socket.removeAllListeners();
   socket.disconnect();
   socket = null;
 }
 
+/**
+ * Register a listener. Returns an unsubscribe function for useEffect cleanup.
+ * Does NOT open a connection by itself: App / useAuth own the connection.
+ * If a socket already exists the handler is attached immediately; otherwise
+ * it is attached as soon as connectSocket creates one.
+ */
 export function onSocketEvent(event, handler) {
-  const current = socket || connectSocket();
+  if (!handlers.has(event)) handlers.set(event, new Set());
+  handlers.get(event).add(handler);
 
-  if (!current) {
-    return () => { };
-  }
-
-  current.on(event, handler);
+  socket?.on(event, handler);
 
   return () => {
-    current.off(event, handler);
+    handlers.get(event)?.delete(handler);
+    socket?.off(event, handler);
   };
 }

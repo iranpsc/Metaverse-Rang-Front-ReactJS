@@ -1,9 +1,7 @@
-import moment from "jalali-moment";
 import { toast } from "react-hot-toast";
 import i18n from "../../i18n/i18n";
 import DOMPurify from "dompurify";
-import { toGregorian } from "jalaali-js";
-
+import { toGregorian, isValidJalaaliDate } from "jalaali-js";
 export const SanitizeHTML = (html) => {
   if (!html) return "";
 
@@ -102,16 +100,92 @@ export function ConvertJalali(date) {
 
   return parsedDate.toLocaleDateString(isPersian ? "fa-IR" : "en-US");
 }
+
+const BIRTHDATE_REGEX = /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})/;
+const JALALI_MAX_YEAR = 1700;
+
+// تاریخ شمسی یا میلادی به شکل YYYY/MM/DD یا YYYY-MM-DD رو می‌گیره
+// اگه سال کمتر از 1700 باشه شمسی حساب می‌شه، وگرنه میلادی
+// خروجی: سن به سال کامل (برای ورودی نامعتبر یا تاریخ آینده، 0)
 export function TimeAgo(time) {
   if (typeof time !== "string") return 0;
 
-  const birthDate = moment(time, "jYYYY/jMM/jDD", true).toDate();
-  if (isNaN(birthDate.getTime())) return 0;
+  const match = fixNumbers(time.trim()).match(BIRTHDATE_REGEX);
+  if (!match) return 0;
 
-  const ageInMs = Date.now() - birthDate.getTime();
-  return Math.floor(ageInMs / (1000 * 60 * 60 * 24 * 365));
+  const [year, month, day] = match.slice(1).map(Number);
+  let gy = year;
+  let gm = month;
+  let gd = day;
+
+  if (year < JALALI_MAX_YEAR) {
+    if (!isValidJalaaliDate(year, month, day)) return 0;
+    ({ gy, gm, gd } = toGregorian(year, month, day));
+  }
+
+  // رد کردن تاریخ‌های میلادی نامعتبر مثل 1990/02/31
+  const birthDate = new Date(gy, gm - 1, gd);
+  if (
+    birthDate.getFullYear() !== gy ||
+    birthDate.getMonth() !== gm - 1 ||
+    birthDate.getDate() !== gd
+  ) {
+    return 0;
+  }
+
+  const today = new Date();
+  const hadBirthdayThisYear =
+    today.getMonth() > gm - 1 ||
+    (today.getMonth() === gm - 1 && today.getDate() >= gd);
+
+  const age = today.getFullYear() - gy - (hadBirthdayThisYear ? 0 : 1);
+
+  return Math.max(0, age);
 }
 
+//تابع محاسبه  زمان باقیمانده
+
+export function GetTimeElapsed(date) {
+  if (!date) return null;
+
+  const [datePart, timePart = "00:00:00"] = date.split(" ");
+
+  const [year, month, day] = datePart.split("/").map(Number);
+  const [hours, minutes, seconds] = timePart.split(":").map(Number);
+
+  const gregorian = toGregorian(year, month, day);
+
+  const pastDate = new Date(
+    gregorian.gy,
+    gregorian.gm - 1,
+    gregorian.gd,
+    hours,
+    minutes,
+    seconds
+  );
+
+  const now = new Date();
+
+  const diff = Math.max(0, now - pastDate);
+
+  const totalSeconds = Math.floor(diff / 1000);
+
+  const days = Math.floor(totalSeconds / 86400);
+  const remainingAfterDays = totalSeconds % 86400;
+
+  const hoursDiff = Math.floor(remainingAfterDays / 3600);
+  const remainingAfterHours = remainingAfterDays % 3600;
+
+  const minutesDiff = Math.floor(remainingAfterHours / 60);
+  const secondsDiff = remainingAfterHours % 60;
+
+  return {
+    days,
+    hours: hoursDiff,
+    minutes: minutesDiff,
+    seconds: secondsDiff,
+  };
+}
 export function EmailValidator(email) {
   return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
     email,
@@ -119,23 +193,23 @@ export function EmailValidator(email) {
 }
 // این تابع برای فرمت اعداد اعشاری هست و فقط در صورتی که اعداد اعشار داشته باشد باشند
 // اعشار ان نمایش داده میشود در غیر این صورت اعداد بدون اعشار نمایش داده میشوند
-  export const normalizeDecimalInput = (value) => {
-    if (value === "") return "";
+export const normalizeDecimalInput = (value) => {
+  if (value === "") return "";
 
-    const normalized = value
-      .replace(/[٫]/g, ".")
-      .replace(/[۰-۹]/g, (digit) => {
-        const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
-        return String(persianDigits.indexOf(digit));
-      })
-      .replace(/[^0-9.]/g, "");
+  const normalized = value
+    .replace(/[٫]/g, ".")
+    .replace(/[۰-۹]/g, (digit) => {
+      const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+      return String(persianDigits.indexOf(digit));
+    })
+    .replace(/[^0-9.]/g, "");
 
-    if (!normalized.includes(".")) return normalized;
+  if (!normalized.includes(".")) return normalized;
 
-    const [wholePart, ...decimalParts] = normalized.split(".");
-    const cleanDecimal = decimalParts.join("").replace(/\./g, "");
-    return `${wholePart || "0"}.${cleanDecimal}`;
-  };
+  const [wholePart, ...decimalParts] = normalized.split(".");
+  const cleanDecimal = decimalParts.join("").replace(/\./g, "");
+  return `${wholePart || "0"}.${cleanDecimal}`;
+};
 
 export const sanitizePriceInputValue = (value) => {
   if (value === "" || value === null || value === undefined) return "";
@@ -205,7 +279,7 @@ export const convertToPersian = (value) => {
   return isPersian
     ? str.replace(/\d/g, (d) => persianDigits[d])
     : str.replace(/[۰-۹]/g, (d) => englishDigits[persianDigits.indexOf(d)]);
-};export const convertToEnglish = (value) => {
+}; export const convertToEnglish = (value) => {
   if (value == null) return "";
 
   const persianDigits = "۰۱۲۳۴۵۶۷۸۹";

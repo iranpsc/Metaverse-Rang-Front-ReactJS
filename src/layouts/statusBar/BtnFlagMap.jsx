@@ -9,11 +9,12 @@ const Btn = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  height: 40px;
-  border-radius: 0 5px 5px 0;
+  min-height: 30px;
+    border-radius: 0 5px 5px 0;
   &.active {
     border: ${(props) => `${props.border} 3px solid`};
   }
+  
 `;
 
 const IconFilter = styled(FilterIcon)`
@@ -30,10 +31,11 @@ const IconLocation = styled(LocationIcon)`
 
   fill-opacity: ${(props) => (props.$active ? "1" : "0.5")};
   cursor: pointer;
+
 `;
 const TitleFlag = styled.p`
   color: #868b90;
-  font-size: 12px;
+  font-size: 11px;
   font-style: normal;
   font-weight: 400;
   line-height: 180%;
@@ -46,7 +48,7 @@ const TitleFlag = styled.p`
 const ContainerIcon = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 13px;
 `;
 
 const BtnFlagMap = () => {

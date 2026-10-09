@@ -116,25 +116,30 @@ const MapTreeD = () => {
     [theme],
   );
 
-  useEffect(() => {
-    if (!mapLoaded) return;
+ useEffect(() => {
+  if (!mapLoaded) return;
 
-    const map = mapRef.current?.getMap();
-    if (!map) return;
+  const map = mapRef.current?.getMap();
+  if (!map) return;
 
-    try {
-      themeStyle.layers.forEach((layer) => {
-        if (!layer.paint || !map.getLayer(layer.id)) return;
+  try {
+    themeStyle.layers.forEach((layer) => {
+      if (!layer.paint || !map.getLayer(layer.id)) return;
 
-        Object.entries(layer.paint).forEach(([paintProperty, paintValue]) => {
-          if (!paintProperty.toLowerCase().includes("color")) return;
-          map.setPaintProperty(layer.id, paintProperty, paintValue);
-        });
+      Object.entries(layer.paint).forEach(([paintProperty, paintValue]) => {
+        if (!paintProperty.toLowerCase().includes("color")) return;
+        map.setPaintProperty(layer.id, paintProperty, paintValue);
       });
-    } catch (e) {
-      console.error(e);
+    });
+
+    // آسمان هم با تم عوض شود
+    if (themeStyle.sky) {
+      map.setSky(themeStyle.sky);
     }
-  }, [mapLoaded, themeStyle]);
+  } catch (e) {
+    console.error(e);
+  }
+}, [mapLoaded, themeStyle]);
 
   const [initialStyle] = useState(() =>
     theme === "dark" ? styleMapDark : styleMapLight,
@@ -196,8 +201,8 @@ const MapTreeD = () => {
               mapStyle={initialStyle}
               RTLTextPlugin="https://map.irpsc.com/rtl.js"
               interactiveLayerIds={["polygon-fill-layer"]}
-              maxPitch={68}
-              style={{ borderRadius: "15px" }}
+              maxPitch={89}
+              style={{ borderRadius: "10px" }}
               initialViewState={{
                 latitude: 25.229,
                 longitude: 54.2199,

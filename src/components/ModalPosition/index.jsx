@@ -16,8 +16,8 @@ const ModalPosition = ({ children, title, position, action }) => {
     <Container
       position={position}
       style={springs}
-      isPersian={isPersian}
-      show={isGlobalFullScreenMap}
+      $isPersian={isPersian}
+      $show={isGlobalFullScreenMap}
     >
       <Header title={title} action={action} />
       {children}

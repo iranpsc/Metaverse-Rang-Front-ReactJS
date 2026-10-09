@@ -4,7 +4,7 @@ import red from "../../../../../assets/images/profile/red-color.gif";
 import yellow from "../../../../../assets/images/profile/yellow-color.gif";
 import blue from "../../../../../assets/images/profile/blue-color.gif";
 import styled from "styled-components";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   SuggestionsContainer,
   Location,
@@ -24,6 +24,7 @@ import { useNavigate } from "react-router";
 import { useMap } from "react-map-gl/maplibre";
 import { calculatePolygonCentroid } from "../../../../../services/Utility/calculatePolygonCentroid";
 import { flyToMapPosition } from "../../../../../services/Utility/flyToMapPosition";
+import { getPolygonShape } from "../../../../../services/Utility/getPolygonShape";
 import { Skeleton } from "../../../../../components/Skeleton";
 
 const Container = SuggestionsContainer;
@@ -87,6 +88,12 @@ const Suggestion = ({ item, isLoading }) => {
   const navigate = useNavigate();
   const mapRef = useMap();
 
+  const coordinates = item?.feature_coordinates;
+  const { points, viewBox, hasXGreaterThan50 } = useMemo(
+    () => getPolygonShape(coordinates),
+    [coordinates],
+  );
+
   if (isLoading) {
     return (
       <SkeletonSuggestion>
@@ -141,33 +148,16 @@ const Suggestion = ({ item, isLoading }) => {
   if (removed || !item) return null;
 
   const feature = item.feature_properties || {};
-  const coordinates = item.feature_coordinates || [];
-  const xCoords = coordinates.map((c) => c.x);
-  const yCoords = coordinates.map((c) => c.y);
-  const minX = Math.min(...xCoords);
-  const maxX = Math.max(...xCoords);
-  const minY = Math.min(...yCoords);
-  const maxY = Math.max(...yCoords);
-  const hasXGreaterThan50 = xCoords.some((x) => x > 50);
-  const center = calculatePolygonCentroid(coordinates);
-
-  const normalizedPoints = coordinates
-    .map((coord) => {
-      const nx =
-        coord.x > 50
-          ? ((coord.x - minX) / (maxX - minX)) * 40
-          : ((coord.x - minX) / (maxX - minX)) * 100;
-      const ny =
-        coord.x > 50
-          ? ((coord.y - minY) / (maxY - minY)) * 140
-          : ((coord.y - minY) / (maxY - minY)) * 100;
-      return `${nx},${ny}`;
-    })
-    .join(" ");
 
   const handleLocation = () => {
-    if (!coordinates.length) return;
-    flyToMapPosition({ latitude: center.y, longitude: center.x, mapRef, zoom: 17 });
+    if (!coordinates?.length) return;
+    const center = calculatePolygonCentroid(coordinates);
+    flyToMapPosition({
+      latitude: center.y,
+      longitude: center.x,
+      mapRef,
+      zoom: 17,
+    });
     navigate("/");
   };
 
@@ -176,20 +166,19 @@ const Suggestion = ({ item, isLoading }) => {
       <Property>
         <Location>
           <AreaContainer>
-            <StyledSVG
-              viewBox={`${hasXGreaterThan50 ? -15 : -30} ${hasXGreaterThan50 ? -85 : -110
-                } 150 ${hasXGreaterThan50 ? 100 : 120}`}
-            >
+            <StyledSVG viewBox={viewBox}>
               <Polygon
                 karbari={feature.karbari}
                 hasXGreaterThan50={hasXGreaterThan50}
-                points={normalizedPoints}
+                points={points}
               />
             </StyledSVG>
           </AreaContainer>
           <div>
             <p>{feature.address}</p>
-            <h3 onClick={handleLocation}>{feature.id?.toString?.().toUpperCase?.()}</h3>
+            <h3 onClick={handleLocation}>
+              {feature.id?.toString?.().toUpperCase?.()}
+            </h3>
           </div>
         </Location>
         <Pricing>

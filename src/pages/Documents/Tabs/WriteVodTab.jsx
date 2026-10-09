@@ -28,56 +28,45 @@ const WriteVodTab = () => {
     dispatch({ type: "SET_FILES", payload: [] });
     dispatch({ type: "SET_SELECTED_CITIZENS", payload: [] });
   };
+const sendVod = () => {
+  if (!state.subject || !state.title || !state.description) return;
 
-  const sendVod = () => {
-    if (
-      state.subject &&
-      state.title &&
-      state.description
-    ) {
-      setIsSending(true);
+  setIsSending(true);
 
-      const filesData = new FormData();
+  const formData = new FormData();
 
-      filesData.append("title", state.title);
-      filesData.append("content", state.description);
-      filesData.append("attachment", state.files[0]);
+  formData.append("title", state.title);
+  formData.append("content", state.description);
 
-      if (state.selectedCitizens.length > 0) {
-        if (state.selectedCitizens.length === 1) {
-          filesData.append("reciever", state.selectedCitizens[0].id);
-        } else {
-          const citizenIds = state.selectedCitizens.map((citizen) =>
-            parseInt(citizen.id)
-          );
-          filesData.append("reciever", JSON.stringify(citizenIds));
-        }
-      } else {
-        filesData.append("department", state.subject);
-      }
+  // همه‌ی فایل‌ها، نه فقط اولی
+  state.files.forEach((file) => {
+    formData.append("attachment", file);
+  });
 
-      Request("tickets", HTTP_METHOD.POST, filesData, {
-        "Content-Type": "multipart/form-data",
-      })
-        .then(() => {
-          if (containerRef.current) {
-            containerRef.current.scrollTo(0, 0);
-          }
-          resetForm();
-          setAlert(true);
-          setTimeout(() => {
-            setAlert(false);
-          }, 2000);
-        })
-        .catch((error) => {
-          ToastError(error.response?.data?.message || "خطا در ارسال تیکت");
-        })
-        .finally(() => {
-          setIsSending(false);
-        });
-    }
-  };
+  if (state.selectedCitizens.length === 1) {
+    formData.append("reciever", state.selectedCitizens[0].id);
+  } else if (state.selectedCitizens.length > 1) {
+    const citizenIds = state.selectedCitizens.map((citizen) => parseInt(citizen.id));
+    formData.append("reciever", JSON.stringify(citizenIds));
+  } else {
+    formData.append("department", state.subject);
+  }
 
+  Request("tickets", HTTP_METHOD.POST, formData, {
+    "Content-Type": "multipart/form-data",
+  })
+    .then(() => {
+      containerRef.current?.scrollTo(0, 0);
+      resetForm();
+      setAlert(true);
+    })
+    .catch((error) => {
+      ToastError(error.response?.data?.message || "خطا در ارسال تیکت");
+    })
+    .finally(() => {
+      setIsSending(false);
+    });
+};
   const handleFilesChange = (files) => {
     dispatch({ type: "SET_FILES", payload: files });
   };

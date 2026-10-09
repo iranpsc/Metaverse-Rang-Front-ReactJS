@@ -1,33 +1,54 @@
 import styled from "styled-components";
-import { convertToPersian } from "../../../../../services/Utility";
+import {
+  convertToPersian,
+  getTranslation,
+} from "../../../../../services/Utility";
+
+const RELATIONS = {
+  125: ["پدر", "father"],
+  126: ["مادر", "mother"],
+  127: ["خواهر", "sister"],
+  128: ["برادر", "brother"],
+  129: ["فرزند", "child"],
+  130: ["شوهر", "husband"],
+  825: ["زن", "wife"],
+};
+
+const RELATION_MAP = Object.fromEntries(
+  Object.entries(RELATIONS).flatMap(([id, keys]) =>
+    keys.map((key) => [key, Number(id)]),
+  ),
+);
+
+const translateRelation = (name) => {
+  const id = RELATION_MAP[String(name ?? "").trim().toLowerCase()];
+  return id ? getTranslation(id) : name;
+};
 
 const TableRow = styled.tr`
   background-color: transparent;
-  &:nth-child(odd) {
-    background-color: #f9fafb; /* equivalent to slate-50 */
-  }
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.1);
-  }
   transition: background-color 0.2s ease-in-out;
 `;
 
 const TableCell = styled.td`
-  padding: 15px 20px;
-  padding-right: 30px;
+  padding: 15px 20px 15px 30px;
   border-bottom: 1px solid #454545;
   color: ${(props) => props.theme.colors.newColors.shades.title};
+  white-space: nowrap;
 
-  div {
-    display: inline-block; /* Ensures proper alignment */
-    width: auto;
+  @media (max-height: 768px) {
+    padding: 10px 10px 10px 8px;
   }
 `;
 
 const Code = styled.h2`
   font-size: 16px;
   font-weight: 500;
-  margin: 0; /* Removes default margin for h2 */
+  margin: 0;
+
+  @media (max-height: 768px) {
+    font-size: 13px;
+  }
 `;
 
 const Row = ({
@@ -35,22 +56,25 @@ const Row = ({
   psc = "",
   plus = "",
   cage = "",
-  gif = "",
   rial = "",
+  gif = "",
 }) => {
-  const renderContent = (content) => <Code>{convertToPersian(content)}</Code>;
+  const cells = [
+    translateRelation(name),
+    convertToPersian(psc),
+    convertToPersian(plus),
+    convertToPersian(cage),
+    convertToPersian(rial),
+    gif,
+  ];
+
   return (
     <TableRow>
-      {[name, psc, plus, cage, rial].map((value, index) => (
+      {cells.map((value, index) => (
         <TableCell key={index}>
-          <div>{renderContent(value)}</div>
+          <Code>{value}</Code>
         </TableCell>
       ))}
-      <TableCell>
-        <div>
-          <Code>{gif}</Code>
-        </div>
-      </TableCell>
     </TableRow>
   );
 };

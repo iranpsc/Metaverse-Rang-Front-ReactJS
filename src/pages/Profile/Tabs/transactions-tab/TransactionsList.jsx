@@ -34,6 +34,7 @@ const TableHead = styled.thead`
 const TableRow = styled.tr``;
 const StatusFilter = styled.div`
   position: absolute;
+  z-index: 10;
   top: 65px;
   width: 169px;
   padding: 20px;
@@ -46,6 +47,8 @@ const StatusFilter = styled.div`
 `;
 const TitleFilter = styled.div`
   position: absolute;
+    z-index: 10;
+
   top: 65px;
   width: 130px;
   display: flex;
@@ -179,15 +182,6 @@ const FilterItemText = styled.h1`
   gap: 3px;
 `;
 
-const FilterCloseButton = styled.span`
-  position: absolute;
-  left: -13px;
-  top: 4px;
-  color: red;
-  cursor: pointer;
-  font-size: 14px;
-`;
-
 const SubjectFilterItem = styled.div`
   display: flex;
   gap: 5px;
@@ -227,8 +221,6 @@ const TransactionsList = ({
   });
   const paymentReturned =
     sessionStorage.getItem("payment_returned") === "true";
-
-
   return (
     <Container>
       <Table>
@@ -246,7 +238,7 @@ const TransactionsList = ({
                 <FilterArrows
                   onClick={() => setFilters({ status: !filters.status })}
                 >
-                  <RotatingArrow isOpen={filters.status} />
+                  <RotatingArrow $isOpen={filters.status} />
                 </FilterArrows>
               </FilterContainer>
               {filters.status && (
@@ -261,22 +253,15 @@ const TransactionsList = ({
                       variant="success"
                       padding="2px 18px"
                       onClick={() => {
-                        setStatus({ ...status, success: true });
+                        setStatus((prev) => ({
+                          ...prev,
+                          success: !prev.success,
+                        }));
                         setFilters({ ...filters, status: false });
                       }}
                     >
                       {getTranslation("741")}
                     </FilterItemText>
-                    {status.success && (
-                      <FilterCloseButton
-                        onClick={() => {
-                          setStatus({ ...status, success: false });
-                          setFilters({ ...filters, status: false });
-                        }}
-                      >
-                        X
-                      </FilterCloseButton>
-                    )}
                   </FilterItem>
 
                   <FilterItem
@@ -289,22 +274,15 @@ const TransactionsList = ({
                       variant="pending"
                       padding="2px 18px"
                       onClick={() => {
-                        setStatus({ ...status, pending: true });
+                        setStatus((prev) => ({
+                          ...prev,
+                          pending: !prev.pending,
+                        }));
                         setFilters({ ...filters, status: false });
                       }}
                     >
                       {getTranslation("743")}
                     </FilterItemText>
-                    {status.pending && (
-                      <FilterCloseButton
-                        onClick={() => {
-                          setStatus({ ...status, pending: false });
-                          setFilters({ ...filters, status: false });
-                        }}
-                      >
-                        X
-                      </FilterCloseButton>
-                    )}
                   </FilterItem>
 
                   <FilterItem
@@ -317,33 +295,26 @@ const TransactionsList = ({
                       variant="failed"
                       padding="2px 18px"
                       onClick={() => {
-                        setStatus({ ...status, failed: true });
+                        setStatus((prev) => ({
+                          ...prev,
+                          failed: !prev.failed,
+                        }));
                         setFilters({ ...filters, status: false });
                       }}
                     >
                       {getTranslation("742")}
                     </FilterItemText>
-                    {status.failed && (
-                      <FilterCloseButton
-                        onClick={() => {
-                          setStatus({ ...status, failed: false });
-                          setFilters({ ...filters, status: false });
-                        }}
-                      >
-                        X
-                      </FilterCloseButton>
-                    )}
                   </FilterItem>
                 </StatusFilter>
               )}
             </TableHeader>
-            <TableHeader title>
+            <TableHeader $title>
               <FilterContainer>
                 <TableHeaderText>{getTranslation("746")}</TableHeaderText>
                 <FilterArrows
                   onClick={() => setFilters({ title: !filters.title })}
                 >
-                  <RotatingArrow isOpen={filters.title} />
+                  <RotatingArrow $isOpen={filters.title} />
                 </FilterArrows>
               </FilterContainer>
               {filters.title && (
@@ -351,22 +322,15 @@ const TransactionsList = ({
                   <FilterItem active={title.property_buy} borderRadius="10px">
                     <FilterItemText
                       onClick={() => {
-                        setTitle({ ...title, property_buy: true });
+                        setTitle((prev) => ({
+                          ...prev,
+                          property_buy: !prev.property_buy,
+                        }));
                         setFilters({ ...filters, title: false });
                       }}
                     >
                       {getTranslation("739")}
                     </FilterItemText>
-                    {title.property_buy && (
-                      <FilterCloseButton
-                        onClick={() => {
-                          setTitle({ ...title, property_buy: false });
-                          setFilters({ ...filters, title: false });
-                        }}
-                      >
-                        X
-                      </FilterCloseButton>
-                    )}
                   </FilterItem>
                   <FilterItem
                     active={title.property_dealing}
@@ -374,22 +338,15 @@ const TransactionsList = ({
                   >
                     <FilterItemText
                       onClick={() => {
-                        setTitle({ ...title, property_dealing: true });
+                        setTitle((prev) => ({
+                          ...prev,
+                          property_dealing: !prev.property_dealing,
+                        }));
                         setFilters({ ...filters, title: false });
                       }}
                     >
                       {getTranslation("740")}
                     </FilterItemText>
-                    {title.property_dealing && (
-                      <FilterCloseButton
-                        onClick={() => {
-                          setTitle({ ...title, property_dealing: false });
-                          setFilters({ ...filters, title: false });
-                        }}
-                      >
-                        X
-                      </FilterCloseButton>
-                    )}
                   </FilterItem>
                 </TitleFilter>
               )}
@@ -400,7 +357,7 @@ const TransactionsList = ({
                 <FilterArrows
                   onClick={() => setFilters({ subject: !filters.subject })}
                 >
-                  <RotatingArrow isOpen={filters.subject} />
+                  <RotatingArrow $isOpen={filters.subject} />
                 </FilterArrows>
               </FilterContainer>
               {filters.subject && (
@@ -411,7 +368,10 @@ const TransactionsList = ({
                       active={subject[item.label]}
                       isLast={index === subjects.length - 1}
                       onClick={() => {
-                        setSubject((prev) => ({ ...prev, [item.label]: true }));
+                        setSubject((prev) => ({
+                          ...prev,
+                          [item.label]: !prev[item.label],
+                        }));
                         setFilters({ ...filters, subject: false });
                       }}
                     >
@@ -423,20 +383,6 @@ const TransactionsList = ({
                       <SubjectFilterText>
                         {getTranslation(item.slug)}
                       </SubjectFilterText>
-                      {subject[item.label] && (
-                        <FilterCloseButton
-                          onClick={(e) => {
-                            setSubject((prev) => ({
-                              ...prev,
-                              [item.label]: false,
-                            }));
-                            e.stopPropagation();
-                            setFilters({ ...filters, subject: false });
-                          }}
-                        >
-                          X
-                        </FilterCloseButton>
-                      )}
                     </SubjectFilterItem>
                   ))}
                 </SubjectFilter>

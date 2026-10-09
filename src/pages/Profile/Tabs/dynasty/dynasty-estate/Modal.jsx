@@ -53,29 +53,45 @@ const Buttons = styled.div`
   gap: 15px;
   margin-top: 30px;
 `;
+const Modal = ({ setModal, onConfirm, elapsed }) => {
 
-const Modal = ({ setModal, onConfirm, date }) => {
-  const calculateTimeRemaining = () => {
-    const targetDate = new Date(
-      date.split(" ")[0].split("/").reverse().join("/")
-    );
-    const currentDate = new Date();
+  const getDisplayTime = () => {
+    if (!elapsed || isNaN(elapsed.days)) return null;
 
-    if (currentDate > targetDate) {
-      return null;
+    // اگر 30 روز یا بیشتر گذشته، همان مقدار اصلی
+    if (elapsed.days >= 30) {
+      return elapsed;
     }
 
-    const diffTime = Math.abs(targetDate - currentDate);
-    const days = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(
-      (diffTime % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-    );
-    const minutes = Math.floor((diffTime % (1000 * 60 * 60)) / (1000 * 60));
+    // تبدیل زمان سپری‌شده به ثانیه
+    const elapsedSeconds =
+      elapsed.days * 24 * 60 * 60 +
+      elapsed.hours * 60 * 60 +
+      elapsed.minutes * 60 +
+      (elapsed.seconds || 0);
 
-    return { days, hours, minutes };
+    // 30 روز بر حسب ثانیه
+    const thirtyDaysSeconds = 30 * 24 * 60 * 60;
+
+    // زمان باقی‌مانده
+    const remainingSeconds = Math.max(
+      0,
+      thirtyDaysSeconds - elapsedSeconds
+    );
+
+    return {
+      days: Math.floor(remainingSeconds / (24 * 60 * 60)),
+      hours: Math.floor(
+        (remainingSeconds % (24 * 60 * 60)) / (60 * 60)
+      ),
+      minutes: Math.floor(
+        (remainingSeconds % (60 * 60)) / 60
+      ),
+      seconds: remainingSeconds % 60,
+    };
   };
 
-  const timeRemaining = calculateTimeRemaining();
+  const displayTime = getDisplayTime();
 
   return (
     <BackGround>
@@ -84,17 +100,19 @@ const Modal = ({ setModal, onConfirm, date }) => {
           <span>{getTranslation("122")}</span>
           <ExitIcon onClick={() => setModal(false)}>X</ExitIcon>
         </Header>
-        {isNaN(timeRemaining?.days) ? (
+
+        {displayTime ? (
           <p>{getTranslation(1439)}</p>
         ) : (
           <p>
             {getTranslation(821)}
-            {timeRemaining.days} {getTranslation(380)},
-            {timeRemaining.hours} {getTranslation(560)},
-            {timeRemaining.minutes} {getTranslation(33)}
+            {displayTime.days} {getTranslation(380)},
+            {displayTime.hours} {getTranslation(560)},
+            {displayTime.minutes} {getTranslation(33)}
             {getTranslation(1409)}
           </p>
         )}
+
         <Buttons>
           <Button
             label={getTranslation("823")}
@@ -103,6 +121,7 @@ const Modal = ({ setModal, onConfirm, date }) => {
             fit
             textColor="#D7FBF0"
           />
+
           <Button
             label={getTranslation("824")}
             color="#C30000"
@@ -115,5 +134,4 @@ const Modal = ({ setModal, onConfirm, date }) => {
     </BackGround>
   );
 };
-
 export default Modal;

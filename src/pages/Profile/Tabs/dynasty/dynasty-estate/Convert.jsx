@@ -1,22 +1,23 @@
 import Modal from "./Modal";
+
 import PropertyCard from "../dynasty-establish/PropertyCard";
 import SearchInput from "../../../../../components/SearchInput";
 import Title from "../../../../../components/Title";
 import styled from "styled-components";
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useContext } from "react";
 import useRequest from "../../../../../services/Hooks/useRequest";
 import { useNavigate } from "react-router";
 import {
   getTranslation,
-  ToastSuccess,
+  ToastSuccess, ToastError, GetTimeElapsed
 } from "../../../../../services/Utility";
-
+import { UserContext } from "../../../../../services/reducers/UserContext";
 // Combine styled components
 const Styledcomponents = {
   Container: styled.div``,
   Wrapper: styled.div`
     display: grid;
-    gap: 20px;
+    gap: 10px;
     margin-top: 20px;
 
     grid-template-columns: 1fr;
@@ -27,6 +28,8 @@ const Styledcomponents = {
   Header: styled.div`
     display: flex;
     align-items: center;
+        margin-top: 10px;
+
     justify-content: space-between;
   `,
 };
@@ -37,6 +40,11 @@ const Convert = ({ data, setData }) => {
   const [selectedPropertyId, setSelectedPropertyId] = useState(null);
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
   const navigate = useNavigate();
+  const [user] = useContext(UserContext);
+  const lastUpdated = data?.["dynasty-feature"]?.["last-updated"];
+
+  const elapsed = GetTimeElapsed(lastUpdated);
+
   // Memoize filtered features
   const filteredFeatures = useMemo(() => {
     if (!data?.features) return [];
@@ -46,6 +54,11 @@ const Convert = ({ data, setData }) => {
   }, [data?.features, searchTerm]);
   // Use useCallback for event handlers
   const updateDynasty = useCallback((id) => {
+    if (!user.verified_kyc) {
+      ToastError(getTranslation(881))
+      return;
+    }
+
     if (!checkSecurity()) return;
 
     setSelectedPropertyId(id);
@@ -99,7 +112,7 @@ const Convert = ({ data, setData }) => {
         <Modal
           setModal={setModal}
           onConfirm={handleConfirm}
-          date={data["dynasty-feature"]["last-updated"]}
+          elapsed={elapsed}
         />
       )}
     </Styledcomponents.Container>

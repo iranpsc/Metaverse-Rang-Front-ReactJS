@@ -69,15 +69,23 @@ const Details = styled.p`
 `;
 
 const BtnOpenCloseMenu = styled.button`
-  width: 41px;
-  height: 41px;
-  border-radius: 100%;
+  width: ${(p) =>
+    p.$isOpen ? "17px" : "41px"}; 
+      height: ${(p) =>
+    p.$isOpen ? "17px" : "41px"}; 
+      margin-top: ${(p) =>
+    p.$isOpen ? "13px" : ""};
+    border-radius: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${(p) =>
+  padding: ${(p) =>
+    p.$isOpen ? "0px" : "13px"};
+background-color: ${(p) =>
     p.$isOpen ? "transparent" : p.theme.colors.newColors.otherColors.themeBtn};
-  position: ${(props) => (props.$isOpen ? "relative" : "absolute")};
+    
+    
+    position: ${(props) => (props.$isOpen ? "relative" : "absolute")};
   ${(props) => {
     const direction = document.body.dir || "ltr";
     return direction === "ltr"
@@ -105,8 +113,7 @@ const Icon = styled(ArowMenu)`
 
   transition: transform 0.3s ease;
 
-  width: 41px;
-  height: 41px;
+
 `;
 
 const Header = () => {
