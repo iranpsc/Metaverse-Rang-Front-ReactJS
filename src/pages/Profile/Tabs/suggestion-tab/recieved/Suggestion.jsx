@@ -3,7 +3,7 @@ import Proposer from "./Proposer";
 import { useMap } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import {
   SuggestionsContainer,
   Location,
@@ -21,6 +21,7 @@ import {
 import { useLanguage } from "../../../../../services/reducers/LanguageContext";
 import { calculatePolygonCentroid } from "../../../../../services/Utility/calculatePolygonCentroid";
 import { flyToMapPosition } from "../../../../../services/Utility/flyToMapPosition";
+import { getPolygonShape } from "../../../../../services/Utility/getPolygonShape";
 import { Skeleton } from "../../../../../components/Skeleton";
 import yellow from "../../../../../assets/images/profile/yellow-color.gif";
 import red from "../../../../../assets/images/profile/red-color.gif";
@@ -78,8 +79,14 @@ const KARBARI_ICONS = { m: yellow, t: red, a: blue };
 const Suggestion = ({ item, isLoading }) => {
   const [removed, setRemoved] = useState(false);
   const isPersian = useLanguage();
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
   const mapRef = useMap();
+
+  const coordinates = item?.feature_coordinates;
+  const { points, viewBox, hasXGreaterThan50 } = useMemo(
+    () => getPolygonShape(coordinates),
+    [coordinates],
+  );
 
   if (isLoading) {
     return (
@@ -135,34 +142,17 @@ const Suggestion = ({ item, isLoading }) => {
   if (removed || !item) return null;
 
   const feature = item.feature_properties || {};
-  const coordinates = item.feature_coordinates || [];
-  const xCoords = coordinates.map((c) => c.x);
-  const yCoords = coordinates.map((c) => c.y);
-  const minX = Math.min(...xCoords);
-  const maxX = Math.max(...xCoords);
-  const minY = Math.min(...yCoords);
-  const maxY = Math.max(...yCoords);
-  const hasXGreaterThan50 = xCoords.some((x) => x > 50);
-  const center = calculatePolygonCentroid(coordinates);
-
-  const normalizedPoints = coordinates
-    .map((coord) => {
-      const nx =
-        coord.x > 50
-          ? ((coord.x - minX) / (maxX - minX)) * 40
-          : ((coord.x - minX) / (maxX - minX)) * 100;
-      const ny =
-        coord.x > 50
-          ? ((coord.y - minY) / (maxY - minY)) * 140
-          : ((coord.y - minY) / (maxY - minY)) * 100;
-      return `${nx},${ny}`;
-    })
-    .join(" ");
 
   const handleLocation = () => {
-    if (!coordinates.length) return;
-    flyToMapPosition({ latitude: center.y, longitude: center.x, mapRef, zoom: 17 });
-    Navigate("/");
+    if (!coordinates?.length) return;
+    const center = calculatePolygonCentroid(coordinates);
+    flyToMapPosition({
+      latitude: center.y,
+      longitude: center.x,
+      mapRef,
+      zoom: 17,
+    });
+    navigate("/");
   };
 
   return (
@@ -170,32 +160,33 @@ const Suggestion = ({ item, isLoading }) => {
       <Property>
         <Location>
           <AreaContainer>
-            <StyledSVG
-              viewBox={`${hasXGreaterThan50 ? -15 : -30} ${hasXGreaterThan50 ? -85 : -110
-                } 150 ${hasXGreaterThan50 ? 100 : 120}`}
-            >
+            <StyledSVG viewBox={viewBox}>
               <Polygon
                 karbari={feature.karbari}
                 hasXGreaterThan50={hasXGreaterThan50}
-                points={normalizedPoints}
+                points={points}
               />
             </StyledSVG>
           </AreaContainer>
           <div>
             <p>{feature.address}</p>
-            <h3 onClick={handleLocation}>{feature.id?.toString?.().toUpperCase?.()}</h3>
+            <h3 onClick={handleLocation}>
+              {feature.id?.toString?.().toUpperCase?.()}
+            </h3>
           </div>
         </Location>
         <Pricing>
           <Value>
             <h2>{getTranslation("767")}</h2>
             <div>
-              <img
-                width={24}
-                height={24}
-                src={KARBARI_ICONS[feature.karbari] || null}
-                alt=""
-              />
+              {feature.karbari && (
+                <img
+                  width={24}
+                  height={24}
+                  src={KARBARI_ICONS[feature.karbari]}
+                  alt=""
+                />
+              )}
               <span>{convertToPersian(feature.stability || 0)}</span>
             </div>
           </Value>

@@ -6,19 +6,12 @@ import useRequest from "../../../../services/Hooks/useRequest";
 import { getTranslation } from "../../../../services/Utility";
 import { useRef } from "react";
 import { Skeleton } from "../../../../components/Skeleton";
-
+import Container from "../../../../components/Common/Container";
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
   margin: 15px 0 0 0;
-`;
-
-const Container = styled.div`
-  padding: 15px;
-  overflow-y: auto;
-  height: 90%;
-  padding-bottom: 60px;
 `;
 
 const P = styled.p`

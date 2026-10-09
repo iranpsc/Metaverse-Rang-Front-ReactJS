@@ -5,13 +5,14 @@ import { getTranslation } from "../../services/Utility";
 
 const DropdownContainer = styled.div`
   position: relative;
-  width: 100%;
-  font-size: 16px;
+  width: ${({ $size }) => ($size === "small" ? "fit-content" : "100%")};
+  min-width: ${({ $size }) => ($size === "small" ? "90px" : "0")};
+  font-size: ${({ $size }) => ($size === "small" ? "14px" : "16px")};
   white-space: nowrap;
 `;
 
 const DropdownButton = styled.div`
-  padding: 10px 12px;
+  padding: ${({ $size }) => ($size === "small" ? "6px 10px" : "10px 12px")};
   border-radius: 5px;
   border: 1px solid #454545;
   background-color: ${({ theme }) =>
@@ -21,10 +22,12 @@ const DropdownButton = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: ${({ $size }) => ($size === "small" ? "8px" : "0")};
 `;
 
 const ArrowIcon = styled(MdKeyboardArrowDown)`
-  font-size: 20px;
+  font-size: ${({ $size }) => ($size === "small" ? "16px" : "20px")};
+  flex-shrink: 0;
   color: #84858f;
   transition: transform 0.25s ease;
   ${({ $isOpen }) =>
@@ -33,11 +36,13 @@ const ArrowIcon = styled(MdKeyboardArrowDown)`
       transform: rotate(180deg);
     `}
 `;
+
 const DropdownList = styled.div`
   position: absolute;
   top: ${({ top }) => top || "110%"};
   left: 0;
-  width: 100%;
+  width: ${({ $size }) => ($size === "small" ? "max-content" : "100%")};
+  min-width: 100%;
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
   border-radius: 5px;
@@ -48,7 +53,7 @@ const DropdownList = styled.div`
 `;
 
 const DropdownItem = styled.div`
-  padding: 10px 12px;
+  padding: ${({ $size }) => ($size === "small" ? "6px 10px" : "10px 12px")};
   color: #84858f;
   cursor: pointer;
 
@@ -60,8 +65,8 @@ const DropdownItem = styled.div`
 
 const SearchInput = styled.input`
   width: 92%;
-  font-size: 16px;
-  padding: 10px 12px;
+  font-size: ${({ $size }) => ($size === "small" ? "14px" : "16px")};
+  padding: ${({ $size }) => ($size === "small" ? "6px 10px" : "10px 12px")};
   border: none;
   border-bottom: 1px solid #454545;
   background-color: ${({ theme }) =>
@@ -69,6 +74,7 @@ const SearchInput = styled.input`
   color: #84858f;
   outline: none;
 `;
+
 const Dropdown = ({
   options = [],
   selected,
@@ -77,9 +83,10 @@ const Dropdown = ({
   placeholder = "please select",
   searchable = false,
   selectPlaceHolder = false,
-  hideTrigger = false,      // جدید: دکمه‌ی خودش رو رندر نکن
-  isOpen: controlledIsOpen, // جدید: کنترل باز/بسته از بیرون
-  onOpenChange,             // جدید
+  hideTrigger = false,
+  isOpen: controlledIsOpen,
+  onOpenChange,
+  size = "normal", // "normal" | "small"
 }) => {
   const [internalIsOpen, setInternalIsOpen] = useState(false);
   const isControlled = controlledIsOpen !== undefined;
@@ -128,9 +135,9 @@ const Dropdown = ({
   }, []);
 
   return (
-    <DropdownContainer ref={dropdownRef}>
+    <DropdownContainer ref={dropdownRef} $size={size}>
       {!hideTrigger && (
-        <DropdownButton onClick={() => setIsOpen(!isOpen)}>
+        <DropdownButton $size={size} onClick={() => setIsOpen(!isOpen)}>
           {(() => {
             if (!selected) return placeholder;
             const obj = options.find(
@@ -138,14 +145,15 @@ const Dropdown = ({
             );
             return obj ? obj.label : selected;
           })()}
-          <ArrowIcon $isOpen={isOpen} />
+          <ArrowIcon $isOpen={isOpen} $size={size} />
         </DropdownButton>
       )}
 
       {isOpen && (
-        <DropdownList top={top}>
+        <DropdownList top={top} $size={size}>
           {searchable && (
             <SearchInput
+              $size={size}
               type="text"
               placeholder={getTranslation("57")}
               value={searchTerm}
@@ -155,7 +163,11 @@ const Dropdown = ({
           )}
 
           {filteredOptions.map((option, index) => (
-            <DropdownItem key={index} onClick={() => handleOptionClick(option)}>
+            <DropdownItem
+              key={index}
+              $size={size}
+              onClick={() => handleOptionClick(option)}
+            >
               {typeof option === "string" ? option : option.label}
             </DropdownItem>
           ))}

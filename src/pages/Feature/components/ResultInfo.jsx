@@ -70,7 +70,7 @@ const Value = styled.p`
   font-weight: 400;
 `;
 
-const ResultInfo = ({ setAssign, rial, psc, setPsc, setRial,id }) => {
+const ResultInfo = ({ setAssign, rial, psc, setPsc, setRial, id, lowest }) => {
   const { theme } = useTheme();
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
   const deleteHandler = () => {
@@ -113,14 +113,16 @@ const ResultInfo = ({ setAssign, rial, psc, setPsc, setRial,id }) => {
         </ResultWrapper>
         <Result title={getTranslation("523")} value={"5%"} />
       </Results>
-      <Actions>
+              {!lowest && ( <Actions>
         <ActionWrapper onClick={() => setAssign(false)}>
           <BiEditAlt size={20} color={buttonColer} />
         </ActionWrapper>
         <ActionWrapper onClick={deleteHandler}>
           <HiOutlineTrash size={20} color="#9b0e0e" />
         </ActionWrapper>
-      </Actions>
+      </Actions>)}
+
+     
     </Wrapper>
   );
 };

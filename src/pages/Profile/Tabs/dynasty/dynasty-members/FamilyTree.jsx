@@ -1,7 +1,7 @@
 import { FaPlus } from "react-icons/fa";
+import defulte from "../../../../../assets/images/defulte-profile.png";
 
 import TreeMember from "./TreeMember";
-import member from "../../../../../assets/images/user.png";
 import styled from "styled-components";
 import Title from "../../../../../components/Title";
 import { getTranslation } from "../../../../../services/Utility";
@@ -145,7 +145,7 @@ const FamilyTree = ({ members, setMode, ownerImg }) => {
     <Container>
       <Title right title={getTranslation(112)} />
       <Head>
-        <img src={ownerImg || member} width={110} height={110} />
+        <img src={ownerImg || defulte} width={110} height={110} />
       </Head>
       <Family>
         <Sibling>

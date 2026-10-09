@@ -25,7 +25,7 @@ const Owner = ({ data }) => {
     <Container>
       <Title title={getTranslation(819)} />
       <Wrapper>
-        <Model3D />
+        <Model3D data={data} />
         <Details data={data} />
       </Wrapper>
     </Container>

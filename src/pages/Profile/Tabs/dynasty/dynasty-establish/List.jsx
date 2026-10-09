@@ -7,22 +7,37 @@ import pscplus from "../../../../../assets/gif/pscplus.gif";
 import rial from "../../../../../assets/gif/rial.gif";
 import styled from "styled-components";
 
+const HEADER_ICONS = [
+  { alt: "limit", src: limit },
+  { alt: "psc", src: psc },
+  { alt: "pscplus", src: pscplus },
+  { alt: "cav", src: cav },
+  { alt: "rial", src: rial },
+  { alt: "gif", src: gif },
+];
+
 const Container = styled.div`
   border-radius: 0.25rem;
-  &::-webkit-scrollbar {
-    display: none;
-  }
   margin-top: 20px;
+`;
+
+// برای اسکرول افقی روی موبایل
+const TableWrapper = styled.div`
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
 `;
 
 const Table = styled.table`
   margin-top: 5px;
   border-collapse: collapse;
-  border-top-right-radius: 10px;
-  border-top-left-radius: 10px;
+
   width: 100%;
-  
-  height: 430px;
+  min-width: 500px;
+
+  @media (max-height: 768px) {
+    min-width: 0px;
+  }
 `;
 
 const TableHead = styled.thead`
@@ -42,94 +57,57 @@ const TableHeader = styled.th`
   position: relative;
   padding-bottom: 10px;
   text-align: center;
+
   &:nth-of-type(2) {
     padding-right: 45px;
   }
+
   div {
     width: fit-content;
+  }
+
+  img {
+    width: 30px;
+    height: 30px;
+  }
+
+  @media (max-height: 768px) {
+    padding: 12px 8px 8px;
+
+    &:nth-of-type(2) {
+      padding-right: 20px;
+    }
+
+    img {
+      width: 22px;
+      height: 22px;
+    }
   }
 `;
 
 const List = ({ members }) => {
   return (
     <Container>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableHeader>
-              <div>
-                <img
-                  width={30}
-                  height={30}
-                  alt="limit"
-                  src={limit}
-                  loading="lazy"
-                />
-              </div>
-            </TableHeader>
-            <TableHeader>
-              <div>
-                <img
-                  width={30}
-                  height={30}
-                  alt="psc"
-                  src={psc}
-                  loading="lazy"
-                />
-              </div>
-            </TableHeader>
-            <TableHeader>
-              <div>
-                <img
-                  width={30}
-                  height={30}
-                  alt="pscplus"
-                  src={pscplus}
-                  loading="lazy"
-                />
-              </div>
-            </TableHeader>
-            <TableHeader>
-              <div>
-                <img
-                  width={30}
-                  height={30}
-                  alt="cav"
-                  src={cav}
-                  loading="lazy"
-                />
-              </div>
-            </TableHeader>
-            <TableHeader>
-              <div>
-                <img
-                  width={30}
-                  height={30}
-                  alt="rial"
-                  src={rial}
-                  loading="lazy"
-                />
-              </div>
-            </TableHeader>
-            <TableHeader>
-              <div>
-                <img
-                  width={30}
-                  height={30}
-                  alt="gif"
-                  src={gif}
-                  loading="lazy"
-                />
-              </div>
-            </TableHeader>
-          </TableRow>
-        </TableHead>
-        <tbody>
-          {members.map((member) => (
-            <Row key={member.id} {...member} />
-          ))}
-        </tbody>
-      </Table>
+      <TableWrapper>
+        <Table>
+          <TableHead>
+            <TableRow>
+              {HEADER_ICONS.map(({ alt, src }) => (
+                <TableHeader key={alt}>
+                  <div>
+                    <img alt={alt} src={src} loading="lazy" />
+                  </div>
+                </TableHeader>
+              ))}
+            </TableRow>
+          </TableHead>
+          <tbody>
+            {members.map((member) => (
+              <Row key={member.id} {...member} />
+            ))}
+          </tbody>
+        </Table>
+      </TableWrapper>
     </Container>
   );
 };

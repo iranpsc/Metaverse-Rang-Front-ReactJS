@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import { IoRadioButtonOnOutline } from "react-icons/io5";
-import avatar from "../../../../../assets/images/user.png";
+import defulte from "../../../../../assets/images/defulte-profile.png";
 import styled from "styled-components";
+import Dropdown from "../../../../../components/Common/Dropdown";
 import {
   convertToPersian,
   getTranslation,
@@ -11,6 +13,8 @@ const Container = styled.div`
     props.theme.colors.newColors.otherColors.menuBg};
   border-radius: 5px;
   padding: 20px;
+ color: ${(props) => props.theme.colors.newColors.shades.title};
+
   display: grid;
   grid-template-columns: 3fr 1fr 1fr;
   gap: 20px;
@@ -27,12 +31,12 @@ const Right = styled.div`
 `;
 const Center = styled.div`
   h4 {
-    color: ${(props) => props.theme.colors.newColors.otherColors.title};
+    
     font-size: 14px;
     font-weight: 600;
   }
   h3 {
-    color: ${(props) => props.theme.colors.newColors.otherColors.title};
+    
     margin-top: 4px;
     font-size: 16px;
     font-weight: 400;
@@ -40,12 +44,12 @@ const Center = styled.div`
 `;
 const Left = styled.div`
   h4 {
-    color: ${(props) => props.theme.colors.newColors.otherColors.title};
+    
     font-size: 14px;
     font-weight: 600;
   }
   h3 {
-    color: ${(props) => props.theme.colors.newColors.otherColors.title};
+    
     margin-top: 4px;
     font-size: 16px;
     font-weight: 400;
@@ -60,7 +64,7 @@ const Profile = styled.div`
     border: 2px solid ${(props) => props.theme.colors.primary};
   }
   h3 {
-    color: ${(props) => props.theme.colors.newColors.otherColors.title};
+    
 
     font-size: 18px;
     font-weight: 500;
@@ -81,25 +85,9 @@ const Profile = styled.div`
   }
 `;
 
-// Add styled dropdown component
-const StyledSelect = styled.select`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.menuBg};
-  color: ${(props) => props.theme.colors.newColors.otherColors.title};
-  border: 1px solid ${(props) => props.theme.colors.newColors.shades.title};
-  border-radius: 5px;
-  padding: 8px;
-  font-size: 14px;
-  width: 50%;
-  margin-top: 5px;
-
-  &:focus {
-    outline: none;
-    border-color: ${(props) => props.theme.colors.primary};
-  }
-`;
-
 const MemberCard = ({ selectedCitizen, memberType, setSelectedRelation }) => {
+  const [selected, setSelected] = useState(null);
+
   const relationTypes = {
     parent: [
       { value: "father", label: 125 }, // پدر
@@ -117,16 +105,30 @@ const MemberCard = ({ selectedCitizen, memberType, setSelectedRelation }) => {
     ],
   };
 
-  const handleRelationChange = (e) => {
-    setSelectedRelation(e.target.value);
+  // تبدیل به فرمت مورد نیاز Dropdown: { value, label }
+  const options = (relationTypes[memberType] ?? []).map((relation) => ({
+    value: relation.value,
+    label: getTranslation(relation.label),
+  }));
+  useEffect(() => {
+    if (options.length === 1) {
+      setSelected(options[0].value);
+      setSelectedRelation(options[0].value);
+    } else {
+      setSelected(null);
+      setSelectedRelation(null);
+    }
+  }, [memberType]);
+  const handleRelationChange = (value) => {
+    setSelected(value);
+    setSelectedRelation(value);
   };
-
   return (
     <Container>
       <Right>
         <IoRadioButtonOnOutline size={24} />
         <Profile>
-          <img src={selectedCitizen?.image || avatar} width={80} height={80} />
+          <img src={selectedCitizen?.image || defulte} width={80} height={80} />
           <div>
             <h3>{selectedCitizen?.name}</h3>
             <a
@@ -141,14 +143,15 @@ const MemberCard = ({ selectedCitizen, memberType, setSelectedRelation }) => {
       </Right>
       <Center>
         <h4>{getTranslation(834)}</h4> {/* نسبت */}
-        <StyledSelect onChange={handleRelationChange}>
-          <option value="">{getTranslation(1000)}</option>
-          {relationTypes[memberType]?.map((relation) => (
-            <option key={relation.value} value={relation.value}>
-              {getTranslation(relation.label)}
-            </option>
-          ))}
-        </StyledSelect>
+        {options.length > 1 ? (<Dropdown
+          options={options}
+          selected={selected}
+          onSelect={handleRelationChange}
+          placeholder={getTranslation(1000)}
+          size="small"
+
+        />) : (<h4>{options[0].label}</h4>)}
+
       </Center>
       <Left>
         <h4>{getTranslation(1400)}</h4> {/* سن */}

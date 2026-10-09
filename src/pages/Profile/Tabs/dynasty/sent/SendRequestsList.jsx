@@ -1,9 +1,12 @@
 import RequestsList from "../../../../../components/RequestsList/RequestsList";
 
-const SendRequestsList = ({ rows, member, status, setStatus, setMember, type, isLoading }) => {
+const SendRequestsList = ({ rows,setRows, member, status, setStatus, setMember, type, isLoading }) => {
+ 
+ console.log(rows)
   return (
     <RequestsList
       rows={rows}
+      setRows={setRows}
       member={member}
       status={status}
       setStatus={setStatus}

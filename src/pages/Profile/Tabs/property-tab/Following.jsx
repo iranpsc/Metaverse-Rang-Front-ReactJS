@@ -8,6 +8,7 @@ import { getTranslation } from "../../../../services/Utility";
 import { useParams } from "react-router";
 import Container from "../../../../components/Common/Container";
 import { Skeleton } from "../../../../components/Skeleton";
+import { useFollow } from "../../../../services/reducers/FollowContext";
 
 const List = styled.div`
   padding: 20px 0;
@@ -54,21 +55,22 @@ const Following = () => {
   const [loading, setLoading] = useState(true);
   const { Request } = useRequest();
   const { id } = useParams();
+  const { isOnline } = useFollow();
 
   useEffect(() => {
-    const endpoint = id ? `players/${id}/following` : "following";
-    setLoading(true);
-    Request(endpoint)
-      .then((response) => {
-        setFollowings(response.data.data);
-      })
-      .catch((error) => {
-        console.error("Error loading following:", error);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [id]);
+  const endpoint = id ? `players/${id}/following` : "following";
+  setLoading(true);
+  Request(endpoint)
+    .then((response) => {
+      setFollowings(response.data.data);
+    })
+    .catch((error) => {
+      console.error("Error loading following:", error);
+    })
+    .finally(() => {
+      setLoading(false);
+    });
+}, [id]);
 
   const filteredItems = followings.filter((item) => {
     const query = searched.toLowerCase().trim();
@@ -76,7 +78,6 @@ const Following = () => {
     const nameMatch = item.name?.toLowerCase().includes(query);
     return codeMatch || nameMatch;
   });
-
   return (
     <Container>
       <div style={{ marginBottom: "20px" }}>
@@ -88,27 +89,34 @@ const Following = () => {
         onchange={(e) => setSearched(e.target.value)}
       />
       <List>
-        {loading ? (
-          // اسکلتون فقط برای لیست - کادر جستجو ثابت
-          Array.from({ length: 5 }).map((_, index) => (
-            <SkeletonCard key={index}>
-              <SkeletonProfile>
-                <SkeletonImage />
-                <div>
-                  <Skeleton width="120px" height="24px" radius="6px" style={{ marginBottom: "8px" }} />
-                  <Skeleton width="80px" height="16px" radius="4px" />
-                </div>
-              </SkeletonProfile>
-              <SkeletonButtons>
-                <Skeleton width="140px" height="48px" radius="8px" />
-              </SkeletonButtons>
-            </SkeletonCard>
-          ))
-        ) : (
-          filteredItems.map((item) => (
-            <FollowingCard key={item.id} {...item} online={item.online} />
-          ))
-        )}
+        {loading
+          ? // اسکلتون فقط برای لیست - کادر جستجو ثابت
+            Array.from({ length: 5 }).map((_, index) => (
+              <SkeletonCard key={index}>
+                <SkeletonProfile>
+                  <SkeletonImage />
+                  <div>
+                    <Skeleton
+                      width="120px"
+                      height="24px"
+                      radius="6px"
+                      style={{ marginBottom: "8px" }}
+                    />
+                    <Skeleton width="80px" height="16px" radius="4px" />
+                  </div>
+                </SkeletonProfile>
+                <SkeletonButtons>
+                  <Skeleton width="140px" height="48px" radius="8px" />
+                </SkeletonButtons>
+              </SkeletonCard>
+            ))
+          : filteredItems.map((item) => (
+              <FollowingCard
+                key={item.id}
+                {...item}
+                online={isOnline(item.id)}
+              />
+            ))}
       </List>
     </Container>
   );

@@ -1,16 +1,16 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useContext } from "react";
 import { getTranslation } from "../../../../services/Utility";
 import { Container, Label } from "../../../../components/sidbar";
 import { NavLink, useLocation } from "react-router";
-
-const Sidebar = () => {
+import { UserContext } from "../../../../services/reducers/UserContext";
+const Sidebar = (data) => {
   const { pathname } = useLocation();
-
+  const [user] = useContext(UserContext);
   const lastSegment = useMemo(() => {
     const segments = pathname.split("/");
     return segments[segments.length - 1];
   }, [pathname]);
-
+  const userHasDynasty = data?.data?.["user-has-dynasty"];
   const [dynastyStatus, setDynastyStatus] = useState(null);
 
   useEffect(() => {
@@ -47,24 +47,25 @@ const Sidebar = () => {
           </Label>
         )}
       </NavLink>
-
-      <NavLink to="members" replace end>
+      {userHasDynasty && (<NavLink to="members" replace end>
         {({ isActive }) => (
           <Label menu={isActive}>{getTranslation(112)}</Label>
         )}
-      </NavLink>
+      </NavLink>)}
 
-      <NavLink to="send" replace end>
+      {userHasDynasty && (<NavLink to="send" replace end>
         {({ isActive }) => (
           <Label menu={isActive}>{getTranslation(113)}</Label>
         )}
-      </NavLink>
+      </NavLink>)}
 
-      <NavLink to="recieved" replace end>
+      {(user.verified_kyc || userHasDynasty) && (<NavLink to="recieved" replace end>
         {({ isActive }) => (
           <Label menu={isActive}>{getTranslation(114)}</Label>
         )}
-      </NavLink>
+      </NavLink>)
+      }
+
     </Container>
   );
 };

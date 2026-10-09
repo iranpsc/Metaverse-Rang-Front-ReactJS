@@ -1,7 +1,7 @@
 import psc from "../../../../assets/gif/psc.gif";
 import rial from "../../../../assets/gif/rial.gif";
 import styled from "styled-components";
-import { getTranslation, metarangUrlCitizen } from "../../../../services/Utility";
+import { getTranslation, metarangUrlCitizen, formatNumber } from "../../../../services/Utility";
 
 const Container = styled.div`
   display: flex;
@@ -54,16 +54,21 @@ const Info = ({ item }) => {
       title: getTranslation("43"),
       value: item?.owner_code,
     },
-    {
-      id: 3,
-      title: getTranslation("45"),
-      value: item?.price_psc,
-    },
-    {
-      id: 4,
-      title: getTranslation("44"),
-      value: item?.price_irr,
-    },
+
+    ...(item?.latest_sell_request
+      ? [
+        {
+          id: 3,
+          title: getTranslation("45"),
+          value: item?.latest_sell_request?.price_psc,
+        },
+        {
+          id: 4,
+          title: getTranslation("44"),
+          value: item?.latest_sell_request?.price_irr,
+        },
+      ]
+      : []),
   ];
   return (
     <Container>
@@ -93,16 +98,13 @@ const Info = ({ item }) => {
           {item.id === 1 && <h2>{item.value}</h2>}
           {item.id === 3 && (
             <h2>
-              {item.value >= 1000000
-                ? `\u2066${Math.floor(item.value / 1000000)}\u00A0M`
-                : `\u2066${Math.floor(item.value / 1_000)}\u00A0K`}
+              {formatNumber(item.value)}
             </h2>
           )}
           {item.id === 4 && (
             <h2>
-              {item.value >= 1000000
-                ? `\u2066${Math.floor(item.value / 1000000)}\u00A0M`
-                : `\u2066${Math.floor(item.value / 1_000)}\u00A0K`}
+              {formatNumber(item.value)}
+
             </h2>
           )}
           {item.id == 2 && (

@@ -9,14 +9,29 @@ import {
   getTranslation,
   ToastError,
   ToastSuccess,
+  formatTime,
+  convertToPersian,
 } from "../../../../services/Utility";
-import {
-  phoneNumberNormalizer,
-  phoneNumberValidator,
-} from "@persian-tools/persian-tools";
 
 const PHONE_INPUT_ID = "phone";
 const CODE_INPUT_ID = "code";
+const RESEND_TIMER = 2 * 60;
+
+const normalizePhone = (value) => {
+  let digits = String(value ?? "")
+    .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+    .replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+    .replace(/\D/g, "");
+
+  if (digits.startsWith("0098")) digits = digits.slice(4);
+  else if (digits.startsWith("98")) digits = digits.slice(2);
+
+  if (digits.startsWith("9")) digits = `0${digits}`;
+
+  return digits;
+};
+
+const isValidPhone = (value) => /^09\d{9}$/.test(normalizePhone(value));
 
 const Container = styled.div`
   padding: 20px;
@@ -58,6 +73,34 @@ const Error = styled.span`
   margin-top: -20px;
 `;
 
+const ResendBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
+  font-size: 15px;
+
+  h4 {
+    color: #008bf8;
+    font-weight: 400;
+  }
+
+  span {
+    color: #969696;
+  }
+
+  h2 {
+    font-size: 12px;
+    color: #dc920a;
+    cursor: pointer;
+
+    &:hover {
+      color: #ad740a;
+    }
+  }
+`;
+
 const ChangeCard = ({
   id,
   inputs,
@@ -67,11 +110,23 @@ const ChangeCard = ({
   const { Request, HTTP_METHOD } = useRequest();
   const [step, setStep] = useState("phone");
   const [isSending, setIsSending] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [timer, setTimer] = useState(0);
   const [inputValues, setInputValues] = useState([]);
   const [inputErrors, setInputErrors] = useState([]);
   const [remainingResets, setRemainingResets] = useState(
     Number(availableResetMobileResets) || 0
   );
+
+  useEffect(() => {
+    if (step !== "code" || timer <= 0) return;
+
+    const timeoutId = setTimeout(() => {
+      setTimer((prev) => Math.max(0, prev - 1));
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [timer, step]);
 
   useEffect(() => {
     setRemainingResets(Number(availableResetMobileResets) || 0);
@@ -98,6 +153,7 @@ const ChangeCard = ({
     setInputValues(getInitialValues());
     setInputErrors(getInitialErrors());
     setStep("phone");
+    setTimer(0);
   }, [inputs]);
 
   const getInputValue = (id) =>
@@ -110,12 +166,7 @@ const ChangeCard = ({
     if (!input) return "";
 
     if (input.validation === "mobile") {
-      try {
-        phoneNumberValidator(phoneNumberNormalizer(value, "0"));
-        return "";
-      } catch {
-        return getTranslation(1834);
-      }
+      return isValidPhone(value) ? "" : getTranslation(1834);
     }
 
     if (input.validation === "code") {
@@ -170,7 +221,9 @@ const ChangeCard = ({
   const visibleInputs = useMemo(() => {
     if (!Array.isArray(inputs)) return [];
 
-    const baseInputs = inputs.filter((item) => String(item.id) !== CODE_INPUT_ID);
+    const baseInputs = inputs.filter(
+      (item) => String(item.id) !== CODE_INPUT_ID
+    );
 
     if (step === "phone") return baseInputs;
 
@@ -186,41 +239,67 @@ const ChangeCard = ({
     ];
   }, [inputs, step]);
 
-  const handleSave = () => {
+  // ارسال کد: هم برای مرحله‌ی اول و هم برای ارسال مجدد
+  const sendCode = async () => {
+    const rawPhone = getInputValue(PHONE_INPUT_ID);
+
+    if (!rawPhone) {
+      ToastError(getTranslation(1837));
+      return false;
+    }
+
+    if (!isValidPhone(rawPhone)) {
+      ToastError(getTranslation(1834));
+      return false;
+    }
+
+    const normalizedPhone = normalizePhone(rawPhone);
+
+    try {
+      await Request("mobile/send", HTTP_METHOD.POST, {
+        mobile: normalizedPhone,
+      });
+
+      setTimer(RESEND_TIMER);
+      ToastSuccess(getTranslation(1836));
+      return true;
+    } catch (error) {
+      ToastError(error.response?.data?.message || getTranslation(1835));
+      return false;
+    }
+  };
+
+  const clearCodeValue = () => {
+    setInputValues((prev) =>
+      prev.map((item) =>
+        String(item.id) === CODE_INPUT_ID ? { ...item, value: "" } : item
+      )
+    );
+    setInputErrors((prev) =>
+      prev.map((item) =>
+        String(item.id) === CODE_INPUT_ID ? { ...item, error: "" } : item
+      )
+    );
+  };
+
+  const resendHandler = async () => {
+    if (isSending || isResending || timer > 0) return;
+
+    setIsResending(true);
+    const success = await sendCode();
+    if (success) clearCodeValue();
+    setIsResending(false);
+  };
+
+  const handleSave = async () => {
+    if (isSending || isResending) return;
+
     setIsSending(true);
 
     if (step === "phone") {
-      const rawPhone = getInputValue(PHONE_INPUT_ID);
-
-      if (!rawPhone) {
-        ToastError(getTranslation(1837));
-        setIsSending(false);
-        return;
-      }
-
-      try {
-        const normalizedPhone = phoneNumberNormalizer(rawPhone, "0");
-        phoneNumberValidator(normalizedPhone);
-
-        Request("mobile/send", HTTP_METHOD.POST, {
-          mobile: normalizedPhone,
-        })
-          .then(() => {
-            setStep("code");
-            ToastSuccess(getTranslation(1836));
-          })
-          .catch((error) => {
-            ToastError(
-              error.response?.data?.message || getTranslation(1835)
-            );
-          })
-          .finally(() => {
-            setIsSending(false);
-          });
-      } catch {
-        ToastError(getTranslation(1834));
-        setIsSending(false);
-      }
+      const success = await sendCode();
+      if (success) setStep("code");
+      setIsSending(false);
       return;
     }
 
@@ -232,29 +311,27 @@ const ChangeCard = ({
       return;
     }
 
-    Request("mobile/verify", HTTP_METHOD.POST, {
-      code: codeValue,
-    })
-      .then(() => {
-        setStep("phone");
-        setInputValues(getInitialValues());
-        setInputErrors(getInitialErrors());
+    try {
+      await Request("mobile/verify", HTTP_METHOD.POST, { code: codeValue });
 
-        const nextResetCount = Math.max(remainingResets - 1, 0);
-        setRemainingResets(nextResetCount);
+      setStep("phone");
+      setTimer(0);
+      setInputValues(getInitialValues());
+      setInputErrors(getInitialErrors());
 
-        if (typeof onResetMobileSuccess === "function") {
-          onResetMobileSuccess(nextResetCount);
-        }
+      const nextResetCount = Math.max(remainingResets - 1, 0);
+      setRemainingResets(nextResetCount);
 
-        ToastSuccess(getTranslation(1832));
-      })
-      .catch(() => {
-        ToastError(getTranslation(1831));
-      })
-      .finally(() => {
-        setIsSending(false);
-      });
+      if (typeof onResetMobileSuccess === "function") {
+        onResetMobileSuccess(nextResetCount);
+      }
+
+      ToastSuccess(getTranslation(1832));
+    } catch {
+      ToastError(getTranslation(1831));
+    } finally {
+      setIsSending(false);
+    }
   };
 
   if (!Array.isArray(inputs) || inputs.length === 0) {
@@ -265,10 +342,12 @@ const ChangeCard = ({
     step === "phone"
       ? !getInputValue(PHONE_INPUT_ID)
       : !getInputValue(CODE_INPUT_ID) ||
-      String(getInputValue(CODE_INPUT_ID)).trim().length !== 6;
+        String(getInputValue(CODE_INPUT_ID)).trim().length !== 6;
 
-  const buttonLabel = step === "phone" ? getTranslation("629") : getTranslation("628");
+  const buttonLabel =
+    step === "phone" ? getTranslation("629") : getTranslation("628");
   const warnMessage = ` ${remainingResets} ${getTranslation("1830")}`;
+  const isBusy = isSending || isResending;
 
   return (
     <Container id={id}>
@@ -294,6 +373,7 @@ const ChangeCard = ({
                 onchange={(e) => handleInputChange(inputId, e.target.value)}
                 title={getTranslation(item.label) || item.label}
                 error={itemError}
+                maxLength={11}
               />
               {itemError && <Error>{itemError}</Error>}
             </div>
@@ -301,11 +381,28 @@ const ChangeCard = ({
         })}
       </Inputs>
 
+      {step === "code" && (
+        <ResendBox>
+          <h4>{convertToPersian(formatTime(timer))}</h4>
+
+          {timer !== 0 ? (
+            <span>{getTranslation("863")}</span>
+          ) : (
+            <h2
+              onClick={resendHandler}
+              style={{ pointerEvents: isBusy ? "none" : "auto" }}
+            >
+              {getTranslation(1642)}
+            </h2>
+          )}
+        </ResendBox>
+      )}
+
       <Button
         full
         label={buttonLabel}
         onclick={handleSave}
-        disabled={isDisabled ? true : isSending ? "pending" : false}
+        disabled={isDisabled ? true : isBusy ? "pending" : false}
       />
     </Container>
   );

@@ -10,6 +10,8 @@ import Message from "../../assets/svg/message.svg?react";
 import ProfileMember from "../../assets/svg/profileMember.svg";
 import Ticket from "../../assets/svg/ticket.svg";
 import Setting from "../../assets/svg/setting.svg";
+import userEdit from "../../assets/svg/user-edit.svg";
+
 import { useNavigate } from "react-router";
 import { getTranslation, metarangUrlCitizen } from "../../services/Utility";
 import { useLanguage } from "../../services/reducers/LanguageContext";
@@ -177,22 +179,22 @@ const Profile = () => {
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const isPersian = useLanguage();
-const containerMainRef = useRef(null);
+  const containerMainRef = useRef(null);
 
   useEffect(() => {
     setUser(getUser());
   }, [getUser]);
-useEffect(() => {
-  if (!isOpen) setIsOpenDrop(false);
-}, [isOpen]);
+  useEffect(() => {
+    if (!isOpen) setIsOpenDrop(false);
+  }, [isOpen]);
   const handleToggleDrop = () => {
     setIsOpenDrop((prev) => !prev);
   };
-useEffect(() => {
-  if (isOpenDrop && containerMainRef.current) {
-    containerMainRef.current.scrollTo({ top: 0, behavior: "smooth" });
-  }
-}, [isOpenDrop]);
+  useEffect(() => {
+    if (isOpenDrop && containerMainRef.current) {
+      containerMainRef.current.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [isOpenDrop]);
   return (
     <>
       <Btn onClick={handleToggleDrop}>
@@ -254,6 +256,8 @@ useEffect(() => {
                 if (user?.code) window.location.href = metarangUrlCitizen(user.code);
               }}
             >
+              <Icon src={userEdit} />
+
               {getTranslation("162")}
             </BtnNavigator>
             <Union />

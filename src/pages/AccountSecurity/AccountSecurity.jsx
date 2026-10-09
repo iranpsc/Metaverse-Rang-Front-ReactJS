@@ -7,13 +7,11 @@ import { useEffect, useState } from "react";
 const AccountSecurity = () => {
   const [step, setStep] = useState(1);
   const [time, setTime] = useState("");
-  const [accountSecurity, setAccountSecurity] = useState(null);
 
   useEffect(() => {
     const storedSecurity = getItem("account_security");
 
     if (storedSecurity && storedSecurity.account_security > Date.now()) {
-      setAccountSecurity(storedSecurity);
       setStep(3);
       setTime(storedSecurity.time);
     } else {

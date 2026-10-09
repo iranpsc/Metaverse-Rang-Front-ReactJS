@@ -8,6 +8,7 @@ import { getTranslation } from "../../../../services/Utility";
 import { useParams } from "react-router";
 import Container from "../../../../components/Common/Container";
 import { Skeleton } from "../../../../components/Skeleton";
+import { useFollow } from "../../../../services/reducers/FollowContext";
 
 const List = styled.div`
   padding: 20px 0;
@@ -54,6 +55,7 @@ const Followers = () => {
   const [loading, setLoading] = useState(true);
   const { Request } = useRequest();
   const { id } = useParams();
+  const { isOnline } = useFollow();
 
   useEffect(() => {
     const endpoint = id ? `players/${id}/followers` : "followers";
@@ -113,7 +115,7 @@ const Followers = () => {
               setFollowers={setFollowers}
               followers={followers}
               canFollow={item.can?.follow}
-              online={item.online}
+              online={isOnline(item.id)}
             />
           ))
         )}

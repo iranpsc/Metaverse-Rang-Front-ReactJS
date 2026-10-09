@@ -1,10 +1,15 @@
 import Button from "../../../../../components/Button";
 import MemberCard from "./MemberCard";
-import { getTranslation, ToastError, ToastSuccess, ConvertJalali, convertToPersian } from "../../../../../services/Utility";
+import { getTranslation, ToastError, ToastSuccess, SanitizeHTML, ConvertJalali, convertToPersian } from "../../../../../services/Utility";
 import styled from "styled-components";
 import ModalLg from "../../../../../components/Modal/ModalLg";
 import useRequest from "../../../../../services/Hooks/useRequest";
-
+const Container = styled.div`
+  max-height: 100%;
+  overflow-y: auto;
+  padding: 5px;
+padding-bottom: 40px;
+`;
 const Buttons = styled.div`
   display: flex;
   align-items: center;
@@ -12,62 +17,106 @@ const Buttons = styled.div`
   margin-top: 30px;
 `;
 
+const Texts = styled.div`
+
+padding-top: 30px;
+    color: ${(props) => props.theme.colors.newColors.shades.title};
+    font-size: 16px;
+    font-weight: 400;
+    &:last-of-type {
+      font-weight: 600;
+      color: ${(props) => props.theme.colors.newColors.otherColors.title};
+    }
+  
+`;
+
 const RequestDetails = ({
   setShowDetails,
   status,
   code,
   date,
-  time,
+  time, setRows,
   data,
   type,
 }) => {
   const { Request, HTTP_METHOD } = useRequest();
-
-  const handleSubmit = () => {
-    Request(`dynasty/requests/${type === "send" ? "send" : "recieved"}/${data.id}`, HTTP_METHOD.POST)
+  const handleReject = () => {
+    Request(`dynasty/requests/recieved/${data.id}`, HTTP_METHOD.DELETE)
       .then(() => {
-        ToastSuccess(getTranslation(1821));
+        ToastSuccess(getTranslation(1852));
+        setRows((prev) => prev.filter((row) => row.id !== data.id));
+
+        setShowDetails(false)
       })
       .catch((error) => {
 
         ToastError(error.response.data.message);
       });
   };
+  const handleCancel = () => {
+    Request(`dynasty/requests/sent/${data.id}`, HTTP_METHOD.DELETE)
+      .then(() => {
+        ToastSuccess(getTranslation(1853));
+        setRows((prev) => prev.filter((row) => row.id !== data.id));
+        setShowDetails(false);
+      })
+      .catch((error) => {
+        ToastError(error.response.data.message);
+      });
+  };
+  const handleAccept = () => {
+    Request(`dynasty/requests/recieved/${data.id}`, HTTP_METHOD.POST)
+      .then(() => {
+        ToastSuccess(getTranslation(1854));
+        setRows((prev) => prev.filter((row) => row.id !== data.id));
 
+        setShowDetails(false)
+      })
+      .catch((error) => {
+
+        ToastError(error.response.data.message);
+      });
+  };
   const isSendType = type === "sent" ? true : false;
-
   return (
     <ModalLg
       setShowModal={setShowDetails}
       titleId={isSendType ? "113" : "114"}
     >
-      <MemberCard
-        status={status}
-        date={ConvertJalali(date)}
-        time={convertToPersian(time)}
-        code={code}
-        name={data.from_user.name}
-        image={data?.from_user?.profile_photo}
-      />
-      <div dangerouslySetInnerHTML={{ __html: data.message }} />
-      {data?.status === 0 && !isSendType && (
+      <Container>
+        <MemberCard
+          status={status}
+          date={ConvertJalali(date)}
+          time={convertToPersian(time)}
+          code={code}
+          name={data.from_user.name}
+          image={data?.from_user?.profile_photo}
+        />
+
+        <Texts>
+          {SanitizeHTML(data.message)}
+        </Texts>
+
         <Buttons>
-          <Button
-            label={getTranslation(823)}
-            color="#18C08F"
-            onclick={handleSubmit}
-            fit
-            textColor="#D7FBF0"
-          />
-          <Button
-            label={getTranslation(824)}
+          {data?.status === 0 && !isSendType && (
+            <Button
+              label={getTranslation(823)}
+              color="#18C08F"
+              onClick={handleAccept}
+              fit
+              textColor="#D7FBF0"
+            />
+          )}
+          {data?.status === 0 && (<Button
+            label={!isSendType ? getTranslation(824) : getTranslation(833)}
             color="#C30000"
-            onclick={() => setShowDetails(false)}
+            onClick={!isSendType ? handleReject : handleCancel}
             fit
             textColor="#FFFFFF"
-          />
+          />)}
+
         </Buttons>
-      )}
+      </Container>
     </ModalLg>
   );
 };

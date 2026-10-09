@@ -5,11 +5,11 @@ import styled from "styled-components";
 import Button from "../../../../../components/Button";
 import {
   getTranslation,
-  ToastSuccess,
+  ToastSuccess, ToastError
 } from "../../../../../services/Utility";
 import ModalLg from "../../../../../components/Modal/ModalLg";
 import OnOff from "../../../../Settings/Tabs/OnOff";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import useRequest from "../../../../../services/Hooks/useRequest";
 
 const settings = [
@@ -25,6 +25,13 @@ const settings = [
   { id: 10, label: 844, name: "COTB", value: 0 },
 ];
 
+const ScrollArea = styled.div`
+  height: 100%;
+  overflow-y: auto;
+  padding-inline-end: 8px;
+  padding-bottom: 30px;
+`;
+
 const Buttons = styled.div`
   display: flex;
   align-items: center;
@@ -36,7 +43,7 @@ const Texts = styled.div`
   margin-top: 30px;
 
   p {
-    color: ${(props) => props.theme.colors.newColors.otherColors.title};
+    color: ${(props) => props.theme.colors.newColors.shades.title};
     font-size: 16px;
     font-weight: 400;
     &:last-of-type {
@@ -45,6 +52,7 @@ const Texts = styled.div`
     }
   }
 `;
+
 const Settings = styled.div`
   display: grid;
   gap: 20px;
@@ -54,6 +62,7 @@ const Settings = styled.div`
     grid-template-columns: 1fr 1fr;
   }
 `;
+
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
@@ -73,6 +82,7 @@ const Wrapper = styled.div`
     }
   }
 `;
+
 const SubmitDynastyModal = ({
   setOpenDetails,
   selectedCitizen,
@@ -80,9 +90,12 @@ const SubmitDynastyModal = ({
   memberType,
 }) => {
   const [selectedRelation, setSelectedRelation] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const { Request, HTTP_METHOD } = useRequest();
-  const handleAccept = async () => {
-    if (!selectedCitizen || !selectedRelation) return;
+  const isMinor = selectedCitizen?.age < 18;
+
+  const handleAccept = useCallback(async () => {
+    if (!selectedCitizen || !selectedRelation || submitting) return;
 
     const body = {
       user: selectedCitizen.id,
@@ -90,13 +103,14 @@ const SubmitDynastyModal = ({
     };
 
     // Add permissions if citizen is under 18
-    if (selectedCitizen.age <= 18) {
+    if (isMinor) {
       body.permissions = settings.reduce((acc, setting) => {
         acc[setting.id] = true; // You might want to track these values in state
         return acc;
       }, {});
     }
 
+    setSubmitting(true);
     try {
       const response = await Request(
         "dynasty/add/member",
@@ -105,58 +119,75 @@ const SubmitDynastyModal = ({
       );
 
       if (response.status === 201) {
-        ToastSuccess("درخواست شما با موفقیت ارسال شد");
+        ToastSuccess(getTranslation(1851));
         setOpenDetails(false);
         setMode({ mode: 1, type: null });
       }
-    } catch (err) { console.error("Error submitting dynasty member:", err); }
-  };
+    } catch (error) {
+      ToastError(error.response.data.error)
+    } finally {
+      setSubmitting(false);
+    }
+  }, [
+    selectedCitizen,
+    selectedRelation,
+    submitting,
+    isMinor,
+    Request,
+    HTTP_METHOD,
+    setOpenDetails,
+    setMode,
+  ]);
+
+  const handleClose = useCallback(() => setOpenDetails(false), [setOpenDetails]);
 
   return (
     <ModalLg titleId={832} setShowModal={setOpenDetails}>
-      <MemberCard
-        selectedCitizen={selectedCitizen}
-        memberType={memberType}
-        setSelectedRelation={setSelectedRelation}
-      />
-      <Texts>
-        {memberType == "children" && selectedCitizen.age < 18 ? (
-          <Settings>
-            {settings.map((setting) => (
-              <Wrapper key={setting.id}>
-                <p>{getTranslation(setting.label)}</p>
-                <OnOff label={getTranslation(setting.label)} />
-              </Wrapper>
-            ))}
-          </Settings>
-        ) : (
-          <>
-            <p>
-              {getTranslation(1401)} {memberType}{" "}
-              {getTranslation(1402)} {selectedCitizen.name}{" "}
-              {getTranslation(1403)}
-            </p>
-            <p>{getTranslation(1404)}</p>
-          </>
-        )}
-      </Texts>
-      <Buttons>
-        <Button
-          label={getTranslation(823)}
-          color="#18C08F"
-          onclick={handleAccept}
-          fit
-          textColor="#D7FBF0"
-          disabled={!selectedRelation} // Button will be disabled when no relation is selected
+      <ScrollArea>
+        <MemberCard
+          selectedCitizen={selectedCitizen}
+          memberType={memberType}
+          setSelectedRelation={setSelectedRelation}
         />
-        <Button
-          label={getTranslation(824)}
-          color="#C30000"
-          onclick={() => setOpenDetails(false)}
-          fit
-          textColor="#FFFFFF"
-        />
-      </Buttons>
+        <Texts>
+          {memberType === "children" && isMinor ? (
+            <Settings>
+              {settings.map((setting) => (
+                <Wrapper key={setting.id}>
+                  <p>{getTranslation(setting.label)}</p>
+                  <OnOff label={getTranslation(setting.label)} />
+                </Wrapper>
+              ))}
+            </Settings>
+          ) : (
+            <>
+              <p>
+                {getTranslation(1401)} {getTranslation(1402)}{" "}
+                {selectedCitizen?.name} {getTranslation(1403)}
+              </p>
+              <p>{getTranslation(1404)}</p>
+            </>
+          )}
+        </Texts>
+        <Buttons>
+          <Button
+            label={getTranslation(823)}
+            color="#18C08F"
+            onclick={handleAccept}
+            fit
+            textColor="#D7FBF0"
+            disabled={!selectedRelation || submitting}
+          />
+          <Button
+            label={getTranslation(824)}
+            color="#C30000"
+            onclick={handleClose}
+            fit
+            textColor="#FFFFFF"
+          />
+        </Buttons>
+      </ScrollArea>
+
     </ModalLg>
   );
 };

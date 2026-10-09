@@ -35,7 +35,7 @@ import Following from "../../pages/Profile/Tabs/property-tab/Following";
 import Houses from "../../pages/Profile/Tabs/property-tab/Houses";
 import DynastyEstablishEstate from "../../pages/Profile/Tabs/dynasty/DynastyEstablishEstate";
 import DynastyMembers from "../../pages/Profile/Tabs/dynasty/dynasty-members/DynastyMembers";
-import RecieveRequest from "../../pages/Profile/Tabs/dynasty/recieve/RecieveRequest";
+import RecievedList from "../../pages/Profile/Tabs/dynasty/recieve/RecievedList";
 import SendRequest from "../../pages/Profile/Tabs/dynasty/sent/SendRequest";
 import RecievedSuggestion from "../../pages/Profile/Tabs/suggestion-tab/recieved/RecievedSuggestion";
 import SentSuggestion from "../../pages/Profile/Tabs/suggestion-tab/sent/SentSuggestion";
@@ -130,7 +130,7 @@ export default function Routers() {
 
             <Route path="members" element={<DynastyMembers />} />
             <Route path="send" element={<SendRequest />} />
-            <Route path="recieved" element={<RecieveRequest />} />
+            <Route path="recieved" element={<RecievedList />} />
           </Route>
           <Route path="suggestion" element={<SuggestionTab />}>
             <Route index element={<Navigate to="recieved" replace />} />
