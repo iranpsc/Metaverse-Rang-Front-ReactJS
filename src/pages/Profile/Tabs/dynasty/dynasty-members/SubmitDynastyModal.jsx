@@ -124,7 +124,7 @@ const SubmitDynastyModal = ({
         setMode({ mode: 1, type: null });
       }
     } catch (error) {
-      ToastError(error.response.data.error)
+      ToastError(error.response.data.error);
     } finally {
       setSubmitting(false);
     }
