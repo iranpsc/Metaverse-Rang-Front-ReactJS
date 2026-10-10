@@ -36,7 +36,7 @@ const ErrorReportTab = () => {
   // فقط یک بار محاسبه می‌شود
   const { title, page } = getModalHeaderFromPrevious(initialPath.current);
 
-  const baseURL = `https://metarang.com${initialPath.current}`;
+  const baseURL = `https://world.metarang.com${initialPath.current}`;
 
   const { Request, HTTP_METHOD } = useRequest();
   const { state, dispatch } = useReportsGlobalState();
@@ -52,7 +52,7 @@ const ErrorReportTab = () => {
         dispatch({ type: "SET_SUBJECT", payload: "disrespect" });
         dispatch({
           type: "SET_TITLE",
-          payload: "عکس دارای محتوای زننده است ",
+          payload: getTranslation(1855),
         });
 
         try {
