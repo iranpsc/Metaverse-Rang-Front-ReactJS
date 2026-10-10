@@ -30,9 +30,7 @@ export const Polygon = styled.polygon`
     props.hasXGreaterThan50 ? "rotate(250deg)" : "rotate(270deg)"};
 `;
 const Model3D = (data) => {
-  const coordinates = data.data?.["dynasty-feature"]?.coordinates
-
-    ;
+  const coordinates = data.data?.["dynasty-feature"]?.coordinates;
   const { points, viewBox, hasXGreaterThan50 } = useMemo(
     () => getPolygonShape(coordinates),
     [coordinates],
