@@ -16,7 +16,8 @@ const DynastyEstablish = ({ data, setData, member }) => {
   return (
     <Container>
       <Wrapper>
-        <PropertySelect data={data} setData={setData} />
+        {data?.features && (<PropertySelect data={data} setData={setData} />
+        )}
         <Establish members={member} />
       </Wrapper>
     </Container>

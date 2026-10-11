@@ -337,6 +337,7 @@ const MapPolygons = () => {
           data={{
             type: "FeatureCollection",
             features: mapLands.map((polygon) => ({
+              
               type: "Feature",
               properties: {
                 id: polygon.id,
@@ -373,7 +374,7 @@ const MapPolygons = () => {
             }
             paint={{
               "line-color": ["get", "border"],
-              "line-width": 2,
+              "line-width":1.5,
             }}
           />
         </Source>

@@ -1,46 +1,57 @@
-// تنظیمات پیش‌فرض: زمین‌های «پهن» (x ≤ 50) و «بلند/باریک» (x > 50)
 const DEFAULT_CONFIG = {
-  wide: { width: 100, height: 100, viewBox: "-30 -110 150 120" },
-  tall: { width: 40, height: 140, viewBox: "-15 -85 150 100" },
+  size: 100, // اندازهٔ مربع viewBox
+  padding: 6, // حاشیه دور شکل
 };
 
-/**
- * مختصات زمین را به نقاط قابل رسم در SVG تبدیل می‌کند.
- *
- * @param {Array<{x:number,y:number}>} coordinates
- * @param {object} [config] برای تغییر ابعاد در جاهای دیگر (مثلاً { wide: {...}, tall: {...} })
- * @returns {{ points: string, viewBox: string, hasXGreaterThan50: boolean }}
- */
 export const getPolygonShape = (coordinates, config = {}) => {
-  const wide = { ...DEFAULT_CONFIG.wide, ...config.wide };
-  const tall = { ...DEFAULT_CONFIG.tall, ...config.tall };
+  const { size, padding } = { ...DEFAULT_CONFIG, ...config };
+  const viewBox = `0 0 ${size} ${size}`;
 
   if (!Array.isArray(coordinates) || coordinates.length === 0) {
-    return { points: "", viewBox: wide.viewBox, hasXGreaterThan50: false };
+    return { points: "", viewBox, hasXGreaterThan50: false };
   }
 
-  const xs = coordinates.map((c) => c.x);
-  const ys = coordinates.map((c) => c.y);
+  // تبدیل رشته به عدد
+  const pts = coordinates
+    .map((c) => ({ x: Number(c.x), y: Number(c.y) }))
+    .filter((p) => Number.isFinite(p.x) && Number.isFinite(p.y));
+
+  if (!pts.length) return { points: "", viewBox, hasXGreaterThan50: false };
+
+  // اصلاح فشردگی طول جغرافیایی نسبت به عرض جغرافیایی
+  const meanLat = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+  const kx = Math.cos((meanLat * Math.PI) / 180);
+
+  const xs = pts.map((p) => p.x * kx);
+  const ys = pts.map((p) => p.y);
 
   const minX = Math.min(...xs);
   const maxX = Math.max(...xs);
   const minY = Math.min(...ys);
   const maxY = Math.max(...ys);
 
-  const hasXGreaterThan50 = xs.some((x) => x > 50);
-  const { width, height, viewBox } = hasXGreaterThan50 ? tall : wide;
+  const rangeX = maxX - minX || 1e-9;
+  const rangeY = maxY - minY || 1e-9;
 
-  // جلوگیری از تقسیم بر صفر وقتی همه نقاط روی یک خط هستند
-  const rangeX = maxX - minX || 1;
-  const rangeY = maxY - minY || 1;
+  // یک مقیاس برای هر دو محور تا نسبت واقعی حفظ شود
+  const inner = size - padding * 2;
+  const scale = inner / Math.max(rangeX, rangeY);
 
-  const points = coordinates
-    .map((c) => {
-      const nx = ((c.x - minX) / rangeX) * width;
-      const ny = ((c.y - minY) / rangeY) * height;
-      return `${nx},${ny}`;
+  // وسط‌چین
+  const offsetX = padding + (inner - rangeX * scale) / 2;
+  const offsetY = padding + (inner - rangeY * scale) / 2;
+
+  const points = pts
+    .map((p, i) => {
+      const nx = offsetX + (xs[i] - minX) * scale;
+      const ny = offsetY + (maxY - p.y) * scale; // شمال بالا
+      return `${nx.toFixed(2)},${ny.toFixed(2)}`;
     })
     .join(" ");
 
-  return { points, viewBox, hasXGreaterThan50 };
+  return {
+    points,
+    viewBox,
+    hasXGreaterThan50: pts.some((p) => p.x > 50),
+  };
 };

@@ -1,0 +1,15 @@
+
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.metarang.twa",
+      "sha256_cert_fingerprints": [
+        "86:C3:E3:95:71:9A:7C:56:DB:82:03:AA:E1:A6:90:97:E9:1E:9E:BC:94:A3:E1:74:3C:C8:7F:32:47:50:82:A3"
+      ]
+    }
+  }
+]

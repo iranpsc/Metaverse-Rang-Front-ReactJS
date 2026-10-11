@@ -26,12 +26,11 @@ export const Polygon = styled.polygon`
         karbari === "a" ? "#2f00ff" : "#ffff"
   };  stroke-width: 1;
     
-  transform: ${(props) =>
-    props.hasXGreaterThan50 ? "rotate(250deg)" : "rotate(270deg)"};
+
 `;
 const Model3D = (data) => {
   const coordinates = data.data?.["dynasty-feature"]?.coordinates;
-  const { points, viewBox, hasXGreaterThan50 } = useMemo(
+  const { points, viewBox } = useMemo(
     () => getPolygonShape(coordinates),
     [coordinates],
   );
@@ -41,7 +40,6 @@ const Model3D = (data) => {
       <StyledSVG viewBox={viewBox}>
         <Polygon
           karbari={"m"}
-          hasXGreaterThan50={hasXGreaterThan50}
           points={points}
         />
       </StyledSVG>

@@ -98,15 +98,11 @@ export const StyledSVG = styled.svg`
   height: 100%;
 `;
 export const Polygon = styled.polygon`
-    //color: ${({ percent }) => (percent > 0 ? "#18C08F" : "#FF0000")};
-
-    fill: ${({ karbari }) =>
+  fill: ${({ karbari }) =>
     karbari === "m" ? "#fae52b" :
-      karbari === "t" ? "#FF0000" :
-        karbari === "a" ? "#2f00ff" : "#ffff"
-  };  stroke-width: 1;
-  transform: ${(props) =>
-    props.hasXGreaterThan50 ? "rotate(250deg)" : "rotate(270deg)"};
+    karbari === "t" ? "#FF0000" :
+    karbari === "a" ? "#2f00ff" : "#ffffff"};
+  stroke-width: 1;
 `;
 export const proposerContainer = styled.div`
   background-color: ${(props) =>
