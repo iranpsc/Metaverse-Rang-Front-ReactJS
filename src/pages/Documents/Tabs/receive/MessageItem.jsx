@@ -211,7 +211,7 @@ const MessageItem = ({ data, isCurrentUser }) => {
   return (
     <Wrapper>
       <Container $isCurrentUser={isCurrentUser}>
-        <img src={profilePhoto} alt={`${name || "user"} avatar`} width={50} height={50} />
+        <img src={profilePhoto||avatar} alt={`${name || "user"} avatar`} width={50} height={50} />
 
         <MessageWrapper>
           <Header $isCurrentUser={isCurrentUser}>

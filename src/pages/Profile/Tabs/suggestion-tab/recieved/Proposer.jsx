@@ -121,7 +121,6 @@ const StyledArrowUp = styled(MdOutlineKeyboardArrowUp)`
   rotate: ${({ percent }) => (percent > 0 ? "" : "180deg")};
 `;
 
-// محاسبه روزهای باقیمانده مهلت فقط برای نمایش (فرمت تاریخ)، نه نرمالایز بیزینسی
 const getGraceRemainingDays = (gracePeriod) => {
   if (!gracePeriod) return 0;
   const remaining = Math.ceil(

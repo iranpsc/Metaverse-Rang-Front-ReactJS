@@ -16,7 +16,7 @@ import {
   Citizens,
   Buttons,
   SelectButton,
-  IconWrapper, // Add this import
+  IconWrapper, 
 } from "./styles/CitizenInvite.styles";
 import SubmitDynastyModal from "./SubmitDynastyModal";
 
@@ -58,7 +58,7 @@ const CitizenInvite = ({ setMode, memberType, members, setMembers }) => {
   const handleCitizenClick = useCallback((citizen) => {
     if (!citizen.verified) {
       ToastError(
-        "شهروند مورد نظر احراز مرحله دو را انجام نداده است و در نتیجه شما قادر به ارسال درخواست برای این شهروند نمی باشد .شهروند دیگری را جستجو کنید",
+        getTranslation("1442"),
       );
       setSelectedCitizen(null);
       return;

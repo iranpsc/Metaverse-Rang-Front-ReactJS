@@ -6,7 +6,7 @@
   "display": "standalone",
   "background_color": "#0d1117",
   "theme_color": "#1f6feb",
-  "orientation": "any",
+  "orientation": "landscape",
   "icons": [
     {
       "src": "https://s3.metarang.com/metarang/logo/metarang-logo-512.png",

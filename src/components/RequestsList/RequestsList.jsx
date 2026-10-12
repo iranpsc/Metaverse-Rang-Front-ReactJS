@@ -165,8 +165,9 @@ const RequestsList = ({
   setMember,
   setShowDetails,
   type,
-  isLoading, // اضافه شد
+  isLoading, 
 }) => {
+
   const [visibleRows, setVisibleRows] = useState(10);
   const [filters, setFilters] = useState({
     status: false,

@@ -7,7 +7,7 @@ import { useCallback, useContext, useMemo } from "react";
 
 const isProduction = window.location.hostname === "world.metarang.com";
 const PROD_BASE_URL = "https://api.metarang.com/api/";
-const DEV_BASE_URL = "https://dev-api.metarang.com/api/";
+const DEV_BASE_URL = "https://api.metarang.com/api/";
 export const BASE_URL = isProduction ? PROD_BASE_URL : DEV_BASE_URL;
 
 export default function useRequest() {

@@ -194,10 +194,10 @@ const RequestRow = ({
           <Title
             style={{
               color: `${status === "confirmed"
-                  ? "#18C08F"
-                  : status === "pending"
-                    ? "#FFC700"
-                    : "#FF0000"
+                ? "#18C08F"
+                : status === "pending"
+                  ? "#FFC700"
+                  : "#FF0000"
                 }`,
             }}
           >
@@ -245,7 +245,7 @@ const RequestRow = ({
           time={time}
           code={code}
           setRows={setRows}
-          gif={gif}
+          gif={+gif}
           psc={psc}
           data={data}
           setShowDetails={setShowDetails}

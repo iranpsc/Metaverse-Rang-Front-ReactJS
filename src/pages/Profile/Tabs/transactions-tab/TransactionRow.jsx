@@ -2,7 +2,7 @@ import { LuEye } from "react-icons/lu";
 import PrintModal from "./PrintModal";
 import { WalletContext, WalletContextTypes } from "../../../../services/reducers/WalletContext";
 import styled from "styled-components";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext,useRef } from "react";
 import {
   convertToPersian,
   getTranslation, ConvertJalali
@@ -103,25 +103,32 @@ const TransactionRow = ({
 
   const [Wallet, dispatch] = useContext(WalletContext);
   const [openPrint, setOpenPrint] = useState(false);
-  useEffect(() => {
-    if (paymentReturned) {
-      setOpenPrint(true);
+    const handledRef = useRef(false);
 
-      if (status == 0) {
-        const updatedWallet = updateWalletValue(Wallet, {
-          asset,
-          value: amount,
-        });
+ useEffect(() => {
+    if (!paymentReturned) return;
 
-        dispatch({
-          type: WalletContextTypes.ADD_WALLET,
-          payload: updatedWallet,
-        });
+    if (handledRef.current) return;
+    handledRef.current = true;
 
-      }
-      sessionStorage.removeItem("payment_returned");
+    setOpenPrint(true);
+
+    const processedKey = `wallet_credited_${id}`;
+    const alreadyCredited = sessionStorage.getItem(processedKey);
+
+    if (status == 0 && !alreadyCredited) {
+      sessionStorage.setItem(processedKey, "1"); // اول علامت بزن، بعد اضافه کن
+
+      const updatedWallet = updateWalletValue(Wallet, { asset, value: amount });
+      dispatch({
+        type: WalletContextTypes.ADD_WALLET,
+        payload: updatedWallet,
+      });
     }
+
+    sessionStorage.removeItem("payment_returned");
   }, [paymentReturned]);
+
   const getAssetTitle = (assetType) => {
     switch (assetType) {
       case "red":

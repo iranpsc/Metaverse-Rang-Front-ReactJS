@@ -1,15 +1,24 @@
 import { FiSearch } from "react-icons/fi";
-import { useContext, useEffect, useMemo, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import styled from "styled-components";
 import Button from "../../../../components/Button";
 import CustomEditor from "../../../../components/Common/CustomEditor";
-import Dropdown from "../../../../components/Common/Dropdown";
 import useLanguage from "../../../../services/Hooks/useLanguage";
 import useRequest from "../../../../services/Hooks/useRequest";
 import { getTranslation } from "../../../../services/Utility";
 import { FeatureContext } from "../../Context/FeatureProvider";
 import Input from "./Input";
+
 const MAX_ACTIVITIES = 3;
+const SEARCH_DEBOUNCE_MS = 400;
+const SCROLL_THRESHOLD = 40;
 
 const buildInitialFields = (inputs = {}) => ({
   activity: parseActivities(inputs?.first_row_info?.[0]?.value),
@@ -26,6 +35,73 @@ function parseActivities(value) {
     .map((item) => item.trim())
     .filter(Boolean);
 }
+
+// یکسان‌سازی ی/ک عربی و فارسی برای مقایسه
+const normalize = (text) =>
+  (text || "")
+    .replace(/ي/g, "ی")
+    .replace(/ك/g, "ک")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+
+
+const useIsicCodes = (search, enabled) => {
+  const { Request, HTTP_METHOD } = useRequest();
+  const [options, setOptions] = useState([]);
+  const [page, setPage] = useState(0);
+  const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const requestId = useRef(0);
+  const loadingRef = useRef(false);
+
+  const fetchPage = useCallback(async (pageNumber, term) => {
+    const id = ++requestId.current;
+    loadingRef.current = true;
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ page: pageNumber });
+      if (term) params.set("search", term);
+      const res = await Request(`isic-codes?${params}`, HTTP_METHOD.GET);
+      if (id !== requestId.current) return;
+
+      const list = res?.data?.data ?? [];
+      const meta = res?.data?.meta;
+
+      setOptions((prev) =>
+        pageNumber === 1
+          ? list
+          : [...prev, ...list.filter((n) => !prev.some((p) => p.id === n.id))],
+      );
+      setPage(pageNumber);
+      setHasMore(meta ? meta.current_page < meta.last_page : list.length > 0);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      if (id === requestId.current) {
+        loadingRef.current = false;
+        setLoading(false);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
+    setOptions([]);
+    setPage(0);
+    setHasMore(true);
+    fetchPage(1, search);
+  }, [search, enabled, fetchPage]);
+
+  const loadMore = useCallback(() => {
+    if (loadingRef.current || !hasMore || page === 0) return;
+    fetchPage(page + 1, search);
+  }, [fetchPage, hasMore, page, search]);
+
+  return { options, loading, hasMore, loadMore };
+};
+
+/* ------------------------------ Styles ------------------------------ */
 
 const Container = styled.div`
   display: flex;
@@ -48,7 +124,6 @@ const Field = styled.div`
   background-color: ${(props) =>
     props.theme.colors.newColors.otherColors.inputBg};
   align-items: center;
-  flex-wrap: nowrap;
 
   span {
     display: flex;
@@ -103,13 +178,11 @@ const TagsWrapper = styled.div`
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-
   gap: 6px;
   min-width: 0;
 `;
 
 const Tag = styled.div`
-
   display: flex;
   align-items: center;
   gap: 6px;
@@ -130,6 +203,40 @@ const Tag = styled.div`
   }
 `;
 
+const OptionsList = styled.ul`
+  position: absolute;
+  top: calc(100% + 4px);
+  inset-inline: 0;
+  z-index: 20;
+  max-height: 220px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  border-radius: 5px;
+  background-color: ${(p) => p.theme.colors.newColors.otherColors.menuBg};
+  border: 1px solid ${(p) => p.theme.colors.newColors.otherColors.inputBorder};
+`;
+
+const OptionItem = styled.li`
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  color: ${(p) => p.theme.colors.newColors.shades.title};
+
+  &:hover {
+    background-color: ${(p) => p.theme.colors.newColors.otherColors.iconBg};
+  }
+`;
+
+const Status = styled.li`
+  padding: 8px 12px;
+  font-size: 13px;
+  text-align: center;
+  color: ${(p) => p.theme.colors.newColors.shades.title};
+  opacity: 0.7;
+`;
+
 const First = styled.div`
   display: flex;
   gap: 10px;
@@ -142,7 +249,6 @@ const First = styled.div`
 const Third = styled.div`
   display: flex;
   gap: 10px;
-  
 `;
 
 const Text = styled.p`
@@ -161,45 +267,64 @@ const createInitialErrors = () => ({
   web: false,
 });
 
+
 const EditInputs = ({ hasData, inputs, setEdit, buildingID, featureID }) => {
   const { Request, HTTP_METHOD } = useRequest();
   const { isPersian } = useLanguage();
   const [, setFeature] = useContext(FeatureContext);
 
-  const [activityOptions, setActivityOptions] = useState([]);
   const [activityInput, setActivityInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [isActivityDropdownOpen, setIsActivityDropdownOpen] = useState(false);
   const [fields, setFields] = useState(() => buildInitialFields(inputs));
   const [errors, setErrors] = useState(createInitialErrors);
+  const fieldRef = useRef(null);
 
   useEffect(() => {
     setFields(buildInitialFields(inputs));
   }, [inputs]);
 
-  useEffect(() => {
-    Request("isic-codes", HTTP_METHOD.GET)
-      .then((res) => {
-        setActivityOptions(res?.data?.data ?? []);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, []);
-
   const isLimitReached = fields.activity.length >= MAX_ACTIVITIES;
 
-  const availableActivityOptions = useMemo(
-    () =>
-      activityOptions
-        .filter(
-          (option) =>
-            !fields.activity.some(
-              (item) => item.toLowerCase() === option.name.toLowerCase(),
-            ),
-        )
-        .map((option) => option.name),
-    [activityOptions, fields.activity],
+  useEffect(() => {
+    const t = setTimeout(
+      () => setDebouncedSearch(activityInput.trim()),
+      SEARCH_DEBOUNCE_MS,
+    );
+    return () => clearTimeout(t);
+  }, [activityInput]);
+
+  useEffect(() => {
+    const onClickOutside = (e) => {
+      if (fieldRef.current && !fieldRef.current.contains(e.target)) {
+        setIsActivityDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
+  // وقتی سقف پر شد لیست بسته شود
+  useEffect(() => {
+    if (isLimitReached) setIsActivityDropdownOpen(false);
+  }, [isLimitReached]);
+
+  const { options, loading, loadMore } = useIsicCodes(
+    debouncedSearch,
+    isActivityDropdownOpen && !isLimitReached,
   );
+
+  const availableOptions = useMemo(() => {
+    const selected = fields.activity.map(normalize);
+    return options.filter((o) => !selected.includes(normalize(o.name)));
+  }, [options, fields.activity]);
+
+  const handleListScroll = (e) => {
+    const { scrollTop, clientHeight, scrollHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop - clientHeight < SCROLL_THRESHOLD) {
+      loadMore();
+    }
+  };
 
   const addActivity = (rawValue) => {
     if (isLimitReached) return;
@@ -210,7 +335,7 @@ const EditInputs = ({ hasData, inputs, setEdit, buildingID, featureID }) => {
     setFields((prev) => {
       if (prev.activity.length >= MAX_ACTIVITIES) return prev;
       const alreadyExists = prev.activity.some(
-        (item) => item.toLowerCase() === value.toLowerCase(),
+        (item) => normalize(item) === normalize(value),
       );
 
       if (alreadyExists) return prev;
@@ -313,7 +438,7 @@ const EditInputs = ({ hasData, inputs, setEdit, buildingID, featureID }) => {
   return (
     <Container>
       <First>
-        <Field>
+        <Field ref={fieldRef}>
           <TagsWrapper>
             <FiSearch />
 
@@ -327,7 +452,11 @@ const EditInputs = ({ hasData, inputs, setEdit, buildingID, featureID }) => {
             {!isLimitReached && (
               <input
                 value={activityInput}
-                onChange={(event) => setActivityInput(event.target.value)}
+                onChange={(event) => {
+                  setActivityInput(event.target.value);
+                  setIsActivityDropdownOpen(true);
+                }}
+                onFocus={() => setIsActivityDropdownOpen(true)}
                 onKeyDown={handleActivityKeyDown}
                 maxLength={25}
                 placeholder={
@@ -348,20 +477,24 @@ const EditInputs = ({ hasData, inputs, setEdit, buildingID, featureID }) => {
             </IconButton>
           </TagsWrapper>
 
-          {!isLimitReached && (
-            <Dropdown
-            top="15px"
-              options={availableActivityOptions}
-              selected={null}
-              onSelect={(value) => {
-                addActivity(value);
-                setIsActivityDropdownOpen(false);
-              }}
-              searchable
-              hideTrigger
-              isOpen={isActivityDropdownOpen}
-              onOpenChange={setIsActivityDropdownOpen}
-            />
+          {isActivityDropdownOpen && !isLimitReached && (
+            <OptionsList onScroll={handleListScroll}>
+              {availableOptions.map((option) => (
+                <OptionItem
+                  key={option.id}
+                  onClick={() => {
+                    addActivity(option.name);
+                    setIsActivityDropdownOpen(false);
+                  }}
+                >
+                  {option.name}
+                </OptionItem>
+              ))}
+              {loading && <Status>...</Status>}
+              {!loading && availableOptions.length === 0 && (
+                <Status>موردی یافت نشد</Status>
+              )}
+            </OptionsList>
           )}
         </Field>
 

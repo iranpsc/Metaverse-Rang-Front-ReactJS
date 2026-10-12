@@ -89,7 +89,7 @@ const Suggestion = ({ item, isLoading }) => {
   const mapRef = useMap();
 
   const coordinates = item?.feature_coordinates;
-  const { points, viewBox, hasXGreaterThan50 } = useMemo(
+  const { points, viewBox } = useMemo(
     () => getPolygonShape(coordinates),
     [coordinates],
   );
@@ -169,7 +169,6 @@ const Suggestion = ({ item, isLoading }) => {
             <StyledSVG viewBox={viewBox}>
               <Polygon
                 karbari={feature.karbari}
-                hasXGreaterThan50={hasXGreaterThan50}
                 points={points}
               />
             </StyledSVG>
