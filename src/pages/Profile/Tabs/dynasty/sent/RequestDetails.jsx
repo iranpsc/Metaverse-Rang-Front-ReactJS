@@ -114,6 +114,7 @@ const RequestDetails = ({
   gif,
   psc,
 }) => {
+
   const [Wallet, dispatch] = useContext(WalletContext);
   const [isSending, setIsSending] = useState(false);
 
