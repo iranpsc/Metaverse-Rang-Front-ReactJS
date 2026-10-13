@@ -157,7 +157,6 @@ const IdentityInputs = ({ initialKyc = {}, onSubmitSuccess }) => {
   });
 
   const { Request, HTTP_METHOD } = useRequest();
-
   useEffect(() => {
     setInputValues({
       fname: initialKyc?.fname || "",
@@ -304,7 +303,7 @@ const IdentityInputs = ({ initialKyc = {}, onSubmitSuccess }) => {
     requestData.append("melli_card", nationImageURL);
     requestData.append("video[name]", JSON.parse(uploadResponse).name);
     requestData.append("video[path]", JSON.parse(uploadResponse).path);
-    requestData.append("verify_text_id", textVerify);
+    requestData.append("verify_text_id", textVerify.id);
     requestData.append(
       "gender",
       inputValues.gender === "877" ? "male" : "female",

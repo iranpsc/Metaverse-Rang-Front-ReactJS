@@ -219,8 +219,7 @@ const MessageItem = ({ data, isCurrentUser }) => {
 
             {code && (
               <a href={metarangUrlCitizen(code)} target="_blank" rel="noopener noreferrer">
-                {code}
-              </a>
+{code?.toUpperCase()}              </a>
             )}
           </Header>
 
