@@ -3,14 +3,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 /* کد های کامنت شده برای بخش توجه کنید پایین اینپوت است اگر در توسعه بشود به چندین کاربر پیام ارسلال کرد   */
 /* -------------------------------------------------------------------------- */
 
-//import { CgDanger } from "react-icons/cg";
+import { CgDanger } from "react-icons/cg";
 import styled from "styled-components";
 import { useLocation } from "react-router";
 import { useGlobalState } from "./GlobalVodStateProvider";
 import { getTranslation } from "../../../services/Utility";
 import useRequest from "../../../services/Hooks/useRequest";
 import Dropdown from "../../../components/Common/Dropdown";
-const limitedUser = 1;
+const limitedUser = 9;
 const Wrapper = styled.div``;
 
 const Container = styled.div`
@@ -164,7 +164,7 @@ const DropdownItem = styled.div`
 const SelectedDropdownItem = styled(DropdownItem)`
   background-color: ${(props) => props.theme.colors.newColors.otherColors.iconBg};
 `;
-/** const CitizenWarning = styled.div`
+ const CitizenWarning = styled.div`
   color: #a0a0ab;
 padding-top: 5px;
   font-size: 13px;
@@ -175,7 +175,7 @@ padding-top: 5px;
 
   gap: 2px;
 `;
-*/
+
 
 
 const Inputs = () => {
@@ -665,11 +665,11 @@ const Inputs = () => {
             )}
 
           {/* Warning */}
-          {/** <CitizenWarning>
+          { <CitizenWarning>
             <CgDanger size={20} />
 
             {getTranslation("1330")}
-          </CitizenWarning>*/ }
+          </CitizenWarning> }
         </CitizenInputWrapper>
       )}
     </Wrapper>
