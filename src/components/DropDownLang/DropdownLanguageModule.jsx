@@ -1,9 +1,6 @@
+// کامپوننت لیست انتخاب زبان (Dropdown) برای نمایش زبان‌های موجود همراه با آیکون پرچم و نام بومی هر زبان.
+import { useEffect, useRef } from "react";
 import styled from "styled-components";
-
-const Wrapper = styled.div`
-  cursor: pointer;
-`;
-
 const Menu = styled.ul`
   display: flex;
   flex-direction: column;
@@ -12,61 +9,56 @@ const Menu = styled.ul`
 `;
 
 const Item = styled.li`
-  width: 100%;
   display: flex;
   gap: 10px;
-  justify-content: flex-start;
-  color: flex-start;
+  width: 100%;
   padding: 6px 0;
   cursor: pointer;
-
-  &:hover {
-    color: #0066ff;
-  }
 `;
 
 const Name = styled.p`
   max-width: 200px;
   overflow: hidden;
-  transition: max-width 0.2s ease;
+  color: ${({ $selected, theme }) =>
+    $selected ? theme.colors.primary : "#858585"};
 
-  color: ${(p) => (p.selected ? p.theme.colors.primary : "#858585")};
-  :hover {
+  ${Item}:hover & {
     color: ${({ theme }) => theme.colors.primary};
   }
 `;
 
-// ===============================
-//          COMPONENT
-// ===============================
 export default function DropdownLanguageModule({
   langArray,
   changeLanguage,
   currentLang,
   setIsLangOpen,
-  isLangOpen,
 }) {
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsLangOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [setIsLangOpen]);
+
+  const handleSelect = (code) => {
+    changeLanguage(code);
+    setIsLangOpen(false);
+  };
+
   return (
-    <Wrapper>
-      <Menu>
-        {langArray?.map((item) => (
-          <Item
-            key={item.id}
-            onClick={() => {
-              changeLanguage(item.code); // ← تغییر زبان با انتخاب آیتم
-              setIsLangOpen(!isLangOpen);
-            }}
-          >
-            <img
-              src={item.icon}
-              alt={item.native_name}
-              width={28}
-              height={28}
-            />
-            <Name selected={currentLang === item.code}>{item.native_name}</Name>
-          </Item>
-        ))}
-      </Menu>
-    </Wrapper>
+    <Menu ref={menuRef}>
+      {langArray?.map(({ id, code, icon, native_name }) => (
+        <Item key={id} onClick={() => handleSelect(code)}>
+          <img src={icon} alt={native_name} width={28} height={28} />
+          <Name $selected={currentLang === code}>{native_name}</Name>
+        </Item>
+      ))}
+    </Menu>
   );
 }

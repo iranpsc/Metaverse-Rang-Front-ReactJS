@@ -1,9 +1,9 @@
 import { convertToPersian } from "../../../../services/Utility";
-import { useGlobalState } from "./aboutGlobalStateProvider";
+import { useGlobalState } from "../../../../hooks/useAboutMeGlobalState";
 import { getTranslation } from "../../../../services/Utility";
 import CustomEditor from "../../../../components/Common/CustomEditor";
 import { useState, useEffect } from "react";
-import { useLanguage } from "../../../../services/reducers/LanguageContext";
+import { useLanguage } from "../../../../hooks/useLanguageContext.js";
 import moment from "moment-jalaali";
 
 const NextYear = () => {

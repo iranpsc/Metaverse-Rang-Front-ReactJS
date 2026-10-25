@@ -2,7 +2,7 @@ import { IoNotificationsOutline } from "react-icons/io5";
 import { TbTrash } from "react-icons/tb";
 import { useContext } from "react";
 import styled from "styled-components";
-import useRequest from "../../services/Hooks/useRequest";
+import useRequest from "../../hooks/useRequest.js";
 import { SanitizeHTML } from "../../services/Utility";
 import {
   UserContext

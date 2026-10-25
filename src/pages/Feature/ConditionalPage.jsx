@@ -1,7 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import useAuth from "../../services/Hooks/useAuth";
-import Tabs from "../../services/Hooks/useTabs";
+import useAuth from "../../hooks/useAuth.js";
+import Tabs from "../../components/RouteTabs.jsx";
 import { FeatureContext } from "./Context/FeatureProvider";
 import { FeatureColor } from "../../services/constants/FeatureType";
 import { getTranslation } from "../../services/Utility";

@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import download from "../../../../assets/images/download.png";
 import styled from "styled-components";
-import { useLanguage } from "../../../../services/reducers/LanguageContext";
+import { useLanguage } from "../../../../hooks/useLanguageContext.js";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import DefaultProfile from "../../../../assets/images/defulte-profile.png";
 import { metarangUrlCitizen } from "../../../../services/Utility";

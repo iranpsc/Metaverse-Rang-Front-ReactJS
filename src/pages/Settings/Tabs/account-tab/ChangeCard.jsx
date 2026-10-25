@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Button from "../../../../components/Button";
 import EditInput from "../../../Feature/Tabs/enter-tab/EditInput";
 import Title from "../../../../components/Title";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import {
   getTranslation,
   ToastError,

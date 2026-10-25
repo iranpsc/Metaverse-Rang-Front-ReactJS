@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useState, useEffect, useMemo } from "react";
 import moment from "moment-jalaali";
-import { useLanguage } from "../../../../services/reducers/LanguageContext";
+import { useLanguage } from "../../../../hooks/useLanguageContext.js";
 import {
   convertToPersian,
   getTranslation,

@@ -1,3 +1,4 @@
+//باکس جستجو که باید در کل پروژه از همین استفاده شود
 import { FiSearch } from "react-icons/fi";
 import styled from "styled-components";
 import { useCallback, useEffect, useState } from "react";

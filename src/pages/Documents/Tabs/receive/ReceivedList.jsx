@@ -11,7 +11,7 @@ import Title from "../../../../components/Title";
 import SearchInput from "../../../../components/SearchInput";
 import VodList from "../../VodList";
 import { getTranslation } from "../../../../services/Utility";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import Container from "../../../../components/Common/Container";
 
 const Div = styled.div`

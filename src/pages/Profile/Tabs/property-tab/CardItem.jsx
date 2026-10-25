@@ -10,7 +10,7 @@ import {
 } from "../../../../services/Utility";
 import Button from "../../../../components/Button";
 import { useNavigate } from "react-router";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 
 const PhotoName = styled.div`
   display: flex;

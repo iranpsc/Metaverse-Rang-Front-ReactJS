@@ -6,7 +6,7 @@ import Resumable from "resumablejs";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import { getTranslation } from "../../../../services/Utility";
 import * as Sentry from "@sentry/react";
-import { BASE_URL } from "../../../../services/Hooks/useRequest";
+import { BASE_URL } from "../../../../hooks/useRequest.js";
 const Container = styled.div`
   background-color: ${(props) =>
     props.theme.colors.newColors.otherColors.inputBg};

@@ -1,4 +1,4 @@
-import Tabs from "../../services/Hooks/useTabs";
+import Tabs from "../../components/RouteTabs.jsx";
 import ShopInfo from "./shop/ShopInfo";
 import Modal from "../../components/Modal/index";
 import { getTranslation } from "../../services/Utility";

@@ -1,9 +1,9 @@
 import Button from "../../../../components/Button";
 import Title from "../../../../components/Title";
 import styled from "styled-components";
-import { useGlobalState } from "./aboutGlobalStateProvider";
+import { useGlobalState } from "../../../../hooks/useAboutMeGlobalState";
 import { getTranslation } from "../../../../services/Utility";
-import useRequest from "../../../../services/Hooks/useRequest/index";
+import useRequest from "../../../../hooks/useRequest.js";
 import { useState } from "react";
 import Alert from "../../../../components/Alert/Alert";
 

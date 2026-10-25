@@ -8,7 +8,7 @@ import red from "../../../../assets/gif/red-color.gif";
 import yellow from "../../../../assets/gif/yellow-color.gif";
 import nopic from "../../../../assets/images/nopic.jpg";
 import styled from "styled-components";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import {
   convertToPersian,
   formatTime,

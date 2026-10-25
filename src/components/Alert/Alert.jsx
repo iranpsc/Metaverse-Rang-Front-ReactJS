@@ -1,79 +1,75 @@
+// این کامپوننت مناسب نمایش پیام موفقیت خطا یا در حال بررسی در بالای کامپوننت در هر مدال است
+import styled from "styled-components";
 import { BsFillExclamationOctagonFill } from "react-icons/bs";
 import { IoIosCheckmarkCircle } from "react-icons/io";
-import { AiOutlineClockCircle } from "react-icons/ai"; // آیکن جدید برای حالت در دست بررسی
-import styled from "styled-components";
-import { useEffect, useState } from "react";
+import { AiOutlineClockCircle } from "react-icons/ai";
 
-import i18n from "../../i18n/i18n";
+const ALERT_TYPES = {
+  success: { color: "#18C08F", Icon: IoIosCheckmarkCircle },
+  error: { color: "#C30000", Icon: BsFillExclamationOctagonFill },
+  pending: { color: "#FFA500", Icon: AiOutlineClockCircle },
+};
+
 const Container = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  border-radius: 5px;
-  padding: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 30px;
   gap: 5px;
-  border: 1px solid
-    ${(props) =>
-      props.type === "success"
-        ? "#18C08F"
-        : props.type === "error"
-        ? "#C30000"
-        : "#FFA500"}; 
+  padding: 10px;
+  margin-bottom: 30px;
+  border-radius: 5px;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
+  border: 1px solid ${({ $color }) => $color};
+
   svg {
-    color: ${(props) =>
-      props.type === "success"
-        ? "#18C08F"
-        : props.type === "error"
-        ? "#C30000"
-        : "#FFA500"}; 
-    font-size: ${(props) => (props.type === "success" ? "25px" : "40px")};
+    font-size: 40px;
+    color: ${({ $color }) => $color};
   }
 `;
 
-const Right = styled.div`
+const Content = styled.div`
   display: flex;
-  justify-content: space-between;
   gap: 20px;
-`;
-const Texts = styled.div``;
-const Left = styled.div`
-  padding: 10px 22px 10px 22px;
-  background-color: #E9E9E9;
-  border-radius: 10px;
-  font-weight: 600;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  cursor: pointer;
-`;
-const Text = styled.p`
-  color: ${(props) =>
-    props.color ? "#C30000" : props.theme.colors.newColors.otherColors.iconText};
-  font-weight: ${(props) => (props.color ? "700" : "")};
+  align-items: center;
 `;
 
-const Alert = ({ type, text, info, buttonText, onclick }) => {
-  const [isRTL , setIsRTL] = useState(i18n.language === "fa");
-  useEffect(() => {
-    setIsRTL(i18n.language === "fa");
-  },[i18n.language])
+const Text = styled.p`
+  font-weight: ${({ $isInfo }) => ($isInfo ? 700 : "normal")};
+  color: ${({ $isInfo, theme }) =>
+    $isInfo ? "#C30000" : theme.colors.newColors.otherColors.iconText};
+`;
+
+const ActionButton = styled.button`
+  padding: 10px 22px;
+  border: none;
+  border-radius: 10px;
+  background-color: #e9e9e9;
+  font: inherit;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
+  cursor: pointer;
+`;
+
+const Alert = ({ type = "success", text, info, buttonText, onclick }) => {
+  const { color, Icon } = ALERT_TYPES[type] ?? ALERT_TYPES.success;
+  const isError = type === "error";
+
   return (
-    <Container type={type} isRTL={isRTL}>
-      <Right>
-        {type === "error" ? (
-          <BsFillExclamationOctagonFill />
-        ) : type === "pending" ? (
-          <AiOutlineClockCircle />
-        ) : (
-          <IoIosCheckmarkCircle />
-        )}
-        <Texts>
-          {type === "error" && <Text color>{info}</Text>}
+    <Container $color={color}>
+      <Content>
+        <Icon />
+        <div>
+          {isError && info && <Text $isInfo>{info}</Text>}
           <Text>{text}</Text>
-        </Texts>
-      </Right>
-      {type === "error" && <Left onClick={onclick}>{buttonText}</Left>}
+        </div>
+      </Content>
+
+      {isError && (
+        <ActionButton type="button" onClick={onclick}>
+          {buttonText}
+        </ActionButton>
+      )}
     </Container>
   );
 };

@@ -8,7 +8,7 @@ import Button from "../../../../../components/Button";
 import TitleValue from "../../../../../components/TitleValue";
 import { FeatureContext } from "../../../Context/FeatureProvider";
 import { useNavigate } from "react-router";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
 import { FeatureSvg } from "../../../../../services/constants/FeatureType";
 import {
   WalletContext,

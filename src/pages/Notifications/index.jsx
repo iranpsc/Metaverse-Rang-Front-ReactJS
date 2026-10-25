@@ -1,7 +1,7 @@
 import NotifCard from "./NotifCard";
 import styled from "styled-components";
 import { useEffect, useState, useContext } from "react";
-import useRequest from "../../services/Hooks/useRequest";
+import useRequest from "../../hooks/useRequest.js";
 import ModalSm from "../../components/Modal/ModalSm";
 import { getTranslation } from "../../services/Utility";
 import NoNotification from "./NoNotification";

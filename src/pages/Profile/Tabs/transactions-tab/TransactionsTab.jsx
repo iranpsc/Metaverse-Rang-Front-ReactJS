@@ -15,7 +15,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import yellow from "../../../../assets/gif/yellow-color.gif";
 import SearchInput from "../../../../components/SearchInput";
 import Title from "../../../../components/Title";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { Skeleton } from "../../../../components/Skeleton";
 import {
   getTranslation,

@@ -1,12 +1,10 @@
-import { BiCommentDots } from "react-icons/bi";
 import { LuShare2 } from "react-icons/lu";
 import ShareModal from "./ShareModal";
-import { TiUserAddOutline } from "react-icons/ti";
 import styled from "styled-components";
 import { useContext, useEffect, useState } from "react";
 import ButtonIcon from "../../../../components/ButtonIcon";
 import { UserContext } from "../../../../services/reducers/UserContext";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import {
   getTranslation,
   metarangUrlCitizen,
@@ -205,15 +203,6 @@ const Info = () => {
       </Content>
       <Buttons>
         <Upper>
-          {id && (
-            <ButtonIcon
-              grow
-              icon={<TiUserAddOutline />}
-              label="دنبال کردن"
-              fill
-              onclick={() => { }}
-            />
-          )}
           <ButtonIcon
             grow
             icon={<LuShare2 />}
@@ -221,14 +210,6 @@ const Info = () => {
             onclick={() => setOpenShare(true)}
           />
         </Upper>
-        {id && (
-          <ButtonIcon
-            grow
-            icon={<BiCommentDots />}
-            label="پیام دادن"
-            onclick={() => { }}
-          />
-        )}
       </Buttons>
       {openShare && <ShareModal setOpenShare={setOpenShare} data={user} />}
     </Container>

@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import styled from "styled-components";
 
-import { useSelectedEnvironment } from "../../../../../../services/reducers/SelectedEnvironmentContext";
+import { useSelectedEnvironment } from "../../../../../../hooks/useSelectedEnvironment.js";
 import { useNavigate } from "react-router";
 import {
   getTranslation,

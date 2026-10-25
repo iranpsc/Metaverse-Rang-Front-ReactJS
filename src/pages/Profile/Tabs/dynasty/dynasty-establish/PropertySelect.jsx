@@ -4,7 +4,7 @@ import Title from "../../../../../components/Title";
 import { UserContext } from "../../../../../services/reducers/UserContext";
 import styled from "styled-components";
 import SearchInput from "../../../../../components/SearchInput";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
 import {
   getTranslation,
   ToastError,

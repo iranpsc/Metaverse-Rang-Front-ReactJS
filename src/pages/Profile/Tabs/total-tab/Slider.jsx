@@ -11,7 +11,7 @@ import DOMPurify from "dompurify";
 import styled from "styled-components";
 import { useContext, useEffect, useRef, useState } from "react";
 import { UserContextTypes } from "../../../../services/actions/UserContextAction";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import DefaultProfile from "../../../../assets/images/defulte-profile.png";
 import shortid from "shortid";
 import { Skeleton } from "../../../../components/Skeleton";

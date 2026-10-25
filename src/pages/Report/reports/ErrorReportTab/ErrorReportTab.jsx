@@ -1,5 +1,5 @@
 import { useContext, useRef, useState, useEffect } from "react";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import Alert from "../../../../components/Alert/Alert";
 import { AlertContext } from "../../../../services/reducers/AlertContext";
 import Button from "../../../../components/Button";
@@ -8,7 +8,7 @@ import Inputs from "./Inputs";
 import SendFiles from "./SendFiles";
 import Title from "../../../../components/Title";
 import styled from "styled-components";
-import { useReportsGlobalState } from "../GlobalReportStateProvider";
+import { useReportsGlobalState } from "../../../../hooks/useReportsGlobalState";
 import { getTranslation } from "../../../../services/Utility";
 import { useLocation } from "react-router";
 import Container from "../../../../components/Common/Container";

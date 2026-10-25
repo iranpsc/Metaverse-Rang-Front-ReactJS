@@ -3,7 +3,7 @@ import { IoIosArrowDropdownCircle } from "react-icons/io";
 import styled from "styled-components";
 import { useState } from "react";
 import OnOff from "../OnOff";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import {
   getTranslation,
   ToastError,

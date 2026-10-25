@@ -7,9 +7,9 @@ import {
 import Button from "../../../../components/Button";
 import clocklight from "../../../../assets/gif/clocklight.gif";
 import clockdark from "../../../../assets/gif/clockdark.gif";
-import { useTheme } from "../../../../services/reducers/ThemeContext";
-import useRequest from "../../../../services/Hooks/useRequest";
-import { useMapData } from "../../../../services/reducers/mapContext";
+import { useTheme } from "../../../../hooks/useTheme.js";
+import useRequest from "../../../../hooks/useRequest.js";
+import { useMapData } from "../../../../hooks/useMapData.js";
 import { useParams } from "react-router";
 import { useNavigate } from "react-router";
 import { useEffect, useState, useContext } from "react";

@@ -11,7 +11,7 @@ import { Tooltip as ReactTooltip } from "react-tooltip";
 import { RiUserForbidLine } from "react-icons/ri";
 import styled from "styled-components";
 import { useContext, useEffect, useState } from "react";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import { getTranslation } from "../../../../services/Utility";
 

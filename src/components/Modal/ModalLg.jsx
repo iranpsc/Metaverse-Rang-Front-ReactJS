@@ -1,52 +1,37 @@
-import styled from "styled-components";
-import Title from "../Title";
-import { getTranslation } from "../../services/Utility";
-import { ExitIcon, ReportIcon } from "../Icons/IconsHeader";
-import { useNavigate } from "react-router";
+// این مدال مخصوص نمایش اطلاعات است و نمونه های استفاده در نمایش گزارش یا سند ارسال شده وقتی روی دکمه چشم کلیک میکنیم
 import { createPortal } from "react-dom";
-const ModalBackdrop = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(5px);
-  background-color: rgba(0, 0, 0, 0.315);
-  z-index: 9999;
-`;
+import { useLocation, useNavigate } from "react-router";
+import styled from "styled-components";
+import { useLanguage } from "../../hooks/useLanguageContext";
+import Title from "../Title";
+import { ExitIcon, ReportIcon } from "../Icons/IconsHeader";
+import { getTranslation } from "../../services/Utility";
+import { Overlay } from "./styles";
 
-const ModalContainer = styled.div`
-  padding: 20px 0;
-  width: 81%;
-  overflow: hidden;
-  height: 100%;
+const Dialog = styled.div`
   position: absolute;
-  background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
-  padding: 20px;
+  ${({ $isPersian }) => ($isPersian ? "right: 0;" : "left: 0;")}
   z-index: 9999;
-  right: 0;
+  width: 81%;
+  height: 100%;
+  padding: 20px;
+  overflow: hidden;
+  background-color: ${({ theme }) => theme.colors.newColors.shades.bg2};
 
   @media (max-width: 685px) {
     width: 100%;
   }
+
   @media (min-width: 1023px) {
+    position: static;
     height: 95%;
     max-width: 1335px;
     max-height: 790px;
-    position: static;
-    right: auto;
     border-radius: 10px;
   }
 
   @media (min-width: 1024px) and (max-width: 1180px) {
     width: 86%;
-  }
-
-  @media (min-width: 1400px) {
-    overflow: hidden;
   }
 
   @media (min-width: 1920px) {
@@ -55,44 +40,38 @@ const ModalContainer = styled.div`
   }
 `;
 
-const ModalHeader = styled.div`
+const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  div {
-    display: flex;
-    gap: 10px;
-  }
+`;
+
+const Actions = styled.div`
+  display: flex;
+  gap: 10px;
 `;
 
 const ModalLg = ({ children, titleId, setShowModal, report }) => {
-  const Navigate = useNavigate();
-  return (
-    createPortal(
-      <ModalBackdrop>
-        <ModalContainer>
-          <ModalHeader>
-            <Title title={getTranslation(titleId)} />
-            <div>
-              {report && (
-                <ReportIcon
-                  onClick={() =>
-                    Navigate("/report/send", {
-                      state: {
-                        from: location.pathname,
-                      },
-                    })
-                  }
-                />
-              )}{" "}
-              <ExitIcon onClick={() => setShowModal(false)} />
-            </div>
-          </ModalHeader>
-          {children}
-        </ModalContainer>
-      </ModalBackdrop>,
-      document.body
-    )
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isPersian = useLanguage();
+  const handleReport = () => {
+    navigate("/report/send", { state: { from: pathname } });
+  };
+  return createPortal(
+    <Overlay $isLarge>
+      <Dialog $isPersian={isPersian}>
+        <Header>
+          <Title title={getTranslation(titleId)} />
+          <Actions>
+            {report && <ReportIcon onClick={handleReport} />}
+            <ExitIcon onClick={() => setShowModal(false)} />
+          </Actions>
+        </Header>
+        {children}
+      </Dialog>
+    </Overlay>,
+    document.body,
   );
 };
 

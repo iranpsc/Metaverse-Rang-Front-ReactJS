@@ -8,7 +8,7 @@ import {
 import TextValueIcon from "../../../../components/TextValueIcon";
 import { FeatureContext } from "../../Context/FeatureProvider";
 import Button from "../../../../components/Button";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import {
   FeatureColor,
   FeatureSvg,

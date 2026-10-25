@@ -6,9 +6,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { CgDanger } from "react-icons/cg";
 import styled from "styled-components";
 import { useLocation } from "react-router";
-import { useGlobalState } from "./GlobalVodStateProvider";
 import { getTranslation } from "../../../services/Utility";
-import useRequest from "../../../services/Hooks/useRequest";
+import useRequest from "../../../hooks/useRequest.js";
 import Dropdown from "../../../components/Common/Dropdown";
 const limitedUser = 9;
 const Wrapper = styled.div``;
@@ -178,7 +177,7 @@ padding-top: 5px;
 
 
 
-const Inputs = () => {
+const Inputs = ({ state, setState }) => {
   const location = useLocation();
 
   const options = [
@@ -219,9 +218,8 @@ const Inputs = () => {
     },
   ];
 
-  const { state, dispatch } = useGlobalState();
   const { Request, HTTP_METHOD } = useRequest();
-  const [selectedCitizens, setSelectedCitizens] = useState([]);
+  const selectedCitizens = state.selectedCitizens;
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCitizens, setFilteredCitizens] = useState([]);
 
@@ -258,12 +256,10 @@ const Inputs = () => {
         citizen,
       ];
 
-      setSelectedCitizens(updatedCitizens);
-
-      dispatch({
-        type: "SET_SELECTED_CITIZENS",
-        payload: updatedCitizens,
-      });
+      setState((currentState) => ({
+        ...currentState,
+        selectedCitizens: updatedCitizens,
+      }));
 
       // Reset search
       setSearchTerm("");
@@ -271,17 +267,14 @@ const Inputs = () => {
       setHighlightedIndex(-1);
       setDropdownOpen(false);
     },
-    [selectedCitizens, dispatch]
+    [selectedCitizens, setState]
   );
   useEffect(() => {
     const userCode = location?.state?.code;
 
     if (!userCode) return;
 
-    dispatch({
-      type: "SET_SUBJECT",
-      payload: "citizen",
-    });
+    setState((currentState) => ({ ...currentState, subject: "citizen" }));
 
     const searchCitizenByCode = async () => {
       try {
@@ -306,11 +299,10 @@ const Inputs = () => {
 
         const updatedCitizens = [...selectedCitizens, matchedUser];
 
-        setSelectedCitizens(updatedCitizens);
-        dispatch({
-          type: "SET_SELECTED_CITIZENS",
-          payload: updatedCitizens,
-        });
+        setState((currentState) => ({
+          ...currentState,
+          selectedCitizens: updatedCitizens,
+        }));
         setSearchTerm("");
         setFilteredCitizens([]);
         setHighlightedIndex(-1);
@@ -329,23 +321,18 @@ const Inputs = () => {
         (citizen) => citizen.id !== citizenId
       );
 
-      setSelectedCitizens(updatedCitizens);
-
-      dispatch({
-        type: "SET_SELECTED_CITIZENS",
-        payload: updatedCitizens,
-      });
+      setState((currentState) => ({
+        ...currentState,
+        selectedCitizens: updatedCitizens,
+      }));
     },
-    [selectedCitizens, dispatch]
+    [selectedCitizens, setState]
   );
 
 
   const handleSubjectChange = useCallback(
     (value) => {
-      dispatch({
-        type: "SET_SUBJECT",
-        payload: value,
-      });
+      setState((currentState) => ({ ...currentState, subject: value }));
 
       if (value !== "citizen") {
         setSearchTerm("");
@@ -354,7 +341,7 @@ const Inputs = () => {
         setHighlightedIndex(-1);
       }
     },
-    [dispatch]
+    [setState]
   );
 
 
@@ -363,13 +350,10 @@ const Inputs = () => {
       const value = event.target.value;
 
       if (value.length <= 200) {
-        dispatch({
-          type: "SET_TITLE",
-          payload: value,
-        });
+        setState((currentState) => ({ ...currentState, title: value }));
       }
     },
-    [dispatch]
+    [setState]
   );
 
 

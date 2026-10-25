@@ -9,7 +9,7 @@ import {
   formatNumber,
   sanitizePriceInputValue,
 } from "../../../../../services/Utility";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
 import { FeatureContext } from "../../../Context/FeatureProvider";
 import Container from "../../../../../components/Common/Container";
 

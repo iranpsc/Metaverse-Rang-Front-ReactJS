@@ -12,8 +12,8 @@ import pscpng from "../../../../../assets/images/profile/psc.gif";
 import rialpng from "../../../../../assets/images/profile/rial.gif";
 import styled from "styled-components";
 import moment from "moment-jalaali";
-import { useLanguage } from "../../../../../services/reducers/LanguageContext";
-import useRequest from "../../../../../services/Hooks/useRequest/index";
+import { useLanguage } from "../../../../../hooks/useLanguageContext.js";
+import useRequest from "../../../../../hooks/useRequest.js";
 import {
   WalletContext,
   WalletContextTypes,

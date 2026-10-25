@@ -8,7 +8,7 @@ import {
   ToastError,
   ToastSuccess,
 } from "../../../../services/Utility";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 
 const Container = styled.div`
   padding: 20px;

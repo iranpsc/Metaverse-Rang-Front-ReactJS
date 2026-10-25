@@ -1,13 +1,13 @@
 import styled from "styled-components";
 import Header from "./Header";
 import Profile from "./Profile";
-import { useMenuContext } from "../../services/reducers/MenuContext";
+import { useMenuContext } from "../../hooks/useMenuContext.js";
 import PrivateComponent from "../../middleware/PrivateComponent";
 import PublicComponent from "../../middleware/PublicComponent";
 import BtnsAfterLogin from "./BtnsAfterLogin";
 import BtnLogin from "./BtnAction/BtnLogin";
-import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext";
-import { useLanguage } from "../../services/reducers/LanguageContext";
+import { useScrollDirectionContext } from "../../hooks/useScrollDirectionContext.js";
+import { useLanguage } from "../../hooks/useLanguageContext.js";
 
 const BlurOverlay = styled.div`
   position: fixed;

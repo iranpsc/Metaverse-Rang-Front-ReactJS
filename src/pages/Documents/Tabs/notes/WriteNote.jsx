@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { GlobalNoteStateContext } from "../GlobalNoteStateProvider";
 import { AlertContext } from "../../../../services/reducers/AlertContext";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 
 import SendNote from "./SendNote";

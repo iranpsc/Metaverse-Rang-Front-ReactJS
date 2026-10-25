@@ -7,7 +7,7 @@ import gif5 from "../../../../assets/gif/rial.gif";
 import gif6 from "../../../../assets/gif/psc.gif";
 import styled from "styled-components";
 import { useContext, useEffect, useState } from "react";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 import { useParams } from "react-router";
 import { UserContext } from "../../../../services/reducers/UserContext";

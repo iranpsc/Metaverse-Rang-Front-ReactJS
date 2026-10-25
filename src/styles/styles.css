@@ -143,17 +143,7 @@
   }
 }
 
-.success {
-  background-color: #18c08f;
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 1px;
-  padding: 1px 10px 1px 1px;
-  width: 100%;
-  height: 100%;
-  z-index: 999;
-}
+
 
 * {
   margin: 0;

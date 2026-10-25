@@ -6,7 +6,7 @@ import WhatsappIcon from "../../../../assets/images/whatsapp.png";
 import styled from "styled-components";
 import { getTranslation } from "../../../../services/Utility/index";
 import { convertToPersian } from "../../../../services/Utility/index";
-import { useLanguage } from "../../../../services/reducers/LanguageContext";
+import { useLanguage } from "../../../../hooks/useLanguageContext.js";
 
 const Container = styled.div`
   background-color: ${(props) =>

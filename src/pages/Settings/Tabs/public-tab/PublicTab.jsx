@@ -4,7 +4,7 @@ import Alert from "../../../../components/Alert/Alert";
 import Button from "../../../../components/Button";
 import OnOff from "../OnOff";
 import { AlertContext } from "../../../../services/reducers/AlertContext";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 import Container from "../../../../components/Common/Container";
 import { Skeleton } from "../../../../components/Skeleton";

@@ -6,7 +6,7 @@ import house from "../../../../assets/images/house.png";
 import styled from "styled-components";
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import Title from "../../../../components/Title";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 import { useParams } from "react-router";
 import Container from "../../../../components/Common/Container";

@@ -1,31 +1,38 @@
-import { animated, useTransition } from "@react-spring/web";
+import styled, { keyframes } from "styled-components";
 import ProfitCard from "./ProfitCard";
-import styled from "styled-components";
 
-const Container = styled.div`
+const slideUp = keyframes`
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+`;
+
+const List = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
   margin-bottom: 40px;
 `;
 
-const ProfitList = ({ cards, onClick }) => {
-  const transitions = useTransition(cards, {
-    from: { opacity: 0, transform: "translate3d(0, 40px, 0)" },
-    enter: { opacity: 1, transform: "translate3d(0, 0, 0)" },
-    leave: { opacity: 0, transform: "translate3d(0, 40px, 0)" },
-  });
-  return (
-    <Container>
-      {transitions((style, item) =>
-        item.is_active ? (
-          <animated.div key={item.id} style={style}>
-            <ProfitCard {...item} onclick={() => onClick(item)} />
-          </animated.div>
-        ) : null
-      )}
-    </Container>
-  );
-};
+const Item = styled.div`
+  animation: ${slideUp} 0.3s ease-out;
+`;
+
+const ProfitList = ({ cards, onClick }) => (
+  <List>
+    {cards
+      ?.filter((item) => item.is_active)
+      .map((item) => (
+        <Item key={item.id}>
+          <ProfitCard {...item} onclick={() => onClick(item)} />
+        </Item>
+      ))}
+  </List>
+);
 
 export default ProfitList;

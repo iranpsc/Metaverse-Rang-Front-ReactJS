@@ -1,6 +1,6 @@
 import { NavLink, useLocation } from "react-router";
 import { convertToPersian, getTranslation } from "../../../../services/Utility";
-import { Container, Label } from "../../../../components/sidbar";
+import { Container, Label } from "../../../../components/Sidebar";
 import { tools } from "../data";
 
 const SideBar = () => {

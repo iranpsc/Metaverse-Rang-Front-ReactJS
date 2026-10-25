@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Title from "../../../../components/Title";
 import remove from "../../../../assets/images/remove.png";
 import styled from "styled-components";
-import { useReportsGlobalState } from "../GlobalReportStateProvider";
+import { useReportsGlobalState } from "../../../../hooks/useReportsGlobalState";
 import { getTranslation } from "../../../../services/Utility/index";
 import ErrorMessage from "../../../../components/ErrorMessage";
 const Files = styled.div`
@@ -190,6 +190,7 @@ const SendFiles = () => {
         )}
       </Files>
       <ErrorMessage errors={[error]} />{" "}
+      
     </Container>
   );
 };

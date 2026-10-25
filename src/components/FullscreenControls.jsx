@@ -1,3 +1,4 @@
+// جهت تمام صفحه کردن نقشه
 import React from "react";
 import {
   FullscreenControlContainer,

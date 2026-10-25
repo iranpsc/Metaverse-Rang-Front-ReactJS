@@ -14,7 +14,7 @@ import styled from "styled-components";
 import gift from "../../../../../assets/images/satisfy.png";
 import pscGif from "../../../../../assets/gif/psc.gif";
 import ModalLg from "../../../../../components/Modal/ModalLg";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
 import { WalletContext, WalletContextTypes } from "../../../../../services/reducers/WalletContext";
 import { useContext, useState, useRef } from "react";
 const Container = styled.div`

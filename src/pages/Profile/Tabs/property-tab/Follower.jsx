@@ -2,7 +2,7 @@ import { TiUserAddOutline } from "react-icons/ti";
 import DefaultProfile from "../../../../assets/images/defulte-profile.png";
 import styled from "styled-components";
 import { useState } from "react";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation, metarangUrlCitizen } from "../../../../services/Utility";
 
 const Button = styled.div`

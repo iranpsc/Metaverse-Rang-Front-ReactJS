@@ -1,6 +1,6 @@
 
 import styled from "styled-components";
-import { useMenuContext } from "../../../services/reducers/MenuContext";
+import { useMenuContext } from "../../../hooks/useMenuContext.js";
 import Message from "../../../assets/svg/message.svg";
 import ProfileMember from "../../../assets/svg/profileMember.svg";
 import Ticket from "../../../assets/svg/ticket.svg";

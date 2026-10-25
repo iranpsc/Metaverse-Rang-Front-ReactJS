@@ -8,7 +8,7 @@ import {
   ToastSuccess,
   ToastError,
 } from "../../../../../services/Utility";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 
 const Wrapper = styled.div`
   display: flex;

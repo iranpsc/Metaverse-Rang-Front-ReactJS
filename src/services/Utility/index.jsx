@@ -161,7 +161,7 @@ export function GetTimeElapsed(date) {
     gregorian.gd,
     hours,
     minutes,
-    seconds
+    seconds,
   );
 
   const now = new Date();
@@ -246,17 +246,17 @@ export const calculateFee = (number = 100, percent = 5) => {
 };
 
 export const persianNumbers = [
-  /۰/g,
-  /۱/g,
-  /۲/g,
-  /۳/g,
-  /۴/g,
-  /۵/g,
-  /۶/g,
-  /۷/g,
-  /۸/g,
-  /۹/g,
-],
+    /۰/g,
+    /۱/g,
+    /۲/g,
+    /۳/g,
+    /۴/g,
+    /۵/g,
+    /۶/g,
+    /۷/g,
+    /۸/g,
+    /۹/g,
+  ],
   arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g],
   fixNumbers = function (str) {
     if (typeof str === "string") {
@@ -279,7 +279,8 @@ export const convertToPersian = (value) => {
   return isPersian
     ? str.replace(/\d/g, (d) => persianDigits[d])
     : str.replace(/[۰-۹]/g, (d) => englishDigits[persianDigits.indexOf(d)]);
-}; export const convertToEnglish = (value) => {
+};
+export const convertToEnglish = (value) => {
   if (value == null) return "";
 
   const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
@@ -354,7 +355,6 @@ export const truncateText = (text, maxLength = 20) => {
   return `${text.slice(0, maxLength)}...`;
 };
 
-
 const PSC_TO_IRR = 900;
 
 export const pscToIrr = (psc) => {
@@ -397,7 +397,10 @@ export const getTranslation = (fieldId) => {
     return String(directValue);
   }
 
-  if (translationData.translation && typeof translationData.translation === "object") {
+  if (
+    translationData.translation &&
+    typeof translationData.translation === "object"
+  ) {
     const nestedDirectValue =
       translationData.translation[normalizedId] ??
       translationData.translation[fieldId];
@@ -439,11 +442,7 @@ export const getFieldsByTabName = (firstParam, secondParam) => {
     .filter(([key]) => {
       const id = Number(key);
 
-      return (
-        !Number.isNaN(id) &&
-        id >= minId &&
-        id <= maxId
-      );
+      return !Number.isNaN(id) && id >= minId && id <= maxId;
     })
     .map(([key, value]) => ({
       unique_id: Number(key),
@@ -451,9 +450,21 @@ export const getFieldsByTabName = (firstParam, secondParam) => {
     }));
 };
 
+const MOBILE_UA = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile/i;
 
-export const isMobile =
-  "ontouchstart" in window || navigator.maxTouchPoints > 0;
+const detectMobile = () => {
+  if (typeof navigator === "undefined") return false;
+
+  const { userAgentData, userAgent, platform, maxTouchPoints } = navigator;
+
+  const isIPadOS = platform === "MacIntel" && maxTouchPoints > 1;
+
+  return (
+    Boolean(userAgentData?.mobile) || MOBILE_UA.test(userAgent) || isIPadOS
+  );
+};
+
+export const isMobile = detectMobile();
 export const getBrowser = async () => {
   const ua = navigator.userAgent;
 

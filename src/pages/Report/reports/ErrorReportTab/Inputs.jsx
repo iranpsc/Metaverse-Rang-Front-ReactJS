@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useReportsGlobalState } from "../GlobalReportStateProvider";
+import { useReportsGlobalState } from "../../../../hooks/useReportsGlobalState";
 import { getTranslation } from "../../../../services/Utility/index";
 import Dropdown from "../../../../components/Common/Dropdown";
 const Container = styled.div`

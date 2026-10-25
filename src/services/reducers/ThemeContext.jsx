@@ -1,16 +1,8 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useEffect } from "react";
 import { ThemeProvider } from "styled-components";
 import { lightTheme, darkTheme } from "../../theme/theme";
 
-const ThemeContext = createContext();
-
-export function useTheme() {
-  const context = useContext(ThemeContext);
-  if (!context) {
-    throw new Error("useTheme must be used within a ThemeProviderContext");
-  }
-  return context;
-}
+export const ThemeContext = createContext();
 export function ThemeProviderContext({ children }) {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("app_theme") || "light";

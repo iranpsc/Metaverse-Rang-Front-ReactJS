@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 
-import useRequest from "../../services/Hooks/useRequest";
+import useRequest from "../../hooks/useRequest.js";
 import { setItem } from "../../services/Utility/LocalStorage";
 import {
   getTranslation,

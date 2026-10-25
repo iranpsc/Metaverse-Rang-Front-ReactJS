@@ -1,3 +1,4 @@
+// دیت پیکر شخصی سازی شده
 import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
 import "react-multi-date-picker/styles/colors/yellow.css";
 import DatePicker from "react-multi-date-picker";
@@ -5,9 +6,9 @@ import { FaRegCalendarAlt } from "react-icons/fa";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import styled from "styled-components";
-import { useLanguage } from "../services/reducers/LanguageContext";
+import { useLanguage } from "../hooks/useLanguageContext.js";
 import { getTranslation } from "../services/Utility";
-import { useTheme } from "../services/reducers/ThemeContext";
+import { useTheme } from "../hooks/useTheme.js";
 
 const DateContainer = styled.div`
   border-radius: 5px;

@@ -17,7 +17,6 @@ import { SelectedEnvironmentProvider } from "./services/reducers/SelectedEnviron
 import { AlertProvider } from "./services/reducers/AlertContext.jsx";
 import Routers from "./layouts/map/Routers.jsx";
 import { LanguageProvider } from "./services/reducers/LanguageContext.jsx";
-import { LoaderProvider } from "./services/reducers/LoaderProvider.jsx";
 import RotateDevice from "./components/RotateDevice";
 import { useAppHeight } from "./hooks/useAppHeight.js";
 import { ScrollDirectionProvider } from "./services/reducers/ScrollDirectionContext.jsx";
@@ -27,12 +26,9 @@ function App() {
   useAppHeight();
 
   useLayoutEffect(() => {
-    // قبل از لاگین توکن نیست => اتصال public؛ بعد از لاگین => authenticated
     const token = getItem("user")?.token;
     connectSocket(token || "");
 
-    // هماهنگ شدن بین تب‌ها (این رویداد فقط در تب‌های دیگر فایر می‌شود).
-    // در همین تب، useAuth بعد از لاگین/لاگ‌اوت connectSocket صدا می‌زند.
     const onStorage = (event) => {
       if (event.key !== "user") return;
 
@@ -44,7 +40,6 @@ function App() {
 
     return () => {
       window.removeEventListener("storage", onStorage);
-      // عمداً disconnect نمی‌کنیم تا با StrictMode سوکت قطع و وصل نشود.
     };
   }, []);
 
@@ -52,7 +47,6 @@ function App() {
     <LanguageProvider>
       <BrowserRouter>
         <ScrollDirectionProvider>
-          <LoaderProvider>
             <MapLandsProvider>
               <MapProvider>
                 <ThemeProviderContext>
@@ -82,7 +76,6 @@ function App() {
                 </ThemeProviderContext>
               </MapProvider>
             </MapLandsProvider>
-          </LoaderProvider>
         </ScrollDirectionProvider>
       </BrowserRouter>
     </LanguageProvider>

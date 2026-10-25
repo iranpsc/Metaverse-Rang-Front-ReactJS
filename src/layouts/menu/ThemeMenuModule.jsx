@@ -4,7 +4,7 @@ import styled from "styled-components";
 import  LightSvg  from "../../assets/svg/light.svg?react";
 import  DarkSvg  from "../../assets/svg/dark.svg?react";
 import { useState } from "react";
-import { useTheme } from "../../services/reducers/ThemeContext";
+import { useTheme } from "../../hooks/useTheme.js";
 
 const Light = styled(LightSvg)`
   width: 18.364px;

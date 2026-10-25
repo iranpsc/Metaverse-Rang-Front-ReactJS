@@ -1,4 +1,4 @@
-import { useGlobalState } from "./aboutGlobalStateProvider";
+import { useGlobalState } from "../../../../hooks/useAboutMeGlobalState";
 import { getTranslation } from "../../../../services/Utility";
 import { useEffect, useState } from "react";
 

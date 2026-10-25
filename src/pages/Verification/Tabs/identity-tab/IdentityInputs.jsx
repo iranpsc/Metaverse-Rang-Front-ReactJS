@@ -7,7 +7,7 @@ import Title from "../../../../components/Title";
 import Button from "../../../../components/Button";
 import ErrorModal from "../ErrorModal";
 import { verifyIranianNationalId } from "@persian-tools/persian-tools";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import {
   convertToEnglish,
   getTranslation,

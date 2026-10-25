@@ -2,10 +2,10 @@ import styled, { keyframes } from "styled-components";
 import { useContext, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { UserContext } from "../../../../services/reducers/UserContext";
-import { useLanguage } from "../../../../services/reducers/LanguageContext";
+import { useLanguage } from "../../../../hooks/useLanguageContext.js";
 import { formatNumber, convertToPersian, getTranslation } from "../../../../services/Utility";
 import { Skeleton } from "../../../../components/Skeleton";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { useParams } from "react-router";
 
 const Container = styled.div`

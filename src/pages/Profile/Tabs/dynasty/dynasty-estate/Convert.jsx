@@ -5,7 +5,7 @@ import SearchInput from "../../../../../components/SearchInput";
 import Title from "../../../../../components/Title";
 import styled from "styled-components";
 import { useState, useCallback, useMemo, useContext } from "react";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
 import { useNavigate } from "react-router";
 import {
   getTranslation,

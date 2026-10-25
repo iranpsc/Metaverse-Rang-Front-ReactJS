@@ -1,3 +1,4 @@
+//کاستوم ادیتور متن استفاده شده در هر جایی که کاربر ورودی متن طولانی استفاده کند مانند درباره ما 
 import "react-quill-new/dist/quill.snow.css";
 import { useState, useEffect, useMemo, useRef } from "react";
 import ReactQuill from "react-quill-new";
@@ -158,19 +159,13 @@ const getModules = (img = false, showToolbar = true) => {
   };
 };
 
-/**
- * طول کل رشته HTML (شامل تگ‌ها، اسپیس‌ها، &nbsp; و ...)
- * ادیتور خالی Quill مقدار <p><br></p> دارد که صفر حساب می‌شود
- */
+
 const getHtmlLength = (html) => {
   if (!html || html === "<p><br></p>") return 0;
   return html.length;
 };
 
-/**
- * Reusable RichTextEditor with strict character limit
- * (طول HTML شامل تگ‌ها و اسپیس‌ها حساب می‌شود)
- */
+
 const CustomEditor = ({
   value = "",
   onChange,
@@ -185,7 +180,6 @@ const CustomEditor = ({
   const [charCount, setCharCount] = useState(() => getHtmlLength(value));
   const quillRef = useRef(null);
 
-  // آخرین حالت معتبر ادیتور
   const lastValidRef = useRef({ delta: null, html: value });
 
   const modules = useMemo(
@@ -193,7 +187,6 @@ const CustomEditor = ({
     [img, showToolbar],
   );
 
-  // همگام‌سازی با value که از بیرون عوض می‌شود
   useEffect(() => {
     setCharCount(getHtmlLength(value));
 
@@ -203,8 +196,7 @@ const CustomEditor = ({
     }
   }, [value]);
 
-  // جلوگیری زودهنگام از paste وقتی ظرفیت پر است
-  // (فقط برای UX، ضمانت اصلی در handleChange است)
+  
   useEffect(() => {
     const quill = quillRef.current?.getEditor();
     if (!quill) return;
@@ -219,7 +211,6 @@ const CustomEditor = ({
       }
     };
 
-    // capture تا قبل از clipboard خود Quill اجرا شود
     root.addEventListener("paste", onPaste, true);
     return () => root.removeEventListener("paste", onPaste, true);
   }, [charLimit]);
@@ -231,7 +222,6 @@ const CustomEditor = ({
     const newLength = getHtmlLength(val);
     const lastLength = getHtmlLength(lastValidRef.current.html);
 
-    // اگر از محدودیت بیشتر شد (و کاهشی نبود) تغییر را برگردان
     if (newLength > charLimit && newLength >= lastLength) {
       const selection = quill.getSelection();
       const lengthBefore = quill.getLength();

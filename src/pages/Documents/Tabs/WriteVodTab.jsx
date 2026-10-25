@@ -1,74 +1,77 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Description from "./Description";
 import Inputs from "./Inputs";
 import SendFiles from "./SendFiles";
-import { useGlobalState } from "./GlobalVodStateProvider";
 import Alert from "../../../components/Alert/Alert";
 import Button from "../../../components/Button";
-import { AlertContext } from "../../../services/reducers/AlertContext";
 import Title from "../../../components/Title";
 import {
   getTranslation,
   ToastError,
 } from "../../../services/Utility";
-import useRequest from "../../../services/Hooks/useRequest";
+import useRequest from "../../../hooks/useRequest.js";
 import Container from "../../../components/Common/Container";
 
+const createInitialState = () => ({
+  subject: "",
+  title: "",
+  description: "",
+  files: [],
+  selectedCitizens: [],
+});
+
 const WriteVodTab = () => {
-  const { state, dispatch } = useGlobalState();
-  const { alert, setAlert } = useContext(AlertContext);
+  const [state, setState] = useState(createInitialState);
+  const [alert, setAlert] = useState(false);
   const { Request, HTTP_METHOD } = useRequest();
   const containerRef = useRef(null);
   const [isSending, setIsSending] = useState(false);
 
   const resetForm = () => {
-    dispatch({ type: "SET_SUBJECT", payload: "" });
-    dispatch({ type: "SET_TITLE", payload: "" });
-    dispatch({ type: "SET_DESCRIPTION", payload: "" });
-    dispatch({ type: "SET_FILES", payload: [] });
-    dispatch({ type: "SET_SELECTED_CITIZENS", payload: [] });
+    setState(createInitialState());
   };
-const sendVod = () => {
-  if (!state.subject || !state.title || !state.description) return;
+  const sendVod = () => {
+    if (!state.subject || !state.title || !state.description) return;
 
-  setIsSending(true);
+    setIsSending(true);
 
-  const formData = new FormData();
+    const formData = new FormData();
 
-  formData.append("title", state.title);
-  formData.append("content", state.description);
+    formData.append("title", state.title);
+    formData.append("content", state.description);
 
-  // همه‌ی فایل‌ها، نه فقط اولی
-  state.files.forEach((file) => {
-    formData.append("attachment", file);
-  });
-
-  if (state.selectedCitizens.length === 1) {
-    formData.append("reciever", state.selectedCitizens[0].id);
-  } else if (state.selectedCitizens.length > 1) {
-    const citizenIds = state.selectedCitizens.map((citizen) => parseInt(citizen.id));
-    formData.append("reciever", JSON.stringify(citizenIds));
-  } else {
-    formData.append("department", state.subject);
-  }
-
-  Request("tickets", HTTP_METHOD.POST, formData, {
-    "Content-Type": "multipart/form-data",
-  })
-    .then(() => {
-      containerRef.current?.scrollTo(0, 0);
-      resetForm();
-      setAlert(true);
-    })
-    .catch((error) => {
-      ToastError(error.response?.data?.message || "خطا در ارسال تیکت");
-    })
-    .finally(() => {
-      setIsSending(false);
+    state.files.forEach((file) => {
+      formData.append("attachment", file);
     });
-};
+
+    if (state.selectedCitizens.length === 1) {
+      formData.append("reciever", state.selectedCitizens[0].id);
+    } else if (state.selectedCitizens.length > 1) {
+      const citizenIds = state.selectedCitizens.map((citizen) =>
+        parseInt(citizen.id)
+      );
+      formData.append("reciever", JSON.stringify(citizenIds));
+    } else {
+      formData.append("department", state.subject);
+    }
+
+    Request("tickets", HTTP_METHOD.POST, formData, {
+      "Content-Type": "multipart/form-data",
+    })
+      .then(() => {
+        containerRef.current?.scrollTo(0, 0);
+        resetForm();
+        setAlert(true);
+      })
+      .catch((error) => {
+        ToastError(error.response?.data?.message || "خطا در ارسال تیکت");
+      })
+      .finally(() => {
+        setIsSending(false);
+      });
+  };
   const handleFilesChange = (files) => {
-    dispatch({ type: "SET_FILES", payload: files });
+    setState((currentState) => ({ ...currentState, files }));
   };
 
   useEffect(() => {
@@ -98,8 +101,8 @@ const sendVod = () => {
           } ${getTranslation("1334")}`}
         />
       )}
-      <Inputs />
-      <Description />
+      <Inputs state={state} setState={setState} />
+      <Description state={state} setState={setState} />
       <SendFiles files={state.files} onFilesChange={handleFilesChange} />
 
       <Button 

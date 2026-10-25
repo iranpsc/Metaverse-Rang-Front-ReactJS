@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import useAuth from "../services/Hooks/useAuth";
-import useRequest from "../services/Hooks/useRequest";
+import useAuth from "../hooks/useAuth.js";
+import useRequest from "../hooks/useRequest.js";
 
 export default function PrivateRoute({ children }) {
   const { isLoggedIn } = useAuth();

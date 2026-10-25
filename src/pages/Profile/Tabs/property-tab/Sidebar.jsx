@@ -1,5 +1,5 @@
 import { getTranslation } from "../../../../services/Utility";
-import { Container, Label } from "../../../../components/sidbar";
+import { Container, Label } from "../../../../components/Sidebar";
 import { NavLink } from "react-router";
 
 const Sidebar = () => {

@@ -5,7 +5,7 @@ import building from "../../../assets/images/building.png";
 import education from "../../../assets/images/courthouse.png";
 import house from "../../../assets/images/house.png";
 import styled from "styled-components";
-import useRequest from "../../../services/Hooks/useRequest";
+import useRequest from "../../../hooks/useRequest.js";
 import { getTranslation } from "../../../services/Utility";
 import { UserContextTypes } from "../../../services/actions/UserContextAction";
 

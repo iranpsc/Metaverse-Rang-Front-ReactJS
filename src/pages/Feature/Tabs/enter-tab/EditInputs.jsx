@@ -1,7 +1,6 @@
 import Codes from "./Codes";
 import EditInput from "./EditInput";
 import EditLevelInput from "./EditLevelInput";
-import RichText from "./RichText";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -57,16 +56,7 @@ const Button = styled.button`
   font-family: inherit;
   margin-top: 10px;
 `;
-const Wrapper = styled.div`
-  border-radius: 5px;
-  border: 1px solid
-    ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  overflow: hidden;
-  height: 205px;
-`;
+
 const EditInputs = ({ data, setEdit }) => {
   // const changeHandler = (e) => {
   //   const { name, value } = e.target;
@@ -111,9 +101,7 @@ const EditInputs = ({ data, setEdit }) => {
         rows={3}
         placeholder="درباره مجموعه"
       /> */}
-      <Wrapper>
-        <RichText />
-      </Wrapper>
+
       <Title>{"creating a unique login code"}</Title>
       <Codes />
       <Button

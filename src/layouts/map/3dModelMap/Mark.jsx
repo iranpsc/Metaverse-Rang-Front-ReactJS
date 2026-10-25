@@ -11,7 +11,7 @@ import { useLoader } from "@react-three/fiber";
 import { Canvas } from "react-three-map/maplibre";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { HemisphereLight } from "three";
-import { useSelectedEnvironment } from "../../../services/reducers/SelectedEnvironmentContext";
+import { useSelectedEnvironment } from "../../../hooks/useSelectedEnvironment.js";
 import { ToastError, ToastSuccess } from "../../../services/Utility";
 import ControlPanel from "./ControlPanel";
 

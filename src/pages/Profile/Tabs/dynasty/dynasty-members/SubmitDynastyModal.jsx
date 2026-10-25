@@ -10,7 +10,7 @@ import {
 import ModalLg from "../../../../../components/Modal/ModalLg";
 import OnOff from "../../../../Settings/Tabs/OnOff";
 import { useCallback, useState } from "react";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
 
 const settings = [
   { id: 1, label: 836, name: "BFR", value: 0 },

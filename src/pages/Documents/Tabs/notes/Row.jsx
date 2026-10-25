@@ -4,7 +4,7 @@ import { GlobalNoteStateContext } from "../GlobalNoteStateProvider";
 import NoteDetails from "./NoteDetails";
 import styled from "styled-components";
 import Button from "../../../../components/Button";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 
 const TableRow = styled.tr`

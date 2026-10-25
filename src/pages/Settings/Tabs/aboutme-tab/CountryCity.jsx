@@ -1,6 +1,6 @@
 import Dropdown from "../../../../components/Common/Dropdown";
 import styled from "styled-components";
-import { useGlobalState } from "./aboutGlobalStateProvider";
+import { useGlobalState } from "../../../../hooks/useAboutMeGlobalState";
 import { useEffect, useState } from "react";
 import {
   getTranslation,

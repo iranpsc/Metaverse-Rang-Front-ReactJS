@@ -1,5 +1,5 @@
-import { createContext, useContext, useReducer, useEffect } from "react";
-import useRequest from "../../../../services/Hooks/useRequest/index";
+import { createContext, useReducer, useEffect } from "react";
+import useRequest from "../../../../hooks/useRequest.js";
 
 const initialState = {
   about: "",
@@ -41,7 +41,7 @@ const reducer = (state, action) => {
   }
 };
 
-const AboutStateContext = createContext();
+export const AboutStateContext = createContext();
 
 export const GlobalStateProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -83,8 +83,4 @@ export const GlobalStateProvider = ({ children }) => {
       {children}
     </AboutStateContext.Provider>
   );
-};
-
-export const useGlobalState = () => {
-  return useContext(AboutStateContext);
 };

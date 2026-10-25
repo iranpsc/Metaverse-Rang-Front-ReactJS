@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
 import CitizenInvite from "./CitizenInvite";
 import FamilyTree from "./FamilyTree";
-import LoadingSpinner from "../../../../../components/Common/LoadingSpinner";
+import LoadingSpinner from "../../../../../components/Loading/LoadingSpinner.jsx";
 import styled from "styled-components";
 import Container from "../../../../../components/Common/Container";
 const DynastyContainer = styled.div`

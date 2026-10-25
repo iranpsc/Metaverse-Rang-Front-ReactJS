@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { useContext } from "react";
 import whatsapp from "../../../../assets/images/whatsapp.png";
 import Title from "../../../../components/Title";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { GlobalNoteStateContext } from "../GlobalNoteStateProvider";
 import { getTranslation } from "../../../../services/Utility";
 

@@ -1,45 +1,79 @@
 @font-face {
-  font-family: AzarMehr;
+  font-family: "AzarMehr";
+  font-style: normal;
+  font-weight: 100;
+  font-display: swap;
+  src: url("/fonts/AzarMehr-DS2-Thin.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "AzarMehr";
+  font-style: normal;
+  font-weight: 200;
+  font-display: swap;
+  src: url("/fonts/AzarMehr-ExtraLight.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "AzarMehr";
   font-style: normal;
   font-weight: 300;
-  src: url("/src/fonts/AzarMehr/Statics/AzarMehr-Light.ttf") format("truetype");
+  font-display: swap;
+  src: url("/fonts/AzarMehr-DS2-Light.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: AzarMehr;
+  font-family: "AzarMehr";
   font-style: normal;
   font-weight: 400;
-  src: url("/src/fonts/AzarMehr/Statics/AzarMehr-Regular.ttf")
-    format("truetype");
+  font-display: swap;
+  src: url("/fonts/AzarMehr-Regular.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: AzarMehr;
+  font-family: "AzarMehr";
   font-style: normal;
   font-weight: 500;
-  src: url("/src/fonts/AzarMehr/Statics/AzarMehr-Medium.ttf")
-    format("truetype");
+  font-display: swap;
+  src: url("/fonts/AzarMehr-DS2-Medium.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: AzarMehr;
+  font-family: "AzarMehr";
   font-style: normal;
   font-weight: 600;
-  src: url("/src/fonts/AzarMehr/Statics/AzarMehr-SemiBold.ttf")
-    format("truetype");
+  font-display: swap;
+  src: url("/fonts/AzarMehr-SemiBold.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: AzarMehr;
+  font-family: "AzarMehr";
   font-style: normal;
   font-weight: 700;
-  src: url("/src/fonts/AzarMehr/Statics/AzarMehr-Bold.ttf") format("truetype");
+  font-display: swap;
+  src: url("/fonts/AzarMehr-DS2-Bold.woff2") format("woff2");
 }
 
 @font-face {
-  font-family: AzarMehr;
+  font-family: "AzarMehr";
   font-style: normal;
   font-weight: 800;
-  src: url("/src/fonts/AzarMehr/Statics/AzarMehr-ExtraBold.ttf")
-    format("truetype");
+  font-display: swap;
+  src: url("/fonts/AzarMehr-ExtraBold.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "AzarMehr";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("/fonts/AzarMehr-DS2-Black.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "DigitalNumber";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/Digital.woff") format("woff");
 }

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import { useState } from "react";
 import { ExitIcon } from "../../../../components/Icons/IconsHeader";
 import EditInput from "../../../Feature/Tabs/enter-tab/EditInput";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import {
   getBankNameFromCardNumber,
   getShebaInfo,

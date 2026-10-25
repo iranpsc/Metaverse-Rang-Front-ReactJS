@@ -9,7 +9,7 @@ import { useState, useContext } from "react";
 import Title from "../../../../components/Title";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
-import { useMapData } from "../../../../services/reducers/mapContext";
+import { useMapData } from "../../../../hooks/useMapData.js";
 import {
   WalletContext,
   WalletContextTypes,
@@ -19,7 +19,7 @@ import {
   getTranslation,
   ToastSuccess,
 } from "../../../../services/Utility";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 const Container = styled.div`
   color: aliceblue;
 `;

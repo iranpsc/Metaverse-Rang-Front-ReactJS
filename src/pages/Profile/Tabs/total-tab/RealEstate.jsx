@@ -5,7 +5,7 @@ import property2 from "../../../../assets/images/building.png";
 import property3 from "../../../../assets/images/house.png";
 import property4 from "../../../../assets/images/courthouse.png";
 import styled from "styled-components";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import { getTranslation } from "../../../../services/Utility";

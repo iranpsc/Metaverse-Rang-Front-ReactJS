@@ -3,9 +3,9 @@ import Notes from "./Notes";
 import WriteNote from "./WriteNote";
 import styled from "styled-components";
 import { useContext, useEffect, useRef, useState } from "react";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { useScrollDirection } from "../../../../hooks/useScrollDirection";
-import { useScrollDirectionContext } from "../../../../services/reducers/ScrollDirectionContext";
+import { useScrollDirectionContext } from "../../../../hooks/useScrollDirectionContext.js";
 
 const Container = styled.div`
   padding: 20px 0;

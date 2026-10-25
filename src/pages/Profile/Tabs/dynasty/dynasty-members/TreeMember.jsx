@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { getTranslation } from "../../../../../services/Utility";
 import Message from "../../../../../assets/svg/message.svg?react";
 import { metarangUrlCitizen } from "../../../../../services/Utility";
-import { useFollow } from "../../../../../services/reducers/FollowContext";
+import { useFollow } from "../../../../../hooks/useFollow.js";
 const Container = styled.div`
   background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
   border-radius: 5px;

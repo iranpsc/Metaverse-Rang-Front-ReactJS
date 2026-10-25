@@ -5,11 +5,11 @@ import { Canvas, NearCoordinates } from "react-three-map/maplibre";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { BORDER_COLORS } from "../../services/constants/BorderColors";
 import { POLYGON_COLORS } from "../../services/constants/PolygonColors";
-import useRequest from "../../services/Hooks/useRequest";
-import { useMapData } from "../../services/reducers/mapContext";
-import { useSelectedEnvironment } from "../../services/reducers/SelectedEnvironmentContext";
-import { useMapLands } from "../../services/reducers/MapLandsContext";
-import { showPolygons } from "../../services/Hooks/useMapUrlState";
+import useRequest from "../../hooks/useRequest.js";
+import { useMapData } from "../../hooks/useMapData.js";
+import { useSelectedEnvironment } from "../../hooks/useSelectedEnvironment.js";
+import { useMapLands } from "../../hooks/useMapLands.js";
+import { showPolygons } from "../../hooks/useMapUrlState.js";
 import {
   onSocketEvent,
 } from "../../services/socket";

@@ -4,7 +4,7 @@ import { TiUserAddOutline } from "react-icons/ti";
 import { RiUserUnfollowLine } from "react-icons/ri";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { useNavigate, useLocation } from "react-router";
 import { getTranslation, ToastError } from "../../../../services/Utility";
 import ToolTip from "../../../../components/Tooltip";

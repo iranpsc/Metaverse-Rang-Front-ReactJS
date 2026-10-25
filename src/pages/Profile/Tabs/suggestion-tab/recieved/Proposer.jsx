@@ -17,7 +17,7 @@ import rialpng from "../../../../../assets/images/profile/rial.gif";
 import styled from "styled-components";
 import { useState, useContext } from "react";
 import moment from "moment-jalaali";
-import { useLanguage } from "../../../../../services/reducers/LanguageContext";
+import { useLanguage } from "../../../../../hooks/useLanguageContext.js";
 import {
   Info,
   proposerContainer,
@@ -26,7 +26,7 @@ import {
   RejectButton,
   Text,
 } from "../suggestionStyles";
-import useRequest from "../../../../../services/Hooks/useRequest/index";
+import useRequest from "../../../../../hooks/useRequest.js";
 import DefaultProfile from "../../../../../assets/images/defulte-profile.png";
 import {
   WalletContext,

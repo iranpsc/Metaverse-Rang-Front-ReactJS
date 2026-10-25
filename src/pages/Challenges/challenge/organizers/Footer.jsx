@@ -1,8 +1,8 @@
-import { useTheme } from "../../../../services/reducers/ThemeContext";
+import { useTheme } from "../../../../hooks/useTheme.js";
 import ConfettiExplosion from "react-confetti-explosion";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import { convertToPersian } from "../../../../services/Utility";
-import { useLanguage } from "../../../../services/reducers/LanguageContext";
+import { useLanguage } from "../../../../hooks/useLanguageContext.js";
 import styled from "styled-components";
 
 const Container = styled.div`

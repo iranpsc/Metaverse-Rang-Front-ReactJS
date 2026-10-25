@@ -18,7 +18,7 @@ import {
   getTranslation,
   convertToPersian,
 } from "../../../../../services/Utility/index";
-import { useLanguage } from "../../../../../services/reducers/LanguageContext";
+import { useLanguage } from "../../../../../hooks/useLanguageContext.js";
 import { calculatePolygonCentroid } from "../../../../../services/Utility/calculatePolygonCentroid";
 import { flyToMapPosition } from "../../../../../services/Utility/flyToMapPosition";
 import { getPolygonShape } from "../../../../../services/Utility/getPolygonShape";

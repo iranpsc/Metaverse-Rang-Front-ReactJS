@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, useCallback } from "react";
+import { createContext, useEffect, useMemo, useState, useCallback } from "react";
 import {  onSocketEvent } from "../socket"; 
 export const FollowContext = createContext({
   onlineMap: {},
@@ -43,5 +43,3 @@ export default function FollowProvider({ children }) {
     <FollowContext.Provider value={value}>{children}</FollowContext.Provider>
   );
 }
-
-export const useFollow = () => useContext(FollowContext);

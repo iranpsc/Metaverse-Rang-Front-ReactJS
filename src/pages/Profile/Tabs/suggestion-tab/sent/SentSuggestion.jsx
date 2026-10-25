@@ -3,7 +3,7 @@ import Suggestion from "./Suggestion";
 import Title from "../../../../../components/Title";
 import { useState, useEffect, useRef } from "react";
 import { getTranslation } from "../../../../../services/Utility/index";
-import useRequest from "../../../../../services/Hooks/useRequest/index";
+import useRequest from "../../../../../hooks/useRequest.js";
 import { Wrapper } from "../suggestionStyles";
 import Container from "../../../../../components/Common/Container";
 

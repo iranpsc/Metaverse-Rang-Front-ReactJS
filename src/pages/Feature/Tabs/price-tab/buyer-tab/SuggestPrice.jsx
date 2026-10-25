@@ -10,7 +10,7 @@ import {
   getTranslation,
   calculateFee,
 } from "../../../../../services/Utility";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
 import BaseContainer from "../../../../../components/Common/Container";
 import {
   WalletContext,

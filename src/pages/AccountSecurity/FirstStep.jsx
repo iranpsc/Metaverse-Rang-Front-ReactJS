@@ -2,9 +2,9 @@
 import { useState } from "react";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import styled from "styled-components";
-import useRequest from "../../services/Hooks/useRequest";
+import useRequest from "../../hooks/useRequest.js";
 import { getTranslation } from "../../services/Utility";
-import { useLanguage } from "../../services/reducers/LanguageContext";
+import { useLanguage } from "../../hooks/useLanguageContext.js";
 import Button from "../../components/Button";
 
 const Container = styled.div`

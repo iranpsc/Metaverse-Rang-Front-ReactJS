@@ -1,11 +1,11 @@
 import styled from "styled-components";
 import LogoIcon from "../../assets/images/metarang-newLogo.png";
 import { getTranslation } from "../../services/Utility";
-import { useMenuContext } from "../../services/reducers/MenuContext";
+import { useMenuContext } from "../../hooks/useMenuContext.js";
 import ArowMenu from "../../assets/svg/arowMenu.svg?react";
 import { LangContainer, LangButton, LangMenu } from "./LangSelector.styles";
 import { useState, useEffect } from "react";
-import useLanguage from "../../services/Hooks/useLanguage";
+import useLanguage from "../../hooks/useLanguage.js";
 import DropdownLanguageModule from "../../components/DropDownLang/DropdownLanguageModule";
 import ThemeMenuModule from "./ThemeMenuModule";
 import { languagesMeta } from "../../i18n/i18n";

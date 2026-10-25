@@ -1,6 +1,5 @@
-
 import Modal from "../../components/Modal";
-import Tabs from "../../services/Hooks/useTabs/index";
+import Tabs from "../../components/RouteTabs.jsx";
 import { getTranslation } from "../../services/Utility";
 export default function Sanad() {
   const tabs = [
@@ -10,8 +9,8 @@ export default function Sanad() {
   ];
 
   return (
-        <Modal title={"1315"}>
-          <Tabs items={tabs} />
-        </Modal>
+    <Modal title={"1315"}>
+      <Tabs items={tabs} />
+    </Modal>
   );
 }

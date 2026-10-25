@@ -6,7 +6,7 @@ import whatsapp from "../../../../assets/images/whatsapp.png";
 import Button from "../../../../components/Button";
 import Title from "../../../../components/Title";
 import { getTranslation } from "../../../../services/Utility";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { ToastError, ToastSuccess, convertToPersian, ConvertJalali } from "../../../../services/Utility";
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.newColors.shades.bg2};

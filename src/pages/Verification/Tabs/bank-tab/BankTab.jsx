@@ -4,10 +4,9 @@ import { useEffect, useState } from "react";
 import Title from "../../../../components/Title";
 import Alert from "../../../../components/Alert/Alert";
 import ErrorModal from "../ErrorModal";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 import Container from "../../../../components/Common/Container";
-
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;

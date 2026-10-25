@@ -1,7 +1,7 @@
 //import Other from "./Other";
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import styled from "styled-components";
-import { useTheme } from "../../../../services/reducers/ThemeContext";
+import { useTheme } from "../../../../hooks/useTheme.js";
 import {
   getTranslation,
   convertToPersian,
@@ -11,7 +11,7 @@ import { metarangUrlCitizen } from "../../../../services/Utility";
 import red from "../../../../assets/gif/red-color.gif";
 import blue from "../../../../assets/gif/blue-color.gif";
 import yellow from "../../../../assets/gif/yellow-color.gif";
-import useLanguage from "../../../../services/Hooks/useLanguage";
+import useLanguage from "../../../../hooks/useLanguage.js";
 const Container = styled.div`
   padding: 15px;
   width: 100%;

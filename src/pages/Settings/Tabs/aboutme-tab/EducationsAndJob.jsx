@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useGlobalState } from "./aboutGlobalStateProvider";
+import { useGlobalState } from "../../../../hooks/useAboutMeGlobalState";
 import {
   getTranslation,
   getFieldsByTabName,

@@ -1,4 +1,4 @@
-import  { createContext, useContext, useReducer } from "react";
+import { createContext, useReducer } from "react";
 
 const initialState = {
   subject: "",
@@ -25,7 +25,7 @@ const reducer = (state, action) => {
   }
 };
 
-const ReportStateContext = createContext();
+export const ReportStateContext = createContext();
 
 export const ReportStateProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -37,8 +37,4 @@ export const ReportStateProvider = ({ children }) => {
       {children}
     </ReportStateContext.Provider>
   );
-};
-
-export const useReportsGlobalState = () => {
-  return useContext(ReportStateContext);
 };

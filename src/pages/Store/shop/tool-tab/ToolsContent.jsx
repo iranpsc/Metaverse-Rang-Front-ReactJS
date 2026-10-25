@@ -4,7 +4,7 @@ import { AlertContext } from "../../../../services/reducers/AlertContext";
 import Alert from "../../../../components/Alert/Alert";
 import Title from "../../../../components/Title";
 import InfoRow from "../InfoRow";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { Skeleton } from "../../../../components/Skeleton";
 import Container from "../../../../components/Common/Container";
 import { useLocation } from "react-router";

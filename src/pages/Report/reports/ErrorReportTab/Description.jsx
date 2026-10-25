@@ -1,4 +1,4 @@
-import { useReportsGlobalState } from "../GlobalReportStateProvider";
+import { useReportsGlobalState } from "../../../../hooks/useReportsGlobalState";
 import { getTranslation } from "../../../../services/Utility/index";
 import CustomEditor from "../../../../components/Common/CustomEditor";
 

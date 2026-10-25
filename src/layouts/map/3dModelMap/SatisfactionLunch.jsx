@@ -5,19 +5,19 @@ import TextValueIcon from "../../../components/TextValue/TextValueIcon";
 import styled from "styled-components";
 import WatchIcon from "../../../assets/svg/watch.svg?react";
 import Submit from "../../../components/Buttons/Submit";
-import { useSelectedEnvironment } from "../../../services/reducers/SelectedEnvironmentContext";
+import { useSelectedEnvironment } from "../../../hooks/useSelectedEnvironment.js";
 import {
   WalletContext,
   WalletContextTypes,
 } from "../../../services/reducers/WalletContext";
-import useRequest from "../../../services/Hooks/useRequest";
+import useRequest from "../../../hooks/useRequest.js";
 
 import {
   getTranslation,
   ToastError,
   ToastSuccess,
 } from "../../../services/Utility";
-import { useMapData } from "../../../services/reducers/mapContext";
+import { useMapData } from "../../../hooks/useMapData.js";
 
 const Icon = styled(WatchIcon)`
   stroke: ${(props) => props.theme.colors.primary};

@@ -5,7 +5,7 @@ import styled from "styled-components";
 import { useState, useRef, useContext } from "react";
 import Compressor from "compressorjs";
 import { UserContext } from "../../../../services/reducers/UserContext";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import {useNavigate } from "react-router";
 import {
   ToastError,

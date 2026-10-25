@@ -2,10 +2,10 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Title from "../../../../../components/Title";
 import SearchInput from "../../../../../components/SearchInput";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../../services/Utility";
 import CustomDatePicker from "../../../../../components/CustomDatePicker";
-import useDateFilter from "../../../../../services/Hooks/useDateFilter";
+import useDateFilter from "../../../../../hooks/useDateFilter.js";
 import Container from "../../../../../components/Common/Container";
 
 const Div = styled.div`

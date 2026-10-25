@@ -14,12 +14,12 @@ import ReportIcon from "../../assets/svg/report.svg";
 import Wallet from "../../assets/svg/wallet.svg";
 import GiftIcon from "../../assets/svg/gifts.svg";
 import LogoutIcon from "../../assets/svg/logout.svg";
-import { useMenuContext } from "../../services/reducers/MenuContext";
+import { useMenuContext } from "../../hooks/useMenuContext.js";
 import { useNavigate, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { UserContext } from "../../services/reducers/UserContext";
 import ToolTip from "../../components/Tooltip";
-import useRequest from "../../services/Hooks/useRequest";
+import useRequest from "../../hooks/useRequest.js";
 import { removeItem } from "../../services/Utility/LocalStorage";
 
 const Container = styled.div`

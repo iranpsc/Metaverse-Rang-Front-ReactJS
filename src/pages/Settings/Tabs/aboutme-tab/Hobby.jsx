@@ -13,11 +13,11 @@ import note from "../../../../assets/images/settings/note-2.png";
 import pet from "../../../../assets/images/settings/pet.png";
 import styled from "styled-components";
 import tree from "../../../../assets/images/settings/tree.png";
-import { useGlobalState } from "./aboutGlobalStateProvider";
+import { useGlobalState } from "../../../../hooks/useAboutMeGlobalState";
 import weight from "../../../../assets/images/settings/weight.png";
 import { getTranslation } from "../../../../services/Utility";
 import { useEffect, useState } from "react";
-import { useTheme } from "../../../../services/reducers/ThemeContext";
+import { useTheme } from "../../../../hooks/useTheme.js";
 const Container = styled.div`
   margin-top: 40px;
 `;

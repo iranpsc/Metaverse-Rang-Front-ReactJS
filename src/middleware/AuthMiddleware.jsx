@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router";
-import useAuth from "../services/Hooks/useAuth";
+import useAuth from "../hooks/useAuth.js";
 
 const AuthMiddleware = ({ children }) => {
   const { setUserWithToken, setUser } = useAuth();

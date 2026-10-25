@@ -12,8 +12,8 @@ import persian_fa from "react-date-object/locales/persian_fa";
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 import { getTranslation } from "../../../../services/Utility/index";
-import { useTheme } from "../../../../services/reducers/ThemeContext";
-import useRequest from '../../../../services/Hooks/useRequest';
+import { useTheme } from "../../../../hooks/useTheme.js";
+import useRequest from '../../../../hooks/useRequest.js';
 import Container from "../../../../components/Common/Container";
 
 const Div = styled.div`

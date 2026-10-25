@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useLanguage } from "../services/reducers/LanguageContext";
+import { useLanguage } from "../hooks/useLanguageContext.js";
 import { convertToPersian } from "../services/Utility";
 const Wrapper = styled.div`
   position: relative;

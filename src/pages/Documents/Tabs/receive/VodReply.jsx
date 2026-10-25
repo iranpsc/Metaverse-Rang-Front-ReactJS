@@ -4,7 +4,7 @@ import styled from "styled-components";
 import ReplyInput from "../ReplyInput";
 import SendFiles from "./SendFiles";
 import Button from "../../../../components/Button";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import {
   getTranslation,
   SanitizeHTML, ToastSuccess

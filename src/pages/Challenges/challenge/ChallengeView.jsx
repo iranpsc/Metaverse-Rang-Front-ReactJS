@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Organizers from "./organizers/Organizers";
 import Questions from "./questions/Questions";
-import useRequest from "../../../services/Hooks/useRequest";
+import useRequest from "../../../hooks/useRequest.js";
 import { getTranslation } from "../../../services/Utility";
 import falsep from "../../../assets/images/challenge/close-circle.svg";
 import truep from "../../../assets/images/challenge/tick-circle.svg";

@@ -1,6 +1,6 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useState } from "react";
 
-const AccountSecurityContext = createContext();
+export const AccountSecurityContext = createContext();
 
 export const AccountSecurityProvider = ({ children }) => {
   const [accountSecurity, setAccountSecurity] = useState(false);
@@ -21,5 +21,3 @@ export const AccountSecurityProvider = ({ children }) => {
     </AccountSecurityContext.Provider>
   );
 };
-
-export const useAccountSecurity = () => useContext(AccountSecurityContext);

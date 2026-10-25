@@ -1,22 +1,24 @@
+//این مدال برای کامپوننت های عمومی مانند پروفایل و تنظیمات استفاده شده
 import styled from "styled-components";
 import Header from "../Header/Header";
-import { useLanguage } from "../../services/reducers/LanguageContext";
+import { useLanguage } from "../../hooks/useLanguageContext.js";
+import { Overlay } from "./styles";
 
-const ModalContainer = styled.div`
-  background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
+const Dialog = styled.div`
+  position: absolute;
+  ${({ $isPersian }) => ($isPersian ? "right: 0;" : "left: 0;")}
+  z-index: 12;
+  width: 81%;
+  max-width: 800px;
   height: 100%;
   padding: 15px 14px;
-  max-width: 800px;
-  width: 81%;
-  z-index: 12;
-  position: absolute;
-  ${(props) => (props.isPersian ? "right: 0;" : "left: 0;")}
+  background-color: ${({ theme }) => theme.colors.newColors.shades.bg2};
+
   @media (min-width: 1023px) {
+    position: static;
     height: 94%;
     max-width: 1330px;
     max-height: 782px;
-    position: static;
-    right: auto;
     border-radius: 10px;
   }
 
@@ -33,30 +35,17 @@ const ModalContainer = styled.div`
     max-height: 820px;
   }
 `;
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-
-  background-color: rgba(0, 0, 0, 0.713);
-  z-index: 9999;
-`;
 
 const Modal = ({ children, title }) => {
   const isPersian = useLanguage();
 
   return (
-    <Container>
-      <ModalContainer isPersian={isPersian}>
+    <Overlay>
+      <Dialog $isPersian={isPersian}>
         <Header title={title} />
         {children}
-      </ModalContainer>
-    </Container>
+      </Dialog>
+    </Overlay>
   );
 };
 

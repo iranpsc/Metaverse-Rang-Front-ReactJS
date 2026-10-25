@@ -5,7 +5,7 @@ import Button from "../../../components/Button";
 import InfoModal from "./InfoModal";
 import TitleValue from "./TitleValue";
 import { addCommas } from "@persian-tools/persian-tools";
-import useRequest from "../../../services/Hooks/useRequest";
+import useRequest from "../../../hooks/useRequest.js";
 import { getTranslation } from "../../../services/Utility";
 
 const Wrapper = styled.div`

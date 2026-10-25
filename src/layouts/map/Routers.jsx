@@ -55,7 +55,6 @@ import CurrenciesContent from "../../pages/Store/shop/currency-tab/CurrenciesCon
 import ErrorReportTab from "../../pages/Report/reports/ErrorReportTab/ErrorReportTab";
 import ReportsListTab from "../../pages/Report/reports/ReportsListTab/ReportsListTab";
 import { ReportStateProvider } from "../../pages/Report/reports/GlobalReportStateProvider";
-import { GlobalVodStateProvider } from "../../pages/Documents/Tabs/GlobalVodStateProvider";
 import { GlobalNoteStateProvider } from "../../pages/Documents/Tabs/GlobalNoteStateProvider";
 import MainLayout from "../MainLayout";
 import { useContext } from "react";
@@ -78,11 +77,7 @@ export default function Routers() {
 
           <Route
             path="write"
-            element={
-              <GlobalVodStateProvider>
-                <WriteVodTab />
-              </GlobalVodStateProvider>
-            }
+            element={<WriteVodTab />}
           />
 
           <Route path="list" element={<VodListTab />}>

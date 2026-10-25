@@ -2,12 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { FeatureContext } from "../../../../Context/FeatureProvider";
 
-import useRequest from "../../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../../hooks/useRequest.js";
 import Eye from "../../../../../../assets/svg/eye.svg?react";
 import { Skeleton } from "../../../../../../components/Skeleton";
 
 import PreviewModel from "./PreviewModel";
-import { useSelectedEnvironment } from "../../../../../../services/reducers/SelectedEnvironmentContext";
+import { useSelectedEnvironment } from "../../../../../../hooks/useSelectedEnvironment.js";
 
 const Container = styled.div`
   gap: 10px;

@@ -6,8 +6,8 @@ import {
   getTranslation,
 } from "../../../services/Utility";
 import Result from "../../../components/Result";
-import useRequest from "../../../services/Hooks/useRequest";
-import { useTheme } from "../../../services/reducers/ThemeContext";
+import useRequest from "../../../hooks/useRequest.js";
+import { useTheme } from "../../../hooks/useTheme.js";
 const Wrapper = styled.div`
   border-radius: 5px;
   background-color: ${(props) =>

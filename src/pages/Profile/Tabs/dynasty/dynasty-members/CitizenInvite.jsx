@@ -5,7 +5,7 @@ import { RiUserUnfollowLine, RiLoader4Line } from "react-icons/ri";
 import Button from "../../../../../components/Button";
 import Title from "../../../../../components/Title";
 import SearchInput from "../../../../../components/SearchInput";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
 import {
   getTranslation,
   ToastError,

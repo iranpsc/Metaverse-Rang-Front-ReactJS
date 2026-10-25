@@ -1,72 +1,85 @@
-import { useContext, useState } from "react";
-import { LoaderContext } from "../../../../services/reducers/LoaderProvider.jsx";
+// کامپوننت یک ردیف از جدول گزارش‌ها برای نمایش کد، عنوان، نوع، تاریخ و زمان هر گزارش.
+// مناسب لیست گزارش‌های کاربر است؛ با کلیک روی آیکون چشم جزئیات گزارش از سرور گرفته و در ReportDetails نمایش داده می‌شود،
+// و در زمان دریافت، به‌جای لودینگ سراسری، یک اسپینر کوچک داخل همان دکمه نشان داده می‌شود.
+import { useState } from "react";
+import styled, { useTheme } from "styled-components";
 import { LuEye } from "react-icons/lu";
+
 import ReportDetails from "./ReportDetails.jsx";
-import styled from "styled-components";
-import { getTranslation } from "../../../../services/Utility/index";
-import useRequest from "../../../../services/Hooks/useRequest";
-import { convertToPersian } from "../../../../services/Utility/index";
+import LoadingSpinner from "../../../../components/Loading/LoadingSpinner.jsx";
+import useRequest from "../../../../hooks/useRequest.js";
+import {
+  convertToPersian,
+  getTranslation,
+} from "../../../../services/Utility/index";
 
-const TableRow = styled.tr`
-  /* background-color: ${(props) =>
-    props.status === "confirmed"
-      ? (props) => props.theme.colors.newColors.otherColors.confirmed
-      : "transparent"};
-*/
-`;
+const MAX_TITLE_LENGTH = 60;
 
-const TableCell = styled.td`
+const MEMBER_TRANSLATION_KEYS = {
+  spellingError: "15",
+  codingError: "16",
+  FPSError: "17",
+  disrespect: "18",
+  displayError: "1385",
+};
+
+const truncate = (text, max = MAX_TITLE_LENGTH) =>
+  text.length > max ? `${text.substring(0, max)}...` : text;
+
+const Cell = styled.td`
   padding: 15px 20px;
   border-bottom: 1px solid #454545;
-  justify-content: center;
   color: #ffffff;
+  justify-content: center;
+
   &:nth-of-type(5) {
     padding-right: 10px;
   }
 `;
 
-const Code = styled.h3`
-  font-size: 16px;
-  font-weight: 400;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
+const ActionCell = styled(Cell)`
+  position: relative;
 `;
 
-const Date = styled.h3`
+const CellText = styled.h3`
   font-size: 16px;
   font-weight: 400;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
 `;
 
-const View = styled.div`
-  width: 40px;
-  height: 40px;
-  background-color: ${(props) =>
-    props.id === 0
-      ? props.theme.colors.primary
-      : props.theme.colors.newColors.otherColors.inputBg};
-  border-radius: 10px;
+const ViewButton = styled.button`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: none;
+  border-radius: 10px;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
   cursor: pointer;
+
+  svg {
+    color: ${({ theme }) => theme.colors.newColors.shades.title};
+  }
+
   &:hover {
-    background-color: ${(props) => props.theme.colors.primary};
+    background-color: ${({ theme }) => theme.colors.primary};
     transition: all 0.2s linear;
+
     svg {
-      color: ${(props) => props.theme.colors.newColors.primaryText};
+      color: ${({ theme }) => theme.colors.newColors.primaryText};
     }
   }
-  svg {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-  }
-`;
 
-const Status = styled.h3`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  width: fit-content;
-  font-size: 16px;
-  border-radius: 0.25rem;
-  font-weight: 400;
+  &:disabled {
+    cursor: default;
+  }
 `;
 
 const ReportRow = ({
@@ -74,23 +87,25 @@ const ReportRow = ({
   code,
   datetime,
   title,
-  status,
   member,
   domain,
   subdomain,
 }) => {
-  const [showDetails, setShowDetails] = useState(false);
-  const { setIsLoading } = useContext(LoaderContext);
+  const theme = useTheme();
   const { Request } = useRequest();
   const [reportDetails, setReportDetails] = useState(null);
-  const [date, time] = datetime.split(" ");
+  const [showDetails, setShowDetails] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const truncateTitle = (titleString) => {
-    return titleString.length > 60
-      ? titleString.substring(0, 60) + "..."
-      : titleString;
-  };
+  const [date, time] = datetime.split(" ");
+  const translationKey = MEMBER_TRANSLATION_KEYS[member];
+  const translatedMember = translationKey
+    ? getTranslation(translationKey)
+    : member;
+
   const fetchReportDetails = async () => {
+    if (isLoading) return;
+
     try {
       setIsLoading(true);
       const response = await Request(`reports/${id}`, "GET");
@@ -103,85 +118,46 @@ const ReportRow = ({
     }
   };
 
-  const translateMember = (member) => {
-    switch (member) {
-      case "spellingError":
-        return getTranslation("15");
-      case "FPSError":
-        return getTranslation("17");
-      case "displayError":
-        return getTranslation("1385");
-      case "codingError":
-        return getTranslation("16");
-      case "disrespect":
-        return getTranslation("18");
-      default:
-        return member;
-    }
-  };
-
-  const translatedMember = translateMember(member);
-
   return (
     <>
-      <TableRow status={status}>
-        <TableCell>
-          <div>
-            <Code>#{convertToPersian(code)}</Code>
-          </div>
-        </TableCell>
-        <TableCell>
-          <div>
-            <Date>{truncateTitle(title)}</Date>
-          </div>
-        </TableCell>
-        <TableCell>
-          <Status>{translatedMember}</Status>
-        </TableCell>
-        {/*<TableCell>
-          <Title
-            style={{
-              color: `${status === "confirmed"
-                  ? "#18C08F"
-                  : status === "pending"
-                    ? "#FFC700"
-                    : "#A0A0AB"
-                }`,
-            }}
-          >
-            {status === "confirmed"
-              ? getTranslation("1343")
-              : status === "pending"
-                ? getTranslation("852")
-                : getTranslation("1345")}
-          </Title>
-        </TableCell>*/}
-        <TableCell>
-          <div>
-            <Date>
-              {date} | {time}
-            </Date>
-          </div>
-        </TableCell>
-        <TableCell style={{ position: "relative" }}>
-          <View
-            id={id}
+      <tr>
+        <Cell>
+          <CellText>#{convertToPersian(code)}</CellText>
+        </Cell>
+        <Cell>
+          <CellText>{truncate(title)}</CellText>
+        </Cell>
+        <Cell>
+          <CellText>{translatedMember}</CellText>
+        </Cell>
+        <Cell>
+          <CellText>
+            {date} | {time}
+          </CellText>
+        </Cell>
+        <ActionCell>
+          <ViewButton
+            type="button"
             onClick={fetchReportDetails}
-            style={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-            }}
+            disabled={isLoading}
           >
-            <LuEye size={20} />
-          </View>
-        </TableCell>
-      </TableRow>
+            {isLoading ? (
+              <LoadingSpinner
+                size="small"
+                text=""
+                color={theme.colors.newColors.shades.title}
+                backgroundColor="transparent"
+              />
+            ) : (
+              <LuEye size={20} />
+            )}
+          </ViewButton>
+        </ActionCell>
+      </tr>
+
       {showDetails && (
         <ReportDetails
           reportDetails={reportDetails}
-          //status={status}
           date={date}
           time={time}
           member={translatedMember}

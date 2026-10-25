@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useContext } from "react";
 import { getTranslation } from "../../../../services/Utility";
-import { Container, Label } from "../../../../components/sidbar";
+import { Container, Label } from "../../../../components/Sidebar";
 import { NavLink, useLocation } from "react-router";
 import { UserContext } from "../../../../services/reducers/UserContext";
 const Sidebar = (data) => {

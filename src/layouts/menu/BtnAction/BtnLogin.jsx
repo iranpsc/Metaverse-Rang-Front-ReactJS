@@ -1,9 +1,9 @@
 
 import styled from "styled-components";
 import LoginIcon from "../../../assets/svg/login.svg?react";
-import { useMenuContext } from "../../../services/reducers/MenuContext";
+import { useMenuContext } from "../../../hooks/useMenuContext.js";
 import { getTranslation } from "../../../services/Utility";
-import useRequest from "../../../services/Hooks/useRequest";
+import useRequest from "../../../hooks/useRequest.js";
 import { useState } from "react";
 
 const Btn = styled.div`

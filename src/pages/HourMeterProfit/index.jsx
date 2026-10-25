@@ -1,6 +1,6 @@
 
-import ModalPosition from "../../components/ModalPosition";
-import Tabs from "../../services/Hooks/useTabs";
+import ModalPosition from "../../components/Modal/ModalPosition";
+import Tabs from "../../components/RouteTabs.jsx";
 import { getTranslation } from "../../services/Utility";
 
 const HourMeterProfit = () => {

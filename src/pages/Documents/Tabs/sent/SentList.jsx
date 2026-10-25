@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import SearchInput from "../../../../components/SearchInput";
 import Title from "../../../../components/Title";
 import VodList from "../../VodList";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 import Container from "../../../../components/Common/Container";
 

@@ -7,7 +7,7 @@ import {
   isMobile,
 } from "../../services/Utility";
 import Button from "../../components/Button";
-import useRequest from "../../services/Hooks/useRequest";
+import useRequest from "../../hooks/useRequest.js";
 import { useNavigate } from "react-router";
 import { UserContext } from "../../services/reducers/UserContext";
 import { useContext } from "react";

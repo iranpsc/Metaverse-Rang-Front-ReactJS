@@ -9,7 +9,7 @@ import ayande from "../../../../assets/images/bank-icon/bank-ayandeh.png";
 import styled from "styled-components";
 import { useState } from "react";
 import { getTranslation } from "../../../../services/Utility";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { Skeleton } from "../../../../components/Skeleton";
 
 const Container = styled.div`

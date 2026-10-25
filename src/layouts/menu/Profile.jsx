@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import useAuth from "../../services/Hooks/useAuth";
-import { useMenuContext } from "../../services/reducers/MenuContext";
+import useAuth from "../../hooks/useAuth.js";
+import { useMenuContext } from "../../hooks/useMenuContext.js";
 import Union from "./Union/Union";
 import BtnsMenu from "./BtnsMenu";
 import { FaChevronDown } from "react-icons/fa";
@@ -14,7 +14,7 @@ import userEdit from "../../assets/svg/user-edit.svg";
 
 import { useNavigate } from "react-router";
 import { getTranslation, metarangUrlCitizen } from "../../services/Utility";
-import { useLanguage } from "../../services/reducers/LanguageContext";
+import { useLanguage } from "../../hooks/useLanguageContext.js";
 const MessageIcon = styled(Message)`
   fill: #868b907c;
 `;

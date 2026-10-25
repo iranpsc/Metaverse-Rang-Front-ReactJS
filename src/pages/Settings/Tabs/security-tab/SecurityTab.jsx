@@ -3,7 +3,7 @@ import Item from "./Item";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import SearchInput from "../../../../components/SearchInput";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 import Container from "../../../../components/Common/Container";
 import SkeletonGrid from "../../../../components/Common/SkeletonGrid";
@@ -23,7 +23,7 @@ const Wrapper = styled.div`
   }
 `;
 const SkeletonContainer = styled.div`
-margin-top: 0px;
+  margin-top: 0px;
 `;
 
 const items = [
@@ -463,12 +463,12 @@ const SecurityTab = () => {
     const filteredOptions = item.options.filter((option) =>
       option.translationId
         ? getTranslation(option.translationId)
-          ?.toLowerCase()
-          ?.includes(searched.toLowerCase()) ||
-        getTranslation(item.translationId)
-          ?.toLowerCase()
-          ?.includes(searched.toLowerCase())
-        : ""
+            ?.toLowerCase()
+            ?.includes(searched.toLowerCase()) ||
+          getTranslation(item.translationId)
+            ?.toLowerCase()
+            ?.includes(searched.toLowerCase())
+        : "",
     );
     return (
       filteredOptions.length > 0 ||
@@ -529,9 +529,16 @@ const SecurityTab = () => {
   }, []);
 
   if (loading) {
-    return <SkeletonContainer>
-      <SkeletonGrid count={1} /><SkeletonGrid count={2} /><SkeletonGrid count={2} /><SkeletonGrid count={2} /><SkeletonGrid count={2} /><SkeletonGrid count={2} />
-    </SkeletonContainer>;
+    return (
+      <SkeletonContainer>
+        <SkeletonGrid count={1} />
+        <SkeletonGrid count={2} />
+        <SkeletonGrid count={2} />
+        <SkeletonGrid count={2} />
+        <SkeletonGrid count={2} />
+        <SkeletonGrid count={2} />
+      </SkeletonContainer>
+    );
   }
 
   return (

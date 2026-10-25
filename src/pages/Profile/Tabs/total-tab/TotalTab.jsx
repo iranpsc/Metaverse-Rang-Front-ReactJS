@@ -3,7 +3,7 @@ import Bio from "./Bio";
 import Details from "./Details";
 import styled from "styled-components";
 import { useScrollDirection } from "../../../../hooks/useScrollDirection";
-import { useScrollDirectionContext } from "../../../../services/reducers/ScrollDirectionContext";
+import { useScrollDirectionContext } from "../../../../hooks/useScrollDirectionContext.js";
 
 const Container = styled.div`
   width: 100%;

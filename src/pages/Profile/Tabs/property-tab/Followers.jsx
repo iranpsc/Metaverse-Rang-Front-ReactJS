@@ -3,12 +3,12 @@ import SearchInput from "../../../../components/SearchInput";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Title from "../../../../components/Title";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 import { useParams } from "react-router";
 import Container from "../../../../components/Common/Container";
 import { Skeleton } from "../../../../components/Skeleton";
-import { useFollow } from "../../../../services/reducers/FollowContext";
+import { useFollow } from "../../../../hooks/useFollow.js";
 
 const List = styled.div`
   padding: 20px 0;

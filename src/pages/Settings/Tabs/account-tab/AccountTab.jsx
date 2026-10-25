@@ -2,7 +2,7 @@ import Bank from "./Bank";
 import ChangeCard from "./ChangeCard";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import Container from "../../../../components/Common/Container";
 import { Skeleton } from "../../../../components/Skeleton";
 

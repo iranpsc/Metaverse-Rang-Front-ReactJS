@@ -3,7 +3,7 @@ import {
   convertToPersian,
   getTranslation,
 } from "../../../../services/Utility";
-import { Container, Label } from "../../../../components/sidbar";
+import { Container, Label } from "../../../../components/Sidebar";
 import { currencies } from "../data";
 
 const SideBar = () => {
