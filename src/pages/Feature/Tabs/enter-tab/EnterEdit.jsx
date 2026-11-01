@@ -1,4 +1,4 @@
-import Title from "../../../../components/Title";
+import TitleHeader from "../../../../components/TitleHeader";
 import EditInputs from "./EditInputs";
 
 import styled from "styled-components";
@@ -11,7 +11,7 @@ const Container = styled.div`
 const EnterEdit = ({ setEdit, data, setData, setPayed }) => {
   return (
     <Container>
-      <Title title="entering-the-property" />
+      <TitleHeader title="entering-the-property" />
       <EditInputs
         data={data}
         setData={setData}

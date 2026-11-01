@@ -1,23 +1,31 @@
-import SideBar from "./SideBar";
-import styled from "styled-components";
 import { Outlet } from "react-router";
+import styled from "styled-components";
+import Sidebar from "../../../../components/Sidebar";
+import { convertToPersian, getTranslation } from "../../../../services/Utility";
+import { currencies } from "../data";
+
+const CURRENCY_BASE_PATH = "/store/currency";
+const DEFAULT_CURRENCY_SEGMENT = "currency";
+
+const SIDEBAR_ITEMS = currencies.map((item, index) => ({
+  to: `${CURRENCY_BASE_PATH}/${item.path}`,
+  // آیتم اول برای مسیر پیش‌فرض /store/currency هم فعال است
+  activeSegments: index === 0 ? [DEFAULT_CURRENCY_SEGMENT] : undefined,
+  renderTitle: () => `${getTranslation("504")} ${convertToPersian(item.id)}`,
+}));
+
 const Wrapper = styled.div`
   display: flex;
   gap: 20px;
-  grid-template-columns: 200px 1fr;
   height: 100vh;
   overflow-y: hidden;
-  @media (max-width: 850px) {
-    grid-template-columns: 150px 1fr;
-  }
 `;
-const CurrencyTab = () => {
-  return (
-    <Wrapper>
-      <SideBar/>
-      <Outlet  />
-    </Wrapper>
-  );
-};
+
+const CurrencyTab = () => (
+  <Wrapper>
+    <Sidebar items={SIDEBAR_ITEMS} />
+    <Outlet />
+  </Wrapper>
+);
 
 export default CurrencyTab;

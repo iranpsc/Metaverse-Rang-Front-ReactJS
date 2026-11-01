@@ -21,7 +21,6 @@ export default function Settings() {
     },
   ];
 
-
   return (
     <Modal title={"642"}>
       <Tabs items={tabs} />

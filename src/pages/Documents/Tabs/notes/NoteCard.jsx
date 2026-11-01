@@ -1,37 +1,21 @@
 import { CiEdit } from "react-icons/ci";
-import { EditContext } from "./NoteDetails";
 import { GoTrash } from "react-icons/go";
+import styled from "styled-components";
 
 import circle from "../../../../assets/images/link-circle.png";
 import insta from "../../../../assets/images/instagram.png";
 import send from "../../../../assets/images/send-2.png";
-import styled from "styled-components";
-import { useContext } from "react";
 import whatsapp from "../../../../assets/images/whatsapp.png";
-import Title from "../../../../components/Title";
+import TitleHeader from "../../../../components/TitleHeader";
 import useRequest from "../../../../hooks/useRequest.js";
-import { GlobalNoteStateContext } from "../GlobalNoteStateProvider";
 import { getTranslation } from "../../../../services/Utility";
 
-const Button = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.garyBtn};
-  border-radius: 10px;
-  display: flex;
-  white-space: nowrap;
-  padding: 10px 22px;
-  gap: 6px;
-  cursor: pointer;
-  color: ${(props) => props.theme.colors.newColors.otherColors.grayBtnText};
-  svg {
-    margin-top: 2px;
-  }
-
-  @media (max-width: 998px) {
-    font-size: 12px;
-    padding: 10px 15px;
-  }
-`;
+const SOCIALS = [
+  { id: 1, icon: circle },
+  { id: 2, icon: whatsapp },
+  { id: 3, icon: insta },
+  { id: 4, icon: send },
+];
 
 const Container = styled.div`
   background-color: ${(props) => props.theme.colors.newColors.shades.inputBg};
@@ -47,20 +31,26 @@ const Info = styled.div`
   padding-bottom: 10px;
   border-bottom: 1px solid #454545;
 `;
-const Content = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  margin-top: 20px;
-  gap: 10px;
+
+const Texts = styled.div`
+  p {
+    margin: 10px 0;
+    color: ${(props) => props.theme.colors.newColors.shades.title};
+    font-size: 16px;
+    font-weight: 400;
+  }
 `;
+
 const Socials = styled.div`
   padding-right: 20px;
   border-right: 1px solid #454545;
+
   h3 {
     font-size: 13px;
     font-weight: 600;
     color: ${(props) => props.theme.colors.newColors.shades.title};
   }
+
   div {
     margin-top: 12px;
     display: flex;
@@ -68,17 +58,12 @@ const Socials = styled.div`
     gap: 20px;
   }
 `;
-const Texts = styled.div`
-  p {
-    margin: 10px 0;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 16px;
-    font-weight: 400;
-    span {
-      font-weight: 600;
-      color: ${(props) => props.theme.colors.newColors.shades.title};
-    }
-  }
+
+const Content = styled.div`
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  margin-top: 20px;
+  gap: 10px;
 `;
 
 const Label = styled.h3`
@@ -93,105 +78,101 @@ const Label = styled.h3`
   }
 `;
 
-const Subject = styled.div`
-  h2 {
-    font-size: 16px;
-    font-weight: 500;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-  }
-`;
-const Status = styled.div`
-  h2 {
-    font-size: 16px;
-    font-weight: 400;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
+// مقدار هر فیلد اطلاعات (نام، وضعیت، تاریخ)؛ $strong برای فیلد عنوان/نام با وزن بیشتر و بدون کوچک شدن در موبایل
+const Value = styled.h2`
+  font-size: 16px;
+  font-weight: ${({ $strong }) => ($strong ? 500 : 400)};
+  color: ${(props) => props.theme.colors.newColors.shades.title};
 
-    @media (max-width: 998px) {
-      font-size: 14px;
-    }
+  @media (max-width: 998px) {
+    font-size: ${({ $strong }) => ($strong ? "16px" : "14px")};
   }
 `;
-const Date = styled.div`
-  h2 {
-    font-size: 16px;
-    font-weight: 400;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
 
-    @media (max-width: 998px) {
-      font-size: 14px;
-    }
+const Actions = styled.div`
+  margin-right: auto;
+  display: flex;
+  gap: 20px;
+  align-items: start;
+`;
+
+const ActionButton = styled.button`
+  background-color: ${(props) =>
+    props.theme.colors.newColors.otherColors.garyBtn};
+  color: ${(props) => props.theme.colors.newColors.otherColors.grayBtnText};
+  border: none;
+  border-radius: 10px;
+  display: flex;
+  white-space: nowrap;
+  padding: 10px 22px;
+  gap: 6px;
+  cursor: pointer;
+  font: inherit;
+
+  svg {
+    margin-top: 2px;
+  }
+
+  @media (max-width: 998px) {
+    font-size: 12px;
+    padding: 10px 15px;
   }
 `;
-const socials = [
-  { id: 1, icon: circle },
-  { id: 2, icon: whatsapp },
-  { id: 3, icon: insta },
-  { id: 4, icon: send },
-];
-const NoteCard = ({ data }) => {
-  const { setIsEditing } = useContext(EditContext);
-  const { dispatch } = useContext(GlobalNoteStateContext);
-  const { Request } = useRequest();
-  const removeNoteHandler = async () => {
-    try {
-      await Request(`notes/${data.id}`, "DELETE");
-      dispatch({ type: "REMOVE_NOTE", payload: data.id });
-    } catch (error) {
-      console.error("Error deleting note:", error);
-    }
+
+// این کامپوننت برای کارت اطلاعات یک یادداشت (عنوان، شماره، شبکه‌های اجتماعی، نام، وضعیت، تاریخ و دکمه‌های حذف و ویرایش) در جزئیات یادداشت استفاده میشه
+const NoteCard = ({ data, onNoteDeleted, setShowDetails, setIsEditing }) => {
+  const { Request, HTTP_METHOD } = useRequest();
+
+  const handleDelete = async () => {
+    await Request(`notes/${data.id}`, HTTP_METHOD.DELETE);
+    onNoteDeleted(data.id);
+    setShowDetails(false);
   };
+
   return (
     <Container>
       <Info>
         <Texts>
-          <Title title={data?.title} />
+          <TitleHeader title={data?.title} />
           <p>#{data?.id}</p>
         </Texts>
+
         <Socials>
           <h3>{getTranslation("1367")}</h3>
           <div>
-            {socials.map((item) => (
-              <img
-                width={24}
-                height={24}
-                key={item.id}
-                src={item.icon}
-                alt="icon"
-              />
+            {SOCIALS.map(({ id, icon }) => (
+              <img key={id} src={icon} width={24} height={24} alt="" />
             ))}
           </div>
         </Socials>
       </Info>
+
       <Content>
-        <Subject>
+        <div>
           <Label>{getTranslation("1370")}</Label>
-          <h2>{data?.name}</h2>
-        </Subject>
-        <Status status={data?.status}>
-          <Label>{getTranslation("1369")}</Label>
-          <h2>{data?.date}</h2>
-        </Status>
-        <Date>
-          <Label>{getTranslation("1368")}</Label>
-          <h2>{data?.date}</h2>
-        </Date>
-        <div
-          style={{
-            marginRight: "auto",
-            display: "flex",
-            gap: "20px",
-            alignItems: "start",
-          }}
-        >
-          <Button onClick={removeNoteHandler}>
-            <GoTrash size={22} />
-            <h4>{getTranslation("738")}</h4>
-          </Button>
-          <Button onClick={() => setIsEditing(true)}>
-            <CiEdit size={22} />
-            <h4>{getTranslation("460")}</h4>
-          </Button>
+          <Value $strong>{data?.name}</Value>
         </div>
+
+        <div>
+          <Label>{getTranslation("1369")}</Label>
+          <Value>{data?.date}</Value>
+        </div>
+
+        <div>
+          <Label>{getTranslation("1368")}</Label>
+          <Value>{data?.date}</Value>
+        </div>
+
+        <Actions>
+          <ActionButton type="button" onClick={handleDelete}>
+            <GoTrash size={22} />
+            <span>{getTranslation("738")}</span>
+          </ActionButton>
+          <ActionButton type="button" onClick={() => setIsEditing(true)}>
+            <CiEdit size={22} />
+            <span>{getTranslation("460")}</span>
+          </ActionButton>
+        </Actions>
       </Content>
     </Container>
   );

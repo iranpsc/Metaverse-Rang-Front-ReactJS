@@ -1,6 +1,6 @@
 // RecievedSuggestion.jsx
 import Suggestion from "./Suggestion";
-import Title from "../../../../../components/Title";
+import TitleHeader from "../../../../../components/TitleHeader";
 import { useState, useEffect, useRef } from "react";
 import { Wrapper } from "../suggestionStyles";
 import useRequest from "../../../../../hooks/useRequest.js";
@@ -49,7 +49,7 @@ const RecievedSuggestion = () => {
   if (loading) {
     return (
       <Container ref={containerRef}>
-        <Title right title={getTranslation("764")} />
+        <TitleHeader right title={getTranslation("764")} />
         <Wrapper>
           {Array.from({ length: 3 }).map((_, index) => (
             <Suggestion key={index} isLoading={true} />
@@ -61,7 +61,7 @@ const RecievedSuggestion = () => {
 
   return (
     <Container ref={containerRef}>
-      <Title right title={getTranslation("764")} />
+      <TitleHeader right title={getTranslation("764")} />
       <Wrapper>
         {suggestions.map((item) => (
           <Suggestion key={item.id} item={item} isLoading={false} />

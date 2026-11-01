@@ -5,8 +5,12 @@ const t = (id) => getTranslation(id);
 const DEFAULT_TITLE = "905";
 const DEFAULT_PAGE = "148";
 
-const getSegments = (path = "") => {
-  const pathname = path.split("?")[0].split("#")[0];
+const getSegments = (path) => {
+  const pathname = (path ?? "")
+    .replace(/^https?:\/\/[^/]+/, "")
+    .split("?")[0]
+    .split("#")[0];
+
   return pathname.split("/").filter(Boolean);
 };
 

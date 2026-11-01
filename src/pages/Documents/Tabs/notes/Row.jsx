@@ -1,27 +1,24 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
-import { GlobalNoteStateContext } from "../GlobalNoteStateProvider";
-import NoteDetails from "./NoteDetails";
 import styled from "styled-components";
+import NoteDetails from "./NoteDetails";
 import Button from "../../../../components/Button";
 import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 
-const TableRow = styled.tr`
-  background-color: transparent;
-`;
-
 const TableCell = styled.td`
-  padding: 15px 7px;
+  padding: 15px 30px 15px 7px;
   border-bottom: 1px solid #454545;
   color: ${(props) => props.theme.colors.newColors.shades.title};
-  padding-right: 30px;
-  div {
-    width: fit-content;
-  }
+
   @media (min-width: 845px) {
     padding: 15px 20px;
   }
+`;
+
+const CellContent = styled.div`
+  width: fit-content;
+  padding-right: ${({ $indent }) => ($indent ? "25px" : "0")};
 `;
 
 const Code = styled.h2`
@@ -33,81 +30,107 @@ const Buttons = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  div {
-    padding: 13px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background-color: ${(props) =>
-      props.theme.colors.newColors.otherColors.garyBtn};
-    color: ${(props) => props.theme.colors.newColors.otherColors.grayBtnText};
-    transition: all 0.2s linear;
-    cursor: pointer;
-    &:hover {
-      background-color: #c30000;
-    }
+`;
+
+const DeleteButton = styled.button`
+  padding: 13px 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 10px;
+  background-color: ${(props) =>
+    props.theme.colors.newColors.otherColors.garyBtn};
+  color: ${(props) => props.theme.colors.newColors.otherColors.grayBtnText};
+  transition: all 0.2s linear;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #c30000;
   }
+
   @media (min-width: 1366px) {
-    div {
-      padding: 15px 22px;
-    }
+    padding: 15px 22px;
   }
 `;
 
-const Row = ({ id, title }) => {
-  const [showDetails, setShowDetails] = useState(false);
-  const { state, dispatch } = useContext(GlobalNoteStateContext); // Access both state and dispatch
-  const { Request } = useRequest();
+// این کامپوننت برای نمایش یک ردیف یادداشت در جدول (شماره، عنوان، دکمه حذف و مشاهده جزئیات) استفاده میشه و جزئیات یادداشت رو در NoteDetails باز میکنه
+const Row = ({
+  id,
+  title,
+  note,
+  onNoteDeleted,
+  onNoteCached,
+  onNoteUpdated,
+}) => {
+  const [noteDetails, setNoteDetails] = useState(null);
+  const { Request, HTTP_METHOD } = useRequest();
 
-  const onClickHandler = async () => {
-    try {
-      await Request(`notes/${id}`);
-      setShowDetails(true); // Show the details modal
-    } catch (error) {
-      console.error("Error fetching note:", error);
+  const handleOpenDetails = async () => {
+    const hasDetails =
+      Object.prototype.hasOwnProperty.call(note, "content") &&
+      Object.prototype.hasOwnProperty.call(note, "attachments");
+
+    if (hasDetails) {
+      setNoteDetails(note);
+      return;
     }
+
+    const response = await Request(`notes/${id}`);
+    const fetchedDetails = response.data.data;
+    setNoteDetails(fetchedDetails);
+    onNoteCached(fetchedDetails);
   };
 
-  const removeNoteHandler = async () => {
-    try {
-      await Request(`notes/${id}`, "DELETE"); // Use the request hook to delete the note
-      dispatch({ type: "REMOVE_NOTE", payload: id }); // Dispatch action after successful deletion
-    } catch (error) {
-      console.error("Error deleting note:", error);
-    }
+  const handleDelete = async () => {
+    await Request(`notes/${id}`, HTTP_METHOD.DELETE);
+    onNoteDeleted(id);
   };
+
+  const handleCloseDetails = (show) => {
+    if (!show) setNoteDetails(null);
+  };
+
+  const handleNoteUpdated = (updatedNote) => {
+    setNoteDetails(updatedNote);
+    onNoteUpdated(updatedNote);
+  };
+
   return (
     <>
-      <TableRow>
+      <tr>
         <TableCell>
-          <div>
+          <CellContent>
             <Code>{id}#</Code>
-          </div>
+          </CellContent>
         </TableCell>
+
         <TableCell>
-          <div style={{ paddingRight: "25px" }}>
+          <CellContent $indent>
             <Code>{title}</Code>
-          </div>
+          </CellContent>
         </TableCell>
+
         <TableCell>
           <Buttons>
-            <div onClick={removeNoteHandler}>
+            <DeleteButton type="button" onClick={handleDelete}>
               <FiTrash2 size={20} />
-            </div>
+            </DeleteButton>
             <Button
               label={getTranslation("147")}
               grayTheme
-              onclick={onClickHandler}
+              onclick={handleOpenDetails}
             />
           </Buttons>
         </TableCell>
-      </TableRow>
+      </tr>
 
-      {showDetails && (
+      {noteDetails && (
         <NoteDetails
-          data={state.notes.find((item) => item.id === id)}
-          setShowDetails={setShowDetails}
+          data={noteDetails}
+          setShowDetails={handleCloseDetails}
+          onNoteDeleted={onNoteDeleted}
+          onNoteUpdated={handleNoteUpdated}
         />
       )}
     </>

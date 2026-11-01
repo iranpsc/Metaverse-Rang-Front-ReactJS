@@ -1,11 +1,15 @@
-import { GlobalNoteStateContext } from "../GlobalNoteStateProvider";
 import Notes from "./Notes";
-import WriteNote from "./WriteNote";
+import WriteNote from "./write-note/WriteNote";
 import styled from "styled-components";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import useRequest from "../../../../hooks/useRequest.js";
 import { useScrollDirection } from "../../../../hooks/useScrollDirection";
 import { useScrollDirectionContext } from "../../../../hooks/useScrollDirectionContext.js";
+
+const updateNote = (notes, updatedNote) =>
+  notes.map((note) =>
+    note.id === updatedNote.id ? { ...note, ...updatedNote } : note,
+  );
 
 const Container = styled.div`
   padding: 20px 0;
@@ -23,8 +27,8 @@ const Container = styled.div`
 `;
 
 const NotesListTab = () => {
-  const { state, dispatch } = useContext(GlobalNoteStateContext);
-  const [loading, setLoading] = useState(true); // اضافه شد
+  const [notes, setNotes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const { Request } = useRequest();
   const { updateScrollDirection } = useScrollDirectionContext();
 
@@ -37,17 +41,14 @@ const NotesListTab = () => {
 
   useEffect(() => {
     const fetchNotes = async () => {
-      setLoading(true); // اضافه شد
+      setLoading(true);
       try {
         const response = await Request("notes");
-        const fetchedNotes = response.data.data;
-        fetchedNotes.forEach((note) =>
-          dispatch({ type: "ADD_NOTE", payload: note }),
-        );
+        setNotes(response.data.data);
       } catch (error) {
         console.error("Error fetching notes:", error);
       } finally {
-        setLoading(false); // اضافه شد
+        setLoading(false);
       }
     };
     fetchNotes();
@@ -55,8 +56,22 @@ const NotesListTab = () => {
 
   return (
     <Container ref={ref}>
-      <WriteNote />
-      <Notes notes={state.notes} isLoading={loading} />
+      <WriteNote
+        onNoteCreated={(note) => setNotes((current) => [note, ...current])}
+      />
+      <Notes
+        notes={notes}
+        isLoading={loading}
+        onNoteDeleted={(id) =>
+          setNotes((current) => current.filter((note) => note.id !== id))
+        }
+        onNoteCached={(noteDetails) =>
+          setNotes((current) => updateNote(current, noteDetails))
+        }
+        onNoteUpdated={(updatedNote) =>
+          setNotes((current) => updateNote(current, updatedNote))
+        }
+      />
     </Container>
   );
 };

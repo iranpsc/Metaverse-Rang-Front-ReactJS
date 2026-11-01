@@ -1,545 +1,228 @@
-import Item from "./Item";
+// تب تنظیمات حریم خصوصی (نمایش یا مخفی کردن اطلاعات شخصی، مجوزها، تراکنش‌ها، جوایز و سلسله برای دیگران) با سرچ روی عنوان گروه و گزینه‌ها؛ مناسب صفحه‌ی تنظیمات امنیتی که هر گروه را در یک Item با کلیدهای روشن/خاموش نمایش می‌دهد
 
 import styled from "styled-components";
 import { useEffect, useState } from "react";
+import Item from "./Item";
 import SearchInput from "../../../../components/SearchInput";
+import Container from "../../../../components/Common/Container";
+import SecuritySkeleton from "../../../../components/Common/SkeletonGrid";
 import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
-import Container from "../../../../components/Common/Container";
-import SkeletonGrid from "../../../../components/Common/SkeletonGrid";
 
-const Wrapper = styled.div`
-  display: grid;
-  margin-top: 20px;
-  padding-bottom: 20px;
-  grid-template-columns: 1fr;
-  align-items: flex-start;
-  gap: 20px;
-  @media (min-width: 1400px) {
-    grid-template-columns: 1fr 1fr;
-  }
-  @media (min-width: 1900px) {
-    grid-template-columns: 1fr 1fr;
-  }
-`;
-const SkeletonContainer = styled.div`
-  margin-top: 0px;
-`;
-
-const items = [
+// هر گروه: کلید ترجمه‌ی عنوان + گزینه‌ها به شکل [کلید در بک‌اند, کلید ترجمه, عنوان ثابت (فقط وقتی ترجمه ندارد)]
+const SECTIONS = [
   {
-    id: 1,
     translationId: "643",
     options: [
-      {
-        id: 1,
-        translationId: "644",
-        key: "nationality",
-      },
-      {
-        id: 2,
-        translationId: "645",
-        key: "fname",
-      },
-      {
-        id: 3,
-        translationId: "646",
-        key: "lname",
-      },
-      {
-        id: 4,
-        translationId: "83",
-        key: "birthdate",
-      },
-      {
-        id: 5,
-        translationId: "84",
-        key: "phone",
-      },
-      {
-        id: 6,
-        translationId: "85",
-        key: "email",
-      },
-      {
-        id: 7,
-        translationId: "59",
-        key: "address",
-      },
-      {
-        id: 8,
-        translationId: "647",
-        key: "name",
-      },
+      ["nationality", "644"],
+      ["fname", "645"],
+      ["lname", "646"],
+      ["birthdate", "83"],
+      ["phone", "84"],
+      ["email", "85"],
+      ["address", "59"],
+      ["name", "647"],
     ],
   },
   {
-    id: 2,
     translationId: "254",
     options: [
-      {
-        id: 1,
-        translationId: "259",
-        key: "about",
-      },
-      {
-        id: 2,
-        translationId: "648",
-        key: "registered_at",
-      },
-      {
-        id: 3,
-        translationId: "649",
-        key: "position",
-      },
-      {
-        id: 4,
-        translationId: "650",
-        key: "score",
-      },
-      {
-        id: 5,
-        translationId: "154",
-        key: "licenses",
-      },
-      {
-        id: 6,
-        translationId: "651",
-        key: "license_score",
-      },
-      {
-        id: 7,
-        translationId: "652",
-        key: "avatar",
-      },
-      {
-        id: 8,
-        translationId: "86",
-        key: "occupation",
-      },
-      {
-        id: 9,
-        translationId: "479",
-        key: "education",
-      },
-      {
-        id: 10,
-        translationId: "653",
-        key: "loved_city",
-      },
-      {
-        id: 11,
-        translationId: "654",
-        key: "loved_country",
-      },
-      {
-        id: 12,
-        translationId: "655",
-        key: "loved_language",
-      },
-      {
-        id: 13,
-        translationId: "656",
-        key: "prediction",
-      },
-      {
-        id: 14,
-        translationId: "93",
-        key: "memory",
-      },
-      {
-        id: 15,
-        translationId: "94",
-        key: "passions",
-      },
+      ["about", "259"],
+      ["registered_at", "648"],
+      ["position", "649"],
+      ["score", "650"],
+      ["licenses", "154"],
+      ["license_score", "651"],
+      ["avatar", "652"],
+      ["occupation", "86"],
+      ["education", "479"],
+      ["loved_city", "653"],
+      ["loved_country", "654"],
+      ["loved_language", "655"],
+      ["prediction", "656"],
+      ["memory", "93"],
+      ["passions", "94"],
     ],
   },
   {
-    id: 3,
     translationId: "58",
     options: [
-      {
-        id: 1,
-        translationId: "657",
-        key: "amoozeshi_features",
-      },
-      {
-        id: 2,
-        translationId: "659",
-        key: "tejari_features",
-      },
-      {
-        id: 3,
-        translationId: "660",
-        key: "gardeshgari_features",
-      },
-      {
-        id: 4,
-        translationId: "661",
-        key: "fazasabz_features",
-      },
-      {
-        id: 5,
-        translationId: "662",
-        key: "behdashti_features",
-      },
-      {
-        id: 6,
-        translationId: "663",
-        key: "edari_features",
-      },
-      {
-        id: 7,
-        translationId: "664",
-        key: "nemayeshgah_features",
-      },
+      ["amoozeshi_features", "657"],
+      ["tejari_features", "659"],
+      ["gardeshgari_features", "660"],
+      ["fazasabz_features", "661"],
+      ["behdashti_features", "662"],
+      ["edari_features", "663"],
+      ["nemayeshgah_features", "664"],
     ],
   },
   {
-    id: 4,
     translationId: "665",
     options: [
-      {
-        id: 1,
-        translationId: "666",
-        key: "followers",
-      },
-      {
-        id: 2,
-        translationId: "668",
-        key: "following",
-      },
-      {
-        id: 3,
-        translationId: "669",
-        key: "following_count",
-      },
+      ["followers", "666"],
+      ["following", "668"],
+      ["following_count", "669"],
     ],
   },
   {
-    id: 5,
     translationId: "670",
     options: [
-      {
-        id: 1,
-        translationId: "671",
-
-        key: "establish_store_license",
-      },
-      {
-        id: 2,
-        title: "permission to create a union",
-        key: "establish_union_license",
-      },
-      {
-        id: 3,
-        title: "permission to create a taxi service",
-        key: "establish_taxi_license",
-      },
-      {
-        id: 4,
-        translationId: "674",
-        key: "establish_amoozeshgah_license",
-      },
-      {
-        id: 5,
-        translationId: "675",
-        key: "reporter_license",
-      },
-      {
-        id: 6,
-        translationId: "676",
-        key: "cooporation_license",
-      },
-      {
-        id: 7,
-        translationId: "677",
-        key: "developer_license",
-      },
-      {
-        id: 8,
-        translationId: "678",
-        key: "inspection_license",
-      },
-      {
-        id: 9,
-        translationId: "679",
-        key: "trading_license",
-      },
-      {
-        id: 10,
-        title: "attorney's license",
-        key: "lawyer_license",
-      },
-      {
-        id: 11,
-        title: "mayor's license",
-        key: "city_council_license",
-      },
-      {
-        id: 12,
-        title: "governor's license",
-        key: "governer_license",
-      },
+      ["establish_store_license", "671"],
+      ["establish_union_license", null, "permission to create a union"],
+      ["establish_taxi_license", null, "permission to create a taxi service"],
+      ["establish_amoozeshgah_license", "674"],
+      ["reporter_license", "675"],
+      ["cooporation_license", "676"],
+      ["developer_license", "677"],
+      ["inspection_license", "678"],
+      ["trading_license", "679"],
+      ["lawyer_license", null, "attorney's license"],
+      ["city_council_license", null, "mayor's license"],
+      ["governer_license", null, "governor's license"],
     ],
   },
   {
-    id: 6,
     translationId: "61",
     options: [
-      {
-        id: 1,
-        translationId: "685",
-        key: "irr_transactions",
-        value: true,
-      },
-      {
-        id: 2,
-        translationId: "686",
-        key: "psc_transactions",
-      },
-      {
-        id: 3,
-        translationId: "687",
-        key: "blue_transactions",
-      },
-      {
-        id: 4,
-        translationId: "688",
-        key: "yellow_transactions",
-      },
-      {
-        id: 5,
-        translationId: "689",
-        key: "red_transactions",
-      },
-      {
-        id: 6,
-        translationId: "692",
-        key: "sold_products",
-      },
-      {
-        id: 7,
-        translationId: "691",
-        key: "bought_products",
-      },
+      ["irr_transactions", "685"],
+      ["psc_transactions", "686"],
+      ["blue_transactions", "687"],
+      ["yellow_transactions", "688"],
+      ["red_transactions", "689"],
+      ["sold_products", "692"],
+      ["bought_products", "691"],
     ],
   },
   {
-    id: 7,
     translationId: "694",
     options: [
-      {
-        id: 1,
-        translationId: "695",
-        key: "recieved_irr_prizes",
-      },
-      {
-        id: 2,
-        translationId: "696",
-        key: "recieved_psc_prizes",
-      },
-      {
-        id: 3,
-        translationId: "697",
-        key: "recieved_yellow_prizes",
-      },
-      {
-        id: 4,
-        translationId: "698",
-        key: "recieved_blue_prizes",
-      },
-      {
-        id: 5,
-        translationId: "699",
-        key: "recieved_red_prizes",
-      },
+      ["recieved_irr_prizes", "695"],
+      ["recieved_psc_prizes", "696"],
+      ["recieved_yellow_prizes", "697"],
+      ["recieved_blue_prizes", "698"],
+      ["recieved_red_prizes", "699"],
     ],
   },
   {
-    id: 8,
     translationId: "704",
     options: [
-      {
-        id: 1,
-        translationId: "705",
-        key: "bought_golden_keys",
-      },
-      {
-        id: 2,
-        translationId: "705",
-        key: "used_golden_keys",
-      },
+      ["bought_golden_keys", "705"],
+      ["used_golden_keys", "705"],
     ],
   },
   {
-    id: 9,
     translationId: "708",
     options: [
-      {
-        id: 1,
-        translationId: "709",
-        key: "bought_golden_keys",
-      },
-      {
-        id: 2,
-        translationId: "710",
-        key: "notice",
-      },
-      {
-        id: 3,
-        translationId: "711",
-        key: "violation_of_the_rules",
-      },
-      {
-        id: 4,
-        translationId: "712",
-        key: "warning",
-      },
-      {
-        id: 5,
-        translationId: "713",
-        key: "negative_points",
-      },
+      ["bought_golden_keys", "709"],
+      ["notice", "710"],
+      ["violation_of_the_rules", "711"],
+      ["warning", "712"],
+      ["negative_points", "713"],
     ],
   },
-
   {
-    id: 10,
     translationId: "714",
     options: [
-      {
-        id: 1,
-        translationId: "715",
-        key: "dynasty_members_photo",
-      },
-      {
-        id: 2,
-        translationId: "716",
-        key: "dynasty_members_info",
-      },
-      {
-        id: 3,
-        translationId: "717",
-        key: "recieved_dynasty_satisfaction_prizes",
-      },
-      {
-        id: 4,
-        translationId: "718",
-        key: "recieved_dynasty_referral_profit_prizes",
-      },
-      {
-        id: 5,
-        translationId: "719",
-        key: "recieved_satisfaction_prizes",
-      },
-      {
-        id: 6,
-        translationId: "719",
-        key: "recieved_satisfaction_prizes",
-      },
+      ["dynasty_members_photo", "715"],
+      ["dynasty_members_info", "716"],
+      ["recieved_dynasty_satisfaction_prizes", "717"],
+      ["recieved_dynasty_referral_profit_prizes", "718"],
+      ["recieved_satisfaction_prizes", "719"],
+      ["recieved_satisfaction_prizes", "719"],
     ],
   },
 ];
 
-const Right = styled.div`
-  display: flex;
-  flex-direction: column;
+// idها از روی ترتیب ساخته می‌شوند (همان idهای ۱ تا n قبلی)
+const SECTIONS_WITH_IDS = SECTIONS.map(({ translationId, options }, index) => ({
+  id: index + 1,
+  translationId,
+  options: options.map(([key, optionTranslationId, title], optionIndex) => ({
+    id: optionIndex + 1,
+    key,
+    ...(optionTranslationId
+      ? { translationId: optionTranslationId }
+      : { title }),
+  })),
+}));
+
+// ستون راست پنج گروه اول و ستون چپ بقیه است
+const RIGHT_SECTIONS = SECTIONS_WITH_IDS.slice(0, 5);
+const LEFT_SECTIONS = SECTIONS_WITH_IDS.slice(5);
+
+const Wrapper = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: flex-start;
   gap: 20px;
+  margin-top: 20px;
+  padding-bottom: 20px;
+
+  @media (min-width: 1400px) {
+    grid-template-columns: 1fr 1fr;
+  }
 `;
-const Left = styled.div`
+
+const Column = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
 `;
 
 const SecurityTab = () => {
-  const [loading, setLoading] = useState(true);
-  const [searched, setSearched] = useState("");
-  const [privacy, setPrivacy] = useState({});
-  const [itemsWithValues, setItemsWithValues] = useState([]);
-
-  const searchedItems = itemsWithValues.filter((item) => {
-    const filteredOptions = item.options.filter((option) =>
-      option.translationId
-        ? getTranslation(option.translationId)
-            ?.toLowerCase()
-            ?.includes(searched.toLowerCase()) ||
-          getTranslation(item.translationId)
-            ?.toLowerCase()
-            ?.includes(searched.toLowerCase())
-        : "",
-    );
-    return (
-      filteredOptions.length > 0 ||
-      getTranslation(item.translationId)
-        ?.toLowerCase()
-        ?.includes(searched.toLowerCase())
-    );
-  });
-
   const { Request } = useRequest();
 
-  useEffect(() => {
-    Request("privacy").then((response) => {
-      const privacyData = response.data.data;
-      const updatedItems = items.map((item) => {
-        const updatedOptions = item.options.map((option) => {
-          return {
-            ...option,
-            value: privacyData[option.key] || false,
-          };
-        });
-
-        return {
-          ...item,
-          options: updatedOptions,
-        };
-      });
-
-      setPrivacy(privacyData);
-      setItemsWithValues(updatedItems);
-    });
-  }, []);
+  const [loading, setLoading] = useState(true);
+  const [searched, setSearched] = useState("");
+  const [privacy, setPrivacy] = useState(null);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1200); // ⏱ مدت نمایش اسکلتون
+    let cancelled = false;
 
-    Request("privacy").then((response) => {
-      const privacyData = response.data.data;
-      const updatedItems = items.map((item) => {
-        const updatedOptions = item.options.map((option) => ({
-          ...option,
-          value: privacyData[option.key] || false,
-        }));
-
-        return {
-          ...item,
-          options: updatedOptions,
-        };
+    Request("privacy")
+      .then((response) => {
+        if (!cancelled) setPrivacy(response.data.data);
+      })
+      .catch((error) => console.error("Failed to load privacy:", error))
+      .finally(() => {
+        if (!cancelled) setLoading(false);
       });
 
-      setPrivacy(privacyData);
-      setItemsWithValues(updatedItems);
-    });
-
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  if (loading) {
-    return (
-      <SkeletonContainer>
-        <SkeletonGrid count={1} />
-        <SkeletonGrid count={2} />
-        <SkeletonGrid count={2} />
-        <SkeletonGrid count={2} />
-        <SkeletonGrid count={2} />
-        <SkeletonGrid count={2} />
-      </SkeletonContainer>
+  const query = searched.toLowerCase();
+
+  const matches = (translationId) =>
+    getTranslation(translationId)?.toLowerCase().includes(query);
+
+  // گروهی نمایش داده می‌شود که عنوانش یا یکی از گزینه‌هایش با سرچ بخواند
+  const matchesSearch = ({ translationId, options }) =>
+    matches(translationId) ||
+    options.some(
+      (option) => option.translationId && matches(option.translationId),
     );
-  }
+
+  const withValues = (section) => ({
+    ...section,
+    options: section.options.map((option) => ({
+      ...option,
+      value: privacy[option.key] || false,
+    })),
+  });
+
+  const renderColumn = (sections) =>
+    privacy
+      ? sections
+          .filter(matchesSearch)
+          .map((section) => (
+            <Item key={section.id} {...withValues(section)} privacy={privacy} />
+          ))
+      : null;
+
+  if (loading) return <SecuritySkeleton />;
 
   return (
     <Container>
@@ -548,17 +231,10 @@ const SecurityTab = () => {
         value={searched}
         onchange={(e) => setSearched(e.target.value)}
       />
+
       <Wrapper>
-        <Left>
-          {searchedItems.slice(5, 11).map((item) => (
-            <Item key={item.id} {...item} privacy={privacy} />
-          ))}
-        </Left>
-        <Right>
-          {searchedItems.slice(0, 5).map((item) => (
-            <Item key={item.id} {...item} privacy={privacy} />
-          ))}
-        </Right>
+        <Column>{renderColumn(LEFT_SECTIONS)}</Column>
+        <Column>{renderColumn(RIGHT_SECTIONS)}</Column>
       </Wrapper>
     </Container>
   );

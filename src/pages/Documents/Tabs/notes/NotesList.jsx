@@ -1,15 +1,17 @@
-import Row from "./Row";
 import styled from "styled-components";
+import Row from "./Row";
 import { getTranslation } from "../../../../services/Utility";
 import { Skeleton } from "../../../../components/Skeleton";
+
+const SKELETON_ROWS = 4;
 
 const Container = styled.div`
   border-radius: 0.25rem;
   overflow-x: auto;
+  margin-top: 20px;
   &::-webkit-scrollbar {
     display: none;
   }
-  margin-top: 20px;
 `;
 
 const Table = styled.table`
@@ -23,108 +25,104 @@ const Table = styled.table`
 const TableHead = styled.thead`
   background-color: ${(props) =>
     props.theme.colors.newColors.otherColors.inputBg};
-  border-radius: 10px !important;
-  overflow: hidden !important;
+  border-radius: 10px;
 `;
 
-const TableRow = styled.tr``;
-
 const TableHeader = styled.th`
-  padding: 20px 10px;
+  padding: 20px 10px 10px;
   font-size: 16px;
   font-weight: 500;
   color: ${(props) => props.theme.colors.newColors.shades.title};
   position: relative;
-  padding-bottom: 10px;
   text-align: center;
-  &:nth-of-type(1) {
-    width: 80px;
-  }
-  &:nth-of-type(2) {
-    width: 350px;
-  }
-  &:nth-of-type(3) {
-    width: 210px;
-  }
+  width: ${({ $width }) => $width};
+
   div {
     width: fit-content;
   }
 `;
 
-// اسکلتون برای ردیف جدول (شبیه تصویر)
 const SkeletonRow = styled.tr`
   td {
     padding: 15px 20px;
     border-bottom: 1px solid #454545;
+    text-align: center;
   }
 `;
 
-const NotesList = ({ notes, isLoading }) => {
-  // اسکلتون لودینگ - فقط ردیف‌ها اسکلتون میشن، هدر ثابت
-  if (isLoading) {
-    return (
-      <Container>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeader style={{ width: "100px" }}>
-                <div>{getTranslation("1357")}</div>
-              </TableHeader>
-              <TableHeader style={{ width: "350px" }}>
-                <div>{getTranslation("1358")}</div>
-              </TableHeader>
-              <TableHeader style={{ width: "210px" }}>
-                <div>{getTranslation("1359")}</div>
-              </TableHeader>
-            </TableRow>
-          </TableHead>
-          <tbody>
-            {Array.from({ length: 4 }).map((_, index) => (
-              <SkeletonRow key={index}>
-                <td style={{ textAlign: "center" }}>
-                  <Skeleton width="50px" height="18px" radius="4px" />
-                </td>
-                <td>
-                  <Skeleton width="230px" height="18px" radius="4px" />
-                </td>
-                <td>
-                  <div style={{ display: "flex", gap: "10px", alignItems: "center", justifyContent: "center" }}>
-                    <Skeleton width="64px" height="50px" radius="8px" />
-                    <Skeleton width="97.3px" height="50px" radius="8px" />
-                  </div>
-                </td>
-              </SkeletonRow>
-            ))}
-          </tbody>
-        </Table>
-      </Container>
-    );
-  }
+const SkeletonActions = styled.div`
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+`;
 
-  return (
-    <Container>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableHeader style={{ width: "100px" }}>
-              <div>{getTranslation("1357")}</div>
+// ستون‌های جدول: عنوان (کلید ترجمه)، عرض و اسکلتون مخصوص هر ستون
+const COLUMNS = [
+  {
+    title: "1357",
+    width: "100px",
+    skeleton: <Skeleton width="50px" height="18px" radius="4px" />,
+  },
+  {
+    title: "1358",
+    width: "350px",
+    skeleton: <Skeleton width="230px" height="18px" radius="4px" />,
+  },
+  {
+    title: "1359",
+    width: "210px",
+    skeleton: (
+      <SkeletonActions>
+        <Skeleton width="64px" height="50px" radius="8px" />
+        <Skeleton width="97.3px" height="50px" radius="8px" />
+      </SkeletonActions>
+    ),
+  },
+];
+
+// این کامپوننت برای نمایش جدول یادداشت‌ها (شماره، عنوان و عملیات) استفاده میشه؛ در حالت لودینگ هدر ثابت می‌مونه و فقط ردیف‌ها اسکلتون می‌شن
+const NotesList = ({
+  notes,
+  isLoading,
+  onNoteDeleted,
+  onNoteCached,
+  onNoteUpdated,
+}) => (
+  <Container>
+    <Table>
+      <TableHead>
+        <tr>
+          {COLUMNS.map(({ title, width }) => (
+            <TableHeader key={title} $width={width}>
+              <div>{getTranslation(title)}</div>
             </TableHeader>
-            <TableHeader style={{ width: "350px" }}>
-              <div>{getTranslation("1358")}</div>
-            </TableHeader>
-            <TableHeader style={{ width: "210px" }}>
-              <div>{getTranslation("1359")}</div>
-            </TableHeader>
-          </TableRow>
-        </TableHead>
-        <tbody>
-          {notes.map((note) => (
-            <Row key={note.id} {...note} />
           ))}
-        </tbody>
-      </Table>
-    </Container>
-  );
-};
+        </tr>
+      </TableHead>
+
+      <tbody>
+        {isLoading
+          ? Array.from({ length: SKELETON_ROWS }).map((_, index) => (
+              <SkeletonRow key={index}>
+                {COLUMNS.map(({ title, skeleton }) => (
+                  <td key={title}>{skeleton}</td>
+                ))}
+              </SkeletonRow>
+            ))
+          : notes.map((note) => (
+              <Row
+                key={note.id}
+                {...note}
+                note={note}
+                onNoteDeleted={onNoteDeleted}
+                onNoteCached={onNoteCached}
+                onNoteUpdated={onNoteUpdated}
+              />
+            ))}
+      </tbody>
+    </Table>
+  </Container>
+);
 
 export default NotesList;

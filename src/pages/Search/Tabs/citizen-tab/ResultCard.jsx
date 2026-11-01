@@ -19,7 +19,6 @@ const Container = styled.div`
 `;
 
 const ResultCard = ({ user }) => {
-
   return (
     <Container>
       <Bio user={user} />

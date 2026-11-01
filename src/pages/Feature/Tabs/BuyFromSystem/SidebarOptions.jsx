@@ -1,6 +1,27 @@
 import styled from "styled-components";
 import { getTranslation } from "../../../../services/Utility";
-import { Label } from "../../../../components/Sidebar";
+
+export const Label = styled.div`
+  font-weight: 500;
+  white-space: wrap;
+  color: ${(props) =>
+    props.menu
+      ? props.theme.colors.primary
+      : props.theme.colors.newColors.shades.title};
+  padding: 3px 20px;
+
+  @media (min-width: 998px) {
+    padding: 8px 20px;
+  }
+  cursor: pointer;
+  border-inline-start: 2px solid
+    ${(props) => (props.menu ? props.theme.colors.primary : "transparent")};
+  transition: all 0.2s linear;
+  &:hover {
+    color: ${(props) => props.theme.colors.primary};
+    border-inline-start: 2px solid ${(props) => props.theme.colors.primary};
+  }
+`;
 import { NavLink } from "react-router";
 const Wrapper = styled.div`
   max-width: 171px !important;

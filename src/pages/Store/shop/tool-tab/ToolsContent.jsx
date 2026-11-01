@@ -1,14 +1,19 @@
-import styled from "styled-components";
-import { useContext, useEffect, useState } from "react";
-import { AlertContext } from "../../../../services/reducers/AlertContext";
-import Alert from "../../../../components/Alert/Alert";
-import Title from "../../../../components/Title";
-import InfoRow from "../InfoRow";
-import useRequest from "../../../../hooks/useRequest.js";
-import { Skeleton } from "../../../../components/Skeleton";
-import Container from "../../../../components/Common/Container";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router";
+import styled from "styled-components";
+import Container from "../../../../components/Common/Container";
+import TitleHeader from "../../../../components/TitleHeader";
+import useRequest from "../../../../hooks/useRequest.js";
 import { tools } from "../data";
+import InfoRow from "../InfoRow";
+import ToolsSkeleton from "../../../../components/Skeletons/ToolsSkeleton.jsx";
+import { getTranslation } from "../../../../services/Utility/index.jsx";
+
+// b: آبی | r: قرمز | y: زرد
+const COLOR_PREFIXES = ["b", "r", "y"];
+
+const getToolCodes = (toolId) =>
+  COLOR_PREFIXES.map((prefix) => `tools-${prefix}-${toolId}`);
 
 const Wrapper = styled.div`
   display: flex;
@@ -17,80 +22,55 @@ const Wrapper = styled.div`
   margin-top: 20px;
 `;
 
-// اسکلتون کارت ساده
-const SkeletonCard = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  border-radius: 10px;
-  padding: 20px;
-  display: flex;
-  justify-content:space-between;
-  gap: 15px;
-`;
-
 const ToolsContent = () => {
-  const location = useLocation();
-  const parts = location.pathname.split("/");
-  const pathFromUrl = parts[parts.length - 1];
-
-  const { alert } = useContext(AlertContext);
-  const [assets, setassets] = useState([]);
-  const [loading, setLoading] = useState(true);
   const { Request, HTTP_METHOD } = useRequest();
+  const { pathname } = useLocation();
+
+  const [assets, setAssets] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const toolPath = pathname.split("/").pop();
 
   useEffect(() => {
-    const selectedTool = tools.find((tool) => tool.path === pathFromUrl);
-    const selectedToolId = selectedTool ? selectedTool.id : tools[0]?.id;
+    let cancelled = false;
 
-    setLoading(true);
-    Request("store", HTTP_METHOD.POST, {
-      codes: [
-        `tools-b-${selectedToolId}`,
-        `tools-r-${selectedToolId}`,
-        `tools-y-${selectedToolId}`,
-      ],
-    })
-      .then((response) => {
-        setassets(response.data.data);
-      })
-      .catch((error) => {
+    const fetchAssets = async () => {
+      const toolId = (tools.find(({ path }) => path === toolPath) ?? tools[0])
+        ?.id;
+
+      setLoading(true);
+
+      try {
+        const response = await Request("store", HTTP_METHOD.POST, {
+          codes: getToolCodes(toolId),
+        });
+
+        if (!cancelled) setAssets(response.data.data);
+      } catch (error) {
         console.error("Error fetching tools:", error);
-        setassets([]);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [tools, pathFromUrl]);
+        if (!cancelled) setAssets([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchAssets();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [toolPath]);
 
   return (
     <Container>
-      {alert && <Alert type="success" text="خرید شما با موفقیت انجام شد" />}
-      <Title title="ابزارها" />
+      <TitleHeader title={getTranslation(109)} />
+
       <Wrapper>
         {loading ? (
-          Array.from({ length: 3 }).map((_, index) => (
-            <SkeletonCard key={index}>
-              <div style={{ display: "flex",  alignItems: "center" , gap: "20px", }}>
-                <Skeleton width="50px" height="60px" radius="8px" />
-                <div style={{ display: "flex", flexDirection:"column" , gap: "14px", }}>
-                  <Skeleton width="70px" height="18px" radius="4px" />
-                  <Skeleton width="70px" height="18px" radius="4px" />
-                </div>
-              </div>
-              <div style={{ display: "flex", flexDirection:"column" , gap: "14px", }}>
-                  <Skeleton width="70px" height="18px" radius="4px" />
-                  <Skeleton width="70px" height="18px" radius="4px" />
-                </div>
-              <div style={{ display: "flex", flexDirection:"column" , gap: "14px", }}>
-                  <Skeleton width="70px" height="18px" radius="4px" />
-                  <Skeleton width="70px" height="18px" radius="4px" />
-                </div>
-              <Skeleton width="76px" height="50px" radius="8px" />
-            </SkeletonCard>
-          ))
+          <ToolsSkeleton />
         ) : (
           assets.map((item) => (
-            <InfoRow shop type="ابزار" key={item.id} data={item} />
+            <InfoRow shop  key={item.id} data={item} />
           ))
         )}
       </Wrapper>

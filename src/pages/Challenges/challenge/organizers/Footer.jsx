@@ -1,93 +1,81 @@
-import { useTheme } from "../../../../hooks/useTheme.js";
 import ConfettiExplosion from "react-confetti-explosion";
-import { Tooltip as ReactTooltip } from "react-tooltip";
-import { convertToPersian } from "../../../../services/Utility";
-import { useLanguage } from "../../../../hooks/useLanguageContext.js";
 import styled from "styled-components";
+import { useLanguage } from "../../../../hooks/useLanguageContext.js";
+import { convertToPersian } from "../../../../services/Utility";
+import ToolTip from "../../../../components/Tooltip/Tooltip.jsx";
+const CONFETTI = {
+  success: { offset: 30, color: "#18C08F" },
+  fail: { offset: 175, color: "#C30000" },
+};
 
 const Container = styled.div`
+  position: sticky;
+  bottom: 0;
   display: flex;
   align-items: center;
-  position: sticky;
-  bottom: 0px;
   justify-content: space-between;
-
   gap: 10px;
-  div {
-    flex-grow: 1;
-    background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.menuBg};
-    border-radius: 4px;
-    padding: 4px 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    font-size: 16px;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.newColors.otherColors.headerMenu};
-  }
+`;
+
+const Item = styled.div`
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 16px;
+  font-weight: 600;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.headerMenu};
+  background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
+
   @media (max-width: 1280px) {
-    div {
-      font-size: 14px;
-    }
+    font-size: 14px;
   }
 `;
 
+const getConfetti = (shining) => {
+  if (shining == null) return null;
+  return shining ? CONFETTI.success : CONFETTI.fail;
+};
+
 const Footer = ({ footers, shining }) => {
-  const { theme } = useTheme();
   const isPersian = useLanguage();
+  const confetti = getConfetti(shining);
+
   return (
     <Container>
-      {footers.map((item) => (
-        <div key={item.id} data-tooltip-id={item.slug}>
-          <span>{convertToPersian(item.count)}</span>
-          <img src={item.icon} width={26} height={26} />
-          <ReactTooltip
-            style={{
-              borderRadius: "10px",
-              width: "100px",
-              paddingBottom: "9.5px",
-              textAlign: "center",
-              zIndex: "999",
-              color: theme === "light" ? "#1A1A18" : "#FCFCFC",
-            }}
-            id={item.slug}
-            place="top"
-            content={item.slug}
-          />
-          {shining && (
-            <ConfettiExplosion
-              style={{
-                position: "absolute",
-                top: "20px",
-                ...(isPersian ? { right: "30px" } : { left: "30px" }),
-                opacity: "0%",
-              }}
-              particleSize={5}
-              width={400}
-              zIndex={9999}
-              height={"100vh"}
-              colors={["#18C08F"]}
-            />
-          )}
-          {shining === false && (
-            <ConfettiExplosion
-              style={{
-                position: "absolute",
-                top: "20px",
-                ...(isPersian ? { right: "175px" } : { left: "175px" }),
-                opacity: "0%",
-              }}
-              particleSize={5}
-              width={400}
-              height={"100vh"}
-              zIndex={9999}
-              colors={["#C30000"]}
-            />
-          )}
-        </div>
+      {footers.map(({ id, count, icon, slug }) => (
+        <ToolTip
+          width="auto"
+          key={id}
+          place="top"
+          content={slug}
+          Chidren={
+            <Item>
+              <span>{convertToPersian(count)}</span>
+              <img src={icon} alt="" width={26} height={26} />
+            </Item>
+          }
+        />
       ))}
+
+      {confetti && (
+        <ConfettiExplosion
+          style={{
+            position: "absolute",
+            top: "20px",
+            [isPersian ? "right" : "left"]: `${confetti.offset}px`,
+            opacity: "0%",
+          }}
+          particleSize={5}
+          width={400}
+          height="100vh"
+          zIndex={9999}
+          colors={[confetti.color]}
+        />
+      )}
     </Container>
   );
 };

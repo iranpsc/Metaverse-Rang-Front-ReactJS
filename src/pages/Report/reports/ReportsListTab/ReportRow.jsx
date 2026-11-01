@@ -1,21 +1,22 @@
-// کامپوننت یک ردیف از جدول گزارش‌ها برای نمایش کد، عنوان، نوع، تاریخ و زمان هر گزارش.
-// مناسب لیست گزارش‌های کاربر است؛ با کلیک روی آیکون چشم جزئیات گزارش از سرور گرفته و در ReportDetails نمایش داده می‌شود،
-// و در زمان دریافت، به‌جای لودینگ سراسری، یک اسپینر کوچک داخل همان دکمه نشان داده می‌شود.
-import { useState } from "react";
-import styled, { useTheme } from "styled-components";
-import { LuEye } from "react-icons/lu";
+// ردیف یک گزارش در جدول گزارش‌ها (کد، عنوان، نوع، تاریخ و زمان)؛ مناسب GenericList با type="reports"؛ با کلیک روی آیکون چشم جزئیات گزارش از سرور گرفته و در ReportDetails نمایش داده می‌شود و در زمان دریافت، یک اسپینر کوچک داخل همان دکمه نشان داده می‌شود
 
-import ReportDetails from "./ReportDetails.jsx";
+import styled, { useTheme } from "styled-components";
+import { useState } from "react";
+import { LuEye } from "react-icons/lu";
+import ConversationDetails from "../../../../components/ConversationDetails/ConversationDetails.jsx";
 import LoadingSpinner from "../../../../components/Loading/LoadingSpinner.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
 import {
+  ConvertJalali,
   convertToPersian,
   getTranslation,
-} from "../../../../services/Utility/index";
+  truncateText,
+} from "../../../../services/Utility";
 
 const MAX_TITLE_LENGTH = 60;
 
-const MEMBER_TRANSLATION_KEYS = {
+// نوع گزارش (از بک‌اند) => کلید ترجمه
+const SUBJECT_TRANSLATION_KEYS = {
   spellingError: "15",
   codingError: "16",
   FPSError: "17",
@@ -23,36 +24,25 @@ const MEMBER_TRANSLATION_KEYS = {
   displayError: "1385",
 };
 
-const truncate = (text, max = MAX_TITLE_LENGTH) =>
-  text.length > max ? `${text.substring(0, max)}...` : text;
-
 const Cell = styled.td`
   padding: 15px 20px;
   border-bottom: 1px solid #454545;
-  color: #ffffff;
-  justify-content: center;
-
-  &:nth-of-type(5) {
-    padding-right: 10px;
-  }
 `;
 
 const ActionCell = styled(Cell)`
-  position: relative;
+  padding-right: 10px;
+  text-align: center;
 `;
 
 const CellText = styled.h3`
   font-size: 16px;
   font-weight: 400;
+  text-align: center;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
 `;
 
 const ViewButton = styled.button`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 40px;
@@ -60,17 +50,17 @@ const ViewButton = styled.button`
   padding: 0;
   border: none;
   border-radius: 10px;
+  cursor: pointer;
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
-  cursor: pointer;
 
   svg {
     color: ${({ theme }) => theme.colors.newColors.shades.title};
   }
 
   &:hover {
-    background-color: ${({ theme }) => theme.colors.primary};
     transition: all 0.2s linear;
+    background-color: ${({ theme }) => theme.colors.primary};
 
     svg {
       color: ${({ theme }) => theme.colors.newColors.primaryText};
@@ -82,57 +72,45 @@ const ViewButton = styled.button`
   }
 `;
 
-const ReportRow = ({
-  id,
-  code,
-  datetime,
-  title,
-  member,
-  domain,
-  subdomain,
-}) => {
+const ReportRow = ({ id, datetime, title, subject, url }) => {
   const theme = useTheme();
   const { Request } = useRequest();
-  const [reportDetails, setReportDetails] = useState(null);
-  const [showDetails, setShowDetails] = useState(false);
+
+  const [reportDetails, setReportDetails] = useState(null); // null = مدال بسته
   const [isLoading, setIsLoading] = useState(false);
 
+  // عنوان و زیردامنه‌ی مدال از آدرس صفحه‌ای که گزارش از آن ثبت شده ساخته می‌شود
   const [date, time] = datetime.split(" ");
-  const translationKey = MEMBER_TRANSLATION_KEYS[member];
-  const translatedMember = translationKey
-    ? getTranslation(translationKey)
-    : member;
+  const subjectKey = SUBJECT_TRANSLATION_KEYS[subject];
+  const translatedSubject = subjectKey ? getTranslation(subjectKey) : subject;
 
   const fetchReportDetails = async () => {
-    if (isLoading) return;
+    setIsLoading(true);
 
     try {
-      setIsLoading(true);
-      const response = await Request(`reports/${id}`, "GET");
+      const response = await Request(`reports/${id}`);
       setReportDetails(response.data.data);
-      setShowDetails(true);
     } catch (error) {
       console.error("Error fetching report details:", error);
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <>
       <tr>
         <Cell>
-          <CellText>#{convertToPersian(code)}</CellText>
+          <CellText>#{convertToPersian(id)}</CellText>
         </Cell>
         <Cell>
-          <CellText>{truncate(title)}</CellText>
+          <CellText>{truncateText(title, MAX_TITLE_LENGTH)}</CellText>
         </Cell>
         <Cell>
-          <CellText>{translatedMember}</CellText>
+          <CellText>{translatedSubject}</CellText>
         </Cell>
         <Cell>
           <CellText>
-            {date} | {time}
+            {ConvertJalali(date)} | {convertToPersian(time)}
           </CellText>
         </Cell>
         <ActionCell>
@@ -155,18 +133,13 @@ const ReportRow = ({
         </ActionCell>
       </tr>
 
-      {showDetails && (
-        <ReportDetails
-          reportDetails={reportDetails}
-          date={date}
-          time={time}
-          member={translatedMember}
-          code={code}
-          setShowDetails={setShowDetails}
-          domain={domain}
-          subdomain={subdomain}
-        />
-      )}
+      {reportDetails && (
+  <ConversationDetails
+    type="reports"
+    data={{ id, datetime, title, url, ...reportDetails }}
+    setShowDetails={() => setReportDetails(null)}
+  />
+)}
     </>
   );
 };

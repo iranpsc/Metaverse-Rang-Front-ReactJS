@@ -4,10 +4,10 @@ import { useContext } from "react";
 import styled from "styled-components";
 import useRequest from "../../hooks/useRequest.js";
 import { SanitizeHTML } from "../../services/Utility";
-import {
-  UserContext
-} from "../../services/reducers/UserContext";
+import { UserContext } from "../../services/reducers/UserContext";
 import { UserContextTypes } from "../../services/actions/UserContextAction";
+import { ConvertJalali, convertToPersian } from "../../services/Utility";
+import TitleBody from "../../components/TitleBody.jsx";
 const Container = styled.div`
   padding: 20px;
   border-radius: 5px;
@@ -84,7 +84,7 @@ const NotifCard = ({ id, setNotifications, notifications, data }) => {
   const deleteClickHandler = () => {
     Request(`notifications/read/${id}`, HTTP_METHOD.POST).then(() => {
       setNotifications(
-        notifications.filter((notification) => notification.id !== id)
+        notifications.filter((notification) => notification.id !== id),
       );
       dispatch({
         type: UserContextTypes.UPDATE_FIELD,
@@ -93,7 +93,6 @@ const NotifCard = ({ id, setNotifications, notifications, data }) => {
           value: user.unread_notifications_count - 1,
         },
       });
-
     });
   };
   return (
@@ -104,9 +103,10 @@ const NotifCard = ({ id, setNotifications, notifications, data }) => {
             <IoNotificationsOutline size={30} />
           </IconWrapper>
           <NameAndDate>
-            <h2> {data.data["sender-name"]}</h2>
+            <TitleBody title={data.data["sender-name"]} />
             <h3>
-              {data.date} <span>{data.time}</span>{" "}
+              {ConvertJalali(data.date)}{" "}
+              <span>{convertToPersian(data.time)}</span>{" "}
             </h3>
           </NameAndDate>
         </Info>

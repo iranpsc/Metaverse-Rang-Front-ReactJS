@@ -2,7 +2,7 @@ import Modal from "./Modal";
 
 import PropertyCard from "../dynasty-establish/PropertyCard";
 import SearchInput from "../../../../../components/SearchInput";
-import Title from "../../../../../components/Title";
+import TitleHeader from "../../../../../components/TitleHeader";
 import styled from "styled-components";
 import { useState, useCallback, useMemo, useContext } from "react";
 import useRequest from "../../../../../hooks/useRequest.js";
@@ -88,7 +88,7 @@ const Convert = ({ data, setData }) => {
   return (
     <Styledcomponents.Container>
       <Styledcomponents.Header>
-        <Title title={getTranslation(809)} />
+        <TitleHeader title={getTranslation(809)} />
         <SearchInput
           placeholder={getTranslation(849)}
           onchange={(e) => handleSearch(e.target.value)}

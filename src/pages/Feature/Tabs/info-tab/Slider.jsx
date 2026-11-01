@@ -1,71 +1,102 @@
+// Fullscreen image gallery modal (rendered in a portal): desktop thumbnail slider + mobile swipe slider, with optional delete for the owner. Closes via Esc, backdrop click or close button.
+import { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { IoMdClose } from "react-icons/io";
-import KeenSlider from "./KeenSlider";
-import MobileSlider from "./MobileSlider";
 import styled from "styled-components";
 
-const Background = styled.div`
+import KeenSlider from "./KeenSlider";
+import MobileSlider from "./MobileSlider";
+
+const Overlay = styled.div`
   position: fixed;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  right: 0;
-  background-color: #000000;
-  opacity: 0.9;
-  z-index: 10;
-  div {
-    cursor: pointer;
-    width: 40px;
-    height: 40px;
-    margin-right: auto;
-    position: relative;
-    left: 10px;
-    top: 15px;
-    border-radius: 100%;
-    background-color: #3b3b3b;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    &:hover svg {
-      color: red;
-    }
-    svg {
-      transition: all 0.1s ease-in-out;
-      color: white;
-      font-size: 20px;
-    }
-    @media (min-width: 1300px) {
-      width: 45px;
-      height: 45px;
-      left: 20px;
-      svg {
-        font-size: 24px;
-      }
-    }
+  inset: 0;
+  z-index: 9999;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background: rgb(0 0 0 / 90%);
+`;
+const CloseButton = styled.button`
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 2;
+  display: flex;
+  width: 44px;
+  height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: #3b3b3b;
+  color: #fff;
+  cursor: pointer;
+
+  svg {
+    font-size: 24px;
+    transition: color 0.1s ease-in-out;
+  }
+
+  &:hover svg {
+    color: #ff4d4f;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
   }
 `;
 
 const Slider = ({
   setOpen,
-  images,
+  images = [],
   deleteHandler,
   activeImage,
-  setActiveImage,onwer
+  setActiveImage,
+  isOwner,
 }) => {
-  return (
-    <div>
-      <Background>
-        <div onClick={() => setOpen(false)}>
-          <IoMdClose />
-        </div>
-      </Background>
+  const closeSlider = () => setOpen(false);
+
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [setOpen]);
+
+  return createPortal(
+    <Overlay
+      onClick={(event) => {
+        if (event.target === event.currentTarget) closeSlider();
+      }}
+    >
+      <CloseButton type="button" onClick={closeSlider}>
+        <IoMdClose />
+      </CloseButton>
       <MobileSlider
+        images={images}
         activeImage={activeImage}
         setActiveImage={setActiveImage}
-        images={images}
         deleteHandler={deleteHandler}
+        isOwner={isOwner}
       />
-      <KeenSlider images={images} deleteHandler={deleteHandler} onwer={onwer} />
-    </div>
+      <KeenSlider
+        images={images}
+        activeImage={activeImage}
+        deleteHandler={deleteHandler}
+        isOwner={isOwner}
+      />
+    </Overlay>,
+    document.body,
   );
 };
 

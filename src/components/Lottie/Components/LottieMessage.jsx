@@ -1,5 +1,5 @@
 import styled from "styled-components";
-
+import { getTranslation } from "../../../services/Utility";
 const TextContainer = styled.div`
   z-index: 1200;
   position: absolute;
@@ -18,7 +18,7 @@ const LottieTitle = styled.span`
 export default function LottieMessage({ title }) {
   return (
     <TextContainer>
-      <LottieTitle>{title}</LottieTitle>
+      <LottieTitle>{getTranslation(title)}</LottieTitle>
     </TextContainer>
   );
 }

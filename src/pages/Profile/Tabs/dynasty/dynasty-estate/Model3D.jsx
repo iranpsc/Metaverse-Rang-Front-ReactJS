@@ -6,7 +6,7 @@ export const AreaContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-
+  height: 350px;
   min-width: 100px;
   background-color: #2c2c2c;
   border-radius: 6px;
@@ -19,14 +19,16 @@ export const StyledSVG = styled.svg`
   height: 100%;
 `;
 export const Polygon = styled.polygon`
-    //color: ${({ percent }) => (percent > 0 ? "#18C08F" : "#FF0000")};
- fill: ${({ karbari }) =>
-    karbari === "m" ? "#fae52b" :
-      karbari === "t" ? "#FF0000" :
-        karbari === "a" ? "#2f00ff" : "#ffff"
-  };  stroke-width: 1;
-    
-
+  //color: ${({ percent }) => (percent > 0 ? "#18C08F" : "#FF0000")};
+  fill: ${({ karbari }) =>
+    karbari === "m"
+      ? "#fae52b"
+      : karbari === "t"
+        ? "#FF0000"
+        : karbari === "a"
+          ? "#2f00ff"
+          : "#ffff"};
+  stroke-width: 1;
 `;
 const Model3D = (data) => {
   const coordinates = data.data?.["dynasty-feature"]?.coordinates;
@@ -38,12 +40,10 @@ const Model3D = (data) => {
   return (
     <AreaContainer>
       <StyledSVG viewBox={viewBox}>
-        <Polygon
-          karbari={"m"}
-          points={points}
-        />
+        <Polygon karbari={"m"} points={points} />
       </StyledSVG>
-    </AreaContainer>);
+    </AreaContainer>
+  );
 };
 
 export default Model3D;

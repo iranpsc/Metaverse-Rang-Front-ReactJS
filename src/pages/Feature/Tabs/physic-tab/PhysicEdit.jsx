@@ -1,11 +1,11 @@
-import Title from "../../../../components/Title";
+import TitleHeader from "../../../../components/TitleHeader";
 import { getTranslation } from "../../../../services/Utility";
 import EditInputs from "./EditInputs";
 import Container from "../../../../components/Common/Container";
 
 const PhysicEdit = ({ setEdit, inputs, hasData, featureID, buildingID }) => (
   <Container>
-    <Title title={hasData ? getTranslation(537) : getTranslation(356)} />
+    <TitleHeader title={hasData ? getTranslation(537) : getTranslation(356)} />
     <EditInputs
       hasData={hasData}
       inputs={inputs}

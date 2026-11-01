@@ -1,7 +1,7 @@
 import { MdKeyboardArrowDown } from "react-icons/md";
 import styled from "styled-components";
 import { useState, useEffect, useRef, useCallback } from "react";
-import VodRow from "./Tabs/receive/VodRow";
+import VodRow from "../../components/GenericList/VodRow";
 import { getTranslation, isMobile } from "../../services/Utility";
 import { Skeleton } from "../../components/Skeleton";
 

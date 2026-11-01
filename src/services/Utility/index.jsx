@@ -193,22 +193,19 @@ export function EmailValidator(email) {
 }
 // این تابع برای فرمت اعداد اعشاری هست و فقط در صورتی که اعداد اعشار داشته باشد باشند
 // اعشار ان نمایش داده میشود در غیر این صورت اعداد بدون اعشار نمایش داده میشوند
-export const normalizeDecimalInput = (value) => {
-  if (value === "") return "";
+export const normalizeDecimalInput = (value, maxDecimals = Infinity) => {
+  if (value === "" || value == null) return "";
 
-  const normalized = value
-    .replace(/[٫]/g, ".")
-    .replace(/[۰-۹]/g, (digit) => {
-      const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
-      return String(persianDigits.indexOf(digit));
-    })
+  const normalized = fixNumbers(String(value))
+    .replace(/٫/g, ".")
     .replace(/[^0-9.]/g, "");
 
   if (!normalized.includes(".")) return normalized;
 
   const [wholePart, ...decimalParts] = normalized.split(".");
-  const cleanDecimal = decimalParts.join("").replace(/\./g, "");
-  return `${wholePart || "0"}.${cleanDecimal}`;
+  const decimal = decimalParts.join("").slice(0, maxDecimals);
+
+  return `${wholePart || "0"}.${decimal}`;
 };
 
 export const sanitizePriceInputValue = (value) => {
@@ -500,3 +497,21 @@ export const formatTime = (time) => {
 
   return `${formattedMinutes}:${formattedSeconds}`;
 };
+
+export const levelIds = {
+  شهروند: 382,
+  "روزنامه نگار": 383,
+  "مشارکت کننده": 589,
+  "توسعه دهنده": 68,
+  بازرس: 69,
+  بازرگان: 590,
+  دادخواه: 71,
+  "اعضای شورای شهر": 591,
+  شهردار: 592,
+  فرماندار: 74,
+  وزیر: 75,
+  داور: 76,
+  دادگذار: 77,
+};
+export const DATE_PATTERN = /^\d{4}[/-]\d{1,2}[/-]\d{1,2}/;
+

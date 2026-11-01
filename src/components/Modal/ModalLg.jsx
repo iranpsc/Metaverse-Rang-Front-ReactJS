@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
 import { useLanguage } from "../../hooks/useLanguageContext";
-import Title from "../Title";
+import TitleHeader from "../TitleHeader";
 import { ExitIcon, ReportIcon } from "../Icons/IconsHeader";
 import { getTranslation } from "../../services/Utility";
 import { Overlay } from "./styles";
@@ -62,7 +62,7 @@ const ModalLg = ({ children, titleId, setShowModal, report }) => {
     <Overlay $isLarge>
       <Dialog $isPersian={isPersian}>
         <Header>
-          <Title title={getTranslation(titleId)} />
+          <TitleHeader title={getTranslation(titleId)} />
           <Actions>
             {report && <ReportIcon onClick={handleReport} />}
             <ExitIcon onClick={() => setShowModal(false)} />

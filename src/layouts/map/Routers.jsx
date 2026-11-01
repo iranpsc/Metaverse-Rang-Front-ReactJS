@@ -19,10 +19,10 @@ import HourMeterProfit from "../../pages/HourMeterProfit";
 import WalletSetupTab from "../../pages/MetaWallet/WalletSetupTab";
 import AccountSecurityModal from "../../pages/AccountSecurity";
 //import { ProfileInfoProvider } from './services/reducers/profileInfoContext.jsx';
-import WriteVodTab from "../../pages/Documents/Tabs/WriteVodTab";
-import VodListTab from "../../pages/Documents/Tabs/VodListTab";
-import ReceivedList from "../../pages/Documents/Tabs/receive/ReceivedList";
-import SentList from "../../pages/Documents/Tabs/sent/SentList";
+import WriteVodTab from "../../pages/Documents/Tabs/writeWodTab/WriteVodTab";
+import VodListTab from "../../pages/Documents/Tabs/DocsList/VodListTab";
+import ReceivedList from "../../pages/Documents/Tabs/DocsList/receive/ReceivedList";
+import SentList from "../../pages/Documents/Tabs/DocsList/sent/SentList";
 import NotesListTab from "../../pages/Documents/Tabs/notes/NotesListTab";
 import Challenge from "../../pages/Challenges/Challenge";
 import DynastyTab from "../../pages/Profile/Tabs/dynasty/DynastyTab";
@@ -30,13 +30,13 @@ import PropertyTab from "../../pages/Profile/Tabs/property-tab/PropertyTab";
 import TotalTab from "../../pages/Profile/Tabs/total-tab/TotalTab";
 import SuggestionTab from "../../pages/Profile/Tabs/suggestion-tab/SuggestionTab";
 import TransactionsTab from "../../pages/Profile/Tabs/transactions-tab/TransactionsTab";
-import Followers from "../../pages/Profile/Tabs/property-tab/Followers";
-import Following from "../../pages/Profile/Tabs/property-tab/Following";
-import Houses from "../../pages/Profile/Tabs/property-tab/Houses";
+import Followers from "../../pages/Profile/Tabs/property-tab/follower/Followers";
+import Following from "../../pages/Profile/Tabs/property-tab/following/Following";
+import Houses from "../../pages/Profile/Tabs/property-tab/houses/Houses";
 import DynastyEstablishEstate from "../../pages/Profile/Tabs/dynasty/DynastyEstablishEstate";
 import DynastyMembers from "../../pages/Profile/Tabs/dynasty/dynasty-members/DynastyMembers";
-import RecievedList from "../../pages/Profile/Tabs/dynasty/recieve/RecievedList";
-import SendRequest from "../../pages/Profile/Tabs/dynasty/sent/SendRequest";
+import RecievedListTab from "../../pages/Profile/Tabs/dynasty/recieve/RecievedListTab";
+import SentListTab from "../../pages/Profile/Tabs/dynasty/sent/SentListTab";
 import RecievedSuggestion from "../../pages/Profile/Tabs/suggestion-tab/recieved/RecievedSuggestion";
 import SentSuggestion from "../../pages/Profile/Tabs/suggestion-tab/sent/SentSuggestion";
 import AccountTab from "../../pages/Settings/Tabs/account-tab/AccountTab";
@@ -54,8 +54,6 @@ import ToolsContent from "../../pages/Store/shop/tool-tab/ToolsContent";
 import CurrenciesContent from "../../pages/Store/shop/currency-tab/CurrenciesContent";
 import ErrorReportTab from "../../pages/Report/reports/ErrorReportTab/ErrorReportTab";
 import ReportsListTab from "../../pages/Report/reports/ReportsListTab/ReportsListTab";
-import { ReportStateProvider } from "../../pages/Report/reports/GlobalReportStateProvider";
-import { GlobalNoteStateProvider } from "../../pages/Documents/Tabs/GlobalNoteStateProvider";
 import MainLayout from "../MainLayout";
 import { useContext } from "react";
 import { UserContext } from "../../services/reducers/UserContext";
@@ -88,11 +86,7 @@ export default function Routers() {
 
           <Route
             path="notes"
-            element={
-              <GlobalNoteStateProvider>
-                <NotesListTab />
-              </GlobalNoteStateProvider>
-            }
+            element={<NotesListTab />}
           />
         </Route>
 
@@ -124,8 +118,8 @@ export default function Routers() {
             <Route path=":tab" element={<DynastyEstablishEstate />} />
 
             <Route path="members" element={<DynastyMembers />} />
-            <Route path="send" element={<SendRequest />} />
-            <Route path="recieved" element={<RecievedList />} />
+            <Route path="send" element={<SentListTab />} />
+            <Route path="recieved" element={<RecievedListTab />} />
           </Route>
           <Route path="suggestion" element={<SuggestionTab />}>
             <Route index element={<Navigate to="recieved" replace />} />
@@ -247,11 +241,7 @@ export default function Routers() {
           <Route index element={<Navigate to="send" replace />} />
           <Route
             path="send"
-            element={
-              <ReportStateProvider>
-                <ErrorReportTab />
-              </ReportStateProvider>
-            }
+            element={<ErrorReportTab />}
           />
           <Route path="list" element={<ReportsListTab />} />
         </Route>

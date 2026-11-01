@@ -3,7 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import styled, { css } from "styled-components";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { getTranslation } from "../../services/Utility";
-
+import TitleBody from "../TitleBody";
 const DropdownContainer = styled.div`
   position: relative;
   width: ${({ $size }) => ($size === "small" ? "fit-content" : "100%")};
@@ -77,6 +77,7 @@ const SearchInput = styled.input`
 `;
 
 const Dropdown = ({
+  label,
   options = [],
   selected,
   top,
@@ -108,10 +109,10 @@ const Dropdown = ({
 
   const filteredOptions = searchable
     ? optionsWithPlaceholder.filter((option) =>
-      (typeof option === "string" ? option : option.label)
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    )
+        (typeof option === "string" ? option : option.label)
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()),
+      )
     : optionsWithPlaceholder;
 
   const handleOptionClick = (option) => {
@@ -136,45 +137,48 @@ const Dropdown = ({
   }, []);
 
   return (
-    <DropdownContainer ref={dropdownRef} $size={size}>
-      {!hideTrigger && (
-        <DropdownButton $size={size} onClick={() => setIsOpen(!isOpen)}>
-          {(() => {
-            if (!selected) return placeholder;
-            const obj = options.find(
-              (o) => typeof o === "object" && o.value === selected
-            );
-            return obj ? obj.label : selected;
-          })()}
-          <ArrowIcon $isOpen={isOpen} $size={size} />
-        </DropdownButton>
-      )}
+    <div>
+      <TitleBody title={label} />
+      <DropdownContainer ref={dropdownRef} $size={size}>
+        {!hideTrigger && (
+          <DropdownButton $size={size} onClick={() => setIsOpen(!isOpen)}>
+            {(() => {
+              if (!selected) return placeholder;
+              const obj = options.find(
+                (o) => typeof o === "object" && o.value === selected,
+              );
+              return obj ? obj.label : selected;
+            })()}
+            <ArrowIcon $isOpen={isOpen} $size={size} />
+          </DropdownButton>
+        )}
 
-      {isOpen && (
-        <DropdownList top={top} $size={size}>
-          {searchable && (
-            <SearchInput
-              $size={size}
-              type="text"
-              placeholder={getTranslation("57")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              autoFocus
-            />
-          )}
+        {isOpen && (
+          <DropdownList top={top} $size={size}>
+            {searchable && (
+              <SearchInput
+                $size={size}
+                type="text"
+                placeholder={getTranslation("57")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoFocus
+              />
+            )}
 
-          {filteredOptions.map((option, index) => (
-            <DropdownItem
-              key={index}
-              $size={size}
-              onClick={() => handleOptionClick(option)}
-            >
-              {typeof option === "string" ? option : option.label}
-            </DropdownItem>
-          ))}
-        </DropdownList>
-      )}
-    </DropdownContainer>
+            {filteredOptions.map((option, index) => (
+              <DropdownItem
+                key={index}
+                $size={size}
+                onClick={() => handleOptionClick(option)}
+              >
+                {typeof option === "string" ? option : option.label}
+              </DropdownItem>
+            ))}
+          </DropdownList>
+        )}
+      </DropdownContainer>
+    </div>
   );
 };
 

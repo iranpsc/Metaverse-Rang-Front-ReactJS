@@ -1,172 +1,159 @@
-import styled from "styled-components";
-import { useState } from "react";
-import { ExitIcon } from "../../../../components/Icons/IconsHeader";
-import EditInput from "../../../Feature/Tabs/enter-tab/EditInput";
-import useRequest from "../../../../hooks/useRequest.js";
 import {
   getBankNameFromCardNumber,
   getShebaInfo,
   verifyCardNumber,
 } from "@persian-tools/persian-tools";
+import { useState } from "react";
+import styled from "styled-components";
+import Button from "../../../../components/Button";
+import ModalXs from "../../../../components/Modal/ModalXs";
+import useRequest from "../../../../hooks/useRequest.js";
 import {
-  getTranslation,
-  ToastError,
   ToastSuccess,
+  convertToEnglish,
+  getTranslation,
 } from "../../../../services/Utility";
+import LabeledInput from "../../../../components/LabeledInput.jsx";
+const SHEBA_PREFIX = "IR";
+const SHEBA_LENGTH = 24;
+const CARD_LENGTH = 16;
 
-const BackGround = styled.div`
-  z-index: 999;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(5px);
-  background-color: rgba(0, 0, 0, 0.713);
-`;
-
-const Modal = styled.div`
-  border-radius: 10px;
-  background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
-  padding: 20px;
-  width: 100%;
-  max-width: 515px;
-  max-height: 363px;
-  display: flex;
-  gap: 30px;
-  flex-direction: column;
-  position: relative;
-`;
-const Header = styled.div`
-  display: flex;
-  gap: 10px;
-`;
-const Title = styled.h3`
-  font-size: 24px;
-  font-weight: 600;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  @media (max-width: 1023px) {
-    font-size: 18px;
-  }
-`;
+const MESSAGES = {
+  invalidSheba: "شماره شبا صحیح نمی باشد لطفا آنرا بررسی نمایید.",
+  bankMismatch: "شماره شبا و شماره کارت باید متعلق به یک کارت باشد.",
+  invalidCard: "شماره کارت صحیح نمی باشد لطفا آنرا بررسی نمایید.",
+  duplicateCard: "شما قبلا این کارت را ثبت کرده‌اید.",
+  success:
+    "حساب بانکی شما با موفقیت ثبت شد. تایید نهایی پس از بررسی های لازم صورت میگیرد",
+  requestFailed: "خطایی در ثبت حساب بانکی رخ داد.",
+};
 
 const Inputs = styled.div`
-  width: 100%;
   display: grid;
   gap: 20px;
-`;
-
-const Button = styled.button`
-  border-radius: 10px;
-  background-color: ${(props) => props.theme.colors.primary};
-  color: ${(props) => props.theme.colors.newColors.primaryText};
-  border: none;
-  padding: 0 14px;
-  width: fit-content;
-  height: 45px;
-  font-weight: 600;
-  font-size: 16px;
-  cursor: pointer;
-  font-family: inherit;
+  width: 100%;
+  margin: 30px 0;
 `;
 
 const ErrorMessage = styled.div`
-  color: #df2e38;
+  margin-bottom: 10px;
   font-size: 14px;
-  margin-top: 10px;
+  color: #df2e38;
 `;
 
-const AddBankCard = ({ setOpenAddModal, setCards }) => {
-  const [cardInfo, setCardInfo] = useState({
-    card_num: "",
-    shaba_num: "",
-  });
-  const [errors, setErrors] = useState([]);
+// فقط ارقام و بدون فاصله، برای مقایسه‌ی دقیق شماره کارت
+const normalize = (value) => convertToEnglish(value ?? "").replace(/\D/g, "");
+
+const isDuplicate = (cards, card_num) =>
+  cards.some((card) => normalize(card.card_num) === normalize(card_num));
+
+// اگر اطلاعات درست بود شبا و نام بانک، وگرنه پیام خطا و فیلد مربوطه را برمی‌گرداند
+const validate = ({ card_num, shaba_num }, cards) => {
+  // چک تکراری بودن مستقل از شبا، به‌محض کامل شدن شماره کارت
+  if (card_num.length === CARD_LENGTH && isDuplicate(cards, card_num)) {
+    return { error: MESSAGES.duplicateCard, field: "duplicate" };
+  }
+
+  const sheba = `${SHEBA_PREFIX}${shaba_num}`;
+  const shebaInfo = getShebaInfo(sheba);
+
+  if (shaba_num.length !== SHEBA_LENGTH || !shebaInfo?.persianName) {
+    return { error: MESSAGES.invalidSheba, field: "shaba_num" };
+  }
+
+  if (card_num.length !== CARD_LENGTH) {
+    return { error: MESSAGES.invalidCard, field: "card_num" };
+  }
+
+  if (getBankNameFromCardNumber(card_num) !== shebaInfo.persianName) {
+    return { error: MESSAGES.bankMismatch, field: "card_num" };
+  }
+
+  if (!verifyCardNumber(card_num)) {
+    return { error: MESSAGES.invalidCard, field: "card_num" };
+  }
+
+  return { sheba, bankName: shebaInfo.persianName };
+};
+
+// خطا فقط وقتی نمایش داده می‌شود که فیلد مربوطه به طول کامل رسیده باشد
+const shouldShowError = ({ field }, { card_num, shaba_num }) => {
+  // تکراری بودن فقط به کامل بودن شماره کارت وابسته است
+  if (field === "duplicate") return true;
+  if (field === "shaba_num") return shaba_num.length === SHEBA_LENGTH;
+  if (field === "card_num") {
+    return shaba_num.length === SHEBA_LENGTH && card_num.length === CARD_LENGTH;
+  }
+  return false;
+};
+
+const AddBankCard = ({ cards = [], setOpenAddModal, setCards }) => {
   const { Request, HTTP_METHOD } = useRequest();
 
-  const addCard = () => {
-    setErrors([]);
-    const shebaInfo = getShebaInfo(`IR${cardInfo.shaba_num}`);
-    const cardValidate = verifyCardNumber(cardInfo.card_num);
-    const cardName = getBankNameFromCardNumber(cardInfo.card_num);
+  const [cardInfo, setCardInfo] = useState({ card_num: "", shaba_num: "" });
+  const [loading, setLoading] = useState(false);
 
-    if (shebaInfo?.persianName) {
-      if (cardName === shebaInfo.persianName) {
-        if (cardValidate) {
-          Request("bank-accounts", HTTP_METHOD.POST, {
-            card_num: cardInfo.card_num,
-            shaba_num: `IR${cardInfo.shaba_num}`,
-            bank_name: shebaInfo.persianName,
-          })
-            .then(() => {
-              ToastSuccess(
-                "حساب بانکی شما با موفقیت ثبت شد. تایید نهایی پس از بررسی های لازم صورت میگیرد/ قابلیت بارگذاری ٢٠ حساب بانکی توسط متقاضی صورت گیرد",
-              );
-              setOpenAddModal(false);
-              // Refresh the cards list
-              Request("bank-accounts").then((response) => {
-                setCards(response.data.data);
-              });
-            })
-            .catch((error) => {
-              ToastError(
-                error?.response?.data?.message ||
-                  "خطایی در ثبت حساب بانکی رخ داد.",
-              );
-            });
-        } else {
-          setErrors(["شماره کارت صحیح نمی باشد لطفا آنرا بررسی نمایید."]);
-        }
-      } else {
-        setErrors(["شماره شبا و شماره کارت باید متعلق به یک کارت باشد."]);
-      }
-    } else {
-      setErrors(["شماره شبا صحیح نمی باشد لطفا آنرا بررسی نمایید."]);
-    }
+  const validation = validate(cardInfo, cards);
+  const isValid = !validation.error;
+  const showError = !isValid && shouldShowError(validation, cardInfo);
+
+  const closeModal = () => setOpenAddModal(false);
+
+  const handleChange = (field) => (event) =>
+    setCardInfo((prev) => ({ ...prev, [field]: event.target.value }));
+
+  const addCard = async () => {
+    if (loading || !isValid) return;
+
+    setLoading(true);
+
+    await Request("bank-accounts", HTTP_METHOD.POST, {
+      card_num: cardInfo.card_num,
+      shaba_num: validation.sheba,
+      bank_name: validation.bankName,
+    });
+
+    ToastSuccess(MESSAGES.success);
+    closeModal();
+
+    const response = await Request("bank-accounts");
+    setCards(response.data.data);
+    setLoading(false);
   };
 
   return (
-    <BackGround>
-      <Modal>
-        {" "}
-        <Header>
-          <ExitIcon onClick={() => setOpenAddModal(false)}></ExitIcon>
-          <Title>{getTranslation("890")}</Title>
-        </Header>
-        <Inputs>
-          <EditInput
-            title={getTranslation("636")}
-            type="number"
-            maxLength={16}
-            value={cardInfo.card_num}
-            onchange={(e) => {
-              setCardInfo((prev) => ({
-                ...prev,
-                card_num: e.target.value,
-              }));
-            }}
-          />
-          <EditInput
-            title={getTranslation("889")}
-            type="number"
-            maxLength={24}
-            value={cardInfo.shaba_num}
-            onchange={(e) => {
-              const inputValue = e.target.value;
-              setCardInfo((prev) => ({
-                ...prev,
-                shaba_num: inputValue,
-              }));
-            }}
-          />
-        </Inputs>
-        {errors.length > 0 && <ErrorMessage>{errors[0]}</ErrorMessage>}
-        <Button onClick={addCard}> {getTranslation("890")}</Button>
-      </Modal>
-    </BackGround>
+    <ModalXs
+      global
+      onlyExit
+      title={890}
+      onClose={closeModal}
+      handleExitClick={closeModal}
+    >
+      <Inputs>
+        <LabeledInput
+          placeholder={getTranslation("636")}
+          type="number"
+          maxLength={CARD_LENGTH}
+          value={cardInfo.card_num}
+          onChange={handleChange("card_num")}
+        />
+        <LabeledInput
+          placeholder={getTranslation("889")}
+          type="number"
+          maxLength={SHEBA_LENGTH}
+          value={cardInfo.shaba_num}
+          onChange={handleChange("shaba_num")}
+        />
+      </Inputs>
+
+      {showError && <ErrorMessage>{validation.error}</ErrorMessage>}
+
+      <Button
+        label={getTranslation("890")}
+        onClick={addCard}
+        disabled={loading ? "pending" : !isValid}
+      />
+    </ModalXs>
   );
 };
 

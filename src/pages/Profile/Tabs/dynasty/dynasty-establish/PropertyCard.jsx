@@ -1,8 +1,31 @@
-import house from "../../../../../assets/images/house.png";
+// کارت یک ملک برای انتخاب در ساخت سلسله (عکس، کد ملک، پایداری و دکمه‌ی انتخاب)؛ مناسب لیست املاک صفحه‌ی PropertySelect
+
 import styled from "styled-components";
+import { useLocation, useNavigate } from "react-router";
+import house from "../../../../../assets/images/house.png";
 import Button from "../../../../../components/Button";
 import { getTranslation } from "../../../../../services/Utility";
-import { useLocation, useNavigate } from "react-router";
+
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 10px 10px 20px;
+  border-radius: 5px;
+  white-space: nowrap;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
+
+  @media (max-height: 768px) {
+    gap: 10px;
+    padding: 10px;
+  }
+
+  @media (max-width: 780px) {
+    flex-wrap: wrap;
+  }
+`;
 
 const Right = styled.div`
   display: flex;
@@ -15,16 +38,16 @@ const Right = styled.div`
 `;
 
 const Image = styled.div`
-  height: 80px;
-  width: 80px;
-  flex-shrink: 0;
-  border-radius: 5px;
-  padding: 10px;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.orange + "35"};
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  padding: 10px;
+  border-radius: 5px;
+  background-color: ${({ theme }) =>
+    `${theme.colors.newColors.otherColors.orange}35`};
 
   img {
     width: 50px;
@@ -32,8 +55,8 @@ const Image = styled.div`
   }
 
   @media (max-height: 768px) {
-    height: 56px;
     width: 56px;
+    height: 56px;
     padding: 8px;
 
     img {
@@ -52,19 +75,18 @@ const TextBlock = styled.div`
   h3,
   h4 {
     margin: 0;
+    color: ${({ theme }) => theme.colors.newColors.shades.title};
   }
 
   h3 {
     font-size: 14px;
     font-weight: 400;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
     opacity: 0.7;
   }
 
   h4 {
     font-size: 16px;
     font-weight: 600;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
   }
 
   @media (max-height: 768px) {
@@ -82,8 +104,8 @@ const TextBlock = styled.div`
 
 const Info = styled(TextBlock)`
   h4 {
-    color: ${(props) => props.theme.colors.newColors.otherColors.orange};
     cursor: pointer;
+    color: ${({ theme }) => theme.colors.newColors.otherColors.orange};
   }
 `;
 
@@ -102,48 +124,23 @@ const ButtonWrapper = styled.div`
   }
 `;
 
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  padding: 10px 10px 10px 20px;
-  border-radius: 5px;
-  gap: 20px;
-  white-space: nowrap;
-
-  @media (max-height: 768px) {
-    padding: 10px;
-    gap: 10px;
-  }
-
-  @media (max-width: 780px) {
-    flex-wrap: wrap;
-  }
-`;
-
 const PropertyCard = ({ onClick, label, propertyId, id, stability }) => {
   const navigate = useNavigate();
-  const location = useLocation();
+  const { pathname } = useLocation();
+
+  const goToInfo = () =>
+    navigate(`/feature/${id}/info`, { state: { from: pathname } });
 
   return (
     <Container>
       <Right>
         <Image>
-          <img src={house} alt="property" />
+          <img src={house} alt="" />
         </Image>
+
         <Info>
           <h3>{getTranslation(810)}</h3>
-          <h4
-            onClick={() =>
-              navigate(`/feature/${id}/info`, {
-                state: { from: location.pathname },
-              })
-            }
-          >
-            {propertyId}
-          </h4>
+          <h4 onClick={goToInfo}>{propertyId}</h4>
         </Info>
       </Right>
 
@@ -153,7 +150,7 @@ const PropertyCard = ({ onClick, label, propertyId, id, stability }) => {
       </Center>
 
       <ButtonWrapper>
-        <Button label={label} onclick={() => onClick(id)} />
+        <Button label={label} onClick={() => onClick?.(id)} />
       </ButtonWrapper>
     </Container>
   );

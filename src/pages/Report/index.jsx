@@ -16,7 +16,7 @@ export default function Report() {
   ];
 
   return (
-    <Modal type="modal-section-xl" title={23}>
+    <Modal title={23}>
       <Tabs items={tabs} />
     </Modal>
   );

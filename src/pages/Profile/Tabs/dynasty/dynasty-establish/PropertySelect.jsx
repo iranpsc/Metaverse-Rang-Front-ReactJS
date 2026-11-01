@@ -1,102 +1,101 @@
-import { useMemo, useState, useContext } from "react";
-import PropertyCard from "./PropertyCard";
-import Title from "../../../../../components/Title";
-import { UserContext } from "../../../../../services/reducers/UserContext";
+// صفحه‌ی انتخاب ملک برای ایجاد سلسله (جستجو روی کد ملک و پایداری، ایجاد سلسله با کلیک روی کارت)؛ مناسب مرحله‌ی establish وقتی کاربر هنوز سلسله ندارد
+
 import styled from "styled-components";
+import { useContext, useMemo, useState } from "react";
+import PropertyCard from "./PropertyCard";
+import TitleHeader from "../../../../../components/TitleHeader";
 import SearchInput from "../../../../../components/SearchInput";
 import useRequest from "../../../../../hooks/useRequest.js";
+import { UserContext } from "../../../../../services/reducers/UserContext";
 import {
+  fixNumbers,
   getTranslation,
   ToastError,
   ToastSuccess,
 } from "../../../../../services/Utility";
 
-const Container = styled.div`
+const Top = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 
+  white-space: nowrap;
 `;
 
-const Div = styled.div`
+const List = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
   margin-top: 20px;
 `;
 
-const Top = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  white-space: nowrap;
-  gap: 10px;
-`;
-
-// تبدیل ارقام فارسی و عربی به انگلیسی تا جستجو با هر کیبوردی کار کنه
 const normalize = (value) =>
-  String(value ?? "")
-    .replace(/[۰-۹]/g, (d) => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
-    .replace(/[٠-٩]/g, (d) => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+  fixNumbers(String(value ?? ""))
     .toLowerCase()
     .trim();
 
 const PropertySelect = ({ data, setData }) => {
   const { Request, HTTP_METHOD } = useRequest();
-  const [search, setSearch] = useState("");
   const [user] = useContext(UserContext);
 
-  const selectDynasty = (id) => {
+  const [search, setSearch] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-    if (!user.verified_kyc) {
-      ToastError(getTranslation(1850))
+  const selectDynasty = (id) => {
+    if (submitting) return;
+
+    if (!user?.verified_kyc) {
+      ToastError(getTranslation(1850));
       return;
     }
-    Request(`dynasty/create/${id}`, HTTP_METHOD.POST)
-      .then((response) => {
-        setData({ ...response.data.data });
-        ToastSuccess(getTranslation(1821));
-      })
 
+    setSubmitting(true);
 
-      .catch((error) => {
-        ToastError(error?.response?.data?.error || "خطایی رخ داد.");
-      });
+    Request(`dynasty/create/${id}`, HTTP_METHOD.POST).then((response) => {
+      setData(response.data.data);
+      ToastSuccess(getTranslation(1821));
+      () => setSubmitting(false);
+    });
   };
 
   const filteredFeatures = useMemo(() => {
-    const features = data?.features ? Object.values(data.features) : [];
+    const features = Object.values(data?.features ?? {});
     const query = normalize(search);
 
     if (!query) return features;
 
     return features.filter(
-      (feature) =>
-        normalize(feature.properties_id).includes(query) ||
-        normalize(feature.stability).includes(query),
+      ({ properties_id, stability }) =>
+        normalize(properties_id).includes(query) ||
+        normalize(stability).includes(query),
     );
   }, [data?.features, search]);
 
   return (
-    <Container>
+    <div>
       <Top>
-        <Title title={getTranslation(809)} />
+        <TitleHeader title={getTranslation(809)} />
         <SearchInput
           placeholder={getTranslation(849)}
-          onchange={(e) => setSearch(e.target.value)}
           value={search}
+          onchange={(e) => setSearch(e.target.value)}
         />
       </Top>
-      <Div>
-        {filteredFeatures.map((feature) => (
+
+      <List>
+        {filteredFeatures.map(({ id, properties_id, stability }) => (
           <PropertyCard
-            key={feature.id}
-            id={feature.id}
-            propertyId={feature.properties_id}
-            stability={feature.stability}
+            key={id}
+            id={id}
+            propertyId={properties_id}
+            stability={stability}
             label={getTranslation(818)}
-            onClick={() => selectDynasty(feature.id)}
+            onClick={() => selectDynasty(id)}
           />
         ))}
-      </Div>
-    </Container>
+      </List>
+    </div>
   );
 };
 

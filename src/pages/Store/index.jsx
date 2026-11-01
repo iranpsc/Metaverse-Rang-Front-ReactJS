@@ -1,5 +1,4 @@
 import Tabs from "../../components/RouteTabs.jsx";
-import ShopInfo from "./shop/ShopInfo";
 import Modal from "../../components/Modal/index";
 import { getTranslation } from "../../services/Utility";
 
@@ -18,7 +17,6 @@ export default function Store() {
   return (
     <Modal title={"30"}>
       <Tabs items={tabs} />
-      <ShopInfo />
     </Modal>
   );
 }

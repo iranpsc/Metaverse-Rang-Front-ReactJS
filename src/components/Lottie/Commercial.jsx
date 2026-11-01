@@ -4,7 +4,6 @@ import { useNavigate } from "react-router";
 import styled from "styled-components";
 import SvgAni from "../../assets/Json/AniBackSvg.json";
 import LottieMessage from "./Components/LottieMessage";
-
 const Container = styled.div`
   width: 100%;
   top: 0;
@@ -584,7 +583,7 @@ export default function Commercial() {
           </g>
         </g>
       </svg>
-      <LottieMessage title="خرید VOD تجاری با موفقیت انجام شد" />
+      <LottieMessage title="1842" />
     </Container>
   );
 }

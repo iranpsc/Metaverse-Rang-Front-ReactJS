@@ -1,56 +1,21 @@
-import { useEffect, useState } from "react";
 import CardPhotos from "./CardPhotos";
 import InfoInputs from "./InfoInputs";
-import styled from "styled-components";
-import Title from "../../../../components/Title";
+import TitleHeader from "../../../../components/TitleHeader";
 import Alert from "../../../../components/Alert/Alert";
 import { getTranslation } from "../../../../services/Utility";
+import Container from "../../../../components/Common/Container";
 
-const Wrapper = styled.div``;
-const Container = styled.div`
-  padding: 20px 15px 20px 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  overflow-y: auto;
-  height: 71%;
-  @media (min-width: 1180px) {
-    height: 80%;
-  }
-  @media (min-width: 1500px) {
-    grid-template-columns: 2fr 3fr;
-    height: auto;
-    padding-right: 0;
-  }
-`;
+const IdentityInfo = ({ kyc = {}, showPending = false }) => (
+  <Container>
+    <Alert
+      text={showPending ? getTranslation("1375") : getTranslation("885")}
+      type={showPending ? "pending" : "success"}
+    />
 
-const IdentityInfo = ({ kyc = {}, showPending = false }) => {
-  const [showAlert, setShowAlert] = useState(true);
-
-  useEffect(() => {
-    if (!showPending) {
-      const timer = setTimeout(() => {
-        setShowAlert(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [showPending]);
-
-  return (
-    <Container>
-      <Wrapper>
-        {showAlert && (
-          <Alert
-            text={showPending ? getTranslation("1375") : getTranslation("885")}
-            type={showPending ? "pending" : "success"}
-          />
-        )}
-        <Title title={getTranslation("869")} />
-        <InfoInputs kyc={kyc} />
-        <CardPhotos nationalCardImg={kyc?.melli_card} />
-      </Wrapper>
-    </Container>
-  );
-};
+    <TitleHeader title={getTranslation("869")} />
+    <InfoInputs kyc={kyc} />
+    <CardPhotos nationalCardImg={kyc?.melli_card} />
+  </Container>
+);
 
 export default IdentityInfo;

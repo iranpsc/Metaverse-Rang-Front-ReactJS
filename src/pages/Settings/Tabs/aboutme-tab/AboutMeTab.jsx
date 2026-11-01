@@ -1,146 +1,169 @@
+import styled from "styled-components";
 import { useEffect, useState } from "react";
-import { Skeleton } from "../../../../components/Skeleton";
-import About from "./About";
 import CountryCity from "./CountryCity";
 import EducationsAndJob from "./EducationsAndJob";
-import { GlobalStateProvider } from "./aboutGlobalStateProvider";
 import Hobby from "./Hobby";
-import Memory from "./Memory";
-import Opportunity from "./Opportunity";
 import Prediction from "./Prediction";
-import SaveInfo from "./SaveInfo";
+import Alert from "../../../../components/Alert/Alert";
+import Button from "../../../../components/Button";
 import Container from "../../../../components/Common/Container";
-import styled from "styled-components";
+import TitleHeader from "../../../../components/TitleHeader";
+import { AboutMeSkeleton } from "../../../../components/Skeletons/AboutMeSkeleton";
+import useRequest from "../../../../hooks/useRequest.js";
+import { getTranslation } from "../../../../services/Utility";
+import CustomEditor from "../../../../components/Common/CustomEditor.jsx";
+const ALERT_DURATION_MS = 3000;
 
-const SkeletonContainer = styled(Container)`
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-`;
+const INITIAL_FORM_DATA = {
+  about: "",
+  education: "",
+  occupation: "",
+  hobbies: {},
+  country: "",
+  language: "",
+  city: "",
+  memory: "",
+  opportunity: "",
+  prediction: "",
+};
 
-// اسکلتون برای بخش SaveInfo (هدر + دکمه)
-const SkeletonSaveInfo = styled.div`
+const FIELD_SOURCES = {
+  about: "about",
+  education: "education",
+  occupation: "occupation",
+  hobbies: "passions",
+  country: "loved_country",
+  language: "loved_language",
+  city: "loved_city",
+  memory: "memory",
+  opportunity: "problem_solving",
+  prediction: "prediction",
+};
+
+const toFormData = (data) =>
+  Object.fromEntries(
+    Object.entries(FIELD_SOURCES).map(([field, source]) => [
+      field,
+      data[source] ?? INITIAL_FORM_DATA[field],
+    ]),
+  );
+
+const toPayload = (formData) =>
+  Object.fromEntries(
+    Object.entries(FIELD_SOURCES).map(([field, source]) => [
+      source,
+      formData[field],
+    ]),
+  );
+
+const Header = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding-bottom: 20px;
-  border-bottom: 1px solid #454545;
-`;
-
-// اسکلتون برای بخش About
-const SkeletonAbout = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-// اسکلتون برای بخش EducationsAndJob
-const SkeletonEducationsAndJob = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-`;
-
-const SkeletonRow = styled.div`
-  display: flex;
-  gap: 20px;
-  margin-top: 8px;
-`;
-
-const SkeletonField = styled.div`
-  flex: 1;
-`;
-
-const SkeletonEditor = styled.div`
-  border: 1px solid #454545;
-  border-radius: 8px;
-  padding: 12px;
-  margin-top: 8px;
 `;
 
 const AboutMeTab = () => {
+  const { Request, HTTP_METHOD } = useRequest();
+
   const [loading, setLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [formData, setFormData] = useState(INITIAL_FORM_DATA);
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 400);
+    let cancelled = false;
 
-    return () => clearTimeout(timer);
+    const fetchData = async () => {
+      try {
+        const response = await Request("personal-info");
+        const data = response.data?.data;
+
+        if (data && !cancelled) setFormData(toFormData(data));
+      } catch (error) {
+        console.error("Error fetching data from API:", error);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  // اسکلتون لودینگ - شبیه به تصویر
-  if (loading) {
-    return (
-      <SkeletonContainer>
-        {/* بخش SaveInfo (عنوان و دکمه) */}
-        <SkeletonSaveInfo>
-          <div>
-            <Skeleton width="120px" height="24px" radius="4px" style={{ marginBottom: "8px" }} />
-            <Skeleton width="250px" height="14px" radius="4px" />
-          </div>
-          <Skeleton width="124px" height="50px" radius="8px" />
-        </SkeletonSaveInfo>
+  const updateField = (field, value) =>
+    setFormData((current) => ({ ...current, [field]: value }));
 
-        {/* بخش About (درباره من) */}
-        <SkeletonAbout>
-          <Skeleton width="100px" height="20px" radius="4px" />
-          <Skeleton width="300px" height="14px" radius="4px" />
-          <SkeletonEditor>
-            <Skeleton width="100%" height="100px" radius="4px" />
-            <SkeletonRow style={{ marginTop: "12px", justifyContent: "flex-end" }}>
-              <Skeleton width="60px" height="30px" radius="4px" />
-              <Skeleton width="60px" height="30px" radius="4px" />
-              <Skeleton width="60px" height="30px" radius="4px" />
-              <Skeleton width="60px" height="30px" radius="4px" />
-              <Skeleton width="60px" height="30px" radius="4px" />
-            </SkeletonRow>
-          </SkeletonEditor>
-        </SkeletonAbout>
+  // props مشترک بخش‌های تک‌فیلدی: مقدار فعلی + تغییر همان فیلد
+  const bind = (field) => ({
+    value: formData[field],
+    onChange: (value) => updateField(field, value),
+  });
 
-        {/* بخش EducationsAndJob (شغل و تحصیلات) */}
-        <SkeletonEducationsAndJob>
-          <SkeletonRow>
-            <SkeletonField>
-              <Skeleton width="80px" height="16px" radius="4px" style={{ marginBottom: "8px" }} />
-              <Skeleton width="100%" height="40px" radius="8px" />
-            </SkeletonField>
-            <SkeletonField>
-              <Skeleton width="80px" height="16px" radius="4px" style={{ marginBottom: "8px" }} />
-              <Skeleton width="100%" height="40px" radius="8px" />
-            </SkeletonField>
-          </SkeletonRow>
-          <SkeletonRow>
-            <SkeletonField>
-              <Skeleton width="100px" height="16px" radius="4px" style={{ marginBottom: "8px" }} />
-              <Skeleton width="100%" height="40px" radius="8px" />
-            </SkeletonField>
-            <SkeletonField>
-              <Skeleton width="80px" height="16px" radius="4px" style={{ marginBottom: "8px" }} />
-              <Skeleton width="100%" height="40px" radius="8px" />
-            </SkeletonField>
-          </SkeletonRow>
-        </SkeletonEducationsAndJob>
+  const handleSave = async () => {
+    setIsSaving(true);
 
-        {/* Hobby, CountryCity, Memory, Opportunity, Prediction - فیلدهای ساده */}
-      
-      </SkeletonContainer>
-    );
-  }
+    try {
+      await Request("personal-info", HTTP_METHOD.PUT, toPayload(formData));
+      setSaved(true);
+      setTimeout(() => setSaved(false), ALERT_DURATION_MS);
+    } catch (error) {
+      console.error("Error saving data:", error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  if (loading) return <AboutMeSkeleton />;
 
   return (
-    <GlobalStateProvider>
-      <Container>
-        <SaveInfo />
-        <About />
-        <EducationsAndJob />
-        <Hobby />
-        <CountryCity />
-        <Memory />
-        <Opportunity />
-        <Prediction />
-      </Container>
-    </GlobalStateProvider>
+    <Container>
+      {saved && <Alert type="success" text={getTranslation("1361")} />}
+
+      <Header>
+        <div>
+          <TitleHeader title={getTranslation("95")} />
+          <TitleHeader small title={getTranslation("780")} />
+        </div>
+        <Button
+          fit
+          label={getTranslation("782")}
+          onClick={handleSave}
+          disabled={isSaving ? "pending" : false}
+        />
+      </Header>
+      {/* کاستوم ادیتور برای about */}
+      <CustomEditor
+        {...bind("about")}
+        charLimit={10000}
+        img
+        label={getTranslation("781")}
+      />
+      <EducationsAndJob
+        education={formData.education}
+        occupation={formData.occupation}
+        onChange={updateField}
+      />
+      <Hobby {...bind("hobbies")} />
+      <CountryCity
+        city={formData.city}
+        country={formData.country}
+        language={formData.language}
+        onChange={updateField}
+      />
+      {/* کاستوم ادیتور برای memory */}
+      <CustomEditor {...bind("memory")} img label={getTranslation("93")} />
+      {/* کاستوم ادیتور برای opportunity */}
+      <CustomEditor
+        {...bind("opportunity")}
+        img
+        label={getTranslation("801")}
+      />
+      <Prediction {...bind("prediction")} />
+    </Container>
   );
 };
 

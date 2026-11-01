@@ -6,7 +6,7 @@ import { LuEye } from "react-icons/lu";
 import Button from "../../../../components/Button";
 import styled from "styled-components";
 import { useState, useContext } from "react";
-import Title from "../../../../components/Title";
+import TitleHeader from "../../../../components/TitleHeader";
 import { useNavigate } from "react-router";
 import { useParams } from "react-router";
 import { useMapData } from "../../../../hooks/useMapData.js";
@@ -126,7 +126,7 @@ const Info = ({ data, edit, setEdit, payed, setPayed, isOwner, isMobile }) => {
   return (
     <Container>
       <HeaderContainer>
-        <Title title={getTranslation("533")} />
+        <TitleHeader title={getTranslation("533")} />
         <Onlines>
           <LuEye />
           <p>
@@ -143,7 +143,7 @@ const Info = ({ data, edit, setEdit, payed, setPayed, isOwner, isMobile }) => {
           setPayStatus={setPayStatus}
         />
       )}
-      <Title payed={payed} title={getTranslation("538")} />
+      <TitleHeader payed={payed} title={getTranslation("538")} />
       <Text>{data[0].inputs[4].about}</Text>
       {payed && !edit && (
         <Buttons>

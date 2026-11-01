@@ -12,7 +12,7 @@ import useRequest from "../../../../hooks/useRequest.js";
 import {
   FeatureColor,
   FeatureSvg,
-} from "../../../../services/constants/FeatureType";
+} from "../../../../services/constants/FeatureType.jsx";
 import { getTranslation, ToastError } from "../../../../services/Utility";
 const InputsWrapper = styled.div`
   display: flex;

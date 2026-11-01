@@ -1,137 +1,151 @@
-import ConfettiExplosion from "react-confetti-explosion";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
-import { useState } from "react";
-import { getTranslation, convertToPersian } from "../../../services/Utility";
+import {
+  convertToPersian,
+  getTranslation,
+  formatNumber,
+  ConvertJalali,
+} from "../../../services/Utility";
 
 const Card = styled.div`
-  border-radius: 5px;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.bgContainer};
   padding: 20px;
+  border-radius: 5px;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.bgContainer};
 `;
+
 const Content = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #454545;
   padding-bottom: 10px;
+  border-bottom: 1px solid #454545;
 `;
+
 const Info = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  div {
-    h3 {
-      font-size: 13px;
-      color: ${(props) => props.theme.colors.newColors.shades.title};
-      font-weight: 400;
-    }
-    h2 {
-      font-size: 16px;
-      cursor: pointer;
-      color: #ffc700;
-      font-weight: 600;
-    }
-  }
 `;
+
 const Image = styled.div`
-  border-radius: 5px;
-  width: 50px;
-  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: ${(props) => props.color};
+  width: 50px;
+  height: 50px;
+  border-radius: 5px;
+  background-color: ${({ $background }) => $background};
 `;
-const Value = styled.div`
+
+const Label = styled.h3`
+  font-size: 13px;
+  font-weight: 400;
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
+`;
+
+const FeatureCode = styled.button`
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffc700;
+  cursor: pointer;
+`;
+
+const Value = styled.button`
   display: flex;
   align-items: center;
-  cursor: pointer;
   justify-content: center;
   width: 122px;
   height: 50px;
+  border: none;
+  border-bottom: 2px solid ${({ $color }) => $color};
   border-radius: 10px;
-  border-bottom: 2px solid ${(props) => props.color};
-  background-color: ${(props) => props.background};
-  color: ${(props) => props.color};
+  font-size: 16px;
+  cursor: pointer;
   transform: rotateX(15deg);
-  box-shadow: 0px 15px 30px -20px ${(props) => props.color};
-  span {
-    font-size: 16px;
+  color: ${({ $color }) => $color};
+  background-color: ${({ $background }) => $background};
+  box-shadow: 0px 15px 30px -20px ${({ $color }) => $color};
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
   }
 `;
-const Footer = styled.span`
-  font-size: 13px;
-  color: #a0a0ab;
-  font-weight: 500;
+
+const Footer = styled.div`
   display: flex;
   gap: 5px;
   padding-top: 7px;
-  h4 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 13px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #a0a0ab;
+
+  span:last-child {
     font-weight: 400;
+    color: ${({ theme }) => theme.colors.newColors.shades.title};
   }
 `;
+
 const ProfitCard = ({
   background,
   logo,
   title,
   feature_id,
+  feature_db_id,
   color,
   amount,
   dead_line,
-  onclick,
-  feature_db_id,
+  onClick,
+  disabled = false,
 }) => {
-  const [isExploding, setIsExploding] = useState(false);
-  const Navigate = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleClaim = (event) => {
+    if (disabled) return;
+
+    onClick?.(event.currentTarget.getBoundingClientRect());
+  };
+
+  const openFeature = () =>
+    navigate(`/feature/${feature_db_id}/info`, {
+      state: { from: location.pathname },
+    });
+
   return (
     <Card>
       <Content>
         <Info>
-          <Image color={background}>
-            <img src={logo} alt={title} />
+          <Image $background={background}>
+            <img src={logo} alt="" />
           </Image>
+
           <div>
-            <h3>{title}</h3>
-            <h2
-              onClick={() =>
-                Navigate(`/feature/${feature_db_id}/info`, {
-                  state: {
-                    from: location.pathname,
-                  },
-                })
-              }
-            >
+            <Label>{title}</Label>
+            <FeatureCode type="button" onClick={openFeature}>
               {feature_id?.toUpperCase()}
-            </h2>
+            </FeatureCode>
           </div>
         </Info>
+
         <Value
-          onClick={() => {
-            onclick();
-            setIsExploding(!isExploding);
-          }}
-          color={color}
-          background={background}
+          type="button"
+          $color={color}
+          $background={background}
+          disabled={disabled}
+          onClick={handleClaim}
         >
-          {isExploding && (
-            <ConfettiExplosion
-              particleSize={5}
-              width={400}
-              height={"80vh"}
-              colors={[`${color}`]}
-              zIndex={1000}
-            />
-          )}
-          <span>{amount}</span>
+          <span>{convertToPersian(formatNumber(amount, 3))}</span>
         </Value>
       </Content>
+
       <Footer>
-        {getTranslation("1827")} :
-        <h4>{convertToPersian(dead_line)}</h4>
+        <span>{getTranslation("1827")} :</span>
+        <span>{ConvertJalali(dead_line)}</span>
       </Footer>
     </Card>
   );

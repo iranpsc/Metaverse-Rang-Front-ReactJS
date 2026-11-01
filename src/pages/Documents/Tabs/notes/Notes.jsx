@@ -2,7 +2,7 @@ import NotesList from "./NotesList";
 import styled from "styled-components";
 import { useState } from "react";
 import SearchInput from "../../../../components/SearchInput";
-import Title from "../../../../components/Title";
+import TitleHeader from "../../../../components/TitleHeader";
 import { getTranslation } from "../../../../services/Utility";
 
 const Container = styled.div`
@@ -18,23 +18,34 @@ const Container = styled.div`
   }
 `;
 
-const Notes = ({ notes, isLoading }) => {
+const Notes = ({
+  notes,
+  isLoading,
+  onNoteDeleted,
+  onNoteCached,
+  onNoteUpdated,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredNotes = notes?.filter((note) =>
-    note?.title?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  const filteredNotes =
+    notes?.filter((note) =>
+      note?.title?.toLowerCase().includes(searchTerm.toLowerCase()),
+    ) || [];
 
   return (
     <Container>
-      <div style={{ marginBottom: "20px" }}>
-        <Title title={getTranslation("1355")} />
-      </div>
+      <TitleHeader title={getTranslation("1355")} />
       <SearchInput
         placeholder={getTranslation("1356")}
         onchange={(e) => setSearchTerm(e.target.value)}
       />
-      <NotesList notes={filteredNotes} isLoading={isLoading} />
+      <NotesList
+        notes={filteredNotes}
+        isLoading={isLoading}
+        onNoteDeleted={onNoteDeleted}
+        onNoteCached={onNoteCached}
+        onNoteUpdated={onNoteUpdated}
+      />
     </Container>
   );
 };

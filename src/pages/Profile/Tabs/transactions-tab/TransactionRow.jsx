@@ -1,27 +1,47 @@
+// ردیف یک تراکنش در جدول تراکنش‌ها (کد، تاریخ، وضعیت، نوع، دارایی، مقدار) با دکمه‌ی مشاهده/چاپ رسید؛ مناسب GenericList با type="transactions" و شارژ خودکار کیف پول بعد از بازگشت از پرداخت
+
+import styled from "styled-components";
+import { useContext, useEffect, useRef, useState } from "react";
 import { LuEye } from "react-icons/lu";
 import PrintModal from "./PrintModal";
-import { WalletContext, WalletContextTypes } from "../../../../services/reducers/WalletContext";
-import styled from "styled-components";
-import { useState, useEffect, useContext,useRef } from "react";
 import {
+  WalletContext,
+  WalletContextTypes,
+} from "../../../../services/reducers/WalletContext";
+import {
+  ConvertJalali,
   convertToPersian,
-  getTranslation, ConvertJalali
+  getTranslation,
 } from "../../../../services/Utility";
 import { updateWalletValue } from "../../../../services/Utility/walletUtils";
+
+// کلید status بک‌اند => ترجمه و رنگ (هر مقدار ناشناخته مثل -138 ناموفق حساب می‌شود)
+const STATUSES = {
+  0: { label: "741", color: "#18c090", bg: "#18c09017" },
+  1: { label: "743", color: "#ffc800", bg: "#ffc80017" },
+};
+const FAILED_STATUS = { label: "742", color: "#ff0000", bg: "#ff000017" };
+
+const TYPE_TITLES = { order: "739", trade: "740" };
+const ASSET_TITLES = {
+  blue: "753",
+  red: "754",
+  yellow: "755",
+  irr: "756",
+  psc: "757",
+};
+
+const getStatus = (status) => STATUSES[status] ?? FAILED_STATUS;
+
 const TableRow = styled.tr`
   background-color: transparent;
 `;
 
 const TableCell = styled.td`
+  position: relative;
   padding: 18px;
-  border-bottom: 1px solid #BABABA;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-`;
-
-const Image = styled.img`
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
+  border-bottom: 1px solid #bababa;
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
 `;
 
 const Code = styled.h2`
@@ -30,16 +50,10 @@ const Code = styled.h2`
   text-align: center;
 `;
 
-const Date = styled.h3`
+const Text = styled.h3`
   font-size: 16px;
   font-weight: 400;
-  text-align: center;
-`;
-
-const Title = styled.h3`
-  font-size: 16px;
-  font-weight: 400;
-  text-align: start;
+  text-align: ${({ $center }) => ($center ? "center" : "start")};
 `;
 
 const Subject = styled.div`
@@ -48,46 +62,48 @@ const Subject = styled.div`
   gap: 6px;
 `;
 
-const Print = styled.div`
-  width: 40px;
-  height: 40px;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.iconBg};
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  &:hover {
-    background-color: ${(props) => props.theme.colors.primary};
-    transition: all 0.2s linear;
-  }
-  svg {
-    color: ${(props) => props.theme.colors.newColors.otherColors.iconText};
-  }
-  svg:hover {
-    color: ${(props) => props.theme.colors.newColors.primaryText};
-  }
+const AssetImage = styled.img`
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
 `;
 
 const Status = styled.h3`
-  color: ${(props) =>
-    props.status == "0"
-      ? "#18c090"
-      : props.status == "1"
-        ? "#ffc800"
-        : "#ff0000"};
-  padding: 2px 18px;
-  background-color: ${(props) =>
-    props.status == "0"
-      ? "#18c09017"
-      : props.status == "1"
-        ? "#ffc80017"
-        : "#ff000017"};
   width: fit-content;
-  font-size: 0.875rem;
+  padding: 2px 18px;
   border-radius: 0.25rem;
+  font-size: 0.875rem;
   font-weight: 600;
+  color: ${({ $color }) => $color};
+  background-color: ${({ $bg }) => $bg};
+`;
+
+const Print = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  background-color: ${({ theme }) => theme.colors.newColors.otherColors.iconBg};
+
+  svg {
+    color: ${({ theme }) => theme.colors.newColors.otherColors.iconText};
+  }
+
+  &:hover {
+    transition: all 0.2s linear;
+    background-color: ${({ theme }) => theme.colors.primary};
+
+    svg {
+      color: ${({ theme }) => theme.colors.newColors.primaryText};
+    }
+  }
 `;
 
 const TransactionRow = ({
@@ -98,117 +114,79 @@ const TransactionRow = ({
   asset,
   type,
   amount,
-  assetGif, paymentReturned
+  assetGif,
+  paymentReturned,
 }) => {
-
-  const [Wallet, dispatch] = useContext(WalletContext);
+  const [wallet, dispatch] = useContext(WalletContext);
   const [openPrint, setOpenPrint] = useState(false);
-    const handledRef = useRef(false);
+  const handledRef = useRef(false);
 
- useEffect(() => {
-    if (!paymentReturned) return;
+  const { label, color, bg } = getStatus(status);
 
-    if (handledRef.current) return;
+  // بعد از بازگشت از درگاه: مودال رسید باز می‌شود و در صورت موفق بودن، کیف پول فقط یک بار شارژ می‌شود
+  useEffect(() => {
+    if (!paymentReturned || handledRef.current) return;
     handledRef.current = true;
 
     setOpenPrint(true);
 
     const processedKey = `wallet_credited_${id}`;
-    const alreadyCredited = sessionStorage.getItem(processedKey);
 
-    if (status == 0 && !alreadyCredited) {
-      sessionStorage.setItem(processedKey, "1"); // اول علامت بزن، بعد اضافه کن
+    if (String(status) === "0" && !sessionStorage.getItem(processedKey)) {
+      // اول علامت بزن، بعد اضافه کن
+      sessionStorage.setItem(processedKey, "1");
 
-      const updatedWallet = updateWalletValue(Wallet, { asset, value: amount });
       dispatch({
         type: WalletContextTypes.ADD_WALLET,
-        payload: updatedWallet,
+        payload: updateWalletValue(wallet, { asset, value: amount }),
       });
     }
 
     sessionStorage.removeItem("payment_returned");
   }, [paymentReturned]);
 
-  const getAssetTitle = (assetType) => {
-    switch (assetType) {
-      case "red":
-        return getTranslation("754");
-      case "blue":
-        return getTranslation("753");
-      case "yellow":
-        return getTranslation("755");
-      default:
-        return assetType;
-    }
-  };
+  const typeTitle = TYPE_TITLES[type]
+    ? getTranslation(TYPE_TITLES[type])
+    : type;
+  const assetTitle = ASSET_TITLES[asset]
+    ? getTranslation(ASSET_TITLES[asset])
+    : asset;
 
   return (
     <TableRow className="odd:bg-slate-50 hover:bg-black/10 py-5 duration-200">
       <TableCell>
-        <div>
-          <Code>{id}</Code>
-        </div>
+        <Code>{id}</Code>
       </TableCell>
+
       <TableCell>
-        <div>
-          <Date>
-            {ConvertJalali(date)} | {convertToPersian(time)}
-          </Date>
-        </div>
+        <Text $center>
+          {ConvertJalali(date)} | {convertToPersian(time)}
+        </Text>
       </TableCell>
+
       <TableCell>
-        <Status status={status}>
-          {status == "0"
-            ? getTranslation("741")
-            : status == "-138"
-              ? getTranslation("742")
-              : status == "1"
-                ? getTranslation("743")
-                : getTranslation("742")}
+        <Status $color={color} $bg={bg}>
+          {getTranslation(label)}
         </Status>
       </TableCell>
+
       <TableCell>
-        <Title>
-          {type == "order"
-            ? getTranslation("739")
-            : type == "trade"
-              ? getTranslation("740")
-              : type}
-        </Title>
+        <Text>{typeTitle}</Text>
       </TableCell>
+
       <TableCell>
         <Subject>
-          <Image
-            width={300}
-            height={300}
-            alt="doctor"
-            loading="lazy"
-            src={assetGif}
-          />
-          <Title>{getAssetTitle(asset)}</Title>
+          <AssetImage src={assetGif} alt="" loading="lazy" />
+          <Text>{assetTitle}</Text>
         </Subject>
       </TableCell>
+
       <TableCell>
-        <div>
-          <Title style={{ textAlign: "center" }}>
-            {convertToPersian(amount)}
-          </Title>
-        </div>
+        <Text $center>{convertToPersian(amount)}</Text>
       </TableCell>
-      <TableCell
-        style={{
-          position: "relative",
-        }}
-      >
-        <Print
-          style={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-          }}
-          onClick={() => setOpenPrint(true)}
-        >
+
+      <TableCell>
+        <Print onClick={() => setOpenPrint(true)}>
           <LuEye size={20} />
         </Print>
       </TableCell>

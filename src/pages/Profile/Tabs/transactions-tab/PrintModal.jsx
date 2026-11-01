@@ -1,177 +1,168 @@
-// Print-only CSS: Only show Header, center it, hide print button and modal background
-import { ExitIcon } from "../../../../components/Icons/IconsHeader";
-const PrintOnlyStyles = () => (
-  <style>{`
-    @media print {
-      body * {
-        visibility: hidden !important;
-      }
-      #print-header, #print-header * {
-        visibility: visible !important;
-      }
-      #print-header {
-        position: fixed !important;
-        top: 50% !important;
-        left: 50% !important;
-        transform: translate(-50%, -50%) !important;
-       
+// مدال نمایش و چاپ رسید یک تراکنش (وضعیت، دارایی، کد، تاریخ، ساعت و مقدار)؛ مناسب باز شدن از ردیف جدول تراکنش‌ها یا بعد از بازگشت از درگاه پرداخت
 
-        background: none !important;
-        box-shadow: none !important;
-        padding: 32px !important;
-        margin: 0 !important;
-        border-radius: 0 !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-      }
-      .print-hide, .print-hide * {
-        display: none !important;
-      }
-    }
-  `}</style>
-);
+import styled, { createGlobalStyle } from "styled-components";
+import { createPortal } from "react-dom";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { BsCheckCircleFill } from "react-icons/bs";
 import { IoReloadCircleSharp } from "react-icons/io5";
-import { createPortal } from "react-dom";
-import styled from "styled-components";
+import ModalXs from "../../../../components/Modal/ModalXs";
 import Button from "../../../../components/Button";
-import { getTranslation, ConvertJalali, convertToPersian } from "../../../../services/Utility";
+import {
+  ConvertJalali,
+  convertToPersian,
+  getTranslation,
+} from "../../../../services/Utility";
 
-const BackGround = styled.div`
-  z-index: 9999;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(5px);
-  background-color: rgba(0, 0, 0, 0.713);
-`;
-const Modal = styled.div`
-  position: relative;
-  border-radius: 10px;
-  background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
-  overflow-y: auto;
-  padding: 10px;
-  z-index: 999;
-  width: min(415px, calc(100vw - 24px));
-  height: auto;
-  max-height: calc(100vh - 24px);
-  max-height: calc(100dvh - 24px);
+// status بک‌اند => رنگ، آیکون و ترجمه‌ها (هر مقدار دیگر مثل -138 و -1 ناموفق حساب می‌شود)
+const STATUSES = {
+  0: {
+    color: "#00966d",
+    Icon: BsCheckCircleFill,
+    heading: "744",
+    description: "745",
+  },
+  1: {
+    color: "#FFC700",
+    Icon: IoReloadCircleSharp,
+    heading: "759",
+    description: "760",
+  },
+};
+const FAILED_STATUS = {
+  color: "#C30000",
+  Icon: AiFillCloseCircle,
+  heading: "761",
+  description: "762",
+};
 
-  &::-webkit-scrollbar-track {
-    margin: 5px 0;
+// هنگام چاپ فقط خود رسید (#print-header) در وسط صفحه دیده می‌شود
+const PrintStyles = createGlobalStyle`
+  @media print {
+    body * {
+      visibility: hidden !important;
+    }
+
+    #print-header,
+    #print-header * {
+      visibility: visible !important;
+    }
+
+    #print-header {
+      position: fixed !important;
+      top: 50% !important;
+      left: 50% !important;
+      transform: translate(-50%, -50%) !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      margin: 0 !important;
+      padding: 32px !important;
+      border-radius: 0 !important;
+      background: none !important;
+      box-shadow: none !important;
+    }
+
+    .print-hide,
+    .print-hide * {
+      display: none !important;
+    }
   }
-
-  @media (max-width: 1000px) {
-    padding: 8px;
-      width: min(380px, calc(100vw - 24px));
-
-  }
 `;
-const Header = styled.div`
-  width: 100%;
+
+const Receipt = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  p {
-    color: ${(props) =>
-    props.status == "0"
-      ? "#00966d"
-      : props.status == "-138" || props.status == "-1"
-        ? "#C30000"
-        : "#FFC700"};
-    font-size: 24px;
-    font-weight: 600;
-    margin: 0;
-  }
-  span {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 16px;
-    font-weight: 400;
-    text-align: center;
-  }
-
-  @media (max-width: 1000px) {
-    p {
-      font-size: 18px;
-    }
-    span {
-      font-size: 13px;
-    }
-  }
+  width: 100%;
 `;
-const Div = styled.div`
+
+const StatusIcon = styled.div`
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${(props) =>
-    props.status == "0"
-      ? "#00966d"
-      : props.status == "-138" || props.status == "-1"
-        ? "#C30000"
-        : "#FFC700"};
   margin-bottom: 10px;
-  div {
-    z-index: 0;
+  color: ${({ $color }) => $color};
+
+  &::before {
+    content: "";
     position: absolute;
-    border-radius: 100%;
-    background-color: white;
     width: 50px;
     height: 50px;
+    border-radius: 50%;
+    background-color: white;
   }
+
   svg {
     z-index: 1;
   }
 
   @media (max-width: 1000px) {
     margin-bottom: 4px;
-    div {
+
+    &::before {
       width: 34px;
       height: 34px;
     }
+
     svg {
       width: 56px;
       height: 56px;
     }
   }
 `;
+
+const StatusTitle = styled.p`
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: ${({ $color }) => $color};
+
+  @media (max-width: 1000px) {
+    font-size: 18px;
+  }
+`;
+
+const StatusText = styled.span`
+  font-size: 16px;
+  font-weight: 400;
+  text-align: center;
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
+
+  @media (max-width: 1000px) {
+    font-size: 13px;
+  }
+`;
+
 const Info = styled.div`
-  background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
-  padding: 0 20px;
   width: 100%;
-  border-radius: 10px;
   margin-top: 20px;
-
-
+  padding: 0 20px;
 `;
 
 const Row = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   padding: 8px 0;
-  border-bottom: ${(props) => props.not !== false && "1px solid #454545"};
-  justify-content: space-between;
+
+  &:not(:last-child) {
+    border-bottom: 1px solid #454545;
+  }
 
   @media (max-width: 480px) {
-    padding: 5px 0;
     gap: 8px;
+    padding: 5px 0;
   }
 `;
 
-const Title = styled.h3`
-  font-size: 16px;
+const Label = styled.h3`
   margin: 0;
-  white-space: nowrap;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
+  font-size: 16px;
   font-weight: 500;
+  white-space: nowrap;
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
 
   @media (max-width: 1000px) {
     font-size: 13px;
@@ -179,111 +170,89 @@ const Title = styled.h3`
 `;
 
 const Value = styled.h3`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  font-size: 16px;
   margin: 0;
+  font-size: 16px;
   font-weight: 400;
   text-align: left;
   word-break: break-word;
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
 
   @media (max-width: 1000px) {
     font-size: 13px;
   }
 `;
-const Gif = styled.div`
+
+const AssetValue = styled.div`
   display: flex;
   align-items: center;
   gap: 4px;
 `;
 
+const PrintAction = styled.div`
+  margin: 8px 0;
+`;
+
 const PrintModal = ({
   code,
   date,
-  gif,
   time,
   status,
   title,
   count,
+  gif,
   setOpenPrint,
 }) => {
-  const handlePrint = () => {
-    window.print();
-  };
+  const close = () => setOpenPrint(false);
+  const { color, Icon, heading, description } =
+    STATUSES[status] ?? FAILED_STATUS;
 
+  const rows = [
+    {
+      label: "750",
+      value: (
+        <AssetValue>
+          <img loading="lazy" width={26} height={26} src={gif} alt="" />
+          <Value>
+            {getTranslation("353")} {convertToPersian(count)}
+          </Value>
+        </AssetValue>
+      ),
+    },
+    { label: "747", value: <Value>{code}</Value> },
+    { label: "748", value: <Value>{ConvertJalali(date)}</Value> },
+    { label: "749", value: <Value>{convertToPersian(time)}</Value> },
+    { label: "750", value: <Value>{title}</Value> },
+    { label: "751", value: <Value>{convertToPersian(count)}</Value> },
+  ];
+
+  // پورتال لازم است چون این مدال داخل <tr> رندر می‌شود و div داخل tr معتبر نیست
   return createPortal(
-    <BackGround>
-      <Modal>
-        <ExitIcon trans={"trans"} onClick={() => setOpenPrint(false)} />
-        <PrintOnlyStyles />
-        <Header id="print-header" status={status}>
-          <Div status={status}>
-            <div />
-            {status == "0" ? (
-              <BsCheckCircleFill size={80} />
-            ) : status == "1" ? (
-              <IoReloadCircleSharp size={80} />
-            ) : (
-              <AiFillCloseCircle size={80} />
-            )}
-          </Div>
-          {status == "0" ? (
-            <>
-              <p>{getTranslation("744")}</p>
-              <span>{getTranslation("745")}</span>
-            </>
-          ) : status == "-138" || status == "-1" ? (
-            <>
-              <p>{getTranslation("761")}</p>
-              <span>{getTranslation("762")}</span>
-            </>
-          ) : (
-            <>
-              <p>{getTranslation("759")}</p>
-              <span>{getTranslation("760")}</span>
-            </>
-          )}
-          <Info>
-            <Row>
-              <Title>{getTranslation("750")}</Title>
-              <Gif>
-                <img
-                  loading="lazy"
-                  width={26}
-                  height={26}
-                  src={gif}
-                  alt={code}
-                />
-                <Value>{getTranslation("353")} {convertToPersian(count)}</Value>
-              </Gif>
+    <ModalXs global onlyExit handleExitClick={close} onClose={close} hideTitle compact>
+      <PrintStyles />
+
+      <Receipt id="print-header">
+        <StatusIcon $color={color}>
+          <Icon size={80} />
+        </StatusIcon>
+
+        <StatusTitle $color={color}>{getTranslation(heading)}</StatusTitle>
+        <StatusText>{getTranslation(description)}</StatusText>
+
+        <Info>
+          {rows.map(({ label, value }, index) => (
+            <Row key={index}>
+              <Label>{getTranslation(label)}</Label>
+              {value}
             </Row>
-            <Row>
-              <Title>{getTranslation("747")}</Title>
-              <Value>{code}</Value>
-            </Row>
-            <Row>
-              <Title>{getTranslation("748")}</Title>
-              <Value>{ConvertJalali(date)}</Value>
-            </Row>
-            <Row>
-              <Title>{getTranslation("749")}</Title>
-              <Value>{convertToPersian(time)}</Value>
-            </Row>
-            <Row>
-              <Title>{getTranslation("750")}</Title>
-              <Value>{title}</Value>
-            </Row>
-            <Row not={false}>
-              <Title>{getTranslation("751")}</Title>
-              <Value>{convertToPersian(count)}</Value>
-            </Row>
-            <div className="print-hide" style={{ margin: "8px 0" }}>
-              <Button full label={getTranslation("67")} onclick={handlePrint} />
-            </div>
-          </Info>
-        </Header>
-      </Modal>
-    </BackGround>,
-    document.body
+          ))}
+
+          <PrintAction className="print-hide">
+            <Button full label={getTranslation("67")} onClick={window.print} />
+          </PrintAction>
+        </Info>
+      </Receipt>
+    </ModalXs>,
+    document.body,
   );
 };
 

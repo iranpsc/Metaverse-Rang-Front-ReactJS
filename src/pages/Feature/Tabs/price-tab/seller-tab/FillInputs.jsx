@@ -2,7 +2,6 @@ import styled from "styled-components";
 import { useState } from "react";
 import Rial from "../../../../../components/Rial";
 import Psc from "../../../../../components/Psc";
-import Input from "../../../../../components/Input";
 import {
   calculateFee,
   getTranslation,
@@ -11,6 +10,7 @@ import {
 } from "../../../../../services/Utility";
 import TitleValue from "../../../../../components/TitleValue";
 import Button from "../../../../../components/Button";
+import LabeledInput from "../../../../../components/LabeledInput.jsx";
 
 const Div = styled.div`
   display: flex;
@@ -140,22 +140,21 @@ const FillInputs = ({
   return (
     <Div>
       <InputsWrapper>
-        <Input
+        <LabeledInput
           value={rialValue}
           maxLength={14}
           onChange={handleRialChange}
           type="number"
           placeholder={`${getTranslation("521")} (${getTranslation("48")})`}
-          insideText={<Rial />}
+          suffix={<Rial />}
         />
-
-        <Input
+        <LabeledInput
           maxLength={14}
           value={pscValue}
           onChange={handlePscChange}
           type="number"
           placeholder={`${getTranslation("521")} (${getTranslation("47")})`}
-          insideText={<Psc />}
+          suffix={<Psc />}
         />
       </InputsWrapper>
 

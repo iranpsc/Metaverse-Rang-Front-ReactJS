@@ -1,5 +1,5 @@
 import styled from "styled-components";
-
+import { convertToPersian } from "../../../services/Utility";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -31,7 +31,7 @@ const TitleValue = ({ title, value, small, shop }) => {
       <Title history={history} small={small}>
         {title}
       </Title>
-      <Value small={small}>{value}</Value>
+      <Value small={small}>{convertToPersian(value)}</Value>
     </Container>
   );
 };

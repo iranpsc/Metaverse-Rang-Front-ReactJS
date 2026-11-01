@@ -3,7 +3,7 @@ import CitizenCard from "./CitizenCard";
 import { RiUserUnfollowLine, RiLoader4Line } from "react-icons/ri";
 
 import Button from "../../../../../components/Button";
-import Title from "../../../../../components/Title";
+import TitleHeader from "../../../../../components/TitleHeader";
 import SearchInput from "../../../../../components/SearchInput";
 import useRequest from "../../../../../hooks/useRequest.js";
 import {
@@ -91,7 +91,7 @@ const CitizenInvite = ({ setMode, memberType, members, setMembers }) => {
     <>
       <Container>
         <Header>
-          <Title title={getTranslation(832)} />
+          <TitleHeader title={getTranslation(832)} />
           <SearchInput
             value={searched}
             placeholder={getTranslation(831)}

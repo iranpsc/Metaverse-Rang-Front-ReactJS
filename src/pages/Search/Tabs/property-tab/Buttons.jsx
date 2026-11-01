@@ -1,106 +1,93 @@
+// دکمه‌های عملیات یک ملک روی نقشه (خرید یا فروش، پیشنهاد قیمت و رفتن به موقعیت ملک)؛ دکمه‌ی خرید فقط برای زمین سیستم یا زمینی که درخواست فروش دارد نمایش داده می‌شود و دکمه‌ی فروش همیشه برای مالک است
 
+import { useContext } from "react";
 import {
   HiOutlineCurrencyDollar,
   HiOutlineLocationMarker,
 } from "react-icons/hi";
 import { LuShoppingCart } from "react-icons/lu";
 import { useMap } from "react-map-gl/maplibre";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
-import { useContext } from "react";
-import { getTranslation } from "../../../../services/Utility";
-import { flyToMapPosition } from "../../../../services/Utility/flyToMapPosition";
-import { calculatePolygonCentroid } from "../../../../services/Utility/calculatePolygonCentroid";
+import Button from "../../../../components/Button";
 import { UserContext } from "../../../../services/reducers/UserContext";
-const IconWrapper = styled.div`
-  border-radius: 60px;
-  background-color: ${(props) => props.theme.colors.primary};
-  color: ${(props) => props.theme.colors.newColors.primaryText};
-  display: flex;
-  flex-grow: 1;
-  justify-content: center;
-  padding: 8px 12px 3px 15px;
-  gap: 5px;
-  cursor: pointer;
-  svg {
-    font-size: 23px;
-    padding-top: 5px;
-  }
-  h2 {
-    white-space: nowrap;
-    font-size: 16px;
-    font-weight: 700;
-  }
-`;
+import { getTranslation } from "../../../../services/Utility";
+import { calculatePolygonCentroid } from "../../../../services/Utility/calculatePolygonCentroid";
+import { flyToMapPosition } from "../../../../services/Utility/flyToMapPosition";
+
+const MAP_ZOOM = 17;
 
 const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 15px;
   gap: 15px;
+  margin-top: 15px;
 `;
 
 const Buttons = ({ item, system }) => {
   const [user] = useContext(UserContext);
-  const Navigate = useNavigate();
-  const center = calculatePolygonCentroid(item?.coordinates);
+  const navigate = useNavigate();
+  const location = useLocation();
   const mapRef = useMap();
-  const isOwner =
-    user.code?.toUpperCase() === item.owner_code?.toUpperCase();
-  const items = [
-    {
-      id: 1,
-      label: !isOwner ? getTranslation("353") : getTranslation("519"),
-      icon: <LuShoppingCart />,
-      onClick: () => !isOwner ? Navigate(`/feature/${item?.id}/buy/price`, {
-        state: {
-          from: location.pathname,
-        }
-      }) : Navigate(`/feature/${item?.id}/sell/PriceDefine`, {
-        state: {
-          from: location.pathname,
-        }
-      })
 
+  const isOwner =
+    Boolean(user?.code) &&
+    user.code.toUpperCase() === item?.owner_code?.toUpperCase();
+
+  // مالک همیشه دکمه‌ی فروش دارد؛ دیگران فقط وقتی زمین مال سیستم است یا درخواست فروش دارد دکمه‌ی خرید می‌بینند
+  const showMain = isOwner || system || Boolean(item?.latest_sell_request);
+
+  const goTo = (path) =>
+    navigate(`/feature/${item?.id}/${path}`, {
+      state: { from: location.pathname },
+    });
+
+  const flyToFeature = () => {
+    const center = calculatePolygonCentroid(item?.coordinates);
+
+    flyToMapPosition({
+      latitude: center.y,
+      longitude: center.x,
+      mapRef,
+      zoom: MAP_ZOOM,
+    });
+  };
+
+  const actions = [
+    showMain && {
+      key: "main",
+      label: getTranslation(isOwner ? "519" : "353"),
+      icon: <LuShoppingCart />,
+      onClick: () => goTo(isOwner ? "sell/PriceDefine" : "buy/price"),
     },
+    !system &&
+      !isOwner && {
+        key: "suggest",
+        label: getTranslation("472"),
+        icon: <HiOutlineCurrencyDollar />,
+        onClick: () => goTo("buy/suggest"),
+      },
     {
-      id: 3,
+      key: "locate",
       label: getTranslation("473"),
       icon: <HiOutlineLocationMarker />,
-      onClick: () => {
-        flyToMapPosition({
-          latitude: center.y,
-          longitude: center.x,
-          mapRef: mapRef,
-          zoom: 17,
-        });
-      },
+      onClick: flyToFeature,
     },
-  ];
-
-  if (!system && !isOwner) {
-    items.splice(1, 0, {
-      id: 2,
-      label: getTranslation("472"),
-      icon: <HiOutlineCurrencyDollar />,
-      onClick: () => {
-        Navigate(`/feature/${item?.id}/buy/suggest`, {
-          state: {
-            from: location.pathname,
-          }
-        },);
-      },
-    });
-  }
+  ].filter(Boolean);
 
   return (
     <Container>
-      {items.map((item) => (
-        <IconWrapper key={item.id} onClick={item.onClick}>
-          <span>{item.icon}</span>
-          <h2>{item.label}</h2>
-        </IconWrapper>
+      {actions.map(({ key, label, icon, onClick }) => (
+        <Button
+          key={key}
+          fill
+          grow
+          pill
+          icon={icon}
+          label={label}
+          onClick={onClick}
+        />
       ))}
     </Container>
   );

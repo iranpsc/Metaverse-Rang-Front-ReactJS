@@ -18,7 +18,7 @@ import { useMenuContext } from "../../hooks/useMenuContext.js";
 import { useNavigate, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { UserContext } from "../../services/reducers/UserContext";
-import ToolTip from "../../components/Tooltip";
+import ToolTip from "../../components/Tooltip/Tooltip.jsx";
 import useRequest from "../../hooks/useRequest.js";
 import { removeItem } from "../../services/Utility/LocalStorage";
 

@@ -1,11 +1,14 @@
-//کاستوم ادیتور متن استفاده شده در هر جایی که کاربر ورودی متن طولانی استفاده کند مانند درباره ما 
+//کاستوم ادیتور متن استفاده شده در هر جایی که کاربر ورودی متن طولانی استفاده کند مانند درباره ما
 import "react-quill-new/dist/quill.snow.css";
 import { useState, useEffect, useMemo, useRef } from "react";
 import ReactQuill from "react-quill-new";
 import { CiEdit } from "react-icons/ci";
 import { convertToPersian, getTranslation } from "../../services/Utility";
 import styled from "styled-components";
-
+import TitleBody from "../TitleBody";
+const Container = styled.div`
+  margin-top: 20px;
+`;
 const EditorContainer = styled.div`
   width: 100%;
   background-color: ${(props) =>
@@ -32,7 +35,7 @@ const EditorContainer = styled.div`
     display: ${({ showToolbar }) => (showToolbar ? "block" : "none")};
     flex-shrink: 0;
     background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
+      props.theme.colors.newColors.otherColors.inputBg};
     border: none;
     border-bottom: 1px solid gray;
   }
@@ -43,7 +46,7 @@ const EditorContainer = styled.div`
     height: auto;
     overflow: hidden;
     background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
+      props.theme.colors.newColors.otherColors.inputBg};
     color: ${(props) => props.theme.colors.newColors.shades.title};
     border: none;
   }
@@ -90,15 +93,6 @@ const EditorContainer = styled.div`
   }
 `;
 
-const Label = styled.h2`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  display: block;
-  margin-bottom: 10px;
-  font-weight: 500;
-  font-size: 16px;
-  margin-top: 20px;
-`;
-
 const Char = styled.div`
   display: flex;
   justify-content: end;
@@ -107,7 +101,7 @@ const Char = styled.div`
 
   svg {
     color: ${({ isOverLimit, theme }) =>
-    isOverLimit ? "red" : theme.colors.newColors.shades.title};
+      isOverLimit ? "red" : theme.colors.newColors.shades.title};
   }
 
   span {
@@ -159,12 +153,10 @@ const getModules = (img = false, showToolbar = true) => {
   };
 };
 
-
 const getHtmlLength = (html) => {
   if (!html || html === "<p><br></p>") return 0;
   return html.length;
 };
-
 
 const CustomEditor = ({
   value = "",
@@ -196,7 +188,6 @@ const CustomEditor = ({
     }
   }, [value]);
 
-  
   useEffect(() => {
     const quill = quillRef.current?.getEditor();
     if (!quill) return;
@@ -250,9 +241,8 @@ const CustomEditor = ({
   const isOverLimit = charCount >= charLimit;
 
   return (
-    <>
-      {label && <Label>{label}</Label>}
-
+    <Container>
+      {label && <TitleBody title={label} />}
       <EditorContainer showToolbar={showToolbar} border={border}>
         <ReactQuill
           ref={quillRef}
@@ -271,7 +261,7 @@ const CustomEditor = ({
           {convertToPersian(remainingChars)} {getTranslation("530")}
         </span>
       </Char>
-    </>
+    </Container>
   );
 };
 

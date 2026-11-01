@@ -1,12 +1,16 @@
 import styled, { keyframes } from "styled-components";
 import { useContext, useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import { useLanguage } from "../../../../hooks/useLanguageContext.js";
-import { formatNumber, convertToPersian, getTranslation } from "../../../../services/Utility";
+import {
+  formatNumber,
+  convertToPersian,
+  getTranslation,
+  levelIds,
+} from "../../../../services/Utility";
 import { Skeleton } from "../../../../components/Skeleton";
 import useRequest from "../../../../hooks/useRequest.js";
-import { useParams } from "react-router";
+import ToolTip from "../../../../components/Tooltip/Tooltip.jsx";
 
 const Container = styled.div`
   position: relative;
@@ -30,6 +34,7 @@ const Percent = styled.div`
 
   ${(props) => (props.IsPersian ? "padding-left" : "padding-right")}: 25px;
 `;
+
 const Title = styled.div`
   display: flex;
   align-items: center;
@@ -59,22 +64,19 @@ const ProgressContainer = styled.div`
 const ProgressBar = styled.div`
   background-color: ${(props) => props.theme.colors.primary};
   border-radius: 8px;
-
   width: ${(props) => `${Math.min(Math.max(props.percentage || 0, 0), 100)}%`};
-
   transition: width 0.5s ease;
   height: 100%;
 `;
+
 const LevelCount = styled.div`
   position: relative;
   width: 100%;
-  min-width: 0;
-min-width: 100px;
+  min-width: 100px;
   display: flex;
   flex-wrap: nowrap;
   align-items: center;
   justify-content: flex-start;
-
 `;
 
 const popIn = keyframes`
@@ -123,86 +125,15 @@ const LevelItem = styled.div`
   height: 100%;
 `;
 
-const tooltipFade = keyframes`
-  from {
-    opacity: 0;
-    transform: translate(-50%, -95%);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -100%);
-  }
-`;
-
-const PortalTooltip = styled.div`
-  position: fixed;
-  transform: translate(-50%, -100%);
-
-  min-width: max-content;
-  max-width: 160px;
-
-  padding: 6px 10px;
-
-  border-radius: 6px;
-
-  background-color: ${(props) => props.theme.colors.newColors.shades.title};
-  color: ${(props) => props.theme.colors.newColors.otherColors.inputBg};
-
-  font-size: 12px;
-  font-weight: 500;
-
-  white-space: nowrap;
-  text-align: center;
-
-  z-index: 9999;
-  pointer-events: none;
-
-  animation: ${tooltipFade} 0.15s ease both;
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid
-      ${(props) => props.theme.colors.newColors.shades.title};
-  }
-`;
-
-const levelIds = {
-  "شهروند": 382,
-  "روزنامه نگار": 383,
-  "مشارکت کننده": 589,
-  "توسعه دهنده": 68,
-  "بازرس": 69,
-  "بازرگان": 590,
-  "دادخواه": 71,
-  "اعضای شورای شهر": 591,
-  "شهردار": 592,
-  "فرماندار": 74,
-  "وزیر": 75,
-  "داور": 76,
-  "دادگذار": 77,
-};
-
 const Level = () => {
   const [user] = useContext(UserContext);
-
   const [loading, setLoading] = useState(true);
   const [levelData, setLevelData] = useState(null);
   const IsPersian = useLanguage();
-
   const { Request } = useRequest();
-  const { id } = useParams();
-
-  const [tooltip, setTooltip] = useState(null); // { text, top, left }
 
   useEffect(() => {
-    const requestId = id || user?.id;
+    const requestId = user?.id;
 
     if (!requestId) {
       setLoading(false);
@@ -213,8 +144,7 @@ const Level = () => {
 
     Request(`users/${requestId}/levels`)
       .then((res) => {
-        const data = res.data.data;
-        setLevelData(data);
+        setLevelData(res.data.data);
       })
       .catch((error) => {
         console.error("Error loading level:", error);
@@ -223,18 +153,6 @@ const Level = () => {
         setLoading(false);
       });
   }, []);
-
-
-  const showTooltip = (e, text) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    setTooltip({
-      text,
-      top: rect.top - 8,
-      left: rect.left + rect.width / 2,
-    });
-  };
-
-  const hideTooltip = () => setTooltip(null);
 
   if (loading) {
     return (
@@ -269,7 +187,6 @@ const Level = () => {
     score_percentage_to_next_level,
   } = levelData;
 
-
   const levels = [
     ...(latest_level ? [latest_level] : []),
     ...[...previous_levels].reverse(),
@@ -279,7 +196,7 @@ const Level = () => {
     <Container>
       <Percent IsPersian={IsPersian}>
         <Title>
-          <h2>{latest_level?.name}</h2>
+          <h2>{getTranslation(levelIds[latest_level?.name])}</h2>
           <h3>
             {convertToPersian(formatNumber(score_percentage_to_next_level))}%
           </h3>
@@ -290,31 +207,23 @@ const Level = () => {
         </ProgressContainer>
       </Percent>
 
-      <LevelCount >
-        {levels.map((level, index) => {
-          const levelName = levelIds[level.name] ?? 382;
-          const translation = getTranslation(levelName);
-
-          return (
-            <LevelItemWrapper key={level.id} $index={index}>
-              <LevelItem
-                onMouseEnter={(e) => showTooltip(e, translation)}
-                onMouseLeave={hideTooltip}
-              >
-                <img src={level.image} alt={level.name} />
-              </LevelItem>
-            </LevelItemWrapper>
-          );
-        })}
+      <LevelCount>
+        {levels.map((level, index) => (
+          <LevelItemWrapper key={level.id} $index={index}>
+            <ToolTip
+              width={"auto"}
+              content={getTranslation(levelIds[level.name] ?? 382)}
+              lang={IsPersian ? "fa" : "en"}
+              place={"top"}
+              Chidren={
+                <LevelItem>
+                  <img src={level.image} alt={level.name} />
+                </LevelItem>
+              }
+            />
+          </LevelItemWrapper>
+        ))}
       </LevelCount>
-
-      {tooltip &&
-        createPortal(
-          <PortalTooltip style={{ top: tooltip.top, left: tooltip.left }}>
-            {tooltip.text}
-          </PortalTooltip>,
-          document.body
-        )}
     </Container>
   );
 };

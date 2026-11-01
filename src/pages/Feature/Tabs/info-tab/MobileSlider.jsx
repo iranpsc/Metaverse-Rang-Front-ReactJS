@@ -1,77 +1,42 @@
-import { useCallback, useRef, useState } from "react";
+// Mobile/tablet layout of the gallery (hidden from 1024px up): main image next to a thumbnail strip. Used inside Slider.
+import styled from "styled-components";
 
 import MainSlider from "./MainSlider";
 import ThumbSlider from "./ThumbSlider";
-import styled from "styled-components";
 
 const Wrapper = styled.div`
-  position: fixed;
-  top: 5%;
-  right: 5%;
-  bottom: 5%;
-  width: 85%;
+  position: absolute;
+  inset: 5%;
+  z-index: 1;
   display: grid;
+  grid-template-columns: minmax(0, 6fr) minmax(64px, 2fr);
   gap: 14px;
   overflow: hidden;
-  grid-template-columns: 6fr 2fr;
-  z-index: 11;
+
   @media (min-width: 1024px) {
     display: none;
   }
 `;
+
 const MobileSlider = ({
-  images,
+  images = [],
   deleteHandler,
   activeImage,
   setActiveImage,
-}) => {
-  const thumbListRef = useRef();
-
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-
-  const prevImage = useCallback(() => {
-    thumbListRef.current.scrollTop -= 100;
-  }, []);
-
-  const nextImage = useCallback(() => {
-    thumbListRef.current.scrollTop += 110;
-  }, []);
-
-  const handleScroll = useCallback(() => {
-    if (touchEnd - touchStart > 0) {
-      prevImage();
-    } else if (touchEnd - touchStart < 0) {
-      nextImage();
-    }
-  }, [nextImage, prevImage, touchEnd, touchStart]);
-  const handleTouchStart = (e) => {
-    setTouchStart(e.touches[0].clientY);
-  };
-
-  const handleTouchEnd = (e) => {
-    setTouchEnd(e.changedTouches[0].clientY);
-    handleScroll();
-  };
-
-  return (
-    <Wrapper>
-      <MainSlider
-        activeImage={activeImage}
-        images={images}
-        deleteHandler={deleteHandler}
-      />
-      <ThumbSlider
-        nextImage={nextImage}
-        prevImage={prevImage}
-        images={images}
-        thumbListRef={thumbListRef}
-        handleTouchStart={handleTouchStart}
-        handleTouchEnd={handleTouchEnd}
-        setActiveImage={setActiveImage}
-      />
-    </Wrapper>
-  );
-};
+  isOwner,
+}) => (
+  <Wrapper>
+    <MainSlider
+      activeImage={activeImage}
+      deleteHandler={deleteHandler}
+      isOwner={isOwner}
+    />
+    <ThumbSlider
+      images={images}
+      activeImage={activeImage}
+      setActiveImage={setActiveImage}
+    />
+  </Wrapper>
+);
 
 export default MobileSlider;

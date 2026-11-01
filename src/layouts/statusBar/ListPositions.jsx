@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { getTranslation } from "../../services/Utility";
 import { useTranslation } from "react-i18next";
 import mataphoto from "../../assets/images/3ddevelop.jpg";
-import ToolTip from "../../components/Tooltip";
+import ToolTip from "../../components/Tooltip/Tooltip";
 
 const Container = styled.div`
   display: flex;

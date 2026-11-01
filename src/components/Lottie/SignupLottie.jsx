@@ -3,7 +3,7 @@ import { useLayoutEffect } from "react";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 import SvgAni from "../../assets/Json/AniBackSvg.json";
-
+import { getTranslation } from "../../services/Utility";
 const Container = styled.div`
   width: 100%;
   top: 0;
@@ -298,10 +298,8 @@ export default function SignupLottie() {
         </g>
       </svg>
       <TextContainer>
-        <LottieTitle>به جهان موازی خوش امدید</LottieTitle>
-        <LottieDescription>
-          جهت ادامه لطفا ایمیل خود را برسی کنید.
-        </LottieDescription>
+        <LottieTitle>{getTranslation(1845)}</LottieTitle>
+        <LottieDescription>{getTranslation(1846)} </LottieDescription>
       </TextContainer>
     </Container>
   );

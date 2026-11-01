@@ -1,6 +1,6 @@
 // SentSuggestion.jsx
 import Suggestion from "./Suggestion";
-import Title from "../../../../../components/Title";
+import TitleHeader from "../../../../../components/TitleHeader";
 import { useState, useEffect, useRef } from "react";
 import { getTranslation } from "../../../../../services/Utility/index";
 import useRequest from "../../../../../hooks/useRequest.js";
@@ -49,7 +49,7 @@ const SentSuggestion = () => {
   if (loading) {
     return (
       <Container ref={containerRef}>
-        <Title right title={getTranslation("765")} />
+        <TitleHeader right title={getTranslation("765")} />
         <Wrapper>
           {Array.from({ length: 3 }).map((_, index) => (
             <Suggestion key={index} isLoading={true} />
@@ -61,7 +61,7 @@ const SentSuggestion = () => {
 
   return (
     <Container ref={containerRef}>
-      <Title right title={getTranslation("765")} />
+      <TitleHeader right title={getTranslation("765")} />
       <Wrapper>
         {suggestions.map((item) => (
           <Suggestion key={item.id} item={item} isLoading={false} />

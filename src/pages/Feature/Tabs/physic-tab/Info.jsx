@@ -1,6 +1,6 @@
 import { BiEditAlt } from "react-icons/bi";
 import styled from "styled-components";
-import Title from "../../../../components/Title";
+import TitleHeader from "../../../../components/TitleHeader";
 import { getTranslation, SanitizeHTML } from "../../../../services/Utility";
 
 const Container = styled.div`
@@ -59,7 +59,7 @@ const Info = ({ inputs, setEdit, edit }) => {
 
   return (
     <Container>
-      <Title title={getTranslation("365")} />
+      <TitleHeader title={getTranslation("365")} />
       <Text
         dangerouslySetInnerHTML={{
           __html: SanitizeHTML(description),

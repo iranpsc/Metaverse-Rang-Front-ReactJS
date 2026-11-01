@@ -21,7 +21,12 @@ const RELATION_MAP = Object.fromEntries(
 );
 
 const translateRelation = (name) => {
-  const id = RELATION_MAP[String(name ?? "").trim().toLowerCase()];
+  const id =
+    RELATION_MAP[
+      String(name ?? "")
+        .trim()
+        .toLowerCase()
+    ];
   return id ? getTranslation(id) : name;
 };
 

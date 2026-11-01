@@ -199,7 +199,7 @@ const MapTreeD = () => {
                 antialias: true,
               }}
               mapStyle={initialStyle}
-              RTLTextPlugin="https://map.irpsc.com/rtl.js"
+              RTLTextPlugin="https://api-map.metarang.com/rtl.js"
               interactiveLayerIds={["polygon-fill-layer"]}
               maxPitch={89}
               style={{ borderRadius: "10px" }}

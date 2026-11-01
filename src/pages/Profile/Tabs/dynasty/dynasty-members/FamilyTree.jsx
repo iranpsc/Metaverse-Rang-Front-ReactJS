@@ -3,7 +3,7 @@ import defulte from "../../../../../assets/images/defulte-profile.png";
 
 import TreeMember from "./TreeMember";
 import styled from "styled-components";
-import Title from "../../../../../components/Title";
+import TitleHeader from "../../../../../components/TitleHeader";
 import { getTranslation } from "../../../../../services/Utility";
 
 const Container = styled.div`
@@ -143,7 +143,7 @@ const FamilyTree = ({ members, setMode, ownerImg }) => {
 
   return (
     <Container>
-      <Title right title={getTranslation(112)} />
+      <TitleHeader right title={getTranslation(112)} />
       <Head>
         <img src={ownerImg || defulte} width={110} height={110} />
       </Head>

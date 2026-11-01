@@ -8,7 +8,7 @@ import {
   metarangUrlCitizen,
 } from "../../../../../services/Utility";
 import { slugLabels } from "../../../../../services/constants/UserType";
-import ToolTip from "../../../../../components/Tooltip";
+import ToolTip from "../../../../../components/Tooltip/Tooltip";
 
 const TOTAL_GEMS = 13;
 const FOUNDER_CODES = ["hm-2000001", "hm-2000002"];

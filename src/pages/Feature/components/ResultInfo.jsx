@@ -1,10 +1,10 @@
+// کامپوننت مربوط به کف قیمت و تعیین قیمت برای نمایش قیمت مشخص شده 
+
+
 import { BiEditAlt } from "react-icons/bi";
 import { HiOutlineTrash } from "react-icons/hi";
 import styled from "styled-components";
-import {
-  convertToPersian,
-  getTranslation,
-} from "../../../services/Utility";
+import { convertToPersian, getTranslation } from "../../../services/Utility";
 import Result from "../../../components/Result";
 import useRequest from "../../../hooks/useRequest.js";
 import { useTheme } from "../../../hooks/useTheme.js";
@@ -85,24 +85,17 @@ const ResultInfo = ({ setAssign, rial, psc, setPsc, setRial, id, lowest }) => {
       .catch((error) => {
         console.error("Delete failed:", error);
       });
-
   };
   const buttonColer = theme == "light" ? "black" : "white";
   return (
     <Wrapper>
       <Results>
         <Result
-          title={
-            (getTranslation("521"),
-              getTranslation("48"))
-          }
+          title={(getTranslation("521"), getTranslation("48"))}
           value={rial}
         />
         <Result
-          title={
-            (getTranslation("521"),
-              getTranslation("47"))
-          }
+          title={(getTranslation("521"), getTranslation("47"))}
           value={psc}
         />
         <ResultWrapper>
@@ -113,16 +106,16 @@ const ResultInfo = ({ setAssign, rial, psc, setPsc, setRial, id, lowest }) => {
         </ResultWrapper>
         <Result title={getTranslation("523")} value={"5%"} />
       </Results>
-              {!lowest && ( <Actions>
-        <ActionWrapper onClick={() => setAssign(false)}>
-          <BiEditAlt size={20} color={buttonColer} />
-        </ActionWrapper>
-        <ActionWrapper onClick={deleteHandler}>
-          <HiOutlineTrash size={20} color="#9b0e0e" />
-        </ActionWrapper>
-      </Actions>)}
-
-     
+      {!lowest && (
+        <Actions>
+          <ActionWrapper onClick={() => setAssign(false)}>
+            <BiEditAlt size={20} color={buttonColer} />
+          </ActionWrapper>
+          <ActionWrapper onClick={deleteHandler}>
+            <HiOutlineTrash size={20} color="#9b0e0e" />
+          </ActionWrapper>
+        </Actions>
+      )}
     </Wrapper>
   );
 };

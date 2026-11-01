@@ -11,14 +11,13 @@ const Container = styled.div`
   box-sizing: border-box;
   padding: 15px;
   overflow-y: auto;
-    overflow-x: hidden;
-
+  overflow-x: hidden;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 30px;
   padding-bottom: 60px;
 
-  @media (min-width: 1400px) {
+  @media (min-width: 1280px) {
     grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   }
 `;

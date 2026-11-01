@@ -1,3 +1,4 @@
+// fallbackMessage این تابع عملیات کچ خطا را هم هندل میکند و نیازی به نوشتن کچ ارور نیست فقط اگر نیاز به پاس دادن متن دستی داشتید از
 import { useNavigate } from "react-router";
 import axios from "axios";
 import { getItem } from "../services/Utility/LocalStorage";
@@ -7,7 +8,7 @@ import { useCallback, useContext, useMemo } from "react";
 
 const isProduction = window.location.hostname === "world.metarang.com";
 const PROD_BASE_URL = "https://api.metarang.com/api/";
-const DEV_BASE_URL = "https://api.metarang.com/api/";
+const DEV_BASE_URL = "https://dev-api.metarang.com/api/";
 export const BASE_URL = isProduction ? PROD_BASE_URL : DEV_BASE_URL;
 
 export default function useRequest() {
@@ -45,7 +46,13 @@ export default function useRequest() {
   }, [accountSecurity, navigate, userInfo?.wallet_login]);
 
   const Request = useCallback(
-    (directory, method = "GET", formData = {}, customHeader = {}) => {
+    async (
+      directory,
+      method = "GET",
+      formData = {},
+      customHeader = {},
+      { showError = true, fallbackMessage } = {},
+    ) => {
       const user = getItem("user");
       const finalURL = BASE_URL + directory;
       const headers = {
@@ -53,25 +60,29 @@ export default function useRequest() {
         ...customHeader,
       };
 
-      return axios
-        .request({
+      try {
+        return await axios.request({
           url: finalURL,
           method,
           headers,
           data: method !== HTTP_METHOD.GET ? formData : {},
-        })
-        .then((response) => response)
-        .catch((error) => {
-          if (error.response?.status === 410) {
-            ToastError(getTranslation("1603"));
-          }
-
-          throw error;
         });
+      } catch (error) {
+        if (error.response?.status === 410) {
+          ToastError(getTranslation("1603"));
+        } else if (showError) {
+          ToastError(
+            error.response?.data?.message ||
+              fallbackMessage ||
+              getTranslation(1387),
+          );
+        }
+
+        throw error;
+      }
     },
     [HTTP_METHOD],
   );
-
   return useMemo(
     () => ({ Request, HTTP_METHOD, checkSecurity }),
     [Request, HTTP_METHOD, checkSecurity],

@@ -696,7 +696,7 @@ export default function Educational() {
           </g>
         </g>
       </svg>
-      <LottieMessage title="خرید VOD آموزشی با موفقیت انجام شد" />
+      <LottieMessage title="1843" />
     </Container>
   );
 }

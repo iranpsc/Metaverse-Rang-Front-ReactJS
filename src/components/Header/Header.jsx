@@ -11,7 +11,7 @@ import { TiWarning } from "react-icons/ti";
 import Report from "../../assets/svg/exclamation.svg?react";
 import Help from "../../assets/svg/question.svg?react";
 import { ExitIcon } from "../Icons/IconsHeader";
-import Education from "../../pages/Feature/Education/Education.jsx";
+import Education from "../../pages/Education/Education.jsx";
 import useAdviserData from "../../hooks/useAdviserData.js";
 import { useSelectedEnvironment } from "../../hooks/useSelectedEnvironment.js";
 import { useScrollDirectionContext } from "../../hooks/useScrollDirectionContext.js";
@@ -131,8 +131,16 @@ const IconButton = styled.div`
     }
   }
 `;
-
-const Header = ({ title, long, loading, profile, action, handleExit }) => {
+const Header = ({
+  title,
+  long,
+  loading,
+  profile,
+  action,
+  handleExit,
+  onlyExit = false,
+  onClose,
+}) => {
   const [isEducationOpen, setIsEducationOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
@@ -147,6 +155,12 @@ const Header = ({ title, long, loading, profile, action, handleExit }) => {
   };
 
   const handleExitClick = () => {
+    // اگر تابع بستن محلی پاس داده شده، فقط همان اجرا می‌شود
+    if (onClose) {
+      onClose();
+      return;
+    }
+
     updateScrollDirection(false);
 
     if (handleExit) {
@@ -159,35 +173,39 @@ const Header = ({ title, long, loading, profile, action, handleExit }) => {
 
     if (action === "ChangeHiddenState") resetStates();
   };
-
   return (
     <HeaderWrapper>
       <Title $long={long}>{getTranslation(title)}</Title>
 
       <Icons>
-        {loading && (
-          <FullscreenButton>
-            <BiExitFullscreen />
-          </FullscreenButton>
-        )}
-
-        {profile && (
+        {!onlyExit && (
           <>
-            <IconButton>
-              <TiWarning />
-            </IconButton>
-            <IconButton>
-              <PiGearSixFill />
-            </IconButton>
+            {loading && (
+              <FullscreenButton>
+                <BiExitFullscreen />
+              </FullscreenButton>
+            )}
+
+            {profile && (
+              <>
+                <IconButton>
+                  <TiWarning />
+                </IconButton>
+                <IconButton>
+                  <PiGearSixFill />
+                </IconButton>
+              </>
+            )}
+
+            <ReportIcon onClick={handleReportClick} />
+            <HelpIcon onClick={() => setIsEducationOpen(true)} />
           </>
         )}
 
-        <ReportIcon onClick={handleReportClick} />
-        <HelpIcon onClick={() => setIsEducationOpen(true)} />
         <ExitIcon onClick={handleExitClick} />
       </Icons>
 
-      {isEducationOpen && (
+      {!onlyExit && isEducationOpen && (
         <Education
           setOpenEducation={setIsEducationOpen}
           adviserData={adviserData}
@@ -196,5 +214,4 @@ const Header = ({ title, long, loading, profile, action, handleExit }) => {
     </HeaderWrapper>
   );
 };
-
 export default Header;

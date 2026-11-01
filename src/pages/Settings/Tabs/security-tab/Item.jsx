@@ -2,11 +2,10 @@
 import { IoIosArrowDropdownCircle } from "react-icons/io";
 import styled from "styled-components";
 import { useState } from "react";
-import OnOff from "../OnOff";
+import OnOff from "../OnOff.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
 import {
   getTranslation,
-  ToastError,
 } from "../../../../services/Utility";
 
 const Container = styled.div`
@@ -77,10 +76,7 @@ const Item = ({ translationId, options, privacy }) => {
       key: optionKey,
       value: Number(newValue),
     })
-      .then(() => {})
-      .catch(() => {
-        ToastError("لطفا بعدا تلاش کنید ");
-      });
+    
   };
 
   return (

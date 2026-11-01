@@ -9,7 +9,7 @@
     }
   },
   "sprite": "",
-  "glyphs": "https://map.irpsc.com/fonts/{fontstack}/{range}",
+  "glyphs": "https://api-map.metarang.com/fonts/{fontstack}/{range}",
   "sky": {
     "sky-color": "#86c0ea",
     "horizon-color": "#d8eaf4",

@@ -12,7 +12,7 @@ import {
 import useRequest from "../../../../../hooks/useRequest.js";
 import { FeatureContext } from "../../../Context/FeatureProvider";
 import Container from "../../../../../components/Common/Container";
-
+import TitleBody from "../../../../../components/TitleBody.jsx";
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -20,11 +20,6 @@ const Wrapper = styled.div`
   width: 100%;
 `;
 
-const Text = styled.p`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  line-height: 1.6rem;
-  font-size: 16px;
-`;
 
 const sanitizePriceSubmitValue = (value) => {
   const sanitized = sanitizePriceInputValue(value);
@@ -134,7 +129,7 @@ const PriceDefine = () => {
   return (
     <Container>
       <Wrapper>
-        <Text>{getTranslation("520")}</Text>
+      <TitleBody title={getTranslation(520)} />
 
         {!assign && (
           <FillInputs

@@ -1,84 +1,92 @@
-//import Other from "./Other";
 import { Tooltip as ReactTooltip } from "react-tooltip";
-import styled from "styled-components";
-import { useTheme } from "../../../../hooks/useTheme.js";
-import {
-  getTranslation,
-  convertToPersian,
-  ConvertJalali,
-} from "../../../../services/Utility";
-import { metarangUrlCitizen } from "../../../../services/Utility";
-import red from "../../../../assets/gif/red-color.gif";
+import styled, { css } from "styled-components";
 import blue from "../../../../assets/gif/blue-color.gif";
+import red from "../../../../assets/gif/red-color.gif";
 import yellow from "../../../../assets/gif/yellow-color.gif";
 import useLanguage from "../../../../hooks/useLanguage.js";
+import { useTheme } from "../../../../hooks/useTheme.js";
+import {
+  ConvertJalali,
+  convertToPersian,
+  getTranslation,
+  metarangUrlCitizen,
+} from "../../../../services/Utility";
+
+const ASSET_GIFS = { red, blue, yellow };
+const LIGHT_TEXT = "#fcfcfc";
+
+// اندازه‌ی فونت پایه + مقدار آن در breakpointهای کوچک‌تر
+const fontSize = (base, { lg, md, sm } = {}) => css`
+  font-size: ${base}px;
+
+  ${lg &&
+  css`
+    @media (max-width: 992px) {
+      font-size: ${lg}px;
+    }
+  `}
+  ${md &&
+  css`
+    @media (max-width: 768px) {
+      font-size: ${md}px;
+    }
+  `}
+  ${sm &&
+  css`
+    @media (max-width: 480px) {
+      font-size: ${sm}px;
+    }
+  `}
+`;
+
 const Container = styled.div`
-  padding: 15px;
   width: 100%;
   height: 100%;
+  padding: 15px;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 
   @media (max-height: 500px) and (max-width: 1000px) {
-  padding: 5px;
+    padding: 5px;
   }
 `;
-const MainPhoto = styled.div`
-  position: relative;
-  width: 100%;
-  border-radius: 5px;
-  overflow: hidden;
-  &:hover #hover {
-    opacity: 100%;
-  }
 
-  order: 1;
-`;
-
-const Count = styled.div`
-  position: absolute;
-  top: 10px;
-  ${(props) => (props.isPersian ? "left: 10px;" : "right: 10px;")}
+const Timer = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  border-radius: 4px;
-  padding: 4px 8px;
-  z-index: 50;
+  justify-content: space-between;
+  padding: 5px 20px;
+  border-radius: 5px;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.headerMenu};
+  background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
 
-  background-color: #ffffff;
-  span {
-    font-size: 14px;
-    font-weight: 600;
-    color: #949494;
+  h3 {
+    font-weight: 500;
+    ${fontSize(18, { lg: 16, md: 15, sm: 14 })}
   }
 
-  @media (max-width: 768px) {
-    span {
-      font-size: 12px;
-    }
-
-    img {
-      width: 18px;
-      height: 18px;
-    }
+  span {
+    display: block;
+    width: 50px;
+    text-align: left;
+    font-weight: 700;
+    color: ${({ theme }) => theme.colors.primary};
+    ${fontSize(24, { lg: 20, md: 18, sm: 16 })}
   }
 `;
 
-const Hover = styled.div`
-  transition: all 0.1s linear;
-  opacity: 0;
+const Overlay = styled.div`
   position: absolute;
-  top: 0;
-  padding: 15px;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   display: flex;
   flex-direction: column;
+  padding: 15px;
+  opacity: 0;
+  transition: opacity 0.1s linear;
   backdrop-filter: blur(5px);
   background-color: rgba(0, 0, 0, 0.713);
+
   @media (max-width: 768px) {
     padding: 12px;
   }
@@ -88,314 +96,224 @@ const Hover = styled.div`
   }
 `;
 
-const Contents = styled.div`
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-const Top = styled.div`
-  h2 {
-    font-size: 16px;
-    font-weight: 500;
-    color: #fcfcfc;
-  }
+const MainPhoto = styled.div`
+  position: relative;
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 5px;
+  overflow: hidden;
 
-  h3 {
-    font-size: 13px;
-    font-weight: 400;
-    color: #fcfcfc;
+  &:hover ${Overlay} {
+    opacity: 1;
+  }
+`;
+
+const PrizeBadge = styled.div`
+  position: absolute;
+  top: 10px;
+  ${({ $isPersian }) => ($isPersian ? "left: 10px;" : "right: 10px;")}
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #ffffff;
+
+  span {
+    font-weight: 600;
+    color: #949494;
+    ${fontSize(14, { md: 12 })}
   }
 
   @media (max-width: 768px) {
-    h2 {
-      font-size: 14px;
-    }
-
-    h3 {
-      font-size: 11px;
+    img {
+      width: 18px;
+      height: 18px;
     }
   }
 `;
 
-const Bottom = styled.div`
+const Details = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+`;
+
+const Description = styled.div`
+  color: ${LIGHT_TEXT};
+
+  h2 {
+    font-weight: 500;
+    ${fontSize(16, { md: 14 })}
+  }
+
+  h3 {
+    font-weight: 400;
+    ${fontSize(13, { md: 11 })}
+  }
+`;
+
+const Stats = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
 `;
-const Right = styled.div`
+
+const Stat = styled.div`
   display: flex;
   flex-direction: column;
-
-  a {
-    text-decoration: none;
-    color: ${(props) => props.theme.colors.primary};
-    font-size: 13px;
-  }
-
-  @media (max-width: 768px) {
-    a {
-      font-size: 13px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    a {
-      font-size: 12px;
-    }
-  }
 `;
-const Center = styled.div`
-  div {
-    display: flex;
-    align-items: center;
-    gap: 6px;
 
-    span {
-      font-size: 13px;
-      font-weight: 400;
-      color: #fcfcfc;
-    }
-  }
-
-  @media (max-width: 768px) {
-    div span {
-      font-size: 12px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    div span {
-      font-size: 11px;
-    }
-  }
-`;
-const Left = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  span {
-    font-size: 13px;
-    font-weight: 400;
-    color: #fcfcfc;
-  }
-
-  @media (max-width: 768px) {
-    span {
-      font-size: 12px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    span {
-      font-size: 11px;
-    }
-  }
-`;
-const Titlee = styled.h2`
-  font-size: 13px;
-
+const StatLabel = styled.h2`
   font-weight: 500;
-  color: #fcfcfc;
-
-  @media (max-width: 768px) {
-    font-size: 12px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 11px;
-  }
+  color: ${LIGHT_TEXT};
+  ${fontSize(13, { md: 12, sm: 11 })}
 `;
-/**const Others = styled.div`
-  display: grid;
-  align-items: start;
-  margin-top: 10px;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  @media (min-width: 1400px) {
-    order: 2;
-  }
-`;
- */
 
-const Div = styled.div`
-  display: grid;
-  margin-top: 20px;
-  @media (min-width: 1400px) {
-    grid-template-columns: 1fr;
-  }
+const StatValue = styled.span`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+  color: ${LIGHT_TEXT};
+  ${fontSize(13, { md: 12, sm: 11 })}
 `;
+
+const CodeLink = styled.a`
+  text-decoration: none;
+  color: ${({ theme }) => theme.colors.primary};
+  ${fontSize(13, { sm: 12 })}
+`;
+
 const Video = styled.video`
+  display: block;
   width: 100%;
   height: auto;
-  display: block;
 `;
+
 const Image = styled.img`
-  object-fit: fill;
   height: 100%;
+  object-fit: fill;
 `;
-const Time = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 5px;
-  background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
-  padding: 5px 20px;
-  color: ${({ theme }) => theme.colors.newColors.otherColors.headerMenu};
 
-  h3 {
-    font-size: 18px;
-    font-weight: 500;
-  }
+const timerTooltipStyle = {
+  backgroundColor: "#1a1a18",
+  borderRadius: "10px",
+  width: "150px",
+  paddingBottom: "9.5px",
+  textAlign: "center",
+  zIndex: 999,
+};
 
-  span {
-    color: ${({ theme }) => theme.colors.primary};
-    font-weight: 700;
-    font-size: 24px;
-    display: block;
-    width: 50px;
-    text-align: left;
-  }
+const getPrizeTooltipStyle = (theme) => {
+  const isLight = theme === "light";
 
-  @media (max-width: 992px) {
-    h3 {
-      font-size: 16px;
-    }
-
-    span {
-      font-size: 20px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    h3 {
-      font-size: 15px;
-    }
-
-    span {
-      font-size: 18px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    h3 {
-      font-size: 14px;
-    }
-
-    span {
-      font-size: 16px;
-    }
-  }
-`;
-const Content = ({ organizers, time }) => {
-  const main = organizers?.[0];
-  const { theme } = useTheme();
-  const colors = {
-    red,
-    blue,
-    yellow,
+  return {
+    backgroundColor: isLight ? "#FCFCFC" : "#1A1A18",
+    color: isLight ? "#1A1A18" : "#FCFCFC",
+    borderRadius: "10px",
+    width: "100px",
+    textAlign: "center",
+    zIndex: 999,
   };
+};
+
+const Content = ({ organizers, time }) => {
+  const { theme } = useTheme();
   const { isPersian } = useLanguage();
-  const color = colors[main?.investment_asset] ?? null;
+
+  const main = organizers?.[0];
+  const assetGif = ASSET_GIFS[main?.investment_asset] ?? null;
+
   return (
     <Container>
-      <Time>
-        <h3>{getTranslation(1469)}</h3>
+      <Timer>
+        <h3>{getTranslation("1469")}</h3>
         <div data-tooltip-id="time">
           <span>{time}</span>
           <ReactTooltip
-            style={{
-              backgroundColor: "#1a1a18",
-              borderRadius: "10px",
-              width: "150px",
-              paddingBottom: "9.5px",
-              textAlign: "center",
-              zIndex: "999",
-            }}
             id="time"
             place="top"
-            content={getTranslation(1468)}
+            style={timerTooltipStyle}
+            content={getTranslation("1468")}
           />
         </div>
-      </Time>{" "}
-      <Div>
-        {/**   <Others>
-          {organizers?.[8] &&
-            organizers.slice(1, 7).map((other) => {
-              return <Other key={other.id} {...other} />;
-            })}
-        </Others>*/}
+      </Timer>
 
-        <MainPhoto>
-          <Count data-tooltip-id="main" isPersian={isPersian}>
-            <span>{convertToPersian(organizers[0]?.prize_per_question)}</span>
-            <img src={color} alt={main?.count} width={20} height={20} />
-            <ReactTooltip
-              style={{
-                backgroundColor: theme === "light" ? "#FCFCFC" : "#1A1A18",
-                borderRadius: "10px",
-                width: "100px",
-                textAlign: "center",
-                zIndex: "999",
-                color: theme === "light" ? "#1A1A18" : "#FCFCFC",
-              }}
-              id="main"
-              place="bottom"
-              content={getTranslation(1323)}
-            />
-          </Count>
-          <Hover id="hover">
-            <div />
-            <Contents>
-              <Top>
-                <h2>{main?.title}</h2>
-                <h3>{main?.description}</h3>
-              </Top>
-              <Bottom>
-                <Right>
-                  <Titlee>{getTranslation(1470)}</Titlee>
-                  <a
-                    target={"_blank"}
-                    rel="noreferrer"
-                    href={metarangUrlCitizen(main?.code)}
-                  >
-                    {main?.code.toUpperCase()}
-                  </a>
-                </Right>
-                <Center>
-                  <Titlee>{getTranslation(1471)}</Titlee>
-                  <div>
-                    <span>{convertToPersian(main?.investment_value)}</span>
-                    <img
-                      loading="lazy"
-                      src={color}
-                      alt={main?.color}
-                      width={24}
-                      height={24}
-                    />
-                  </div>
-                </Center>
-                <Left>
-                  <Titlee>{getTranslation(1472)}</Titlee>
-                  <span>{convertToPersian(ConvertJalali(main?.ends_at))}</span>
-                </Left>
-              </Bottom>
-            </Contents>
-          </Hover>
-          {main?.video_url ? (
-            <Video src={main.video_url} autoPlay muted loop playsInline />
-          ) : (
-            <Image
-              loading="lazy"
-              src={main?.image_url}
-              alt={main?.company}
-              width={70}
-              height={70}
-            />
-          )}
-        </MainPhoto>
-      </Div>
+      <MainPhoto>
+        <PrizeBadge data-tooltip-id="main" $isPersian={isPersian}>
+          <span>{convertToPersian(main?.prize_per_question)}</span>
+          <img
+            src={assetGif}
+            alt={main?.investment_asset}
+            width={20}
+            height={20}
+          />
+          <ReactTooltip
+            id="main"
+            place="bottom"
+            style={getPrizeTooltipStyle(theme)}
+            content={getTranslation("1323")}
+          />
+        </PrizeBadge>
+
+        <Overlay>
+          <Details>
+            <Description>
+              <h2>{main?.title}</h2>
+              <h3>{main?.description}</h3>
+            </Description>
+
+            <Stats>
+              <Stat>
+                <StatLabel>{getTranslation("1470")}</StatLabel>
+                <CodeLink
+                  href={metarangUrlCitizen(main?.code)}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  {main?.code?.toUpperCase()}
+                </CodeLink>
+              </Stat>
+
+              <Stat>
+                <StatLabel>{getTranslation("1471")}</StatLabel>
+                <StatValue>
+                  {convertToPersian(main?.investment_value)}
+                  <img
+                    loading="lazy"
+                    src={assetGif}
+                    alt={main?.investment_asset}
+                    width={24}
+                    height={24}
+                  />
+                </StatValue>
+              </Stat>
+
+              <Stat>
+                <StatLabel>{getTranslation("1472")}</StatLabel>
+                <StatValue>
+                  {convertToPersian(ConvertJalali(main?.ends_at))}
+                </StatValue>
+              </Stat>
+            </Stats>
+          </Details>
+        </Overlay>
+
+        {main?.video_url ? (
+          <Video src={main.video_url} autoPlay muted loop playsInline />
+        ) : (
+          <Image
+            loading="lazy"
+            src={main?.image_url}
+            alt={main?.company}
+            width={70}
+            height={70}
+          />
+        )}
+      </MainPhoto>
     </Container>
   );
 };

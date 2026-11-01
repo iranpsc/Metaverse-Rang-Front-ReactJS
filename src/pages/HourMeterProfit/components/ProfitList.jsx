@@ -19,19 +19,21 @@ const List = styled.div`
   margin-bottom: 40px;
 `;
 
-const Item = styled.div`
+const AnimatedItem = styled.div`
   animation: ${slideUp} 0.3s ease-out;
 `;
 
-const ProfitList = ({ cards, onClick }) => (
+const ProfitList = ({ cards = [], disabled = false, onClick }) => (
   <List>
-    {cards
-      ?.filter((item) => item.is_active)
-      .map((item) => (
-        <Item key={item.id}>
-          <ProfitCard {...item} onclick={() => onClick(item)} />
-        </Item>
-      ))}
+    {cards.map((card) => (
+      <AnimatedItem key={card.id}>
+        <ProfitCard
+          {...card}
+          disabled={disabled}
+          onClick={(rect) => onClick(card, rect)}
+        />
+      </AnimatedItem>
+    ))}
   </List>
 );
 

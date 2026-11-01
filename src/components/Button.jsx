@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 const ButtonElement = styled.button`
   border-radius: 10px;
@@ -58,6 +58,76 @@ const ButtonElement = styled.button`
   @media (min-width: 998px) {
     height: ${(props) => (props.large ? "40px" : "50px")};
   }
+
+  /* باید آخر بیاد تا روی استایل‌های بالا اولویت داشته باشه */
+  ${({ $withIcon }) => $withIcon && iconVariant}
+`;
+// نسخه قرصی دکمه آیکون‌دار: گوشه‌ی کاملاً گرد، آیکون ۲۳ پیکسل و برچسب ۱۶ پیکسل درشت (مثل دکمه‌های عملیات روی نقشه)
+
+const pillVariant = css`
+  gap: 5px;
+  padding: 3px 12px;
+  border-radius: 60px;
+
+  svg {
+    font-size: 16px;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 10px 12px;
+  }
+`;
+// استایل نسخه آیکون‌دار (قبلاً ButtonIcon): کوتاه‌تر، گوشه ۷ پیکسل، پس‌زمینه btnIconBg یا primary با fill
+const iconVariant = css`
+  flex-grow: ${({ $grow }) => ($grow ? 1 : 0)};
+  height: auto;
+  padding: 2px 20px 1px;
+  border-radius: 7px;
+  gap: 10px;
+
+  ${({ $fill, color, grayTheme, theme }) =>
+    !color &&
+    !grayTheme &&
+    css`
+      background-color: ${$fill
+        ? theme.colors.primary
+        : theme.colors.newColors.otherColors.btnIconBg};
+      color: ${$fill
+        ? theme.colors.newColors.primaryText
+        : theme.colors.newColors.otherColors.btnIconText};
+    `}
+
+  svg {
+    display: flex;
+    font-size: 18px;
+  }
+
+  @media (min-width: 998px) {
+    height: auto;
+  }
+
+  @media (min-width: 1024px) {
+    padding: 7px 20px 4px;
+  }
+  ${({ $pill }) => $pill && pillVariant}
+`;
+
+const Label = styled.span`
+  font-size: 10px;
+
+  @media (min-width: 740px) {
+    font-size: 14px;
+  }
+
+  @media (min-width: 1024px) {
+    font-size: 16px;
+  }
+  ${({ $pill }) =>
+    $pill &&
+    css`
+      font-size: 16px;
+      font-weight: 700;
+    `}
 `;
 
 // اسپینر دایره‌ای
@@ -80,8 +150,18 @@ const Spinner = styled.span`
   }
 `;
 
+// آیکون می‌تونه کامپوننت/المنت (مثل <FiUser />) یا آدرس تصویر (رشته) باشه
+const renderIcon = (icon) =>
+  typeof icon === "string" ? (
+    <img src={icon} alt="" width={18} height={18} />
+  ) : (
+    icon
+  );
+
+// این کامپوننت دکمه عمومی همه بخش‌های پروژه است؛ دکمه ساده با label، و با پراپ icon (المنت یا آدرس تصویر) نسخه کوچک آیکون‌دار مثل دکمه‌های پروفایل رو نمایش میده (با fill رنگ اصلی و با grow کشیده شدن در فضای خالی)؛ با disabled="pending" اسپینر نشون میده
 const Button = ({
   label,
+  pill,
   onclick,
   onClick,
   row,
@@ -94,6 +174,9 @@ const Button = ({
   textColor,
   grayTheme,
   style,
+  icon,
+  fill,
+  grow,
 }) => {
   const handleClick = onClick || onclick;
 
@@ -110,8 +193,13 @@ const Button = ({
       textColor={textColor}
       grayTheme={grayTheme}
       style={style}
+      $withIcon={Boolean(icon)}
+      $fill={fill}
+      $grow={grow}
+      $pill={pill}
     >
-      {label}
+      {icon && <span>{renderIcon(icon)}</span>}
+      {icon ? <Label>{label}</Label> : label}
       {disabled === "pending" && <Spinner />}
     </ButtonElement>
   );

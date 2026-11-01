@@ -3,31 +3,16 @@ import useRequest from "../../../../hooks/useRequest.js";
 import Alert from "../../../../components/Alert/Alert";
 import { AlertContext } from "../../../../services/reducers/AlertContext";
 import Button from "../../../../components/Button";
-import Description from "./Description";
 import Inputs from "./Inputs";
-import SendFiles from "./SendFiles";
-import Title from "../../../../components/Title";
-import styled from "styled-components";
-import { useReportsGlobalState } from "../../../../hooks/useReportsGlobalState";
+import TitleHeader from "../../../../components/TitleHeader";
 import { getTranslation } from "../../../../services/Utility";
 import { useLocation } from "react-router";
 import Container from "../../../../components/Common/Container";
-import ErrorMessage from "../../../../components/ErrorMessage";
+import ErrorMessage from "../../../../components/ErrorMessage/ErrorMessage.jsx";
 import getModalHeaderFromPrevious from "../../../../services/TitleManager";
-const StyledContent = styled.div`
-  p {
-    margin: 10px 0;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 16px;
-    font-weight: 400;
-
-    span {
-      font-weight: 600;
-      color: ${(props) => props.theme.colors.newColors.shades.title};
-    }
-  }
-`;
-
+import TitleBody from "../../../../components/TitleBody.jsx";
+import CustomEditor from "../../../../components/Common/CustomEditor.jsx";
+import FileUploader from "../../../../components/FileUploader/FileUploader.jsx";
 const ErrorReportTab = () => {
   const location = useLocation();
   // فقط اولین مسیر را ذخیره کن
@@ -39,9 +24,14 @@ const ErrorReportTab = () => {
   const baseURL = `https://world.metarang.com${initialPath.current}`;
 
   const { Request, HTTP_METHOD } = useRequest();
-  const { state, dispatch } = useReportsGlobalState();
   const { alert, setAlert } = useContext(AlertContext);
 
+  const [report, setReport] = useState({
+    subject: "",
+    title: "",
+    description: "",
+    files: [],
+  });
   const [error, setError] = useState("");
   const [isSending, setIsSending] = useState(false);
 
@@ -49,11 +39,11 @@ const ErrorReportTab = () => {
   useEffect(() => {
     const loadImage = async () => {
       if (location?.state?.title === "photoReport") {
-        dispatch({ type: "SET_SUBJECT", payload: "disrespect" });
-        dispatch({
-          type: "SET_TITLE",
-          payload: getTranslation(1855),
-        });
+        setReport((currentReport) => ({
+          ...currentReport,
+          subject: "disrespect",
+          title: getTranslation(1855),
+        }));
 
         try {
           const response = await fetch(location.state.photo);
@@ -63,10 +53,10 @@ const ErrorReportTab = () => {
             type: blob.type,
           });
 
-          dispatch({
-            type: "SET_FILES",
-            payload: [file],
-          });
+          setReport((currentReport) => ({
+            ...currentReport,
+            files: [file],
+          }));
         } catch (err) {
           console.error(err);
         }
@@ -77,17 +67,19 @@ const ErrorReportTab = () => {
   }, []);
 
   const resetForm = () => {
-    dispatch({ type: "SET_SUBJECT", payload: "" });
-    dispatch({ type: "SET_TITLE", payload: "" });
-    dispatch({ type: "SET_DESCRIPTION", payload: "" });
-    dispatch({ type: "SET_FILES", payload: [] });
+    setReport({
+      subject: "",
+      title: "",
+      description: "",
+      files: [],
+    });
   };
 
   const sendReport = async () => {
-    if (state.subject && state.title && state.description) {
+    if (report.subject && report.title && report.description) {
       setIsSending(true);
 
-      const attachments = [...state.files];
+      const attachments = [...report.files];
 
       if (attachments.length > 5) {
         setError("The attachment must not have more than 5 items.");
@@ -100,9 +92,9 @@ const ErrorReportTab = () => {
           "reports",
           HTTP_METHOD.POST,
           {
-            title: state.title,
-            content: state.description,
-            subject: state.subject,
+            title: report.title,
+            content: report.description,
+            subject: report.subject,
             url: baseURL,
             attachments,
           },
@@ -129,40 +121,55 @@ const ErrorReportTab = () => {
     }
   };
 
-  const isDisabled = !(state.subject && state.title && state.description);
+  const isDisabled = !(report.subject && report.title && report.description);
 
   return (
     <Container ref={containerRef}>
       {alert && <Alert type="success" text={getTranslation("461")} />}
 
-      <StyledContent>
-        <Title title={getTranslation("1386")} right />
+      <div>
+        <TitleHeader title={getTranslation("1386")} />
+        <TitleBody
+          title={`${getTranslation("1376")} ${page} ${getTranslation("1377")} ${title}`}
+        />
+        <Inputs
+          subject={report.subject}
+          title={report.title}
+          onSubjectChange={(subject) =>
+            setReport((currentReport) => ({ ...currentReport, subject }))
+          }
+          onTitleChange={(title) =>
+            setReport((currentReport) => ({ ...currentReport, title }))
+          }
+        />
+        <CustomEditor
+          label={getTranslation("20")}
+          value={report.description}
+          onChange={(description) =>
+            setReport((currentReport) => ({ ...currentReport, description }))
+          }
+        />
+        <FileUploader
+          files={report.files}
+          onFilesChange={(files) =>
+            setReport((currentReport) => ({ ...currentReport, files }))
+          }
+          accept="image/*"
+        />
 
-        <p>
-          {getTranslation("1376")} <span>{page}</span> {getTranslation("1377")}{" "}
-          <span>{title}</span>
-        </p>
-
-        <Inputs />
-        <Description />
-        <SendFiles />
-
-        <div>
-          <Button
-            fit
-            label={getTranslation("193")}
-            onclick={sendReport}
-            disabled={isDisabled ? true : isSending ? "pending" : false}
-          />
-        </div>
-
+        <Button
+          fit
+          label={getTranslation("193")}
+          onclick={sendReport}
+          disabled={isDisabled ? true : isSending ? "pending" : false}
+        />
         <ErrorMessage
           errors={[error]}
           maxList={5}
           containerRef={containerRef}
           onClear={() => setError("")}
         />
-      </StyledContent>
+      </div>
     </Container>
   );
 };

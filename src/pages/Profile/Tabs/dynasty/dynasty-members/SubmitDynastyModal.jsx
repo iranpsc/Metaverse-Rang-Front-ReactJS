@@ -8,7 +8,7 @@ import {
   ToastSuccess, ToastError
 } from "../../../../../services/Utility";
 import ModalLg from "../../../../../components/Modal/ModalLg";
-import OnOff from "../../../../Settings/Tabs/OnOff";
+import OnOff from "../../../../Settings/Tabs/OnOff.jsx";
 import { useCallback, useState } from "react";
 import useRequest from "../../../../../hooks/useRequest.js";
 

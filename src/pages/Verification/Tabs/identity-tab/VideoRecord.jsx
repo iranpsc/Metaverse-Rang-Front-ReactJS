@@ -1,23 +1,22 @@
+// ضبط ویدیوی احراز هویت (KYC): کاربر تا ۳۰ ثانیه با دوربین ویدیو ضبط می‌کند، فایل با Resumable آپلود می‌شود و متن تأیید همراه کد کاربر نمایش داده می‌شود.
 import { HiOutlineCamera, HiOutlineRefresh } from "react-icons/hi";
 import styled, { keyframes, css } from "styled-components";
 import { useState, useRef, useEffect, useContext } from "react";
 import axios from "axios";
 import Resumable from "resumablejs";
-import { UserContext } from "../../../../services/reducers/UserContext";
-import { getTranslation } from "../../../../services/Utility";
 import * as Sentry from "@sentry/react";
+import { UserContext } from "../../../../services/reducers/UserContext";
+import { getTranslation, convertToPersian } from "../../../../services/Utility";
 import { BASE_URL } from "../../../../hooks/useRequest.js";
+import ErrorMessage from "../../../../components/ErrorMessage/ErrorMessage.jsx";
+import TitleBody from "../../../../components/TitleBody.jsx";
+const MAX_DURATION = 30;
+
 const Container = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
   border-radius: 5px;
   padding: 20px;
-`;
-
-const Title = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
 `;
 
 const Div = styled.div`
@@ -32,13 +31,10 @@ const Div = styled.div`
 `;
 
 const Info = styled.div`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
   font-size: 14px;
   font-weight: 400;
-  h4 {
-    font-size: 16px;
-    font-weight: 600 !important;
-  }
+
   p {
     margin: 20px 0 40px 0;
     text-transform: uppercase;
@@ -47,29 +43,23 @@ const Info = styled.div`
     display: flex;
     align-items: center;
     gap: 5px;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
     h3 {
       font-size: 14px;
     }
     h5 {
-      color: ${(props) => props.theme.colors.primary};
+      color: ${({ theme }) => theme.colors.primary};
       span {
         font-weight: 500;
-        color: ${(props) => props.theme.colors.newColors.shades.title};
+        color: ${({ theme }) => theme.colors.newColors.shades.title};
       }
     }
   }
 `;
 
-const ErrorMessage = styled.div`
-  color: red;
-  margin-top: 10px;
-`;
-
 const DeleteButton = styled.button`
   background: none;
   border: none;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
   cursor: pointer;
   font-size: 24px;
 `;
@@ -77,16 +67,12 @@ const DeleteButton = styled.button`
 const ContainerRecorder = styled.div`
   display: flex;
   width: fit-content;
-  height: fit-content;
   flex-direction: column;
 `;
 
-const changeBorderColor = keyframes`
-  0% { border-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBorder}; }
-    20%  { border-color: yellow; }
-        70%  { border-color: yellow; }
-  100% { border-color: yellow; }
+// از رنگ فعلی border شروع می‌شود و به زرد می‌رسد
+const toYellow = keyframes`
+  to { border-color: yellow; }
 `;
 
 const PlayButton = styled.div`
@@ -95,60 +81,50 @@ const PlayButton = styled.div`
   left: 50%;
   transform: translate(-50%, -50%);
   font-size: 50px;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  display: ${(props) => (props.showPlayButton ? "block" : "none")};
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
   cursor: pointer;
 `;
 
 const Record = styled.div`
-  background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
-  width: 180px;
-  height: 180px;
-  border-radius: 100%;
-  border: 3px dotted
-    ${(props) =>
-    props.hasError
-      ? "red"
-      : props.theme.colors.newColors.otherColors.inputBorder};
-  cursor: pointer;
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  position: relative;
-  ${(props) =>
-    props.capturing &&
+  width: 180px;
+  height: 180px;
+  border-radius: 100%;
+  border: 3px dotted
+    ${({ $hasError, theme }) =>
+      $hasError ? "red" : theme.colors.newColors.otherColors.inputBorder};
+  background-color: ${({ theme }) => theme.colors.newColors.shades.bg2};
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
+  cursor: pointer;
+  ${({ $capturing }) =>
+    $capturing &&
     css`
-      animation: ${changeBorderColor} 10s linear forwards;
+      animation: ${toYellow} 2s linear forwards;
     `}
   span {
     font-size: 14px;
   }
   video {
-    border-radius: 100%;
     width: 100%;
     height: 100%;
+    border-radius: 100%;
     object-fit: cover;
     display: block;
   }
 `;
 
-const getSupportedMimeType = () => {
-  const possibleTypes = [
+const getSupportedMimeType = () =>
+  [
     "video/webm;codecs=vp8,opus",
     "video/webm",
     "video/mp4",
     "video/x-matroska;codecs=avc1",
-  ];
-
-  return (
-    possibleTypes.find((type) => {
-      return MediaRecorder.isTypeSupported(type);
-    }) || "video/webm"
-  );
-};
+  ].find((type) => MediaRecorder.isTypeSupported(type)) || "video/webm";
 
 const VideoRecord = ({
   setVideoError,
@@ -156,44 +132,62 @@ const VideoRecord = ({
   setUploadResponse,
   textVerify,
   setTextVerify,
-  setIsVideoUploaded, // Add this new prop
+  setIsVideoUploaded,
 }) => {
   const [capturing, setCapturing] = useState(false);
   const [videoURL, setVideoURL] = useState(null);
   const [error, setError] = useState(null);
   const [showPlayButton, setShowPlayButton] = useState(true);
-  const [videoUploadError, setVideoUploadError] = useState(false); // State for video upload error
+  const [videoUploadError, setVideoUploadError] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(MAX_DURATION);
   const videoRef = useRef(null);
   const mediaRecorderRef = useRef(null);
-  const [timeLeft, setTimeLeft] = useState(30);
   const timerRef = useRef(null);
   const chunks = useRef([]);
   const [user] = useContext(UserContext);
 
-  const handleRecordClick = () => {
-    if (videoURL) {
-      return;
-    }
+  useEffect(() => {
+    axios
+      .get("https://admin.metarang.com/api/kyc-verify-text")
+      .then((res) => setTextVerify(res.data))
+      .catch((err) => {
+        Sentry.captureException(err);
+        console.error("Error fetching verify text:", err);
+      });
+  }, []);
 
-    if (capturing) {
-      mediaRecorderRef.current.stop();
-      setCapturing(false);
-      clearInterval(timerRef.current);
-    } else {
-      startRecording();
-      setCapturing(true);
-    }
+  const stopRecording = () => {
+    mediaRecorderRef.current.stop();
+    clearInterval(timerRef.current);
+    setCapturing(false);
   };
 
-  const handleDeleteClick = () => {
-    setVideoURL(null);
-    setTimeLeft(30);
-    setVideoError(true);
-    setVideoUploadError(true); // Set the error for video upload
-    setVideoURLParent(null);
-    setIsVideoUploaded(false); // Reset when video is deleted
-    chunks.current = [];
-    setShowPlayButton(true);
+  const uploadVideo = (file) => {
+    const resumable = new Resumable({
+      target: `${BASE_URL}upload`,
+      chunkSize: 100 * 1024 * 1024,
+      simultaneousUploads: 4,
+      testChunks: false,
+      throttleProgressCallbacks: 1,
+    });
+
+    resumable.on("fileAdded", () => resumable.upload());
+
+    resumable.on("fileSuccess", (_, response) => {
+      setUploadResponse(response);
+      setVideoUploadError(false);
+      setIsVideoUploaded(true);
+    });
+
+    resumable.on("fileError", (_, message) => {
+      console.error("File upload error:", message);
+      Sentry.captureException(new Error(`File upload error: ${message}`));
+      setError("خطا در آپلود ویدیو. لطفاً دوباره تلاش کنید.");
+      setVideoUploadError(true);
+      setIsVideoUploaded(false);
+    });
+
+    resumable.addFile(file);
   };
 
   const startRecording = async () => {
@@ -206,53 +200,52 @@ const VideoRecord = ({
 
       setError(null);
       setVideoError(false);
-      setVideoUploadError(false); // Clear the error when recording starts
+      setVideoUploadError(false);
 
-      const mimeType = getSupportedMimeType();
-
-      mediaRecorderRef.current = new MediaRecorder(stream, {
-        mimeType: mimeType,
-        videoBitsPerSecond: 2500000, // 2.5Mbps
+      const recorder = new MediaRecorder(stream, {
+        mimeType: getSupportedMimeType(),
+        videoBitsPerSecond: 2500000,
       });
+      mediaRecorderRef.current = recorder;
 
-      mediaRecorderRef.current.ondataavailable = (event) => {
-        if (event.data.size > 0) {
-          chunks.current.push(event.data);
-        }
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.current.push(e.data);
       };
 
-      mediaRecorderRef.current.onstop = async () => {
+      recorder.onstop = () => {
         const blob = new Blob(chunks.current, { type: "video/mp4" });
-        const file = new File([blob], "video.mp4", { type: "video/mp4" });
+        const url = URL.createObjectURL(blob);
 
-        setVideoURL(URL.createObjectURL(blob));
-        setVideoURLParent(URL.createObjectURL(blob));
+        setVideoURL(url);
+        setVideoURLParent(url);
         stream.getTracks().forEach((track) => track.stop());
-        clearInterval(timerRef.current);
-
-        // Exit full-screen mode
-
-        uploadVideo(file);
+        uploadVideo(new File([blob], "video.mp4", { type: "video/mp4" }));
       };
 
-      mediaRecorderRef.current.start();
+      recorder.start();
 
-      let countdown = 30;
+      let countdown = MAX_DURATION;
       timerRef.current = setInterval(() => {
-        countdown -= 1;
-        setTimeLeft(countdown);
-        if (countdown === 0) {
-          mediaRecorderRef.current.stop();
-          setCapturing(false);
-          clearInterval(timerRef.current);
-        }
+        setTimeLeft(--countdown);
+        if (countdown === 0) stopRecording();
       }, 1000);
     } catch (err) {
       console.error("Error accessing media devices.", err);
       Sentry.captureException(err);
       setError(
-        "دسترسی به دوربین یا میکروفون ممکن نیست. لطفاً تنظیمات دستگاه خود را بررسی کنید."
+        "دسترسی به دوربین یا میکروفون ممکن نیست. لطفاً تنظیمات دستگاه خود را بررسی کنید.",
       );
+    }
+  };
+
+  const handleRecordClick = () => {
+    if (videoURL) return;
+
+    if (capturing) {
+      stopRecording();
+    } else {
+      startRecording();
+      setCapturing(true);
     }
   };
 
@@ -261,57 +254,26 @@ const VideoRecord = ({
     setShowPlayButton(false);
   };
 
-  const uploadVideo = (file) => {
-    const resumable = new Resumable({
-      target: `${BASE_URL}upload`,
-      chunkSize: 100 * 1024 * 1024,
-      simultaneousUploads: 4,
-      testChunks: false,
-      throttleProgressCallbacks: 1,
-    });
-
-    resumable.addFile(file);
-
-    resumable.on("fileAdded", () => {
-      resumable.upload();
-    });
-
-    resumable.on("fileSuccess", (file, response) => {
-      setUploadResponse(response);
-      setVideoUploadError(false); // Clear the error if the upload is successful
-      setIsVideoUploaded(true); // Set to true when upload succeeds
-    });
-
-    resumable.on("fileError", (file, message) => {
-      console.error("File upload error:", message);
-      Sentry.captureException(new Error(`File upload error: ${message}`));
-      setError("خطا در آپلود ویدیو. لطفاً دوباره تلاش کنید.");
-      setVideoUploadError(true); // Set the error if the upload fails
-      setIsVideoUploaded(false); // Set to false on error
-    });
+  const handleDeleteClick = () => {
+    setVideoURL(null);
+    setTimeLeft(MAX_DURATION);
+    setVideoError(true);
+    setVideoUploadError(true);
+    setVideoURLParent(null);
+    setIsVideoUploaded(false);
+    setShowPlayButton(true);
+    chunks.current = [];
   };
-
-  useEffect(() => {
-    axios
-      .get("https://admin.metarang.com/api/kyc-verify-text")
-      .then((res) => {
-        setTextVerify(res.data);
-      })
-      .catch((err) => {
-        Sentry.captureException(err);
-        console.error("Error fetching verify text:", err);
-      });
-  }, []);
 
   return (
     <Container>
-      <Title>{getTranslation("873")}</Title>
+      <TitleBody title={getTranslation("873")} />
       <Div>
         <ContainerRecorder>
           <Record
             onClick={handleRecordClick}
-            capturing={capturing}
-            hasError={videoUploadError} // Add the error state to control border color
+            $capturing={capturing}
+            $hasError={videoUploadError}
           >
             {capturing ? (
               <video ref={videoRef} autoPlay muted playsInline />
@@ -325,15 +287,12 @@ const VideoRecord = ({
             ) : (
               <>
                 <HiOutlineCamera size={50} />
-                <span>شروع ضبط</span>
+                <TitleBody title={"شروع ضبط"} />
               </>
             )}
-            <PlayButton
-              onClick={handlePlayClick}
-              showPlayButton={!!videoURL && showPlayButton}
-            >
-              ▶
-            </PlayButton>
+            {videoURL && showPlayButton && (
+              <PlayButton onClick={handlePlayClick}>▶</PlayButton>
+            )}
           </Record>
           {videoURL && (
             <DeleteButton onClick={handleDeleteClick}>
@@ -343,25 +302,24 @@ const VideoRecord = ({
         </ContainerRecorder>
 
         <Info>
-          <h4>{getTranslation("874")}</h4>
-          <p style={{ textWrap: "Wrap" }}>
-            {textVerify.text} {user.code}
-          </p>
+          <TitleBody title={getTranslation("874")} />
+
+          <TitleBody title={textVerify.text} />
+          {user.code}
+
           <div>
-            <h3>{getTranslation("876")}</h3>
+            <TitleBody title={getTranslation("876")} />
             <h5>
-              {timeLeft}
-              <span>{getTranslation("778")}</span>
+              {convertToPersian(timeLeft)}
+              <span> {getTranslation("778")} </span>
             </h5>
           </div>
         </Info>
       </Div>
-      {error && <ErrorMessage>{error}</ErrorMessage>}
+      <ErrorMessage errors={[error]} onClear={() => setError(null)} />
     </Container>
   );
 };
-
-// Wrap the component with Sentry error boundary
 export default Sentry.withErrorBoundary(VideoRecord, {
   fallback: () => <div>خطایی رخ داده است. لطفا صفحه را رفرش کنید.</div>,
 });

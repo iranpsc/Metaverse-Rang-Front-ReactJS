@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { getTranslation } from "../../../../services/Utility";
-
+import TitleBody from "../../../../components/TitleBody";
 const ImageWrapper = styled.div`
   width: 220px;
   height: 140px;
@@ -17,11 +17,7 @@ const ImageWrapper = styled.div`
     height: 100%;
   }
 `;
-const Title = styled.h3`
-  font-size: 16px;
-  font-weight: 600;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-`;
+
 const Container = styled.div`
   display: flex;
   align-items: center;
@@ -32,9 +28,8 @@ const CardPhotos = ({ nationalCardImg }) => {
   return (
     <Container>
       <div>
-        <Title>
-          {getTranslation("878")}
-        </Title>
+        <TitleBody title={getTranslation("878")} />
+
         <ImageWrapper>
           <img src={nationalCardImg} alt="nation" />
         </ImageWrapper>

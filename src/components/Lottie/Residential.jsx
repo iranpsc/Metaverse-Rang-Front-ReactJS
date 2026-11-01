@@ -515,7 +515,7 @@ export default function Residential() {
           </g>
         </g>
       </svg>
-      <LottieMessage title="خرید VOD مسکونی با موفقیت انجام شد" />
+      <LottieMessage title="1844" />
     </Container>
   );
 }
