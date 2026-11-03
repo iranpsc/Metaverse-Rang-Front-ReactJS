@@ -38,6 +38,7 @@ const Dialog = styled.div`
   width: 550px;
   margin: 0 auto;
   padding: 15px 20px;
+  
   overflow: hidden;
   border-radius: 10px;
   background-color: ${({ theme }) => theme.colors.newColors.shades.bg2};
@@ -46,6 +47,7 @@ const Dialog = styled.div`
 `;
 
 const ModalXs = ({
+  noIcon,
   children,
   title,
   handleExitClick,
@@ -65,12 +67,14 @@ const ModalXs = ({
         {hideTitle ? (
           <ExitIcon trans="trans" onClick={handleExitClick ?? onClose} />
         ) : (
-          <Header
-            title={title}
-            handleExit={handleExitClick}
-            onlyExit={onlyExit}
-            onClose={onClose}
-          />
+          !noIcon && (
+            <Header
+              title={title}
+              handleExit={handleExitClick}
+              onlyExit={onlyExit}
+              onClose={onClose}
+            />
+          )
         )}
         {children}
       </Dialog>

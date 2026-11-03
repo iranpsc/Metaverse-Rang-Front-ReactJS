@@ -197,7 +197,6 @@ export default function KeenSlider({
   }, [currentSlide, thumbnailInstanceRef]);
 
   const hasMany = images.length > 1;
-  console.log("isOwner", isOwner);
   return (
     <Wrapper>
       <div ref={sliderRef} className="keen-slider">

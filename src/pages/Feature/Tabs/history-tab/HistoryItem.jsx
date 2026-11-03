@@ -7,6 +7,7 @@ import {
   getTranslation,
   ConvertJalali,
 } from "../../../../services/Utility";
+import TitleBody from "../../../../components/TitleBody";
 const UserTime = styled.div`
   display: flex;
   align-items: center;
@@ -50,7 +51,6 @@ const Time = styled.div`
   }
 `;
 const User = styled.div`
-
   h4 {
     color: ${({ theme }) => theme.colors.newColors.shades.title};
 
@@ -72,14 +72,6 @@ const Div = styled.div`
   align-items: center;
   gap: 4px;
   color: #a0a0ab;
-  span {
-    font-size: 12px;
-  }
-  @media (min-width: 998px) {
-    span {
-      font-size: 14px;
-    }
-  }
 `;
 const HistoryItem = ({
   index,
@@ -102,16 +94,16 @@ const HistoryItem = ({
         <User owner={owner}>
           <Div>
             {owner ? (
-              <span>{getTranslation(1782)} </span>
+              <TitleBody title={getTranslation(1782)} />
             ) : (
               <>
                 <HiOutlineUser size={20} />
-                <span>{getTranslation(572)}</span>
+                <TitleBody title={getTranslation(572)} />
               </>
             )}
           </Div>
           {owner ? (
-            <h4>{user}</h4>
+            <TitleBody weight title={"متارنگ سیستم"} />
           ) : (
             <h4>
               <a target="_blank" rel="noreferrer" href={link}>

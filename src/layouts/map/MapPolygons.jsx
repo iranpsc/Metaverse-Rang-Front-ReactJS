@@ -393,7 +393,8 @@ const MapPolygons = () => {
                 model?.building?.construction_end_date,
               );
 
-              const opacity = new Date() < endDate ? 0.3 : 1;
+              const opacity =
+                model.opacity ?? (new Date() < endDate ? 0.3 : 1);
 
               const [latitude, longitude] =
                 model?.building?.position?.split(",").map(Number);

@@ -57,7 +57,6 @@ import ReportsListTab from "../../pages/Report/reports/ReportsListTab/ReportsLis
 import MainLayout from "../MainLayout";
 import { useContext } from "react";
 import { UserContext } from "../../services/reducers/UserContext";
-import ControlPanel from "./3dModelMap/ControlPanel";
 export default function Routers() {
   const [user] = useContext(UserContext);
   return (
@@ -256,14 +255,7 @@ export default function Routers() {
         />
 
 
-        <Route
-          path="ControlPanel"
-          element={
-            <PrivateRoute>
-              <ControlPanel />
-            </PrivateRoute>
-          }
-        />
+      
         <Route
           path="verification"
           element={

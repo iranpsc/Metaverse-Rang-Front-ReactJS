@@ -1,19 +1,18 @@
 // عنوان (تایتل) استاندارد برای همه‌ی تایتل‌ها و لیبل اینپوت‌های داخل مدال‌ها؛ با size="small" برای متن‌های کوچک‌تر و size="big" برای عنوان‌های درشت‌تر (پراپ قدیمی small هم کار می‌کند)
 
 import styled from "styled-components";
+import { getSize } from "../styles/sizes";
 
-const SIZES = {
-  default: { base: "14px", tablet: "12px", desktop: "16px" },
-  small: { base: "12px", tablet: "12px", desktop: "13px" },
-  big: { base: "16px", tablet: "14px", desktop: "18px" },
+
+const getColor = ({ theme, $gray, $gray2 }) => {
+  const { otherColors, shades } = theme.colors.newColors;
+  if ($gray2) return shades.matn2;
+  if ($gray) return otherColors.gray;
+  return shades.title;
 };
 
-const getSize = ($size, key) => SIZES[$size][key];
 const TitleName = styled.h4`
-  color: ${({ theme, $gray }) =>
-    $gray
-      ? theme.colors.newColors.otherColors.gray
-      : theme.colors.newColors.shades.title};
+  color: ${getColor};
   font-size: ${({ $size }) => getSize($size, "base")};
   font-weight: ${({ $weight }) => $weight};
   margin: 0;
@@ -37,6 +36,7 @@ const TitleBody = ({
   noWrap,
   size,
   gray,
+  gray2,
   weight = 400,
 }) => (
   <TitleName
@@ -45,6 +45,7 @@ const TitleBody = ({
     $size={size ?? (small ? "small" : "default")}
     $noWrap={noWrap}
     $gray={gray}
+    $gray2={gray2}
   >
     {title}
   </TitleName>

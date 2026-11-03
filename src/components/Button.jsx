@@ -1,69 +1,7 @@
 import styled, { css } from "styled-components";
+import { responsiveFontSize } from "../styles/sizes.js";
 
-const ButtonElement = styled.button`
-  border-radius: 10px;
-  white-space: nowrap;
-  background-color: ${(props) =>
-    props.color
-      ? props.disabled === "pending"
-        ? props.color // همان رنگ اصلی، فقط مات میشه
-        : props.disabled
-          ? `${props.color}80`
-          : props.color
-      : props.grayTheme
-        ? props.theme.colors.newColors.otherColors.garyBtn
-        : props.disabled === "pending"
-          ? props.theme.colors.primary // رنگ اصلی، فقط مات میشه
-          : props.disabled
-            ? `${props.theme.colors.primary}80`
-            : props.theme.colors.primary};
-  border: none;
-  padding: ${(props) => (props.large ? "0 20px" : "10px 22px")};
-  width: ${(props) =>
-    props.fit
-      ? "fit-content"
-      : props.edit
-        ? "125px"
-        : props.large
-          ? "fit-content"
-          : props.full
-            ? "100%"
-            : "fit-content"};
-  height: 45px;
-  font-weight: 500;
-  font-size: 16px;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  color: ${(props) =>
-    props.disabled === "pending"
-      ? props.theme.colors.newColors.primaryText
-      : props.grayTheme
-        ? props.theme.colors.newColors.otherColors.grayBtnText
-        : props.theme.colors.newColors.primaryText};
-  color: ${(props) => (props.textColor ? props.textColor : "")};
-  font-family: inherit;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  opacity: ${(props) =>
-    props.disabled === "pending" ? "0.6" : props.disabled ? "0.5" : "1"};
-  pointer-events: ${(props) => (props.disabled ? "none" : "auto")};
-
-  @media (max-width: 840px) {
-    width: ${(props) => (props.row ? "55px" : props.full && "100%")};
-    height: ${(props) => props.row && "35px"};
-    font-size: ${(props) => props.row && "14px"};
-  }
-
-  @media (min-width: 998px) {
-    height: ${(props) => (props.large ? "40px" : "50px")};
-  }
-
-  /* باید آخر بیاد تا روی استایل‌های بالا اولویت داشته باشه */
-  ${({ $withIcon }) => $withIcon && iconVariant}
-`;
-// نسخه قرصی دکمه آیکون‌دار: گوشه‌ی کاملاً گرد، آیکون ۲۳ پیکسل و برچسب ۱۶ پیکسل درشت (مثل دکمه‌های عملیات روی نقشه)
-
+// نسخه قرصی دکمه آیکون‌دار
 const pillVariant = css`
   gap: 5px;
   padding: 3px 12px;
@@ -77,7 +15,8 @@ const pillVariant = css`
     padding: 10px 12px;
   }
 `;
-// استایل نسخه آیکون‌دار (قبلاً ButtonIcon): کوتاه‌تر، گوشه ۷ پیکسل، پس‌زمینه btnIconBg یا primary با fill
+
+// استایل نسخه آیکون‌دار
 const iconVariant = css`
   flex-grow: ${({ $grow }) => ($grow ? 1 : 0)};
   height: auto;
@@ -109,19 +48,86 @@ const iconVariant = css`
   @media (min-width: 1024px) {
     padding: 7px 20px 4px;
   }
+
   ${({ $pill }) => $pill && pillVariant}
 `;
 
+const ButtonElement = styled.button`
+  border-radius: 10px;
+  white-space: nowrap;
+
+  background-color: ${({ color, disabled, grayTheme, theme }) =>
+    color
+      ? disabled === "pending"
+        ? color
+        : disabled
+          ? `${color}80`
+          : color
+      : grayTheme
+        ? theme.colors.newColors.otherColors.garyBtn
+        : disabled === "pending"
+          ? theme.colors.primary
+          : disabled
+            ? `${theme.colors.primary}80`
+            : theme.colors.primary};
+
+  border: none;
+  padding: ${({ large }) => (large ? "0 20px" : "10px 22px")};
+
+  width: ${({ fit, edit, large, full }) =>
+    fit
+      ? "fit-content"
+      : edit
+        ? "125px"
+        : large
+          ? "fit-content"
+          : full
+            ? "100%"
+            : "fit-content"};
+
+  height: 45px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: ${({ disabled }) => (disabled ? "not-allowed" : "pointer")};
+
+  color: ${({ disabled, grayTheme, theme }) =>
+    disabled === "pending"
+      ? theme.colors.newColors.primaryText
+      : grayTheme
+        ? theme.colors.newColors.otherColors.grayBtnText
+        : theme.colors.newColors.primaryText};
+
+  color: ${({ textColor }) => textColor || "inherit"};
+
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  opacity: ${({ disabled }) =>
+    disabled === "pending" ? "0.6" : disabled ? "0.5" : "1"};
+
+  pointer-events: ${({ disabled }) => (disabled ? "none" : "auto")};
+
+  @media (max-width: 840px) {
+    width: ${({ row, full }) => (row ? "55px" : full ? "100%" : "fit-content")};
+
+    height: ${({ row }) => (row ? "35px" : "45px")};
+    font-size: ${({ row }) => (row ? "14px" : "16px")};
+  }
+
+  @media (min-width: 998px) {
+    height: ${({ large }) => (large ? "40px" : "50px")};
+  }
+
+  ${({ $withIcon }) => $withIcon && iconVariant}
+`;
+
 const Label = styled.span`
-  font-size: 10px;
+  ${responsiveFontSize}
+  font-weight: 500;
 
-  @media (min-width: 740px) {
-    font-size: 14px;
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 16px;
-  }
   ${({ $pill }) =>
     $pill &&
     css`
@@ -144,13 +150,14 @@ const Spinner = styled.span`
     0% {
       transform: rotate(0deg);
     }
+
     100% {
       transform: rotate(360deg);
     }
   }
 `;
 
-// آیکون می‌تونه کامپوننت/المنت (مثل <FiUser />) یا آدرس تصویر (رشته) باشه
+// نمایش آیکون به‌صورت المنت یا تصویر
 const renderIcon = (icon) =>
   typeof icon === "string" ? (
     <img src={icon} alt="" width={18} height={18} />
@@ -158,7 +165,7 @@ const renderIcon = (icon) =>
     icon
   );
 
-// این کامپوننت دکمه عمومی همه بخش‌های پروژه است؛ دکمه ساده با label، و با پراپ icon (المنت یا آدرس تصویر) نسخه کوچک آیکون‌دار مثل دکمه‌های پروفایل رو نمایش میده (با fill رنگ اصلی و با grow کشیده شدن در فضای خالی)؛ با disabled="pending" اسپینر نشون میده
+// دکمه عمومی پروژه
 const Button = ({
   label,
   pill,
@@ -177,6 +184,7 @@ const Button = ({
   icon,
   fill,
   grow,
+  size = "default",
 }) => {
   const handleClick = onClick || onclick;
 
@@ -199,7 +207,15 @@ const Button = ({
       $pill={pill}
     >
       {icon && <span>{renderIcon(icon)}</span>}
-      {icon ? <Label>{label}</Label> : label}
+
+      {icon ? (
+        <Label $size={size} $pill={pill}>
+          {label}
+        </Label>
+      ) : (
+        label
+      )}
+
       {disabled === "pending" && <Spinner />}
     </ButtonElement>
   );

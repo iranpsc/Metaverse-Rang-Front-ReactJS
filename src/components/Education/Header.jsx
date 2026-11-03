@@ -1,10 +1,11 @@
 import { IoIosClose } from "react-icons/io";
-import { TbMinimize } from "react-icons/tb";
+import { TbMinimize, TbMaximize } from "react-icons/tb";
 import styled from "styled-components";
 import { ExitIcon } from "../Icons/IconsHeader";
 import { useLocation } from "react-router";
 import { useEffect, useState } from "react";
 import getModalHeaderFromPrevious from "../../services/TitleManager";
+import { getTranslation } from "../../services/Utility";
 
 const Div = styled.div`
   position: relative;
@@ -56,36 +57,63 @@ const Icons = styled.div`
   }
 `;
 
-const Header = ({ show, setOpenEducation, setSize }) => {
+const Header = ({
+  show,
+  setOpenEducation,
+  setSize,
+  title: titleProp, // از FullModal میاد
+  isFullscreen,
+  onToggleFullscreen,
+}) => {
   const location = useLocation();
-  const [title, setTitle] = useState("");
+  const [routeTitle, setRouteTitle] = useState("");
 
   useEffect(() => {
+    // فقط وقتی title از بیرون نیومده، از روی route بگیر
+    if (titleProp) return;
     const basePath = location.state?.from || location.pathname;
-
     const { title } = getModalHeaderFromPrevious(basePath);
+    setRouteTitle(title);
+  }, [location.pathname, location.state, titleProp]);
 
-    setTitle(title);
-  }, [location.pathname, location.state]);
+  // اگه title عدد (کلید ترجمه) بود ترجمه‌ش کن، وگرنه همون رو نشون بده
+  const displayTitle = titleProp
+    ? typeof titleProp === "number"
+      ? getTranslation(String(titleProp))
+      : titleProp
+    : routeTitle;
 
   const handleMinimizeClick = (e) => {
     e.stopPropagation();
-    setSize(true);
+    if (onToggleFullscreen) onToggleFullscreen();
+    else setSize?.(true);
   };
 
-  const handleCloseClick = () => {
-    setOpenEducation(false);
-  };
+  const handleCloseClick = () => setOpenEducation?.(false);
+
+  const showToggle = onToggleFullscreen || setSize;
 
   return (
     <HeaderWrapper show={show}>
-      <Text>{title}</Text>
+      <Text>{displayTitle}</Text>
 
       <Icons>
-        <Div onClick={handleMinimizeClick}>
-          <TbMinimize style={{ color: "#949494" }} />
-        </Div>
-        <ExitIcon onClick={handleCloseClick}>
+        {showToggle && (
+          <Div
+            role="button"
+            data-no-drag
+            onClick={handleMinimizeClick}
+            aria-label={isFullscreen ? "exit fullscreen" : "fullscreen"}
+          >
+            {onToggleFullscreen && !isFullscreen ? (
+              <TbMaximize style={{ color: "#949494" }} />
+            ) : (
+              <TbMinimize style={{ color: "#949494" }} />
+            )}
+          </Div>
+        )}
+
+        <ExitIcon role="button" data-no-drag onClick={handleCloseClick}>
           <IoIosClose />
         </ExitIcon>
       </Icons>

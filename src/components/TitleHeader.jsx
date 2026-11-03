@@ -11,6 +11,7 @@ const TitleName = styled.h3`
   color: ${({ theme }) => theme.colors.newColors.shades.title};
   font-size: ${({ $small }) => SIZES[$small ? "small" : "default"].base};
   font-weight: 600;
+  text-align: ${({ $center }) => ($center ? "center" : "")};
   margin-top: ${({ $payed }) => ($payed ? "30px" : "0")};
   margin-bottom: 20px;
   @media (min-width: 500px) and (max-width: 1000px) {
@@ -22,9 +23,9 @@ const TitleName = styled.h3`
   }
 `;
 
-const TitleHeader = ({ title, payed, small }) => {
+const TitleHeader = ({ title, payed, small, center }) => {
   return (
-    <TitleName $payed={payed} $small={small}>
+    <TitleName $payed={payed} $small={small} $center={center}>
       {title}
     </TitleName>
   );

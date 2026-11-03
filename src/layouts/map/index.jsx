@@ -42,6 +42,8 @@ const MapTreeD = () => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const { confirmation, selectedEnvironment, hiddenModel } =
     useSelectedEnvironment();
+  const isPlacementActive =
+    confirmation && Boolean(selectedEnvironment?.id) && !hiddenModel;
   const isPersian = useLanguage();
   const navigate = useNavigate();
   const handleZoomChange = useCallback((delta) => {
@@ -75,6 +77,8 @@ const MapTreeD = () => {
 
   const handleMapClick = useCallback(
     (event) => {
+      if (isPlacementActive) return;
+
       const feature = event.features?.[0];
       if (feature?.properties?.id) {
         navigate(`/feature/${feature.properties.id}`);
@@ -92,7 +96,7 @@ const MapTreeD = () => {
         easing: (t) => t,
       });
     },
-    [navigate],
+    [isPlacementActive, navigate],
   );
   const { theme } = useTheme();
 
@@ -200,7 +204,9 @@ const MapTreeD = () => {
               }}
               mapStyle={initialStyle}
               RTLTextPlugin="https://api-map.metarang.com/rtl.js"
-              interactiveLayerIds={["polygon-fill-layer"]}
+              interactiveLayerIds={
+                isPlacementActive ? [] : ["polygon-fill-layer"]
+              }
               maxPitch={89}
               style={{ borderRadius: "10px" }}
               initialViewState={{

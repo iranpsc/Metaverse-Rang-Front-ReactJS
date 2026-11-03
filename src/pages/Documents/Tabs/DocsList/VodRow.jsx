@@ -85,7 +85,6 @@ const VodRow = ({ id, code, date, time, title, status, sender }) => {
       console.error("Error fetching ticket details:", error);
     }
   };
-
   return (
     <>
       <tr>

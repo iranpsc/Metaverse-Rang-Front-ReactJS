@@ -1,22 +1,16 @@
-import  {
-  useCallback,
-  useMemo,
-  memo,
-  useState,
-  useEffect,
-  useRef,
-} from "react";
-import { Marker, useMap, Source, Layer } from "react-map-gl/maplibre";
+import { useCallback, useMemo, memo, useState, useEffect } from "react";
+import { useMap, Source, Layer } from "react-map-gl/maplibre";
 import { useLoader } from "@react-three/fiber";
 import { Canvas } from "react-three-map/maplibre";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { HemisphereLight } from "three";
+import { useNavigate } from "react-router";
 import { useSelectedEnvironment } from "../../../hooks/useSelectedEnvironment.js";
 import { ToastError, ToastSuccess } from "../../../services/Utility";
-import ControlPanel from "./ControlPanel";
+import { flyToMapPosition } from "../../../services/Utility/flyToMapPosition.js";
+import AngleControl from "../../../pages/Feature/Tabs/PropertyConstruction/Tabs/components/AngleControl.jsx";
 
 import { ClipLoader } from "react-spinners";
-import SatisfactionLunch from "./SatisfactionLunch";
 import * as turf from "@turf/turf";
 
 const calculateSquareCoordinates = (center, area) => {
@@ -37,16 +31,20 @@ const calculateSquareCoordinates = (center, area) => {
   ];
 };
 
-const FBXModel = memo(({ url, rotation, setLoading }) => {
-  const proxyFbxUrl = url;
-  const fbx = useLoader(FBXLoader, proxyFbxUrl, (loader) => {
+const FBXModel = memo(({ url, rotation, setLoading, onReady }) => {
+  const fbx = useLoader(FBXLoader, url, (loader) => {
     loader.manager.onStart = () => setLoading(true);
     loader.manager.onLoad = () => setLoading(false);
     loader.manager.onError = () => setLoading(false);
   });
-  const fbxRef = useRef();
+
+  useEffect(() => {
+    onReady(true);
+    return () => onReady(false);
+  }, [onReady]);
+
   return (
-    <group ref={fbxRef} rotation={rotation} scale={0.0097}>
+    <group rotation={rotation} scale={0.0097}>
       <hemisphereLight
         args={["#ffffff", "#60666C"]}
         intensity={12}
@@ -58,18 +56,20 @@ const FBXModel = memo(({ url, rotation, setLoading }) => {
 });
 
 const Mark = memo(() => {
-  const { selectedEnvironment } = useSelectedEnvironment();
+  const { selectedEnvironment, formState, resetStates } =
+    useSelectedEnvironment();
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [rotationX, setRotationX] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [showCanvas, setShowCanvas] = useState(true);
-  const [showPolygon, setShowPolygon] = useState(true);
-  const [environmentFixed, setEnvironmentFixed] = useState(false);
+  const [landReady, setLandReady] = useState(false);
+  const showPolygon = true;
+  const [modelReady, setModelReady] = useState(false);
   const map = useMap();
+  const navigate = useNavigate();
   const center = map.current.getCenter();
   const desiredSlug = "area";
   const attributeObject = selectedEnvironment.attributes.find(
-    (attribute) => attribute.slug === desiredSlug
+    (attribute) => attribute.slug === desiredSlug,
   );
   const size = parseFloat(attributeObject.value);
   const [markerPosition, setMarkerPosition] = useState({
@@ -79,7 +79,7 @@ const Mark = memo(() => {
 
   const polygonCoordinates = useMemo(
     () => calculateSquareCoordinates(markerPosition, size),
-    [markerPosition, size]
+    [markerPosition, size],
   );
 
   const rotatedPolygonCoordinates = useMemo(() => {
@@ -96,7 +96,7 @@ const Mark = memo(() => {
         const [longitude, latitude] = coord.split(",");
         return [parseFloat(longitude), parseFloat(latitude)];
       }),
-    [selectedEnvironment.coordinates]
+    [selectedEnvironment.coordinates],
   );
 
   const isRotatedPolygonInside = useMemo(() => {
@@ -108,31 +108,47 @@ const Mark = memo(() => {
   useEffect(() => {
     if (!environmentCoordinates.length) return;
 
-    const environmentPolygon = turf.polygon([environmentCoordinates]);
-    const centerOfEnvironment = turf.center(environmentPolygon);
-    const [centerLng, centerLat] = centerOfEnvironment.geometry.coordinates;
+    setLandReady(false);
 
-    setMarkerPosition({
-      latitude: centerLat,
-      longitude: centerLng,
+    const polygon = turf.polygon([environmentCoordinates]);
+    const [longitude, latitude] = turf.center(polygon).geometry.coordinates;
+    setMarkerPosition({ latitude, longitude });
+
+    const mapInstance = map.current;
+    const revealAfterMapSettles = () => {
+      mapInstance.once("idle", revealLand);
+    };
+    const revealLand = () => setLandReady(true);
+
+    mapInstance.once("moveend", revealAfterMapSettles);
+
+    flyToMapPosition({
+      mapRef: map,
+      latitude,
+      longitude,
+      bounds: turf.bbox(polygon),
+      padding: 80,
+      maxZoom: 19,
+      rotate: false,
+      marker: false,
     });
 
+    return () => {
+      mapInstance.off("moveend", revealAfterMapSettles);
+      mapInstance.off("idle", revealLand);
+    };
+  }, [environmentCoordinates]);
+  useEffect(() => {
+    if (isConfirmed) return;
+
     const handleMove = () => {
-      if (!isConfirmed && !environmentFixed) {
-        const center = map.current.getCenter();
-        setMarkerPosition({
-          latitude: center.lat,
-          longitude: center.lng,
-        });
-      }
+      const { lat, lng } = map.current.getCenter();
+      setMarkerPosition({ latitude: lat, longitude: lng });
     };
 
     map.current.on("move", handleMove);
-
-    return () => {
-      map.current.off("move", handleMove);
-    };
-  }, [map, isConfirmed, environmentFixed]);
+    return () => map.current.off("move", handleMove);
+  }, [map, isConfirmed]);
   const handleConfirmation = useCallback(() => {
     if (!isRotatedPolygonInside) {
       ToastError("محیط شما در محدوده زمین شما نیست");
@@ -142,23 +158,23 @@ const Mark = memo(() => {
     }
   }, [isRotatedPolygonInside]);
 
-  const handleExit = useCallback(() => {
-    setIsConfirmed(false);
-    setShowCanvas(false);
-    setTimeout(() => setShowCanvas(true), 0);
-  }, []);
-
   const handelSubmitEnvironment = useCallback(() => {
-    setIsConfirmed(false);
-    setShowPolygon(false);
-    setEnvironmentFixed(true);
-  }, []);
+    resetStates();
+  }, [resetStates]);
 
+  const handleCancelPlacement = useCallback(() => {
+    const featureId = formState?.featureId;
+    resetStates();
+    navigate(featureId ? `/feature/${featureId}/building` : "/", {
+      replace: true,
+    });
+  }, [formState?.featureId, navigate, resetStates]);
+  const polygonVisibility = modelReady && !isConfirmed ? "visible" : "none";
   return (
     <>
-      {showPolygon && !isConfirmed && (
+      {showPolygon && (
         <Source
-          id="polygon"
+          id="construction-rotation-polygon"
           type="geojson"
           data={{
             type: "Feature",
@@ -169,54 +185,43 @@ const Mark = memo(() => {
           }}
         >
           <Layer
-            id="polygon-layer"
+            id="construction-rotation-fill-layer"
             type="fill"
-            paint={{
-              "fill-color": isRotatedPolygonInside ? "green" : "red",
-            }}
+            layout={{ visibility: polygonVisibility }}
+            paint={{ "fill-color": isRotatedPolygonInside ? "green" : "red" }}
           />
           <Layer
-            id="polygon-outline-layer"
+            id="construction-rotation-outline-layer"
             type="line"
-            paint={{
-              "line-color": "#000000",
-              "line-width": 2,
-            }}
+            layout={{ visibility: polygonVisibility }}
+            paint={{ "line-color": "#000000", "line-width": 2 }}
           />
         </Source>
       )}
-      <Marker
-        latitude={markerPosition.latitude}
-        longitude={markerPosition.longitude}
-      >
-        {isLoading && <ClipLoader color="#36d7b7" />}
-        {showCanvas && (
-          <Canvas
-            latitude={markerPosition.latitude}
-            longitude={markerPosition.longitude}
-          >
-            <FBXModel
-              url={selectedEnvironment.file.url}
-              key={2}
-              rotation={[0, (rotationX * Math.PI) / 180, 0]}
-              setLoading={setIsLoading}
-            />
-          </Canvas>
-        )}
-      </Marker>
-      {showPolygon && !isConfirmed && (
-        <ControlPanel
-          rotationX={rotationX}
-          setRotationX={setRotationX}
-          handleConfirmation={handleConfirmation}
-        />
+      {isLoading && <ClipLoader color="#36d7b7" />}
+      {landReady && (
+        <Canvas
+          latitude={markerPosition.latitude}
+          longitude={markerPosition.longitude}
+        >
+          <FBXModel
+            url={selectedEnvironment.file.url}
+            rotation={[0, (rotationX * Math.PI) / 180, 0]}
+            setLoading={setIsLoading}
+            onReady={setModelReady}
+          />
+        </Canvas>
       )}
-      {isConfirmed && (
-        <SatisfactionLunch
-          position={[markerPosition.latitude, markerPosition.longitude]}
-          rotation={(rotationX * Math.PI) / 180}
-          handleExitClick={handleExit}
-          handelSubmitEnvironment={handelSubmitEnvironment}
+      {showPolygon && (
+        <AngleControl
+          step={isConfirmed ? "form" : "angle"}
+          value={rotationX}
+          position={markerPosition}
+          onChange={setRotationX}
+          onConfirm={handleConfirmation}
+          onCancel={handleCancelPlacement}
+          onBack={() => setIsConfirmed(false)}
+          onSubmitted={handelSubmitEnvironment}
         />
       )}
     </>

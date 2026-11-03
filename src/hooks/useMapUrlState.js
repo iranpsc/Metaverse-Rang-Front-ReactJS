@@ -16,7 +16,9 @@ export default function useMapUrlState() {
 
   const setMapState = useCallback(
     ({ lat, lng, zoom, bearing = 0, pitch = 40 }) => {
-      const params = new URLSearchParams(location.search);
+      // Map move events can fire after navigation using a callback from the previous route.
+      const currentPathname = window.location.pathname;
+      const params = new URLSearchParams(window.location.search);
 
       if (lat == null || lng == null) {
         params.delete("map");
@@ -35,7 +37,7 @@ export default function useMapUrlState() {
 
       navigate(
         {
-          pathname: location.pathname,
+          pathname: currentPathname,
           search: params.toString().replace(/%2C/g, ","),
         },
         {
@@ -44,7 +46,7 @@ export default function useMapUrlState() {
         },
       );
     },
-    [location.pathname, location.search, navigate],
+    [location.pathname, location.search, location.state, navigate],
   );
 
   const getMapState = useCallback(() => {

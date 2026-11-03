@@ -1,51 +1,76 @@
-// آپلودر فایل عمومی (پیش‌نمایش تصویر، حذف، محدودیت تعداد و حجم)؛ با variant="card" به‌شکل کارت خط‌چین تکی (مثل آپلود کارت ملی) نمایش داده می‌شود و با error کادر قرمز می‌گیرد
-
+// آپلودر فایل عمومی (پیش‌نمایش تصویر، حذف، محدودیت تعداد و حجم)؛
+// با variant="card" به‌شکل کارت خط‌چین تکی (مثل آپلود کارت ملی) نمایش داده می‌شود
+// و با error کادر قرمز می‌گیرد
 import { useEffect, useRef, useState } from "react";
-import styled, { css } from "styled-components";
 import { HiOutlineTrash } from "react-icons/hi";
+import styled, { css } from "styled-components";
+
 import nonPhoto from "../../assets/images/file.png";
 import remove from "../../assets/images/remove.png";
-import TitleBody from "../TitleBody";
 import { getTranslation } from "../../services/Utility";
+import { responsiveFontSize, scale } from "../../styles/sizes";
+import TitleBody from "../TitleBody";
 
-// اندازه‌ی کارت در variant="card"
-const cardSize = css`
-  width: 240px;
-  height: 147px;
+/* ---------- Constants ---------- */
 
-  @media (min-width: 1500px) {
-    width: 185px;
-  }
+const BORDER_COLOR = "#454545";
+const INVALID_COLOR = "red";
+const ACCENT_COLOR = "#ffc700";
 
-  @media (min-width: 1920px) {
-    width: 240px;
-  }
+// عرض باکس‌ها در هر پله‌ی صفحه (ارتفاع از aspect-ratio می‌آید)
+const WIDTH = {
+  default: { base: "140px", tablet: "180px", laptop: "220px" },
+  card: { base: "160px", tablet: "200px", laptop: "240px" },
+};
+const RATIO = { default: "220 / 140", card: "240 / 147" };
+
+const getBorderColor = ({ $error }) => ($error ? INVALID_COLOR : BORDER_COLOR);
+
+/* ---------- Mixins ---------- */
+
+const boxWidth = ({ $card }) => css`
+  ${scale("width", $card ? WIDTH.card : WIDTH.default)}
+
+  ${$card &&
+  css`
+    /* رفتار قبلی کارت در صفحه‌های عریض (چیدمان با سایدبار) */
+    @media (min-width: 1500px) {
+      width: 185px;
+    }
+    @media (min-width: 1920px) {
+      width: 240px;
+    }
+  `}
 `;
+
+const boxRatio = ({ $card }) => css`
+  aspect-ratio: ${$card ? RATIO.card : RATIO.default};
+`;
+
+/* ---------- Styles ---------- */
 
 const Files = styled.div`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 10px;
+  ${scale("gap", { base: "8px", laptop: "10px" })}
 `;
 
 const UploadBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 220px;
-  height: 140px;
-  border: ${({ $card }) => ($card ? 2 : 1)}px dashed
-    ${({ $error }) => ($error ? "red" : "#454545")};
+  box-sizing: border-box;
+  border: ${({ $card }) => ($card ? 2 : 1)}px dashed ${getBorderColor};
   border-radius: 10px;
   cursor: pointer;
+  ${boxWidth}
+  ${boxRatio}
 
   span {
-    font-size: 60px;
     color: #a0a0ab;
+    ${scale("font-size", { base: "40px", tablet: "50px", laptop: "60px" })}
   }
-
-  ${({ $card }) => $card && cardSize}
 `;
 
 const HiddenInput = styled.input`
@@ -57,32 +82,34 @@ const FilePreview = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-right: 10px;
   border-radius: 10px;
+  ${boxWidth}
+  ${scale("margin-right", { base: "6px", laptop: "10px" })}
 
-  ${({ $card, $error }) =>
+  ${({ $card }) =>
     $card &&
     css`
-      ${cardSize}
+      ${boxRatio}
       margin-right: 0;
       overflow: hidden;
-      border: 2px dashed ${$error ? "red" : "#454545"};
+      border: 2px dashed ${getBorderColor};
     `}
 `;
 
 const FileImage = styled.img`
-  width: 220px;
-  height: 140px;
+  width: 100%;
+  aspect-ratio: ${RATIO.default};
+  box-sizing: border-box;
   margin-bottom: 5px;
-  border: 1px solid #454545;
+  border: 1px solid ${BORDER_COLOR};
   border-radius: 10px;
   object-fit: contain;
 
   ${({ $card }) =>
     $card &&
     css`
-      width: 100%;
       height: 100%;
+      aspect-ratio: auto;
       margin-bottom: 0;
       border: none;
       border-radius: 0;
@@ -100,6 +127,11 @@ const RemoveButton = styled.button`
   background: transparent;
   cursor: pointer;
 
+  img {
+    ${scale("width", { base: "28px", tablet: "32px", laptop: "36px" })}
+    ${scale("height", { base: "28px", tablet: "32px", laptop: "36px" })}
+  }
+
   ${({ $card }) =>
     $card &&
     css`
@@ -109,24 +141,33 @@ const RemoveButton = styled.button`
       display: flex;
       align-items: center;
       justify-content: center;
-      width: 24px;
-      height: 24px;
       padding: 0;
       border-radius: 50%;
-      background-color: #ffc700;
+      background-color: ${ACCENT_COLOR};
       color: #1a1a1a;
+      ${scale("width", { base: "22px", laptop: "24px" })}
+      ${scale("height", { base: "22px", laptop: "24px" })}
 
       svg {
-        font-size: 17px;
+        ${scale("font-size", { base: "15px", laptop: "17px" })}
       }
     `}
 `;
 
 const ErrorMessage = styled.div`
   margin: 10px 0;
-  font-size: 14px;
-  color: red;
+  color: ${INVALID_COLOR};
+  ${responsiveFontSize}
 `;
+
+/* ---------- Helpers ---------- */
+
+const MB = 1024 * 1024;
+
+const isPreviewable = (file) =>
+  file instanceof File && file.type.startsWith("image/");
+
+/* ---------- Component ---------- */
 
 const FileUploader = ({
   files = [],
@@ -138,7 +179,8 @@ const FileUploader = ({
   multiple = true,
   disabled = false,
   variant = "default", // "default" | "card"
-  error = false, // کادر قرمز (فقط برای variant="card")
+  error = false, // کادر قرمز
+  size = "default", // "small" | "default" | "big" (روی لیبل)
 }) => {
   const isCard = variant === "card";
   const [message, setMessage] = useState("");
@@ -147,40 +189,31 @@ const FileUploader = ({
 
   useEffect(() => {
     const urls = files.map((file) =>
-      file instanceof File && file.type.startsWith("image/")
-        ? URL.createObjectURL(file)
-        : null,
+      isPreviewable(file) ? URL.createObjectURL(file) : null,
     );
-
     setPreviews(urls);
 
-    return () => {
-      urls.forEach((url) => {
-        if (url) URL.revokeObjectURL(url);
-      });
-    };
+    return () => urls.forEach((url) => url && URL.revokeObjectURL(url));
   }, [files]);
 
   const fileHandler = (event) => {
     const input = event.target;
     const selectedFiles = Array.from(input.files || []);
-
     input.value = "";
 
     if (!selectedFiles.length) return;
-
-    setMessage("");
 
     if (files.length + selectedFiles.length > maxFiles) {
       setMessage(getTranslation("1636"));
       return;
     }
 
-    if (selectedFiles.some((file) => file.size > maxFileSizeMB * 1024 * 1024)) {
+    if (selectedFiles.some((file) => file.size > maxFileSizeMB * MB)) {
       setMessage(getTranslation("1643"));
       return;
     }
 
+    setMessage("");
     onFilesChange([...files, ...selectedFiles]);
   };
 
@@ -194,7 +227,7 @@ const FileUploader = ({
 
   return (
     <div>
-      {title && <TitleBody title={title} />}
+      {title && <TitleBody title={title} size={size} />}
 
       <Files>
         {files.map((file, index) => (
@@ -245,7 +278,7 @@ const FileUploader = ({
         )}
       </Files>
 
-      {message && <ErrorMessage>{message}</ErrorMessage>}
+      {message && <ErrorMessage $size="small">{message}</ErrorMessage>}
     </div>
   );
 };

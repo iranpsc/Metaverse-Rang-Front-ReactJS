@@ -63,7 +63,7 @@ const Label = styled.div`
       ? props.theme.colors.primary
       : props.theme.colors.newColors.shades.title};
   padding: 3px 20px;
-  cursor: pointer;
+  cursor: ${({ $disabled }) => ($disabled ? "not-allowed" : "pointer")};
   border-inline-start: 2px solid
     ${(props) => (props.$active ? props.theme.colors.primary : "transparent")};
   transition: all 0.2s linear;
@@ -72,12 +72,18 @@ const Label = styled.div`
     padding: 8px 20px;
   }
 
-  &:hover {
-    color: ${(props) => props.theme.colors.primary};
-    border-inline-start: 2px solid ${(props) => props.theme.colors.primary};
-  }
+  ${({ $disabled }) =>
+    $disabled
+      ? css`
+          opacity: 0.4;
+        `
+      : css`
+          &:hover {
+            color: ${(props) => props.theme.colors.primary};
+            border-inline-start: 2px solid ${(props) => props.theme.colors.primary};
+          }
+        `}
 `;
-
 // آیتم‌های منوی خرید/فروش (قبلاً SidebarOptions) بر اساس seller و hasPrice
 export const getTradeSidebarItems = (seller, hasPrice) => [
   {
@@ -90,7 +96,6 @@ export const getTradeSidebarItems = (seller, hasPrice) => [
     title: seller ? "519" : "525",
   },
 ];
-
 const Sidebar = ({ items = [], variant = "default" }) => {
   const { pathname } = useLocation();
   const lastSegment = pathname.split("/").pop();
@@ -107,12 +112,23 @@ const Sidebar = ({ items = [], variant = "default" }) => {
             end = true,
             replace = true,
             activeSegments,
+            disabled = false,
           }) => (
-            <NavLink key={to} to={to} replace={replace} end={end}>
+            <NavLink
+              key={to}
+              to={to}
+              replace={replace}
+              end={end}
+              aria-disabled={disabled}
+              tabIndex={disabled ? -1 : undefined}
+              onClick={(e) => disabled && e.preventDefault()}
+            >
               {({ isActive }) => (
                 <Label
+                  $disabled={disabled}
                   $active={
-                    isActive || Boolean(activeSegments?.includes(lastSegment))
+                    !disabled &&
+                    (isActive || Boolean(activeSegments?.includes(lastSegment)))
                   }
                 >
                   {renderTitle ? renderTitle() : getTranslation(title)}

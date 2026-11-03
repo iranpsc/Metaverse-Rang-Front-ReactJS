@@ -4,10 +4,9 @@ import Container from "../../../../components/Common/Container";
 import SearchInput from "../../../../components/SearchInput";
 import PropertySkeleton from "../../../../components/Skeletons/PropertySkeleton.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
-import { getTranslation } from "../../../../services/Utility";
+import { cleanSearchText, getTranslation } from "../../../../services/Utility";
 import ResultCard from "./ResultCard";
 
-const DEBOUNCE_MS = 500;
 const SYSTEM_OWNER_CODE = "HM-2000000";
 
 const Results = styled.div`
@@ -32,25 +31,11 @@ const SearchPropertyTab = () => {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const query = searched.trim();
+  // محافظ دوم: حتی اگه value از جای دیگه ست شد، متن تمیز میشه
+  const query = cleanSearchText(searched);
 
-  const search = async (term, isCancelled = () => false) => {
-    setIsLoading(true);
-
-    try {
-      const response = await Request("search/features", HTTP_METHOD.POST, {
-        searchTerm: term,
-      });
-
-      if (!isCancelled()) setData(response.data.data);
-    } catch (error) {
-      console.error("Error searching features:", error);
-      if (!isCancelled()) setData([]);
-    } finally {
-      if (!isCancelled()) setIsLoading(false);
-    }
-  };
-
+  // debounce داخل SearchInput انجام میشه، پس اینجا دوباره لازم نیست.
+  // paste و Enter هم مقدار رو فوری میفرستن و همین effect جستجو رو اجرا می‌کنه.
   useEffect(() => {
     if (!query) {
       setData([]);
@@ -59,14 +44,22 @@ const SearchPropertyTab = () => {
     }
 
     let cancelled = false;
-    const timeout = setTimeout(
-      () => search(query, () => cancelled),
-      DEBOUNCE_MS,
-    );
+    setIsLoading(true);
+
+    Request("search/features", HTTP_METHOD.POST, { searchTerm: query })
+      .then((response) => {
+        if (!cancelled) setData(response.data.data);
+      })
+      .catch((error) => {
+        console.error("Error searching features:", error);
+        if (!cancelled) setData([]);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
 
     return () => {
       cancelled = true;
-      clearTimeout(timeout);
     };
   }, [query]);
 
@@ -93,7 +86,6 @@ const SearchPropertyTab = () => {
         value={searched}
         placeholder={getTranslation("40")}
         onchange={(e) => setSearched(e.target.value)}
-        onSearch={() => query && search(query)}
       />
 
       {renderResults()}

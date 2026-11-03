@@ -515,3 +515,11 @@ export const levelIds = {
 };
 export const DATE_PATTERN = /^\d{4}[/-]\d{1,2}[/-]\d{1,2}/;
 
+const INVISIBLE_CHARS = /[\u200B\u200D-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/g;
+
+// بدون trim؛ برای وقتی که کاربر داره تایپ می‌کنه و ممکنه آخر متن فاصله بذاره
+export const stripInvisibleChars = (text) =>
+  (text || "").replace(INVISIBLE_CHARS, "");
+
+// با trim؛ برای ارسال به سرور و جستجو
+export const cleanSearchText = (text) => stripInvisibleChars(text).trim();

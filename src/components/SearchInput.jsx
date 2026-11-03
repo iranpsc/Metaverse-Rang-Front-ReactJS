@@ -1,10 +1,11 @@
 // باکس جستجوی استاندارد با debounce داخلی؛ مناسب همه‌ی لیست‌ها و صفحه‌هایی که سرچ دارند و در کل پروژه باید از همین استفاده شود
+// کاراکترهای نامرئی هنگام تایپ/paste پاک می‌شوند؛ paste و Enter بدون انتظار debounce ارسال می‌شوند
 
 import styled from "styled-components";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import debounce from "lodash/debounce";
-
+import { stripInvisibleChars } from "../services/Utility";
 const DEBOUNCE_MS = 500;
 
 const Container = styled.div`
@@ -14,7 +15,8 @@ const Container = styled.div`
   gap: 50px;
   height: 50px;
   padding: 5px 12px;
-  border: 1px solid #454545;
+  border: 1px solid
+    ${({ theme }) => theme.colors.newColors.otherColors.inputBorder};
   border-radius: 5px;
   color: #84858f;
   background-color: ${({ theme }) =>
@@ -31,30 +33,30 @@ const Container = styled.div`
   }
 `;
 
-const SearchInput = ({ placeholder, value = "", onchange }) => {
+const SearchInput = ({ placeholder, value = "", onchange, onSearch }) => {
   const [inputValue, setInputValue] = useState(value);
 
-  // همیشه آخرین onchange استفاده می‌شود، بدون اینکه debounce از نو ساخته شود
+  // همیشه آخرین کال‌بک‌ها استفاده میشن، بدون اینکه debounce از نو ساخته بشه
   const onChangeRef = useRef(onchange);
+  const onSearchRef = useRef(onSearch);
   // آخرین مقداری که به والد فرستاده شده؛ برای تشخیص تغییر خارجی value
   const lastEmitted = useRef(value);
 
   useEffect(() => {
     onChangeRef.current = onchange;
-  }, [onchange]);
+    onSearchRef.current = onSearch;
+  }, [onchange, onSearch]);
 
-  const debouncedEmit = useMemo(
-    () =>
-      debounce((next) => {
-        lastEmitted.current = next;
-        onChangeRef.current?.({ target: { value: next } });
-      }, DEBOUNCE_MS),
-    [],
-  );
+  const emit = useCallback((next) => {
+    lastEmitted.current = next;
+    onChangeRef.current?.({ target: { value: next } });
+  }, []);
+
+  const debouncedEmit = useMemo(() => debounce(emit, DEBOUNCE_MS), [emit]);
 
   useEffect(() => () => debouncedEmit.cancel(), [debouncedEmit]);
 
-  // فقط وقتی والد مقدار را از بیرون عوض کرد (مثلاً ریست) اینپوت همگام می‌شود
+  // فقط وقتی والد مقدار را از بیرون عوض کرد (مثلاً ریست) اینپوت همگام میشه
   useEffect(() => {
     if (value !== lastEmitted.current) {
       lastEmitted.current = value;
@@ -62,10 +64,38 @@ const SearchInput = ({ placeholder, value = "", onchange }) => {
     }
   }, [value]);
 
+  // ارسال فوری (بدون debounce)
+  const flush = useCallback(
+    (next) => {
+      debouncedEmit.cancel();
+      setInputValue(next);
+      emit(next);
+      onSearchRef.current?.(next.trim());
+    },
+    [debouncedEmit, emit],
+  );
+
   const handleChange = (e) => {
-    const next = e.target.value;
+    const next = stripInvisibleChars(e.target.value);
     setInputValue(next);
     debouncedEmit(next);
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+
+    const pasted = stripInvisibleChars(e.clipboardData.getData("text"));
+    const { selectionStart, selectionEnd } = e.target;
+    const next =
+      inputValue.slice(0, selectionStart) +
+      pasted +
+      inputValue.slice(selectionEnd);
+
+    flush(next);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter") flush(inputValue);
   };
 
   return (
@@ -76,6 +106,8 @@ const SearchInput = ({ placeholder, value = "", onchange }) => {
         placeholder={placeholder}
         value={inputValue}
         onChange={handleChange}
+        onPaste={handlePaste}
+        onKeyDown={handleKeyDown}
       />
     </Container>
   );

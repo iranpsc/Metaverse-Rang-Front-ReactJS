@@ -5,10 +5,8 @@ import SearchInput from "../../../../components/SearchInput";
 import CitizenSkeleton from "../../../../components/Skeletons/CitizenSkeleton.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
 import { UserContext } from "../../../../services/reducers/UserContext.jsx";
-import { getTranslation } from "../../../../services/Utility";
+import { cleanSearchText, getTranslation } from "../../../../services/Utility";
 import ResultCard from "./ResultCard";
-
-const DEBOUNCE_MS = 500;
 
 const Results = styled.div`
   display: flex;
@@ -37,30 +35,11 @@ const CitizenTab = () => {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const query = searched.trim();
+  // کاراکترهای نامرئی (مثلاً از paste) پاک میشن
+  const query = cleanSearchText(searched);
+  const currentUserId = currentUser?.id;
 
-  const search = async (term, isCancelled = () => false) => {
-    setIsLoading(true);
-
-    try {
-      const response = await Request("search/users", HTTP_METHOD.POST, {
-        searchTerm: term,
-      });
-
-      // کاربر فعلی از نتایج حذف می‌شود
-      const users = response.data.data.filter(
-        (user) => String(user.id) !== String(currentUser?.id),
-      );
-
-      if (!isCancelled()) setData(users);
-    } catch (error) {
-      console.error("Error searching users:", error);
-      if (!isCancelled()) setData([]);
-    } finally {
-      if (!isCancelled()) setIsLoading(false);
-    }
-  };
-
+  // debounce داخل SearchInput انجام میشه؛ paste و Enter هم مقدار رو فوری میفرستن
   useEffect(() => {
     if (!query) {
       setData([]);
@@ -69,16 +48,30 @@ const CitizenTab = () => {
     }
 
     let cancelled = false;
-    const timeout = setTimeout(
-      () => search(query, () => cancelled),
-      DEBOUNCE_MS,
-    );
+    setIsLoading(true);
+
+    Request("search/users", HTTP_METHOD.POST, { searchTerm: query })
+      .then((response) => {
+        if (cancelled) return;
+        // کاربر فعلی از نتایج حذف میشه
+        setData(
+          response.data.data.filter(
+            (user) => String(user.id) !== String(currentUserId),
+          ),
+        );
+      })
+      .catch((error) => {
+        console.error("Error searching users:", error);
+        if (!cancelled) setData([]);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
 
     return () => {
       cancelled = true;
-      clearTimeout(timeout);
     };
-  }, [query]);
+  }, [query, currentUserId]);
 
   const renderResults = () => {
     if (isLoading) return <CitizenSkeleton />;
@@ -99,7 +92,6 @@ const CitizenTab = () => {
         value={searched}
         placeholder={getTranslation("36")}
         onchange={(e) => setSearched(e.target.value)}
-        onSearch={() => query && search(query)}
       />
 
       {renderResults()}

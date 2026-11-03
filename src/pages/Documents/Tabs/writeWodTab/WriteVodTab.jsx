@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import styled from "styled-components";
+
 import SelectInputs from "./SelectInputs.jsx";
 import Alert from "../../../../components/Alert/Alert.jsx";
 import Button from "../../../../components/Button.jsx";
@@ -9,6 +11,29 @@ import Container from "../../../../components/Common/Container.jsx";
 import CustomEditor from "../../../../components/Common/CustomEditor.jsx";
 import FileUploader from "../../../../components/FileUploader/FileUploader.jsx";
 
+/* ---------- Styles ---------- */
+
+const SubmitWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  margin-top: 20px;
+
+  button {
+    min-width: 120px;
+  }
+
+  @media (max-width: 499px) {
+    margin-top: 14px;
+
+    button {
+      min-width: 100px;
+    }
+  }
+`;
+
+/* ---------- Helpers ---------- */
+
 const createInitialState = () => ({
   subject: "",
   title: "",
@@ -16,6 +41,8 @@ const createInitialState = () => ({
   files: [],
   selectedCitizens: [],
 });
+
+/* ---------- Component ---------- */
 
 const WriteVodTab = () => {
   const [state, setState] = useState(createInitialState);
@@ -43,6 +70,7 @@ const WriteVodTab = () => {
     setIsSending(true);
 
     const formData = new FormData();
+
     formData.append("title", state.title);
     formData.append("content", state.description);
 
@@ -139,12 +167,15 @@ const WriteVodTab = () => {
         accept="image/*,.pdf,.doc,.docx"
       />
 
-      <Button
-        fit
-        label={getTranslation("730")}
-        onclick={sendVod}
-        disabled={isDisabled ? (isSending ? "pending" : true) : false}
-      />
+      <SubmitWrapper>
+        <Button
+          fit
+          size="small"
+          label={getTranslation("730")}
+          onClick={sendVod}
+          disabled={isDisabled ? (isSending ? "pending" : true) : false}
+        />
+      </SubmitWrapper>
     </Container>
   );
 };
