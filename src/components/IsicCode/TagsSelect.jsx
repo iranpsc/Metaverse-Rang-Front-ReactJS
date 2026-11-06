@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import styled from "styled-components";
+import { getSize } from "../../styles/sizes";
 
 const SCROLL_THRESHOLD = 40;
 
@@ -20,18 +21,29 @@ const Root = styled.div`
   min-width: 0;
   display: flex;
   align-items: center;
-  min-height: 50px;
-      border: 1px solid ${({ theme }) => theme.colors.newColors.otherColors.inputBorder};
-  padding: 8px 15px;
+  box-sizing: border-box;
+  border: 1px solid
+    ${({ theme }) => theme.colors.newColors.otherColors.inputBorder};
+  padding: 10px 12px;
   padding-inline-end: 40px;
   border-radius: 5px;
+  font-size: ${({ $size }) => getSize($size, "base")};
+  line-height: 1.2;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
 
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
+
+  @media (min-width: 1280px) {
+    font-size: ${({ $size }) => getSize($size, "desktop")};
+  }
+
   svg {
     flex-shrink: 0;
-    font-size: 24px;
+    font-size: 1em;
   }
 `;
 
@@ -46,13 +58,13 @@ const Row = styled.div`
 
 const Input = styled.input`
   flex: 1;
-  min-width: 100px;
+  min-width: 60px;
   height: 100%;
   border: none;
   outline: none;
   background: transparent;
 
-  font-size: 16px;
+  font: inherit;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
 `;
 
@@ -62,7 +74,7 @@ const Tag = styled.div`
   gap: 6px;
   padding: 4px 8px;
   border-radius: 14px;
-  font-size: 13px;
+  font-size: 0.9em;
   white-space: nowrap;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
   background: ${({ theme }) => theme.colors.newColors.otherColors.iconBg};
@@ -75,7 +87,7 @@ const RemoveButton = styled.button`
   padding: 0;
   border: none;
   background: none;
-  font-size: 14px;
+  font-size: 1em;
   line-height: 1;
   cursor: pointer;
   color: ${({ theme }) => theme.colors.newColors.otherColors.red};
@@ -92,7 +104,7 @@ const ToggleButton = styled.button`
   padding: 0;
   border: none;
   background: none;
-  font-size: 22px;
+  font-size: 1.4em;
   cursor: pointer;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
 
@@ -162,7 +174,7 @@ const TagsSelect = ({
   onSearchChange,
   onOpenChange,
   onLoadMore,
-  
+  size = "default",
 }) => {
   const [input, setInput] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -227,7 +239,7 @@ const TagsSelect = ({
   };
 
   return (
-    <Root ref={rootRef}>
+    <Root ref={rootRef} $size={size}>
       <Row>
         <FiSearch />
 

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useLanguage } from "../hooks/useLanguageContext.js";
+import { useIsRtl } from "../hooks/useLanguageContext.js";
 import { useRef, useEffect, useState } from "react";
 
 const Item = styled.div`
@@ -121,7 +121,7 @@ const TextValueIcon = ({
   very_long,
   tag = false,
 }) => {
-  const isPersian = useLanguage();
+  const isPersian = useIsRtl();
 const safeValue =
   typeof value === "number" && Number.isNaN(value) ? "" : value;
   const valueRef = useRef(null);

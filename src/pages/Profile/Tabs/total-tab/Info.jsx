@@ -1,26 +1,21 @@
+// کارت اطلاعات پروفایل کاربر (نام، کد، تاریخ ثبت‌نام، آمار دنبال‌کنندگان و دکمه‌ی اشتراک‌گذاری)؛ مناسب بالای تب پروفایل
 import { LuShare2 } from "react-icons/lu";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 import { useContext, useEffect, useState } from "react";
 import ShareModal from "./ShareModal";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import useRequest from "../../../../hooks/useRequest.js";
 import {
   getTranslation,
-  metarangUrlCitizen,
   convertToPersian,
   ConvertJalali,
 } from "../../../../services/Utility";
-import { Skeleton } from "../../../../components/Skeleton";
 import Button from "../../../../components/Button.jsx";
-
-/* ---------- Styles ---------- */
-
+import TitleBody from "../../../../components/TitleBody.jsx";
+import UserCode from "../../../../components/Usercode.jsx";
+import InfoSkeleton from "../../../../components/Skeletons/InfoSkeleton.jsx";
 const BORDER_COLOR = "#454545";
 
-const titleColor = ({ theme }) => theme.colors.newColors.shades.title;
-const breakWords = css`
-  overflow-wrap: anywhere;
-`;
 
 const Container = styled.div`
   min-width: 0;
@@ -52,35 +47,6 @@ const Header = styled.div`
   border-bottom: 1px solid ${BORDER_COLOR};
 `;
 
-const Heading = styled.h2`
-  font-size: 20px;
-  color: ${titleColor};
-`;
-
-const Title = styled(Heading)`
-  font-weight: 600;
-  ${breakWords}
-`;
-
-const Count = styled(Heading)`
-  font-weight: 500;
-`;
-
-const Code = styled.a`
-  color: #0066ff;
-  font-weight: 500;
-  text-decoration: none;
-  text-transform: uppercase;
-  ${breakWords}
-`;
-
-const RegisteredAt = styled.span`
-  color: ${titleColor};
-  font-size: 13px;
-  font-weight: 500;
-  ${breakWords}
-`;
-
 const Content = styled.div`
   display: flex;
   align-items: center;
@@ -93,11 +59,6 @@ const Follow = styled.div`
   flex-direction: column;
   align-items: center;
   flex-grow: 1;
-`;
-
-const FollowLabel = styled.span`
-  color: ${titleColor};
-  font-size: 12px;
 `;
 
 const Divider = styled.div`
@@ -113,57 +74,12 @@ const Actions = styled.div`
   margin: 30px 0 10px;
 `;
 
-/* ---------- Skeleton styles ---------- */
-
-const SkeletonGroup = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-`;
-
-const SkeletonFollow = styled(Follow)`
-  gap: 5px;
-`;
-
-/* ---------- Small components ---------- */
-
 const FollowStat = ({ count, label }) => (
   <Follow>
-    <Count>{convertToPersian(count)}</Count>
-    <FollowLabel>{label}</FollowLabel>
+    <TitleBody weight title={convertToPersian(count)} />
+    <TitleBody title={label} />
   </Follow>
 );
-
-const FollowSkeleton = () => (
-  <SkeletonFollow>
-    <Skeleton width="40px" height="24px" radius="4px" />
-    <Skeleton width="50px" height="12px" radius="4px" />
-  </SkeletonFollow>
-);
-
-const InfoSkeleton = () => (
-  <Container>
-    <Header>
-      <SkeletonGroup>
-        <Skeleton width="120px" height="24px" radius="8px" />
-        <Skeleton width="100px" height="16px" radius="4px" />
-      </SkeletonGroup>
-      <Skeleton width="100px" height="16px" radius="4px" />
-    </Header>
-
-    <Content>
-      <FollowSkeleton />
-      <Divider />
-      <FollowSkeleton />
-    </Content>
-
-    <Actions>
-      <Skeleton width="100%" height="40px" radius="8px" />
-    </Actions>
-  </Container>
-);
-
-/* ---------- Component ---------- */
 
 const Info = () => {
   const [openShare, setOpenShare] = useState(false);
@@ -202,18 +118,12 @@ const Info = () => {
     <Container>
       <Header>
         <div>
-          <Title>{user?.name}</Title>
-          <Code
-            href={metarangUrlCitizen(user?.code)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {user?.code}
-          </Code>
+          <TitleBody weight title={user?.name} />
+          <UserCode code={user?.code} />
         </div>
-        <RegisteredAt>
-          {getTranslation("53")} {ConvertJalali(user?.registered_at)}
-        </RegisteredAt>
+        <TitleBody
+          title={`${getTranslation("53")} ${ConvertJalali(user?.registered_at)}`}
+        />
       </Header>
 
       <Content>

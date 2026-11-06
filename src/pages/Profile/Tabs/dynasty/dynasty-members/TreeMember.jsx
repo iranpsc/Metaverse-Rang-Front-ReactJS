@@ -7,45 +7,24 @@ import { useFollow } from "../../../../../hooks/useFollow.js";
 const Container = styled.div`
   background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
   border-radius: 5px;
-  padding: 15px;
+  box-sizing: border-box;
+  flex: 0 0 104px;
+  width: 104px;
+  min-width: 0;
+  padding: 10px 8px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 15px;
+  gap: 8px;
   z-index: 10;
-  width: 140px;
   position: relative;
-
-  @media (max-width: 768px) {
-    flex: 0 1 calc(50% - 6px);
-    width: auto;
-    max-width: 140px;
-    min-width: 0;
-    padding: 12px 8px;
-    gap: 10px;
-
-    &:not(:first-child)::after {
-      display: none;
-    }
-
-    h3 {
-      font-size: 14px;
-      text-align: center;
-    }
-
-    a {
-      font-size: 12px;
-      overflow-wrap: anywhere;
-      text-align: center;
-    }
-  }
 
   &:not(:first-child)::after {
     content: "";
     position: absolute;
     top: 50%;
     left: 100%;
-    width: 10px;
+    width: 8px;
     height: 2px;
     background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.menuBg};
@@ -53,19 +32,62 @@ const Container = styled.div`
 
   h3 {
     color: ${({ theme }) => theme.colors.newColors.shades.title};
-    font-size: 16px;
+    min-height: 2.4em;
+    margin: 0;
+    font-size: 13px;
     font-weight: 600;
+    line-height: 1.2;
+    text-align: center;
+    overflow-wrap: anywhere;
   }
+
   a {
     text-decoration: none;
     color: ${({ theme }) => theme.colors.primary};
-    font-size: 14px;
+    max-width: 100%;
+    font-size: 12px;
     font-weight: 500;
+    text-align: center;
+    overflow-wrap: anywhere;
+  }
+
+  @media (min-width: 768px) {
+    flex-basis: 140px;
+    width: 140px;
+    padding: 15px;
+    gap: 15px;
+
+    &:not(:first-child)::after {
+      width: 10px;
+    }
+
+    h3 {
+      font-size: 16px;
+    }
+
+    a {
+      font-size: 14px;
+    }
   }
 `;
 
 const Image = styled.div`
   position: relative;
+  flex: 0 0 auto;
+  img {
+    display: block;
+    width: 56px;
+    height: 56px;
+    object-fit: cover;
+  }
+
+  @media (min-width: 768px) {
+    img {
+      width: 80px;
+      height: 80px;
+    }
+  }
+
   & img {
     border-radius: 100%;
     border: 2px solid transparent;
@@ -81,23 +103,35 @@ const Image = styled.div`
 `;
 
 const Status = styled.div`
-  width: 14px;
-  height: 14px;
+  width: 11px;
+  height: 11px;
   border-radius: 100%;
   background-color: ${(props) => (props.online ? "#18c08f" : "#808080")};
   position: absolute;
-  bottom: 10px;
-  right: 10px;
+  bottom: 5px;
+  right: 5px;
   border: 2px solid #1a1a18;
+
+  @media (min-width: 768px) {
+    width: 14px;
+    height: 14px;
+    bottom: 10px;
+    right: 10px;
+  }
 `;
 
 const Chat = styled(Message)`
   position: absolute;
   left: 0;
   bottom: 0;
-  width: 25px;
-  height: 25px;
+  width: 20px;
+  height: 20px;
   fill: #635d5dff;
+
+  @media (min-width: 768px) {
+    width: 25px;
+    height: 25px;
+  }
 `;
 const TreeMember = ({ item }) => {
   const relationTypes = [

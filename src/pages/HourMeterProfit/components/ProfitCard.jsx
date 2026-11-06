@@ -1,4 +1,3 @@
-import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
 import {
   convertToPersian,
@@ -6,7 +5,8 @@ import {
   formatNumber,
   ConvertJalali,
 } from "../../../services/Utility";
-
+import TitleBody from "../../../components/TitleBody";
+import LandText from "../../../components/LandText";
 const Card = styled.div`
   padding: 20px;
   border-radius: 5px;
@@ -38,21 +38,6 @@ const Image = styled.div`
   background-color: ${({ $background }) => $background};
 `;
 
-const Label = styled.h3`
-  font-size: 13px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-`;
-
-const FeatureCode = styled.button`
-  padding: 0;
-  border: none;
-  background: none;
-  font-size: 16px;
-  font-weight: 600;
-  color: #ffc700;
-  cursor: pointer;
-`;
 
 const Value = styled.button`
   display: flex;
@@ -80,14 +65,9 @@ const Footer = styled.div`
   display: flex;
   gap: 5px;
   padding-top: 7px;
-  font-size: 13px;
   font-weight: 500;
   color: #a0a0ab;
-
-  span:last-child {
-    font-weight: 400;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
+  align-items: center;
 `;
 
 const ProfitCard = ({
@@ -102,19 +82,12 @@ const ProfitCard = ({
   onClick,
   disabled = false,
 }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
 
   const handleClaim = (event) => {
     if (disabled) return;
 
     onClick?.(event.currentTarget.getBoundingClientRect());
   };
-
-  const openFeature = () =>
-    navigate(`/feature/${feature_db_id}/info`, {
-      state: { from: location.pathname },
-    });
 
   return (
     <Card>
@@ -125,10 +98,11 @@ const ProfitCard = ({
           </Image>
 
           <div>
-            <Label>{title}</Label>
-            <FeatureCode type="button" onClick={openFeature}>
-              {feature_id?.toUpperCase()}
-            </FeatureCode>
+            <TitleBody title={title} />
+            <LandText
+              label={feature_id}
+              to={`/feature/${feature_db_id}/info`}
+            />
           </div>
         </Info>
 
@@ -139,13 +113,16 @@ const ProfitCard = ({
           disabled={disabled}
           onClick={handleClaim}
         >
-          <span>{convertToPersian(formatNumber(amount, 3))}</span>
+          <TitleBody
+            color="#ffc700"
+            title={convertToPersian(formatNumber(amount, 3))}
+          />
         </Value>
       </Content>
 
       <Footer>
-        <span>{getTranslation("1827")} :</span>
-        <span>{ConvertJalali(dead_line)}</span>
+        <TitleBody small title={getTranslation("1827")} />:
+        <TitleBody small title={ConvertJalali(dead_line)} />
       </Footer>
     </Card>
   );

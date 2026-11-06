@@ -17,11 +17,10 @@ const Item = styled.li`
 `;
 
 const Name = styled.p`
-  max-width: 200px;
   overflow: hidden;
   color: ${({ $selected, theme }) =>
     $selected ? theme.colors.primary : "#858585"};
-
+  white-space: nowrap;
   ${Item}:hover & {
     color: ${({ theme }) => theme.colors.primary};
   }

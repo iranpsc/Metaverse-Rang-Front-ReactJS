@@ -1,22 +1,14 @@
 // تب تراکنش‌های کاربر با سرچ، فیلتر وضعیت/نوع/دارایی (داخل GenericList)، بازه‌ی تاریخ شمسی و اسکرول بی‌نهایت؛ مناسب صفحه‌ی کیف پول برای نمایش و فیلتر تاریخچه‌ی تراکنش‌ها
 
-import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
-import "react-multi-date-picker/styles/colors/yellow.css";
-import styled from "styled-components";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import DatePicker from "react-multi-date-picker";
 import TimePicker from "react-multi-date-picker/plugins/time_picker";
-import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
-import { FaRegCalendarAlt } from "react-icons/fa";
+import { toJalaali } from "jalaali-js";
 import GenericList from "../../../../components/GenericList/GenericList";
-import SearchInput from "../../../../components/SearchInput";
 import TitleHeader from "../../../../components/TitleHeader";
 import Container from "../../../../components/Common/Container";
 import useRequest from "../../../../hooks/useRequest.js";
 import { COLOR_CONFIG } from "../../../../services/constants/colorConfig";
 import {
-  convertToEnglish,
   getTranslation,
   ToastError,
 } from "../../../../services/Utility";
@@ -40,45 +32,15 @@ const pickActive = (state, valuesMap) =>
     .filter((key) => state[key])
     .map((key) => valuesMap[key]);
 
-const Div = styled.div`
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  align-items: center;
-  gap: 20px;
-  margin-top: 15px;
+const formatDateForQuery = (date) => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return "";
+  const { jy, jm, jd } = toJalaali(date);
+  const pad = (value) => String(value).padStart(2, "0");
 
-  @media (min-width: 1024px) {
-    grid-template-columns: 3fr 1fr;
-  }
-`;
-
-const DateBox = styled.div`
-  display: flex;
-  flex-grow: 1;
-  align-items: center;
-  justify-content: space-between;
-  height: 48px;
-  padding: 0 10px;
-  overflow: hidden;
-  border: 1px solid #454545;
-  border-radius: 5px;
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.inputBg};
-
-  svg {
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-
-  input {
-    width: 200%;
-    height: 100%;
-    border: none;
-    outline: none;
-    background-color: transparent;
-    font-size: 14px;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-`;
+  return `${jy}/${pad(jm)}/${pad(jd)} ${pad(date.getHours())}:${pad(
+    date.getMinutes(),
+  )}:${pad(date.getSeconds())}`;
+};
 
 const TransactionsTab = () => {
   const { Request } = useRequest();
@@ -129,8 +91,8 @@ const TransactionsTab = () => {
 
     const [start, end] = dateRange;
     if (start && end) {
-      params.append("start_date_time", convertToEnglish(start));
-      params.append("end_date_time", convertToEnglish(end));
+      params.append("start_date_time", formatDateForQuery(start));
+      params.append("end_date_time", formatDateForQuery(end));
     }
 
     pickActive(status, STATUS_VALUES).forEach((value, index) =>
@@ -183,45 +145,26 @@ const TransactionsTab = () => {
     fetchPage(1);
   }, [fetchPage]);
 
-  const handleSearch = useCallback((e) => setSearched(e.target.value), []);
-
-  const handleDateChange = useCallback((dates) => {
-    if (!dates) return setDateRange([null, null]);
-
-    const [start, end] = dates.toString().split(",");
-    setDateRange([start, end || null]);
-  }, []);
-
   return (
     <Container>
       <div>
         <TitleHeader title={getTranslation("61")} />
       </div>
 
-      <Div>
-        <SearchInput
-          onchange={handleSearch}
-          value={searched}
-          placeholder={getTranslation("63")}
-        />
-        <DateBox>
-          <DatePicker
-            range
-            placeholder={getTranslation("763")}
-            format="YYYY/MM/DD HH:mm:ss"
-            plugins={DATE_PLUGINS}
-            calendar={persian}
-            locale={persian_fa}
-            calendarPosition="bottom-right"
-            value={dateRange}
-            onChange={handleDateChange}
-          />
-          <FaRegCalendarAlt size={20} />
-        </DateBox>
-      </Div>
-
       <GenericList
         type="transactions"
+        searchConfig={{
+          value: searched,
+          onChange: setSearched,
+          placeholder: getTranslation("63"),
+        }}
+        dateFilterConfig={{
+          value: dateRange,
+          onChange: setDateRange,
+          placeholder: getTranslation("763"),
+          format: "YYYY/MM/DD HH:mm:ss",
+          plugins: DATE_PLUGINS,
+        }}
         rows={transactions}
         isLoading={loading}
         loadMore={loadMore}

@@ -7,7 +7,7 @@ import useRequest from "../../../../hooks/useRequest.js";
 import { UserContext } from "../../../../services/reducers/UserContext.jsx";
 import { cleanSearchText, getTranslation } from "../../../../services/Utility";
 import ResultCard from "./ResultCard";
-
+import TitleHeader from "../../../../components/TitleHeader.jsx";
 const Results = styled.div`
   display: flex;
   flex-direction: column;
@@ -21,11 +21,10 @@ const Results = styled.div`
 
 const EmptyText = styled.p`
   margin-top: 20px;
-  font-size: 18px;
-  font-weight: 500;
   text-align: center;
-  color: ${({ theme }) => theme.colors.newColors.shades[30]};
 `;
+
+
 
 const CitizenTab = () => {
   const { Request, HTTP_METHOD } = useRequest();
@@ -75,7 +74,7 @@ const CitizenTab = () => {
 
   const renderResults = () => {
     if (isLoading) return <CitizenSkeleton />;
-    if (data.length === 0) return <EmptyText>{getTranslation("37")}</EmptyText>;
+    if (data.length === 0) return <EmptyText> <TitleHeader noMargin title={getTranslation("37")} /></EmptyText>;
 
     return (
       <Results>

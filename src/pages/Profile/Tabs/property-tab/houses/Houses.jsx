@@ -14,7 +14,7 @@ import SearchInput from "../../../../../components/SearchInput.jsx";
 import { Skeleton } from "../../../../../components/Skeleton.jsx";
 import useRequest from "../../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../../services/Utility/index.jsx";
-
+import { getSize } from "../../../../../styles/sizes.js";
 // کلید = مقدار karbari در دیتای بک‌اند؛ ترتیب کلیدها همان ترتیب نمایش فیلتر است
 
 const useClickOutside = (ref, handler, enabled = true) => {
@@ -102,6 +102,13 @@ const Select = styled.div`
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
   color: ${({ theme }) => theme.colors.newColors.shades.title};
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
+
+  @media (min-width: 1280px) {
+    font-size: ${({ $size }) => getSize($size, "desktop")};
+  }
 `;
 
 const Filter = styled.div`
@@ -285,10 +292,8 @@ const Houses = () => {
   }, [loadMore]);
 
   return (
-    <Container id="scrollable-container" ref={containerRef}>
-      <div>
-        <TitleHeader title={getTranslation("58")} />
-      </div>
+    <Container ref={containerRef}>
+      <TitleHeader title={getTranslation("58")} />
 
       <Toolbar>
         <SearchInput

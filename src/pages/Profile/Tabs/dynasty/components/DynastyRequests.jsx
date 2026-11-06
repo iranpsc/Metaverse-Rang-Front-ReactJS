@@ -1,15 +1,15 @@
 // صفحه‌ی لیست درخواست‌های ارسالی یا دریافتی سلسله (با requestType) با سرچ روی کد، بازه‌ی تاریخ و فیلتر عضو و وضعیت (داخل GenericList)؛ مناسب تب‌های sent و recieved
 
 import styled from "styled-components";
-import { useEffect, useMemo, useState } from "react";
+import { useContext, useEffect, useMemo, useState } from "react";
 import TitleHeader from "../../../../../components/TitleHeader.jsx";
-import SearchInput from "../../../../../components/SearchInput.jsx";
-import CustomDatePicker from "../../../../../components/CustomDatePicker.jsx";
 import Container from "../../../../../components/Common/Container.jsx";
 import GenericList from "../../../../../components/GenericList/GenericList.jsx";
+import LoadingSpinner from "../../../../../components/Loading/LoadingSpinner.jsx";
 import useRequest from "../../../../../hooks/useRequest.js";
-import useDateFilter from "../../../../../hooks/useDateFilter.js";
 import { getTranslation } from "../../../../../services/Utility/index.jsx";
+import DynastyAccessGuard from "../DynastyAccessGuard.jsx";
+import { UserContext } from "../../../../../services/reducers/UserContext.jsx";
 
 // کد status بک‌اند => کلید وضعیت (هر مقدار دیگر ناموفق است)
 const STATUS_BY_CODE = { 1: "confirmed", 0: "pending" };
@@ -41,54 +41,67 @@ const Header = styled.div`
   margin-top: 15px;
 `;
 
-const Toolbar = styled.div`
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  align-items: center;
-  gap: 20px;
-  margin-top: 15px;
-
-  @media (min-width: 1024px) {
-    grid-template-columns: 3fr 1fr;
-  }
-`;
-
 const DynastyRequests = ({ title, requestType, userField = "to_user" }) => {
   const { Request } = useRequest();
-  const { dateRange, setDateRange, filterByDate } = useDateFilter();
+  const [user] = useContext(UserContext);
 
-  const [searched, setSearched] = useState("");
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [accessLoading, setAccessLoading] = useState(true);
+  const [accessError, setAccessError] = useState(null);
+  const [hasDynasty, setHasDynasty] = useState(false);
   const [status, setStatus] = useState(INITIAL_STATUS);
   const [member, setMember] = useState(INITIAL_MEMBER);
 
   useEffect(() => {
     let cancelled = false;
+    setAccessLoading(true);
     setLoading(true);
 
     const fetchData = async () => {
       try {
-        const response = await Request(`dynasty/requests/${requestType}`);
+        const dynastyResponse = await Request("dynasty");
         if (cancelled) return;
 
-        setRows(
-          response.data.data.map((item) => ({
-            id: item.id,
-            code: item[userField]?.code,
-            date: item.date,
-            time: item.time,
-            member: item.relationship,
-            member_slug: item.relationship,
-            status: STATUS_BY_CODE[item.status] ?? "failed",
-            gif: item?.prize?.satisfaction || 0,
-            psc: item?.prize?.psc || 0,
-          })),
-        );
+        const dynasty = dynastyResponse.data.data;
+        const userHasDynasty = Boolean(dynasty["user-has-dynasty"]);
+        setHasDynasty(userHasDynasty);
+
+        if (!userHasDynasty || !user?.verified_kyc) {
+          setRows([]);
+          return;
+        }
+
+        try {
+          const response = await Request(`dynasty/requests/${requestType}`);
+          if (cancelled) return;
+
+          setRows(
+            response.data.data.map((item) => ({
+              id: item.id,
+              code: item[userField]?.code,
+              date: item.date,
+              time: item.time,
+              member: item.relationship,
+              member_slug: item.relationship,
+              status: STATUS_BY_CODE[item.status] ?? "failed",
+              gif: item?.prize?.satisfaction || 0,
+              psc: item?.prize?.psc || 0,
+            })),
+          );
+        } catch (error) {
+          if (!cancelled) console.error("Error fetching dynasty requests:", error);
+        }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        if (!cancelled) {
+          setAccessError("Failed to fetch dynasty access");
+          console.error("Error fetching dynasty access:", error);
+        }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) {
+          setAccessLoading(false);
+          setLoading(false);
+        }
       }
     };
 
@@ -97,7 +110,7 @@ const DynastyRequests = ({ title, requestType, userField = "to_user" }) => {
     return () => {
       cancelled = true;
     };
-  }, [requestType, userField]);
+  }, [requestType, userField, user?.verified_kyc]);
 
   const filteredItems = useMemo(() => {
     const statuses = activeKeys(status);
@@ -105,37 +118,41 @@ const DynastyRequests = ({ title, requestType, userField = "to_user" }) => {
 
     return rows.filter(
       (row) =>
-        (!searched || row.code?.toString().includes(searched)) &&
         (!statuses.length || statuses.includes(row.status)) &&
-        (!members.length || members.includes(row.member_slug)) &&
-        filterByDate(row),
+        (!members.length || members.includes(row.member_slug)),
     );
-  }, [rows, searched, status, member, filterByDate, dateRange]);
+  }, [rows, status, member]);
+
+  if (accessLoading) {
+    return <LoadingSpinner size="large" color="#4a90e2" fullScreen={false} />;
+  }
 
   return (
     <Container>
-      <Header>
-        <TitleHeader title={getTranslation(title)} />
-      </Header>
+      <DynastyAccessGuard
+        hasDynasty={hasDynasty}
+        loading={accessLoading}
+        error={accessError}
+      >
+        <Header>
+          <TitleHeader title={getTranslation(title)} />
+        </Header>
 
-      <Toolbar>
-        <SearchInput
-          placeholder={getTranslation(849)}
-          value={searched}
-          onchange={(e) => setSearched(e.target.value)}
+        <GenericList
+          type="requests"
+          variant={requestType}
+          searchConfig={{
+            key: "code",
+            placeholder: getTranslation(849),
+          }}
+          dateFilterConfig={{ key: "date" }}
+          rows={filteredItems}
+          setRows={setRows}
+          isLoading={loading}
+          filters={{ status, member }}
+          setFilters={{ status: setStatus, member: setMember }}
         />
-        <CustomDatePicker value={dateRange} onChange={setDateRange} range />
-      </Toolbar>
-
-      <GenericList
-        type="requests"
-        variant={requestType}
-        rows={filteredItems}
-        setRows={setRows}
-        isLoading={loading}
-        filters={{ status, member }}
-        setFilters={{ status: setStatus, member: setMember }}
-      />
+      </DynastyAccessGuard>
     </Container>
   );
 };

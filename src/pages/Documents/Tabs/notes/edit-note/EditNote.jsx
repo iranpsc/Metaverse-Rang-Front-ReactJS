@@ -84,6 +84,7 @@ const EditNote = ({ setIsEditing, data, onNoteUpdated }) => {
       />
 
       <FileUploader
+        mode="upload"
         files={files}
         onFilesChange={setFiles}
         maxFileSizeMB={MAX_FILE_SIZE_MB}

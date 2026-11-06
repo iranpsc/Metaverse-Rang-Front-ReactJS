@@ -1,3 +1,4 @@
+// ردیف جدول یادداشت‌ها (شماره، عنوان، حذف و مشاهده جزئیات)؛ مناسب فقط داخل NotesList، و جزئیات یادداشت را در NoteDetails باز می‌کند
 import { useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
 import styled from "styled-components";
@@ -7,23 +8,21 @@ import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 
 const TableCell = styled.td`
-  padding: 15px 30px 15px 7px;
+  padding: 15px 10px;
   border-bottom: 1px solid #454545;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
+text-align: start;
 
   @media (min-width: 845px) {
     padding: 15px 20px;
   }
 `;
 
-const CellContent = styled.div`
-  width: fit-content;
-  padding-right: ${({ $indent }) => ($indent ? "25px" : "0")};
-`;
-
-const Code = styled.h2`
+// عنوان طولانی شکسته می‌شود تا ستون را پهن نکند
+const Text = styled.h2`
   font-size: 16px;
   font-weight: 500;
+  overflow-wrap: anywhere;
 `;
 
 const Buttons = styled.div`
@@ -33,20 +32,24 @@ const Buttons = styled.div`
 `;
 
 const DeleteButton = styled.button`
-  padding: 13px 22px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 13px 14px;
   border: none;
   border-radius: 10px;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.garyBtn};
-  color: ${(props) => props.theme.colors.newColors.otherColors.grayBtnText};
-  transition: all 0.2s linear;
   cursor: pointer;
+  transition: all 0.2s linear;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.garyBtn};
+  color: ${({ theme }) => theme.colors.newColors.otherColors.grayBtnText};
 
   &:hover {
     background-color: #c30000;
+  }
+
+  @media (min-width: 845px) {
+    padding: 13px 22px;
   }
 
   @media (min-width: 1366px) {
@@ -54,32 +57,20 @@ const DeleteButton = styled.button`
   }
 `;
 
-// این کامپوننت برای نمایش یک ردیف یادداشت در جدول (شماره، عنوان، دکمه حذف و مشاهده جزئیات) استفاده میشه و جزئیات یادداشت رو در NoteDetails باز میکنه
-const Row = ({
-  id,
-  title,
-  note,
-  onNoteDeleted,
-  onNoteCached,
-  onNoteUpdated,
-}) => {
+const Row = ({ note, onNoteDeleted, onNoteCached, onNoteUpdated }) => {
+  const { id, title } = note;
   const [noteDetails, setNoteDetails] = useState(null);
   const { Request, HTTP_METHOD } = useRequest();
 
   const handleOpenDetails = async () => {
-    const hasDetails =
-      Object.prototype.hasOwnProperty.call(note, "content") &&
-      Object.prototype.hasOwnProperty.call(note, "attachments");
-
-    if (hasDetails) {
+    if ("content" in note && "attachments" in note) {
       setNoteDetails(note);
       return;
     }
 
-    const response = await Request(`notes/${id}`);
-    const fetchedDetails = response.data.data;
-    setNoteDetails(fetchedDetails);
-    onNoteCached(fetchedDetails);
+    const { data } = await Request(`notes/${id}`);
+    setNoteDetails(data.data);
+    onNoteCached(data.data);
   };
 
   const handleDelete = async () => {
@@ -100,15 +91,11 @@ const Row = ({
     <>
       <tr>
         <TableCell>
-          <CellContent>
-            <Code>{id}#</Code>
-          </CellContent>
+          <Text>{id}#</Text>
         </TableCell>
 
         <TableCell>
-          <CellContent $indent>
-            <Code>{title}</Code>
-          </CellContent>
+          <Text>{title}</Text>
         </TableCell>
 
         <TableCell>

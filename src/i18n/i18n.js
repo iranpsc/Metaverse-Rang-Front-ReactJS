@@ -9,6 +9,15 @@ export const DEV_TRANSLATIONS_API =
 
 export let languagesMeta = [];
 
+const languageMetaListeners = new Set();
+
+export const getLanguagesMeta = () => languagesMeta;
+
+export const subscribeLanguagesMeta = (listener) => {
+  languageMetaListeners.add(listener);
+  return () => languageMetaListeners.delete(listener);
+};
+
 const CACHE_PREFIX = "i18n_cache_";
 
 const getSelectedTranslationsApi = () => {
@@ -79,6 +88,7 @@ const customBackend = {
           : [];
 
       languagesMeta = metaList;
+      languageMetaListeners.forEach((listener) => listener());
 
       const langInfo = metaList.find((lang) => lang.code === language);
 
@@ -117,7 +127,7 @@ i18n
   .use(customBackend)
   .use(initReactI18next)
   .init({
-    supportedLngs: ["en", "fa"],
+    supportedLngs: false,
     fallbackLng: "fa",
     react: {
       useSuspense: true,

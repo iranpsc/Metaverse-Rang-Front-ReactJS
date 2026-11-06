@@ -10,7 +10,7 @@ const KYC_PATH = "/verification/identity";
 const getAlertConfig = (hasDynasty, isVerified, pathname) => {
   if (!hasDynasty) {
     return {
-      text: "برای دسترسی به این بخش باید سلسله تاسیس کنید",
+      text: getTranslation("1930"),
       buttonText: getTranslation("807"),
       to: ESTABLISH_PATH,
     };

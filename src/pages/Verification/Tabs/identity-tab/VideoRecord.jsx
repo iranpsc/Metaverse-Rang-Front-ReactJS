@@ -182,7 +182,7 @@ const VideoRecord = ({
     resumable.on("fileError", (_, message) => {
       console.error("File upload error:", message);
       Sentry.captureException(new Error(`File upload error: ${message}`));
-      setError("خطا در آپلود ویدیو. لطفاً دوباره تلاش کنید.");
+      setError(getTranslation(1933));
       setVideoUploadError(true);
       setIsVideoUploaded(false);
     });
@@ -233,7 +233,7 @@ const VideoRecord = ({
       console.error("Error accessing media devices.", err);
       Sentry.captureException(err);
       setError(
-        "دسترسی به دوربین یا میکروفون ممکن نیست. لطفاً تنظیمات دستگاه خود را بررسی کنید.",
+        getTranslation(1932),
       );
     }
   };
@@ -287,7 +287,7 @@ const VideoRecord = ({
             ) : (
               <>
                 <HiOutlineCamera size={50} />
-                <TitleBody title={"شروع ضبط"} />
+                <TitleBody title={getTranslation(1931)} />
               </>
             )}
             {videoURL && showPlayButton && (
@@ -321,5 +321,5 @@ const VideoRecord = ({
   );
 };
 export default Sentry.withErrorBoundary(VideoRecord, {
-  fallback: () => <div>خطایی رخ داده است. لطفا صفحه را رفرش کنید.</div>,
+  fallback: () => <div>{getTranslation(1934)}</div>,
 });

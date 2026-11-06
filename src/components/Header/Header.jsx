@@ -140,6 +140,8 @@ const Header = ({
   handleExit,
   onlyExit = false,
   onClose,
+  onReportClick,
+  onHelpClick,
 }) => {
   const [isEducationOpen, setIsEducationOpen] = useState(false);
   const location = useLocation();
@@ -151,7 +153,17 @@ const Header = ({
   const adviserData = useAdviserData(adviserKey, location.state?.locationPage);
 
   const handleReportClick = () => {
+    onReportClick?.();
     navigate("/report/send", { state: { from: location.pathname } });
+  };
+
+  const handleHelpClick = () => {
+    if (onHelpClick) {
+      onHelpClick(adviserData);
+      return;
+    }
+
+    setIsEducationOpen(true);
   };
 
   const handleExitClick = () => {
@@ -198,7 +210,7 @@ const Header = ({
             )}
 
             <ReportIcon onClick={handleReportClick} />
-            <HelpIcon onClick={() => setIsEducationOpen(true)} />
+            <HelpIcon onClick={handleHelpClick} />
           </>
         )}
 

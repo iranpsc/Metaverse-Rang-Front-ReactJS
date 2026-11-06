@@ -1,10 +1,13 @@
 import styled from "styled-components";
 import { Skeleton } from "./Skeleton";
+import { scale } from "../../styles/sizes";
 
 const SKELETON_COUNT = 3;
 
 const Card = styled.div`
-  padding: 20px;
+  box-sizing: border-box;
+  width: 100%;
+  ${scale("padding", { base: "10px", tablet: "14px", laptop: "20px" })}
   border-radius: 5px;
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
@@ -14,15 +17,41 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   margin-bottom: 10px;
+
+  @media (min-width: 500px) {
+    gap: 12px;
+  }
 `;
 
 const Profile = styled.div`
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  min-width: 0;
+
+  @media (min-width: 500px) {
+    gap: 12px;
+  }
+`;
+
+const Avatar = styled.div`
+  flex: 0 0 auto;
+  ${scale("width", { base: "40px", tablet: "50px", laptop: "60px" })}
+  ${scale("height", { base: "40px", tablet: "50px", laptop: "60px" })}
+`;
+
+const SenderInfo = styled.div`
+  min-width: 0;
+  ${scale("width", { base: "100px", tablet: "120px", laptop: "150px" })}
+`;
+
+const DeleteButton = styled.div`
+  flex: 0 0 auto;
+  ${scale("width", { base: "30px", tablet: "34px", laptop: "35px" })}
+  ${scale("height", { base: "30px", tablet: "34px", laptop: "35px" })}
 `;
 
 const NotificationsSkeleton = ({ count = SKELETON_COUNT }) =>
@@ -30,18 +59,22 @@ const NotificationsSkeleton = ({ count = SKELETON_COUNT }) =>
     <Card key={index}>
       <Header>
         <Profile>
-          <Skeleton width="60px" height="60px" radius="50%" />
-          <div>
+          <Avatar>
+            <Skeleton width="100%" height="100%" radius="50%" />
+          </Avatar>
+          <SenderInfo>
             <Skeleton
-              width="120px"
+              width="100%"
               height="20px"
               radius="4px"
               style={{ marginBottom: "8px" }}
             />
-            <Skeleton width="150px" height="14px" radius="4px" />
-          </div>
+            <Skeleton width="100%" height="14px" radius="4px" />
+          </SenderInfo>
         </Profile>
-        <Skeleton width="35px" height="35px" radius="50%" />
+        <DeleteButton>
+          <Skeleton width="100%" height="100%" radius="50%" />
+        </DeleteButton>
       </Header>
       <Skeleton width="100%" height="30px" radius="4px" />
     </Card>

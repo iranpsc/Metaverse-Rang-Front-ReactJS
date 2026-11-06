@@ -1,75 +1,76 @@
+// تب تبدیل ملک سلسله؛ مناسب صفحه‌ی سلسله برای نمایش املاک قابل‌انتخاب، جستجو بین آن‌ها و تأیید تغییر ملک اصلی از داخل مدال
+import styled from "styled-components";
+import { useContext, useMemo, useState } from "react";
 import Modal from "./Modal";
-
 import PropertyCard from "../dynasty-establish/PropertyCard";
 import SearchInput from "../../../../../components/SearchInput";
 import TitleHeader from "../../../../../components/TitleHeader";
-import styled from "styled-components";
-import { useState, useCallback, useMemo, useContext } from "react";
 import useRequest from "../../../../../hooks/useRequest.js";
-import { useNavigate } from "react-router";
-import {
-  getTranslation,
-  ToastSuccess, ToastError, GetTimeElapsed
-} from "../../../../../services/Utility";
 import { UserContext } from "../../../../../services/reducers/UserContext";
-// Combine styled components
-const Styledcomponents = {
-  Container: styled.div``,
-  Wrapper: styled.div`
-    display: grid;
-    gap: 10px;
-    margin-top: 20px;
+import {
+  GetTimeElapsed,
+  getTranslation,
+  ToastError,
+  ToastSuccess,
+} from "../../../../../services/Utility";
 
-    grid-template-columns: 1fr;
-    @media (min-width: 992px) {
-      grid-template-columns: 1fr 1fr;
-    }
-  `,
-  Header: styled.div`
-    display: flex;
+const Header = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+
+  @media (min-width: 840px) {
+    flex-direction: row;
     align-items: center;
-        margin-top: 10px;
-
     justify-content: space-between;
-  `,
-};
+    gap: 20px;
+  }
+`;
+
+const SearchBox = styled.div`
+  width: 100%;
+
+  @media (min-width: 840px) {
+    width: 40%;
+    max-width: 400px;
+  }
+`;
+
+const Wrapper = styled.div`
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin-top: 20px;
+
+  @media (min-width: 992px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+`;
 
 const Convert = ({ data, setData }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [modal, setModal] = useState(false);
+  // مدال وقتی باز است که ملکی انتخاب شده باشد
   const [selectedPropertyId, setSelectedPropertyId] = useState(null);
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
-  const navigate = useNavigate();
   const [user] = useContext(UserContext);
-  const lastUpdated = data?.["dynasty-feature"]?.["last-updated"];
 
-  const elapsed = GetTimeElapsed(lastUpdated);
+  const filteredFeatures = useMemo(
+    () =>
+      Object.values(data?.features ?? {}).filter((feature) =>
+        feature.properties_id?.toString().includes(searchTerm),
+      ),
+    [data?.features, searchTerm],
+  );
 
-  // Memoize filtered features
-  const filteredFeatures = useMemo(() => {
-    if (!data?.features) return [];
-    return Object.values(data.features).filter((feature) =>
-      feature.properties_id?.toString().includes(searchTerm),
-    );
-  }, [data?.features, searchTerm]);
-  // Use useCallback for event handlers
-  const updateDynasty = useCallback((id) => {
-    if (!user.verified_kyc) {
-      ToastError(getTranslation(881))
-      return;
-    }
-
+  const handleSelect = (id) => {
+    if (!user?.verified_kyc) return ToastError(getTranslation(881));
     if (!checkSecurity()) return;
 
     setSelectedPropertyId(id);
-    setModal(true);
-  }, []);
+  };
 
-  const handleSearch = useCallback((value) => {
-    setSearchTerm(value);
-  }, []);
-
-  const handleConfirm = useCallback(async () => {
+  const handleConfirm = async () => {
     try {
       const response = await Request(
         `dynasty/${data.id}/update/${selectedPropertyId}`,
@@ -77,45 +78,47 @@ const Convert = ({ data, setData }) => {
       );
       setData(response.data.data);
       ToastSuccess(getTranslation(1502));
-
-      setModal(false);
     } catch (error) {
       console.error("Error updating dynasty:", error);
-      setModal(false);
+    } finally {
+      setSelectedPropertyId(null);
     }
-  }, [data.id, selectedPropertyId, navigate]);
+  };
 
   return (
-    <Styledcomponents.Container>
-      <Styledcomponents.Header>
-        <TitleHeader title={getTranslation(809)} />
-        <SearchInput
-          placeholder={getTranslation(849)}
-          onchange={(e) => handleSearch(e.target.value)}
-          value={searchTerm}
-        />
-      </Styledcomponents.Header>
-      <Styledcomponents.Wrapper>
-        {filteredFeatures.map((feature) => (
+    <>
+      <Header>
+        <TitleHeader title={getTranslation(809)} noMargin />
+        <SearchBox>
+          <SearchInput
+            placeholder={getTranslation(849)}
+            value={searchTerm}
+            onchange={(e) => setSearchTerm(e.target.value)}
+          />
+        </SearchBox>
+      </Header>
+
+      <Wrapper>
+        {filteredFeatures.map(({ id, properties_id, stability }) => (
           <PropertyCard
-            key={feature.id}
-            id={feature.id}
-            area={feature.area}
-            propertyId={feature.properties_id}
-            stability={feature.stability}
+            key={id}
+            id={id}
+            propertyId={properties_id}
+            stability={stability}
             label={getTranslation(818)}
-            onClick={updateDynasty}
+            onClick={handleSelect}
           />
         ))}
-      </Styledcomponents.Wrapper>
-      {modal && (
+      </Wrapper>
+
+      {selectedPropertyId !== null && (
         <Modal
-          setModal={setModal}
+          setModal={() => setSelectedPropertyId(null)}
           onConfirm={handleConfirm}
-          elapsed={elapsed}
+          elapsed={GetTimeElapsed(data?.["dynasty-feature"]?.["last-updated"])}
         />
       )}
-    </Styledcomponents.Container>
+    </>
   );
 };
 

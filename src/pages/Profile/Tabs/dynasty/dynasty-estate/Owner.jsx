@@ -2,13 +2,11 @@ import TitleHeader from "../../../../../components/TitleHeader";
 import { getTranslation } from "../../../../../services/Utility";
 import Details from "./Details";
 import Model3D from "./Model3D";
-
 import styled from "styled-components";
-
-
 const Wrapper = styled.div`
   padding: 20px;
   margin-top: 20px;
+
   border-radius: 10px;
   background-color: ${(props) =>
     props.theme.colors.newColors.otherColors.inputBg};

@@ -27,6 +27,7 @@ const compactStyles = css`
 const globalStyles = css`
   position: fixed;
   inset: 0;
+  z-index: 100001;
 `;
 
 const GlobalAwareOverlay = styled(Overlay)`
@@ -56,6 +57,8 @@ const ModalXs = ({
   compact = false,
   hideTitle = false,
   global = false,
+  onReportClick,
+  onHelpClick,
 }) => {
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose?.();
@@ -73,6 +76,8 @@ const ModalXs = ({
               handleExit={handleExitClick}
               onlyExit={onlyExit}
               onClose={onClose}
+              onReportClick={onReportClick}
+              onHelpClick={onHelpClick}
             />
           )
         )}

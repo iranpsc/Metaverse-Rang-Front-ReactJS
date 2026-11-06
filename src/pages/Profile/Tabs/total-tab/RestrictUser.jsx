@@ -10,7 +10,7 @@ import { CiImageOn } from "react-icons/ci";
 import { FiShare2 } from "react-icons/fi";
 import { MdOutlineMailOutline } from "react-icons/md";
 import { RiUserForbidLine } from "react-icons/ri";
-
+import TitleBody from "../../../../components/TitleBody.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import { getTranslation } from "../../../../services/Utility";
@@ -64,16 +64,6 @@ const Container = styled.div`
   @media (min-width: 1024px) {
     flex-direction: row;
     gap: 0;
-  }
-`;
-
-const Title = styled.h2`
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-  font-size: 14px;
-  font-weight: 600;
-
-  @media (min-width: 1024px) {
-    font-size: 18px;
   }
 `;
 
@@ -189,7 +179,7 @@ const RestrictUser = () => {
 
   return (
     <Container>
-      <Title>{getTranslation("726")}</Title>
+      <TitleBody weight title={getTranslation("726")} />
 
       <Icons>
         {ICONS.map(({ slug, label, icon, disabled }) => (

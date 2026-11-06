@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { convertToPersian, formatNumber } from "../../../services/Utility";
-
+import TitleBody from "../../../components/TitleBody";
 // رنگ دکمه => رنگ پس‌زمینه و سایه
 const STYLES = {
   "#FF0000": {
@@ -36,22 +36,10 @@ const Container = styled.button`
   }
 `;
 
-const Title = styled.span`
-  font-size: 13px;
-  font-weight: 400;
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-`;
-
 const Row = styled.div`
   display: flex;
   gap: 6px;
   margin-top: 2px;
-`;
-
-const Amount = styled.h3`
-  font-size: 15px;
-  font-weight: 600;
-  color: ${({ $color }) => $color};
 `;
 
 const Button = ({ color, title, value, logo, disabled = false, onClick }) => {
@@ -68,11 +56,14 @@ const Button = ({ color, title, value, logo, disabled = false, onClick }) => {
       disabled={disabled}
       onClick={handleClick}
     >
-      <Title>{title}</Title>
+      <TitleBody small title={title} />
 
       <Row>
         <img width={24} height={24} src={logo} alt="" />
-        <Amount $color={color}>{convertToPersian(formatNumber(value, 3))}</Amount>
+        <TitleBody
+          color={color}
+          title={convertToPersian(formatNumber(value, 3))}
+        />
       </Row>
     </Container>
   );

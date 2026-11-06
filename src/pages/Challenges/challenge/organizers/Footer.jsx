@@ -1,8 +1,9 @@
 import ConfettiExplosion from "react-confetti-explosion";
 import styled from "styled-components";
-import { useLanguage } from "../../../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../../../hooks/useLanguageContext.js";
 import { convertToPersian } from "../../../../services/Utility";
 import ToolTip from "../../../../components/Tooltip/Tooltip.jsx";
+import TitleBody from "../../../../components/TitleBody.jsx";
 const CONFETTI = {
   success: { offset: 30, color: "#18C08F" },
   fail: { offset: 175, color: "#C30000" },
@@ -41,7 +42,7 @@ const getConfetti = (shining) => {
 };
 
 const Footer = ({ footers, shining }) => {
-  const isPersian = useLanguage();
+  const isPersian = useIsRtl();
   const confetti = getConfetti(shining);
 
   return (
@@ -54,7 +55,7 @@ const Footer = ({ footers, shining }) => {
           content={slug}
           Chidren={
             <Item>
-              <span>{convertToPersian(count)}</span>
+              <TitleBody weight title={convertToPersian(count)} />
               <img src={icon} alt="" width={26} height={26} />
             </Item>
           }

@@ -1,113 +1,77 @@
 import styled from "styled-components";
-import defulte from "../../../../../../assets/images/defulte-profile.png";
-import {
-  getTranslation,
-  metarangUrlCitizen,
-} from "../../../../../../services/Utility";
+import defaultProfile from "../../../../../../assets/images/defulte-profile.png";
+import TitleBody from "../../../../../../components/TitleBody";
+import UserCode from "../../../../../../components/UserCode";
+import { getTranslation } from "../../../../../../services/Utility";
+
+/* ---------- Constants ---------- */
+
+const STATUS_CONFIG = {
+  confirmed: { color: "#18C08F", label: 854 },
+  pending: { color: "#FFC700", label: 852 },
+  rejected: { color: "#FF0000", label: 853 },
+};
+
+/* ---------- Styles ---------- */
 
 const Container = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  padding: 20px;
-  border-radius: 5px;
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   align-items: center;
   margin-top: 30px;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
 `;
 
 const Profile = styled.div`
   display: flex;
   align-items: center;
   gap: 20px;
-  &:hover img {
-    box-shadow: 0px 10px 25px -5px ${(props) => props.theme.colors.primary};
-    border: 2px solid ${(props) => props.theme.colors.primary};
-  }
-  h3 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 18px;
-    font-weight: 500;
-  }
-  a {
-    text-decoration: none;
-    color: ${(props) => props.theme.colors.primary};
-    font-size: 16px;
-    font-weight: 500;
-  }
-  & img {
+
+  img {
     border-radius: 100%;
     border: 2px solid transparent;
     transition: all 0.2s linear;
   }
-`;
 
-const Status = styled.div`
-  h2 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 14px;
-    font-weight: 600;
-  }
-  h3 {
-    font-size: 16px;
-    font-weight: 400;
-    color: ${(props) =>
-      props.theme.colors.newColors.otherColors.secondaryBtnText};
-    margin-top: 4px;
+  &:hover img {
+    border-color: ${({ theme }) => theme.colors.primary};
+    box-shadow: 0px 10px 25px -5px ${({ theme }) => theme.colors.primary};
   }
 `;
 
-const Date = styled.div`
-  h2 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 14px;
-    font-weight: 600;
-  }
-  h3 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 16px;
-    font-weight: 400;
-    margin-top: 4px;
-  }
-`;
+/* ---------- Component ---------- */
 
 const MemberCard = ({ status, code, date, time, name, image }) => {
-  const statusColor =
-    status === "confirmed"
-      ? "#18C08F"
-      : status === "pending"
-        ? "#FFC700"
-        : "#FF0000";
-  const statusTranslation =
-    status === "confirmed" ? 854 : status === "pending" ? 852 : 853;
+  // هر وضعیتِ ناشناخته مثل «رد شده» نمایش داده می‌شود (رفتار قبلی)
+  const { color, label } = STATUS_CONFIG[status] ?? STATUS_CONFIG.rejected;
 
   return (
     <Container>
       <Profile>
-        <img src={image || defulte} width={80} height={80} alt={name || ""} />
+        <img
+          src={image || defaultProfile}
+          alt={name || ""}
+          width={80}
+          height={80}
+        />
         <div>
-          <h3>{name}</h3>
-          <a href={metarangUrlCitizen(code)} target="_blank" rel="noreferrer">
-            {code}
-          </a>
+          <TitleBody title={name} />
+          <UserCode code={code} />
         </div>
       </Profile>
-      <Status>
-        <h2>{getTranslation(146)}</h2>
-        <h3
-          style={{
-            color: statusColor,
-          }}
-        >
-          {getTranslation(statusTranslation)}
-        </h3>
-      </Status>
-      <Date>
-        <h2>{getTranslation(850)}</h2>
-        <h3>
-          {date} | {time}
-        </h3>
-      </Date>
+
+      <div>
+        <TitleBody title={getTranslation(146)} weight={600} />
+        <TitleBody title={getTranslation(label)} color={color} />
+      </div>
+
+      <div>
+        <TitleBody title={getTranslation(850)} weight={600} />
+        <TitleBody title={`${date} | ${time}`} />
+      </div>
     </Container>
   );
 };

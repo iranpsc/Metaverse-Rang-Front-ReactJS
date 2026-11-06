@@ -5,7 +5,7 @@ import { toGregorian, isValidJalaaliDate } from "jalaali-js";
 export const SanitizeHTML = (html) => {
   if (!html) return "";
 
-  const cleanHTML = DOMPurify.sanitize(html, {
+  return DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [
       "div",
       "p",
@@ -59,13 +59,14 @@ export const SanitizeHTML = (html) => {
       "height",
       "style",
     ],
+
     FORBID_TAGS: ["script", "iframe", "object", "embed"],
   });
 
   const temp = document.createElement("div");
   temp.innerHTML = cleanHTML;
 
-  return temp.textContent || "";
+  return cleanHTML;
 };
 export const getPlainText = (htmlString) => {
   if (!htmlString) return "";
@@ -98,7 +99,9 @@ export function ConvertJalali(date) {
     parsedDate = new Date(date);
   }
 
-  return parsedDate.toLocaleDateString(isPersian ? "fa-IR" : "en-US");
+  return parsedDate.toLocaleDateString(
+    isPersian ? "fa-IR" : i18n.language || "en-US",
+  );
 }
 
 const BIRTHDATE_REGEX = /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})/;
@@ -290,6 +293,7 @@ export const convertToEnglish = (value) => {
 export const ToastError = (message) => {
   return toast.error(message, {
     style: {
+      zIndex: 2147483647,
       direction: "rtl",
       textAlign: "right",
       borderRadius: "10px",
@@ -357,6 +361,38 @@ const PSC_TO_IRR = 900;
 export const pscToIrr = (psc) => {
   return (+psc || 0) * PSC_TO_IRR;
 };
+export const calculateTotalIrr = (irr, psc) => (+irr || 0) + pscToIrr(psc);
+
+
+
+
+
+
+
+
+const KARBARI_UNIT_PRICE_IRR = {
+  m: 10000, // مسکونی (زرد)
+  t: 30000, // تجاری (قرمز)
+  a: 60000, // آموزشی (آبی)
+};
+
+export const calculateFallbackPriceIrr = (karbari, stability) =>
+  (+stability || 0) * (KARBARI_UNIT_PRICE_IRR[karbari] || 0);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const getTranslation = (fieldId) => {
   const resources = i18n.store.data;
@@ -515,7 +551,8 @@ export const levelIds = {
 };
 export const DATE_PATTERN = /^\d{4}[/-]\d{1,2}[/-]\d{1,2}/;
 
-const INVISIBLE_CHARS = /[\u200B\u200D-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/g;
+const INVISIBLE_CHARS =
+  /[\u200B\u200D-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/g;
 
 // بدون trim؛ برای وقتی که کاربر داره تایپ می‌کنه و ممکنه آخر متن فاصله بذاره
 export const stripInvisibleChars = (text) =>
@@ -523,3 +560,18 @@ export const stripInvisibleChars = (text) =>
 
 // با trim؛ برای ارسال به سرور و جستجو
 export const cleanSearchText = (text) => stripInvisibleChars(text).trim();
+
+// فقط مسیر نسبی (بدون /api/) به Request داده می‌شود
+export const normalizeRequestPath = (url) => {
+  if (!url) return "";
+  if (url.startsWith("/api/")) return url.substring(5);
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    try {
+      const parsed = new URL(url);
+      return parsed.pathname.replace(/^\/api\//, "") + parsed.search;
+    } catch {
+      return url;
+    }
+  }
+  return url;
+};

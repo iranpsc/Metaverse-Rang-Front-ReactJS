@@ -15,6 +15,7 @@ import mehr from "../../../../assets/images/bank-icon/Bank-Mehr-Iran.png";
 import saderat from "../../../../assets/images/bank-icon/bank-saderat.png";
 import Button from "../../../../components/Button";
 import ModalXs from "../../../../components/Modal/ModalXs";
+import TitleBody from "../../../../components/TitleBody.jsx";
 // نام بانک (از بک‌اند) => لوگو؛ بانک ناشناخته لوگوی صادرات می‌گیرد
 const BANK_LOGOS = {
   "بانک مهر ایران": mehr,
@@ -107,18 +108,6 @@ const ShabaArea = styled.div`
   gap: 5px;
   padding: 10px 40px;
   background-color: #1a1a18;
-
-  span {
-    font-size: 12px;
-    font-weight: 600;
-    color: #fdfdfd;
-  }
-
-  h3 {
-    font-size: 14px;
-    font-weight: 500;
-    color: white;
-  }
 `;
 
 const DeleteButton = styled.button`
@@ -133,8 +122,8 @@ const DeleteButton = styled.button`
   padding: 0;
   border: none;
   border-radius: 50%;
-  background-color: #ffc700;
-  color: #1a1a1a;
+  background-color: ${({ theme }) => theme.colors.primary};
+  color: ${({ theme }) => theme.colors.newColors.shades.bg2};
   cursor: pointer;
 
   svg {
@@ -155,11 +144,6 @@ const AddTile = styled.div`
   font-size: 46px;
   cursor: pointer;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
-
-  span {
-    font-size: 16px;
-    font-weight: 600;
-  }
 `;
 
 const BankTab = () => {
@@ -219,13 +203,16 @@ const BankTab = () => {
                       src={BANK_LOGOS[card.bank_name] ?? DEFAULT_LOGO}
                       alt=""
                     />
-                    <span>{card.bank_name}</span>
+                    <TitleBody small title={card.bank_name} />
                   </BankName>
                   <h2>{convertToPersian(card.card_num)}</h2>
                 </NumberArea>
                 <ShabaArea>
-                  <span>{getTranslation("889")}</span>
-                  <h3>{convertToPersian(card.shaba_num)}</h3>
+                  <TitleBody color="white" title={getTranslation("889")} />
+                  <TitleBody
+                    color="white"
+                    title={convertToPersian(card.shaba_num)}
+                  />
                 </ShabaArea>
                 <DeleteButton
                   type="button"
@@ -241,7 +228,7 @@ const BankTab = () => {
 
         <CardSlot>
           <AddTile onClick={loading ? undefined : () => setOpenAddModal(true)}>
-            +<span> {getTranslation("890")}</span>
+            + <TitleBody big weight title={getTranslation("890")} />
           </AddTile>
         </CardSlot>
       </Cards>

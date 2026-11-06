@@ -21,6 +21,7 @@ import RotateDevice from "./components/RotateDevice";
 import { useAppHeight } from "./hooks/useAppHeight.js";
 import { ScrollDirectionProvider } from "./services/reducers/ScrollDirectionContext.jsx";
 import { MapLandsProvider } from "./services/reducers/MapLandsContext.jsx";
+import { AccountSecurityProvider } from "./services/reducers/accountSecurityContext.jsx";
 
 function App() {
   useAppHeight();
@@ -56,17 +57,19 @@ function App() {
                         <SelectedEnvironmentProvider>
                           <MapContextProvider>
                             <AlertProvider>
-                              <RotateDevice />
+                              <AccountSecurityProvider>
+                                <RotateDevice />
 
-                              <Routers />
+                                <Routers />
 
-                              <Toaster
-                                containerStyle={{
-                                  zIndex: 100000,
-                                  marginBottom: 48,
-                                }}
-                                position="bottom-right"
-                              />
+                                <Toaster
+                                  containerStyle={{
+                                    zIndex: 2147483647,
+                                    marginBottom: 48,
+                                  }}
+                                  position="bottom-right"
+                                />
+                              </AccountSecurityProvider>
                             </AlertProvider>
                           </MapContextProvider>
                         </SelectedEnvironmentProvider>

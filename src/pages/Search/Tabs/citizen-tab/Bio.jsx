@@ -1,10 +1,8 @@
 import styled from "styled-components";
 import DefaultProfile from "../../../../assets/images/defulte-profile.png";
-import {
-  getTranslation,
-  metarangUrlCitizen,
-} from "../../../../services/Utility";
-
+import { getTranslation } from "../../../../services/Utility";
+import TitleBody from "../../../../components/TitleBody";
+import UserCode from "../../../../components/UserCode";
 const STATS = [
   { id: 1, titleId: "724", field: "level" },
   { id: 2, titleId: "38", field: "followers" },
@@ -26,19 +24,10 @@ const Photo = styled.img`
   height: 50px;
   border-radius: 100%;
   object-fit: cover;
-`;
 
-const Identity = styled.div`
-  h2 {
-    font-size: 16px;
-    font-weight: 500;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-
-  a {
-    font-size: 14px;
-    color: #0066ff;
-    text-decoration: none;
+  @media (min-width: 768px) {
+    width: clamp(40px, 4vw, 70px);
+    height: clamp(40px, 4vw, 70px);
   }
 `;
 
@@ -53,17 +42,6 @@ const Stat = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  h3 {
-    font-size: 16px;
-    font-weight: 500;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-
-  p {
-    font-size: 14px;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
 `;
 
 // اگر عکس لود نشد، پیش‌فرض جایگزین می‌شود (بدون حلقه‌ی بی‌نهایت)
@@ -81,25 +59,17 @@ const Bio = ({ user }) => (
         onError={handleImageError}
       />
 
-      <Identity>
-        <h2>{user?.name}</h2>
-        {user?.code && (
-          <a
-            href={metarangUrlCitizen(user.code.toLowerCase())}
-            target="_blank"
-            rel="noreferrer"
-          >
-            {user.code}
-          </a>
-        )}
-      </Identity>
+      <div>
+        <TitleBody title={user?.name} />
+        {user?.code && <UserCode code={user?.code} />}
+      </div>
     </Profile>
 
     <Stats>
       {STATS.map(({ id, titleId, field }) => (
         <Stat key={id}>
-          <h3>{getTranslation(titleId)}</h3>
-          <p>{field ? user?.[field] : "-"}</p>
+          <TitleBody title={getTranslation(titleId)} />
+          <TitleBody title={field ? user?.[field] : "-"} />
         </Stat>
       ))}
     </Stats>

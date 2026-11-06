@@ -15,7 +15,7 @@ import MapPolygons from "./MapPolygons";
 import MapFlag from "./MapFlag";
 import Mark from "./3dModelMap/Mark";
 import { useSelectedEnvironment } from "../../hooks/useSelectedEnvironment.js";
-import { useLanguage } from "../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../hooks/useLanguageContext.js";
 import * as turf from "@turf/turf";
 import AuthMiddleware from "../../middleware/AuthMiddleware";
 import ZoomControls from "../../components/ZoomControls";
@@ -44,7 +44,7 @@ const MapTreeD = () => {
     useSelectedEnvironment();
   const isPlacementActive =
     confirmation && Boolean(selectedEnvironment?.id) && !hiddenModel;
-  const isPersian = useLanguage();
+  const isPersian = useIsRtl();
   const navigate = useNavigate();
   const handleZoomChange = useCallback((delta) => {
     if (!mapRef.current) return;

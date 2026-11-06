@@ -6,7 +6,7 @@ import Button from "../Button.jsx";
 import CustomEditor from "../Common/CustomEditor.jsx";
 import FileUploader from "../FileUploader/FileUploader.jsx";
 import useRequest from "../../hooks/useRequest.js";
-import { SanitizeHTML,getTranslation } from "../../services/Utility/index.jsx";
+import { SanitizeHTML, getTranslation } from "../../services/Utility/index.jsx";
 
 const CHAR_LIMIT = 2000;
 const MAX_FILE_SIZE_MB = 9;
@@ -61,17 +61,20 @@ const ReplyForm = ({ url, onSent }) => {
       />
 
       <FileUploader
+        mode="upload"
         files={files}
         onFilesChange={setFiles}
         maxFileSizeMB={MAX_FILE_SIZE_MB}
       />
-
-      <Button
-        fit
-        label={getTranslation("1352")}
-        onClick={handleSend}
-        disabled={isSending ? "pending" : false}
-      />
+      <div style={{ marginTop: "20px" }}>
+        {" "}
+        <Button
+          fit
+          label={getTranslation("1352")}
+          onClick={handleSend}
+          disabled={isSending ? "pending" : false}
+        />
+      </div>
     </Container>
   );
 };

@@ -2,7 +2,7 @@ import styled from "styled-components";
 import TitleHeader from "../../../../../components/TitleHeader";
 import { getTranslation } from "../../../../../services/Utility";
 import List from "./List";
-
+import TitleBody from "../../../../../components/TitleBody";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -23,8 +23,8 @@ const Establish = ({ members }) => {
     <Container>
       <Top>
         <TitleHeader title={getTranslation(807)} />
-        <p>{getTranslation(806)}</p>
-        <p>{getTranslation(808)}</p>
+        <TitleBody title={getTranslation(806)} />
+        <TitleBody title={getTranslation(808)} />
       </Top>
 
       <List members={members} />

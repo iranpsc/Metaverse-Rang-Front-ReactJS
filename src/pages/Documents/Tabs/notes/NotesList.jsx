@@ -1,16 +1,83 @@
-import styled from "styled-components";
+// جدول یادداشت‌ها (شماره، عنوان و عملیات)؛ مناسب صفحه‌ی یادداشت‌ها؛ شماره و عنوان کنار هم، ستون عملیات با فاصله در انتها؛ در حالت لودینگ هدر ثابت می‌ماند و فقط ردیف‌ها اسکلتون می‌شوند؛ فونت و فاصله‌ها با پراپ size ریسپانسیو است
+import styled, { css } from "styled-components";
 import Row from "./Row";
+import NotesListSkeleton from "../../../../components/Skeletons/NotesListSkeleton";
 import { getTranslation } from "../../../../services/Utility";
-import { Skeleton } from "../../../../components/Skeleton";
+import { getSize } from "../../../../styles/sizes";
 
-const SKELETON_ROWS = 4;
+const responsiveFont = css`
+  font-size: ${({ $size }) => getSize($size, "base")};
 
-const Container = styled.div`
-  border-radius: 0.25rem;
-  overflow-x: auto;
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
+
+  @media (min-width: 1280px) {
+    font-size: ${({ $size }) => getSize($size, "desktop")};
+  }
+`;
+
+// ستون‌های جدول: عنوان (کلید ترجمه) و عرض
+// ستون اول فقط به اندازه‌ی محتوا، ستون دوم باقی فضا را می‌گیرد، ستون سوم به انتها می‌رود
+const COLUMNS = [
+  { title: "1357", width: "1%", align: "start" },
+  { title: "1358", width: "100%", align: "start" },
+  { title: "1359", width: "1%", align: "center" },
+];
+
+const TableScroller = styled.div`
+  width: 100%;
   margin-top: 20px;
+  overflow-x: auto;
+  border-radius: 0.25rem;
+
   &::-webkit-scrollbar {
     display: none;
+  }
+
+  th,
+  td {
+    padding: 8px 10px;
+    white-space: nowrap;
+  }
+
+  th,
+  td h2,
+  td button {
+    ${responsiveFont}
+  }
+
+  td button {
+    padding: 8px 12px;
+  }
+
+  /* عنوان طولانی با سه‌نقطه کوتاه می‌شود تا جدول عریض نشود */
+  td:nth-child(2) {
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    th,
+    td {
+      padding: 12px 14px;
+    }
+
+    td button {
+      padding: 10px 16px;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    th,
+    td {
+      padding: 16px 18px;
+    }
+
+    td button {
+      padding: 13px 20px;
+    }
   }
 `;
 
@@ -18,111 +85,59 @@ const Table = styled.table`
   width: 100%;
   margin-top: 5px;
   border-collapse: collapse;
-  border-top-right-radius: 10px;
-  border-top-left-radius: 10px;
+  border-radius: 10px 10px 0 0;
 `;
 
 const TableHead = styled.thead`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
   border-radius: 10px;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
 `;
 
 const TableHeader = styled.th`
-  padding: 20px 10px 10px;
-  font-size: 16px;
-  font-weight: 500;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  position: relative;
-  text-align: center;
   width: ${({ $width }) => $width};
-
-  div {
-    width: fit-content;
-  }
+  font-weight: 500;
+  text-align: ${({ $align }) => $align};
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
 `;
 
-const SkeletonRow = styled.tr`
-  td {
-    padding: 15px 20px;
-    border-bottom: 1px solid #454545;
-    text-align: center;
-  }
-`;
-
-const SkeletonActions = styled.div`
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  justify-content: center;
-`;
-
-// ستون‌های جدول: عنوان (کلید ترجمه)، عرض و اسکلتون مخصوص هر ستون
-const COLUMNS = [
-  {
-    title: "1357",
-    width: "100px",
-    skeleton: <Skeleton width="50px" height="18px" radius="4px" />,
-  },
-  {
-    title: "1358",
-    width: "350px",
-    skeleton: <Skeleton width="230px" height="18px" radius="4px" />,
-  },
-  {
-    title: "1359",
-    width: "210px",
-    skeleton: (
-      <SkeletonActions>
-        <Skeleton width="64px" height="50px" radius="8px" />
-        <Skeleton width="97.3px" height="50px" radius="8px" />
-      </SkeletonActions>
-    ),
-  },
-];
-
-// این کامپوننت برای نمایش جدول یادداشت‌ها (شماره، عنوان و عملیات) استفاده میشه؛ در حالت لودینگ هدر ثابت می‌مونه و فقط ردیف‌ها اسکلتون می‌شن
 const NotesList = ({
   notes,
   isLoading,
   onNoteDeleted,
   onNoteCached,
   onNoteUpdated,
+  size = "default",
 }) => (
-  <Container>
+  <TableScroller $size={size}>
     <Table>
       <TableHead>
         <tr>
-          {COLUMNS.map(({ title, width }) => (
-            <TableHeader key={title} $width={width}>
-              <div>{getTranslation(title)}</div>
+          {COLUMNS.map(({ title, width, align }) => (
+            <TableHeader key={title} $width={width} $align={align}>
+              {getTranslation(title)}
             </TableHeader>
           ))}
         </tr>
       </TableHead>
 
       <tbody>
-        {isLoading
-          ? Array.from({ length: SKELETON_ROWS }).map((_, index) => (
-              <SkeletonRow key={index}>
-                {COLUMNS.map(({ title, skeleton }) => (
-                  <td key={title}>{skeleton}</td>
-                ))}
-              </SkeletonRow>
-            ))
-          : notes.map((note) => (
-              <Row
-                key={note.id}
-                {...note}
-                note={note}
-                onNoteDeleted={onNoteDeleted}
-                onNoteCached={onNoteCached}
-                onNoteUpdated={onNoteUpdated}
-              />
-            ))}
+        {isLoading ? (
+          <NotesListSkeleton />
+        ) : (
+          notes.map((note) => (
+            <Row
+              key={note.id}
+              note={note}
+              onNoteDeleted={onNoteDeleted}
+              onNoteCached={onNoteCached}
+              onNoteUpdated={onNoteUpdated}
+            />
+          ))
+        )}
       </tbody>
     </Table>
-  </Container>
+  </TableScroller>
 );
 
 export default NotesList;

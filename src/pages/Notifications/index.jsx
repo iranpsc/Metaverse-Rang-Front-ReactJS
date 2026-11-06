@@ -9,31 +9,42 @@ import { UserContext } from "../../services/reducers/UserContext";
 import { getTranslation } from "../../services/Utility";
 import NotifCard from "./NotifCard";
 import TitleBody from "../../components/TitleBody.jsx";
+import { responsiveFontSize, scale } from "../../styles/sizes";
+
 const Container = styled.div`
-  height: 77%;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
 `;
 
 const ReadAllButton = styled.button`
   width: fit-content;
-  margin: 10px 0;
+  flex: 0 0 auto;
+  margin: 8px 0;
   padding: 0;
   border: none;
   background: none;
   font-family: inherit;
-  font-size: 16px;
   font-weight: 500;
   cursor: pointer;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
+  ${responsiveFontSize}
 `;
 
 const List = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  height: 100%;
-  padding-bottom: 60px;
+  flex: 1 1 auto;
+  gap: 10px;
+  min-height: 0;
+  padding-bottom: 12px;
   padding-inline-end: 15px;
   overflow-y: auto;
+
+  @media (min-width: 1000px) {
+    gap: 15px;
+  }
 `;
 
 const EmptyState = styled.div`
@@ -41,11 +52,12 @@ const EmptyState = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  flex: 1 1 auto;
+  gap: 8px;
 `;
 
 const EmptyIcon = styled(FiInbox)`
-  font-size: 60px;
+  ${scale("font-size", { base: "42px", tablet: "50px", laptop: "60px" })}
   color: ${({ theme }) => theme.colors.newColors.shades.title};
 `;
 

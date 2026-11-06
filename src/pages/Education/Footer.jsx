@@ -7,17 +7,25 @@ import { ToastError } from "../../services/Utility/index.jsx";
 import styled from "styled-components";
 import { useState } from "react";
 import useRequest from "../../hooks/useRequest.js";
-import { metarangUrlCitizen } from "../../services/Utility/index.jsx";
+import TitleBody from "../../components/TitleBody.jsx";
+import UserCode from "../../components/Usercode.jsx";
+import { getSize } from "../../styles/sizes";
+
 const Left = styled.div`
   display: flex;
-  align-items: end;
-  gap: 20px;
+  align-items: center;
+  gap: 10px;
   div {
     display: flex;
     align-items: center;
-    gap: 5px;
-    h3 {
-      font-weight: 500;
+    gap: 3px;
+  }
+
+  @media (min-width: 500px) {
+    gap: 20px;
+
+    div {
+      gap: 5px;
     }
   }
 `;
@@ -29,15 +37,36 @@ const Container = styled.div`
   color: #969696;
   border-top: 1px solid #2d2d2a;
   padding-top: 5px;
+  gap: 8px;
+
+  @media (max-width: 499px) {
+    flex-wrap: wrap;
+  }
+
   svg {
-    font-size: 18px;
+    font-size: ${getSize("default", "base")};
   }
   span {
-    font-size: 19px;
+    font-size: ${getSize("default", "base")};
     font-weight: 500;
     padding-top: 2px;
     cursor: pointer;
   }
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    svg,
+    span {
+      font-size: ${getSize("default", "tablet")};
+    }
+  }
+
+  @media (min-width: 1280px) {
+    svg,
+    span {
+      font-size: ${getSize("default", "desktop")};
+    }
+  }
+
   @media (max-width: 1400px) {
     display: ${(props) => (props.show ? "none" : "flex")};
   }
@@ -46,14 +75,8 @@ const Container = styled.div`
 const Right = styled.div`
   display: flex;
   align-items: center;
-  gap: 5px;
-  a {
-    cursor: pointer;
-    color: #007bff;
-    font-size: 19px;
-    font-weight: 500;
-    text-decoration: none;
-  }
+  gap: 3px;
+  min-width: 0;
 `;
 
 const Footer = ({ show, data }) => {
@@ -70,7 +93,7 @@ const Footer = ({ show, data }) => {
         setLikeCount(likeCount + 1);
         setIsLiked(true);
         setIsDisliked(false);
-      } catch  {
+      } catch {
         ToastError("خطا در ارسال درخواست به سرور برای لایک:");
       }
     }
@@ -83,7 +106,7 @@ const Footer = ({ show, data }) => {
         setDislikeCount(dislikeCount + 1);
         setIsLiked(false);
         setIsDisliked(true);
-      } catch  {
+      } catch {
         ToastError("خطا در ارسال درخواست به سرور برای دیسلایک:");
       }
     }
@@ -111,13 +134,8 @@ const Footer = ({ show, data }) => {
   return (
     <Container show={show}>
       <Right>
-        <a
-          href={metarangUrlCitizen(data?.creator_code)}
-          target="_blank"
-          rel="noreferrer"
-        >
-          {data?.creator_code}
-        </a>
+        <UserCode code={data?.creator_code} />
+
         <span>
           <TfiWrite />
         </span>
@@ -125,7 +143,8 @@ const Footer = ({ show, data }) => {
       <Left>
         {actions.map((item) => (
           <div key={item.id}>
-            <h3>{item.value} </h3>
+            <TitleBody title={item.value} />
+
             <span onClick={item.onClick}>{item.icon}</span>
           </div>
         ))}

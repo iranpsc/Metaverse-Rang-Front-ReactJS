@@ -1,14 +1,15 @@
 import { LuBuilding2 } from "react-icons/lu";
-import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
 import psc from "../../../../assets/gif/psc.gif";
 import rial from "../../../../assets/gif/rial.gif";
 import {
   formatNumber,
   getTranslation,
-  metarangUrlCitizen,
+  convertToPersian,
 } from "../../../../services/Utility";
-
+import TitleBody from "../../../../components/TitleBody";
+import LandText from "../../../../components/LandText";
+import UserCode from "../../../../components/UserCode";
 const Container = styled.div`
   padding-bottom: 15px;
 `;
@@ -35,16 +36,6 @@ const Identity = styled.div`
     font-size: 14px;
     color: #a0a0ab;
   }
-`;
-
-const PropertyId = styled.button`
-  padding: 0;
-  border: none;
-  background: none;
-  font-size: 16px;
-  font-weight: 500;
-  color: #ffc700;
-  cursor: pointer;
 `;
 
 const Rows = styled.div`
@@ -92,20 +83,16 @@ const Label = styled.div`
 
 const renderValue = ({ type, value }) => {
   if (type === "link") {
-    return (
-      <a href={metarangUrlCitizen(value)} target="_blank" rel="noreferrer">
-        {value}
-      </a>
-    );
+    return <UserCode code={value} />;
   }
-
-  return <h2>{type === "price" ? formatNumber(value) : value}</h2>;
+  return (
+    <TitleBody
+      title={type === "price" ? convertToPersian(formatNumber(value)) : value}
+    />
+  );
 };
 
 const Bio = ({ item }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
-
   const sellRequest = item?.latest_sell_request;
 
   const rows = [
@@ -136,11 +123,6 @@ const Bio = ({ item }) => {
       : []),
   ];
 
-  const openFeature = () =>
-    navigate(`/feature/${item?.id}/info`, {
-      state: { from: location.pathname },
-    });
-
   return (
     <Container>
       <Header>
@@ -149,10 +131,11 @@ const Bio = ({ item }) => {
         </IconWrapper>
 
         <Identity>
-          <h2>{getTranslation("1478")}</h2>
-          <PropertyId type="button" onClick={openFeature}>
-            {item?.feature_properties_id}
-          </PropertyId>
+          <TitleBody title={getTranslation("1478")} />
+          <LandText
+            label={item?.feature_properties_id}
+            to={`/feature/${item?.id}/info`}
+          />
         </Identity>
       </Header>
 
@@ -160,7 +143,8 @@ const Bio = ({ item }) => {
         {rows.map((row) => (
           <Row key={row.key}>
             <Label>
-              <h3>{row.title}</h3>
+              <TitleBody title={row.title} />
+
               {row.icon && (
                 <img
                   src={row.icon}

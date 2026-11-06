@@ -151,11 +151,7 @@ const CitizenWarning = styled.div`
 
   gap: 2px;
 `;
-
-const SelectInputs = ({ state, setState }) => {
-  const location = useLocation();
-
-  const options = [
+ export const options = [
     {
       id: 1,
       label: "382",
@@ -192,6 +188,10 @@ const SelectInputs = ({ state, setState }) => {
       value: "ztb",
     },
   ];
+
+const SelectInputs = ({ state, setState }) => {
+  const location = useLocation();
+
 
   const { Request, HTTP_METHOD } = useRequest();
   const selectedCitizens = state.selectedCitizens;

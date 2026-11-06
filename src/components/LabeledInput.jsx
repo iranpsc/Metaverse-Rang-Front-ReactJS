@@ -1,9 +1,15 @@
+// فیلد ورودی عمومی با لیبل بالا، آیکون یا متن ابتدا و انتها (prefix و suffix)، متن واحد بلافاصله بعد از مقدار (unit، مثل «دقیقه»)، حالت عددی با ارقام فارسی، بردر قرمز خطا و عرض به اندازه‌ی تعداد رقم (digits)؛ مناسب فرم‌ها و باکس جستجو
+
 import styled, { css } from "styled-components";
 import TitleBody from "./TitleBody";
 import { convertToPersian, fixNumbers } from "../services/Utility";
 import { getSize } from "../styles/sizes";
 
 const INVALID_BORDER = "red";
+const EDGE_GAP = 12; // فاصله‌ی آیکون و متن کناری از لبه‌ی فیلد
+const BORDER_WIDTH = 1;
+const DEFAULT_ADORNMENT_WIDTH = 24;
+const DEFAULT_MAX_LENGTH = 50;
 
 // استایل فیلد وقتی مرورگر مقدار پیشنهادی (autofill) را پر می‌کند
 const autofillStyle = css`
@@ -15,6 +21,19 @@ const autofillStyle = css`
   box-shadow: 0 0 0 1000px
     ${({ theme }) => theme.colors.newColors.otherColors.inputBg} inset;
   transition: background-color 9999s ease-in-out 0s;
+`;
+
+// اندازه‌ی فونت ریسپانسیو که هم برای فیلد و هم برای آیکون‌ها و متن‌های کناری استفاده می‌شود
+const responsiveFontSize = css`
+  font-size: ${({ $size }) => getSize($size, "base")};
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
+
+  @media (min-width: 1280px) {
+    font-size: ${({ $size }) => getSize($size, "desktop")};
+  }
 `;
 
 const Field = styled.div`
@@ -29,26 +48,30 @@ const InputBox = styled.div`
 const InputElement = styled.input`
   width: 100%;
   box-sizing: border-box;
-  padding: 10px 12px;
-  padding-inline-end: ${({ $hasSuffix }) => ($hasSuffix ? "36px" : "12px")};
-  font-size: ${({ $size }) => getSize($size, "base")};
+  padding-block: 10px;
+  padding-inline: ${({ $paddingStart }) => $paddingStart}px
+    ${({ $paddingEnd }) => $paddingEnd}px;
+  text-align: start;
+  font-family: inherit;
   font-weight: 400;
   outline: none;
-  border: 1px solid
+  border: ${BORDER_WIDTH}px solid
     ${({ $error, theme }) =>
       $error ? INVALID_BORDER : theme.colors.newColors.otherColors.inputBorder};
   border-radius: 5px;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
+  ${responsiveFontSize}
 
-  @media (min-width: 500px) and (max-width: 999px) {
-    font-size: ${({ $size }) => getSize($size, "tablet")};
-  }
-
-  @media (min-width: 1280px) {
-    font-size: ${({ $size }) => getSize($size, "desktop")};
-  }
+  /* عرض به اندازه‌ی تعداد رقم‌ها؛ padding و border بیرون از آن اضافه می‌شوند */
+  ${({ $digits }) =>
+    $digits &&
+    css`
+      box-sizing: content-box;
+      width: ${$digits}ch;
+      text-align: center;
+    `}
 
   /* WebKit / Blink */
   &:-webkit-autofill,
@@ -64,22 +87,35 @@ const InputElement = styled.input`
   }
 `;
 
-const Suffix = styled.span`
+const Adornment = styled.span`
   position: absolute;
   top: 50%;
-  inset-inline-end: 12px;
+  inset-inline-${({ $side }) => $side}: ${EDGE_GAP}px;
   transform: translateY(-50%);
-  font-size: ${({ $size }) => getSize($size, "base")};
+  display: flex;
+  width: ${({ $width }) => ($width ? `${$width}px` : "auto")};
   color: ${({ theme }) => theme.colors.newColors.otherColors.gray};
   pointer-events: none;
+  ${responsiveFontSize}
+`;
 
-  @media (min-width: 500px) and (max-width: 999px) {
-    font-size: ${({ $size }) => getSize($size, "tablet")};
-  }
+// متن واحد از همان نقطه‌ای شروع می‌شود که متن فیلد شروع می‌شود و بعد از کپی نامرئی مقدار می‌آید
+const Unit = styled.span`
+  position: absolute;
+  top: 50%;
+  inset-inline-start: ${({ $offset }) => $offset}px;
+  transform: translateY(-50%);
+  display: flex;
+  gap: 4px;
+  font-weight: 400;
+  white-space: pre;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.gray};
+  pointer-events: none;
+  ${responsiveFontSize}
+`;
 
-  @media (min-width: 1280px) {
-    font-size: ${({ $size }) => getSize($size, "desktop")};
-  }
+const Mirror = styled.span`
+  visibility: hidden;
 `;
 
 const LabeledInput = ({
@@ -88,16 +124,40 @@ const LabeledInput = ({
   value = "",
   onChange,
   type = "text",
-  maxLength = 50,
+  maxLength,
   error = false,
-  suffix,
+  prefix, // آیکون یا متن کنار ابتدای فیلد
+  prefixSide = "start",
+  prefixWidth, // عرض به پیکسل؛ پیش‌فرض ۲۴
+  suffix, // آیکون یا متن کنار انتهای فیلد
+  suffixSide = "end",
+  suffixWidth,
+  unit, // متنی که بلافاصله بعد از مقدار نمایش داده می‌شود؛ برای نشان ندادن، false یا خالی بدهید
   width = "100%",
-  disabled,
   inputMode,
-  size = "default",
+  size = "default", // "default" | "small" | "big"
+  digits, // اگر داده شود (مثلاً 2 یا 3) عرض فیلد به اندازه‌ی همان تعداد رقم می‌شود
+  "aria-label": ariaLabel,
+  ...rest // disabled، name، onKeyDown، onPaste، autoComplete، autoFocus و ...
 }) => {
   const isNumeric = type === "number";
+  const shownValue = isNumeric ? convertToPersian(value) : value;
 
+  const adornments = [
+    { node: prefix, side: prefixSide, width: prefixWidth },
+    { node: suffix, side: suffixSide, width: suffixWidth },
+  ].filter(({ node }) => node);
+
+  // فاصله‌ی داخلی هر سمت؛ اگر آیکون یا متنی در آن سمت باشد برایش جا باز می‌شود
+  const getPadding = (side) => {
+    const adornment = adornments.find((item) => item.side === side);
+
+    return adornment
+      ? (adornment.width ?? DEFAULT_ADORNMENT_WIDTH) + EDGE_GAP * 2
+      : EDGE_GAP;
+  };
+
+  // برای ورودی عددی ارقام فارسی و عربی به انگلیسی تبدیل و بقیه‌ی کاراکترها حذف می‌شوند
   const handleChange = (e) => {
     if (isNumeric) {
       e.target.value = fixNumbers(e.target.value).replace(/\D/g, "");
@@ -111,20 +171,39 @@ const LabeledInput = ({
 
       <InputBox>
         <InputElement
+          {...rest}
           type={isNumeric ? "text" : type}
           inputMode={isNumeric ? "numeric" : inputMode}
           placeholder={placeholder}
-          value={isNumeric ? convertToPersian(value) : value}
+          value={shownValue}
           onChange={handleChange}
-          maxLength={maxLength}
-          aria-label={label || placeholder}
+          maxLength={maxLength ?? digits ?? DEFAULT_MAX_LENGTH}
+          aria-label={ariaLabel ?? (label || placeholder)}
           aria-invalid={Boolean(error)}
-          disabled={disabled}
           $size={size}
           $error={error}
-          $hasSuffix={Boolean(suffix)}
+          $digits={digits}
+          $paddingStart={getPadding("start")}
+          $paddingEnd={getPadding("end")}
         />
-        {suffix && <Suffix $size={size}>{suffix}</Suffix>}
+
+        {adornments.map(({ node, side, width: adornmentWidth }, index) => (
+          <Adornment
+            key={index}
+            $size={size}
+            $side={side}
+            $width={adornmentWidth}
+          >
+            {node}
+          </Adornment>
+        ))}
+
+        {unit && (
+          <Unit $size={size} $offset={getPadding("start") + BORDER_WIDTH}>
+            <Mirror aria-hidden="true">{shownValue}</Mirror>
+            {unit}
+          </Unit>
+        )}
       </InputBox>
     </Field>
   );

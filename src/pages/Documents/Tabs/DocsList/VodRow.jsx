@@ -7,6 +7,7 @@ import {
   ConvertJalali,
 } from "../../../../services/Utility/index.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
+import { options } from "../writeWodTab/SelectInputs.jsx";
 import ConversationDetails from "../../../../components/ConversationDetails/ConversationDetails.jsx";
 const TableCell = styled.td`
   text-align: center;
@@ -71,10 +72,25 @@ const STATUS_COLORS = {
 const DEFAULT_STATUS_COLOR = "#C30000";
 
 // این کامپوننت برای نمایش یک ردیف تیکت در جدول (کد، عنوان، فرستنده، وضعیت، تاریخ و دکمه مشاهده جزئیات) استفاده میشه
-const VodRow = ({ id, code, date, time, title, status, sender }) => {
+const VodRow = ({
+  id,
+  code,
+  date,
+  time,
+  title,
+  status,
+  sender,
+  reciever,
+  variant,
+  department,
+}) => {
   const [showDetails, setShowDetails] = useState(false);
   const [ticket, setTicket] = useState(null);
   const { Request } = useRequest();
+  const person = variant === "sent" ? reciever : sender;
+  const departmentOption = options.find(
+    (option) => option.value === department,
+  );
 
   const onClickHandler = async () => {
     try {
@@ -95,7 +111,14 @@ const VodRow = ({ id, code, date, time, title, status, sender }) => {
           <Text>{title}</Text>
         </TableCell>
         <TableCell>
-          <Text>{sender?.name}</Text>
+          <Text>
+            {person?.name ||
+              (variant === "sent" && department
+                ? departmentOption
+                  ? getTranslation(departmentOption.label)
+                  : department
+                : "")}
+          </Text>
         </TableCell>
         <TableCell>
           <StatusText $color={STATUS_COLORS[status] ?? DEFAULT_STATUS_COLOR}>

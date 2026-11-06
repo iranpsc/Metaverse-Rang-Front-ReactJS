@@ -3,6 +3,7 @@
 import styled, { css } from "styled-components";
 import { NavLink, useLocation } from "react-router";
 import { getTranslation } from "../services/Utility";
+import { getSize } from "../styles/sizes";
 
 const TAB_BAR_HEIGHT = 60;
 
@@ -62,7 +63,9 @@ const Label = styled.div`
     props.$active
       ? props.theme.colors.primary
       : props.theme.colors.newColors.shades.title};
-  padding: 3px 20px;
+  font-size: ${({ $size = "default" }) =>
+    `calc(${getSize($size, "base")} + 1.5px)`};
+  padding: 3px 10px;
   cursor: ${({ $disabled }) => ($disabled ? "not-allowed" : "pointer")};
   border-inline-start: 2px solid
     ${(props) => (props.$active ? props.theme.colors.primary : "transparent")};
@@ -70,6 +73,16 @@ const Label = styled.div`
 
   @media (min-width: 998px) {
     padding: 8px 20px;
+  }
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size = "default" }) =>
+      `calc(${getSize($size, "tablet")} + 1.5px)`};
+  }
+
+  @media (min-width: 1024px) {
+    font-size: ${({ $size = "default" }) =>
+      `calc(${getSize($size, "desktop")} + 1.5px)`};
   }
 
   ${({ $disabled }) =>
@@ -80,7 +93,8 @@ const Label = styled.div`
       : css`
           &:hover {
             color: ${(props) => props.theme.colors.primary};
-            border-inline-start: 2px solid ${(props) => props.theme.colors.primary};
+            border-inline-start: 2px solid
+              ${(props) => props.theme.colors.primary};
           }
         `}
 `;

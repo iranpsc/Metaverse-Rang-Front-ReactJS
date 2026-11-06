@@ -1,7 +1,7 @@
 //این مدال برای کامپوننت های عمومی مانند پروفایل و تنظیمات استفاده شده
 import styled from "styled-components";
 import Header from "../Header/Header";
-import { useLanguage } from "../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../hooks/useLanguageContext.js";
 import { Overlay } from "./styles";
 
 const Dialog = styled.div`
@@ -37,7 +37,7 @@ const Dialog = styled.div`
 `;
 
 const Modal = ({ children, title }) => {
-  const isPersian = useLanguage();
+  const isPersian = useIsRtl();
 
   return (
     <Overlay>

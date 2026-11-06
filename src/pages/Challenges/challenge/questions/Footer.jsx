@@ -3,6 +3,7 @@ import users from "../../../../assets/images/challenge/profile-2user.svg";
 import view from "../../../../assets/images/challenge/eye.svg";
 import { convertToPersian, getTranslation } from "../../../../services/Utility";
 import ToolTip from "../../../../components/Tooltip/Tooltip";
+import TitleBody from "../../../../components/TitleBody";
 const ITEMS = [
   { id: "views", icon: view, translationId: "1775" },
   { id: "participants", icon: users, translationId: "1776" },
@@ -52,7 +53,7 @@ const Footer = ({ data }) => (
         content={getTranslation(translationId)}
         Chidren={
           <Item>
-            <span>{convertToPersian(data?.[id] ?? 0)}</span>
+            <TitleBody title={convertToPersian(data?.[id] ?? 0)} />
             <img src={icon} alt="" />
           </Item>
         }

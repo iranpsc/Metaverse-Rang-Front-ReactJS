@@ -150,19 +150,22 @@ const ErrorReportTab = () => {
           }
         />
         <FileUploader
+          mode="upload"
           files={report.files}
           onFilesChange={(files) =>
             setReport((currentReport) => ({ ...currentReport, files }))
           }
           accept="image/*"
         />
+        <div style={{ paddingTop: "20px" }}>
+          <Button
+            fit
+            label={getTranslation("193")}
+            onclick={sendReport}
+            disabled={isDisabled ? true : isSending ? "pending" : false}
+          />
+        </div>
 
-        <Button
-          fit
-          label={getTranslation("193")}
-          onclick={sendReport}
-          disabled={isDisabled ? true : isSending ? "pending" : false}
-        />
         <ErrorMessage
           errors={[error]}
           maxList={5}

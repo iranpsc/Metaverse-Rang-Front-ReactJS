@@ -1,15 +1,17 @@
 // کارت یک ملک برای انتخاب در ساخت سلسله (عکس، کد ملک، پایداری و دکمه‌ی انتخاب)؛ مناسب لیست املاک صفحه‌ی PropertySelect
 
 import styled from "styled-components";
-import { useLocation, useNavigate } from "react-router";
 import house from "../../../../../assets/images/house.png";
 import Button from "../../../../../components/Button";
+import LandText from "../../../../../components/LandText";
+import TitleBody from "../../../../../components/TitleBody";
 import { getTranslation } from "../../../../../services/Utility";
 
 const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: 20px;
   padding: 10px 10px 10px 20px;
   border-radius: 5px;
@@ -66,94 +68,36 @@ const Image = styled.div`
   }
 `;
 
-// استایل مشترک متن‌ها: h3 = عنوان، h4 = مقدار
-const TextBlock = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-
-  h3,
-  h4 {
-    margin: 0;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-
-  h3 {
-    font-size: 14px;
-    font-weight: 400;
-    opacity: 0.7;
-  }
-
-  h4 {
-    font-size: 16px;
-    font-weight: 600;
-  }
-
-  @media (max-height: 768px) {
-    gap: 6px;
-
-    h3 {
-      font-size: 11px;
-    }
-
-    h4 {
-      font-size: 13px;
-    }
-  }
-`;
-
-const Info = styled(TextBlock)`
-  h4 {
-    cursor: pointer;
-    color: ${({ theme }) => theme.colors.newColors.otherColors.orange};
-  }
-`;
-
-const Center = styled(TextBlock)`
-  text-align: center;
-`;
-
 const ButtonWrapper = styled.div`
   @media (max-width: 780px) {
     flex-basis: 100%;
-
-    button,
-    a {
-      width: 100%;
-    }
   }
 `;
 
-const PropertyCard = ({ onClick, label, propertyId, id, stability }) => {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
+const PropertyCard = ({ onClick, label, propertyId, id, stability }) => (
+  <Container>
+    <Right>
+      <Image>
+        <img src={house} alt="" />
+      </Image>
 
-  const goToInfo = () =>
-    navigate(`/feature/${id}/info`, { state: { from: pathname } });
+      <div>
+        <TitleBody noWrap title={getTranslation(810)} />
+        <LandText label={propertyId} to={`/feature/${id}/info`} />
+      </div>
+    </Right>
 
-  return (
-    <Container>
-      <Right>
-        <Image>
-          <img src={house} alt="" />
-        </Image>
+    <div
+      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+    >
+      <TitleBody noWrap title={getTranslation(373)} />
+      <TitleBody title={stability} />
+    </div>
 
-        <Info>
-          <h3>{getTranslation(810)}</h3>
-          <h4 onClick={goToInfo}>{propertyId}</h4>
-        </Info>
-      </Right>
-
-      <Center>
-        <h3>{getTranslation(373)}</h3>
-        <h4>{stability}</h4>
-      </Center>
-
-      <ButtonWrapper>
-        <Button label={label} onClick={() => onClick?.(id)} />
-      </ButtonWrapper>
-    </Container>
-  );
-};
+    <ButtonWrapper>
+      <Button full label={label} onClick={() => onClick?.(id)} />
+    </ButtonWrapper>
+  </Container>
+);
 
 export default PropertyCard;

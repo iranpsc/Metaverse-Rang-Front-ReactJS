@@ -16,16 +16,20 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 12px;
   width: 100%;
+
+  @media (min-width: 768px) {
+    gap: 18px;
+  }
 `;
 
 const IconButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 30px;
+  height: 30px;
   padding: 0;
   border: none;
   border-radius: 100%;
@@ -34,9 +38,18 @@ const IconButton = styled.button`
   opacity: ${({ disabled }) => (disabled ? 0.2 : 1)};
 
   svg {
-    font-size: 20px;
+    font-size: 17px;
     color: ${({ theme }) =>
       theme.colors.newColors.otherColors.buttonPrimaryText};
+  }
+
+  @media (min-width: 768px) {
+    width: 36px;
+    height: 36px;
+
+    svg {
+      font-size: 20px;
+    }
   }
 `;
 

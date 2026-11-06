@@ -1,12 +1,13 @@
 // کارت تغییر شماره موبایل در دو مرحله (ارسال کد به شماره‌ی جدید و تایید کد) با تایمر ارسال مجدد؛ مناسب تب حساب کاربری که شماره‌ی موبایل را با inputs و تعداد دفعات باقی‌مانده‌ی تغییر دریافت می‌کند
 
-import styled from "styled-components";
 import { useEffect, useMemo, useState } from "react";
 import { RiErrorWarningLine } from "react-icons/ri";
+import styled from "styled-components";
 import Button from "../../../../components/Button";
+import LabeledInput from "../../../../components/LabeledInput";
+import TitleBody from "../../../../components/TitleBody";
 import TitleHeader from "../../../../components/TitleHeader";
-import EditInput from "../../../Feature/Tabs/enter-tab/EditInput";
-import useRequest from "../../../../hooks/useRequest.js";
+import useRequest from "../../../../hooks/useRequest";
 import {
   convertToPersian,
   fixNumbers,
@@ -16,8 +17,13 @@ import {
   ToastSuccess,
 } from "../../../../services/Utility";
 
+/* ---------- Constants ---------- */
+
+const STEP = { PHONE: "phone", CODE: "code" };
+
 const PHONE_INPUT_ID = "phone";
 const CODE_INPUT_ID = "code";
+const PHONE_MAX_LENGTH = 11;
 const CODE_LENGTH = 6;
 const RESEND_TIMER = 2 * 60;
 
@@ -29,6 +35,8 @@ const CODE_INPUT = {
   value: "",
   validation: "code",
 };
+
+/* ---------- Helpers ---------- */
 
 // ارقام فارسی و عربی به انگلیسی تبدیل می‌شوند و پیش‌شماره‌ی 98 و 0098 به 09 تبدیل می‌شود
 const normalizePhone = (value) => {
@@ -54,12 +62,14 @@ const VALIDATORS = {
 const validateInput = (input, value) =>
   VALIDATORS[input?.validation]?.(value) ?? "";
 
+/* ---------- Styles ---------- */
+
 const Container = styled.div`
   padding: 20px;
   border-radius: 5px;
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
-  order: ${({ id }) => id === 3 && "4"};
+  ${({ id }) => id === 3 && "order: 4;"}
 `;
 
 const Warn = styled.div`
@@ -71,12 +81,6 @@ const Warn = styled.div`
   svg {
     color: ${({ theme }) => theme.colors.primary};
   }
-
-  h3 {
-    font-size: 11px;
-    font-weight: 400;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
 `;
 
 const Inputs = styled.div`
@@ -87,7 +91,8 @@ const Inputs = styled.div`
 `;
 
 const ErrorText = styled.span`
-  margin-top: -20px;
+  display: block;
+  margin-top: 6px;
   font-size: 12px;
   color: red;
 `;
@@ -121,6 +126,8 @@ const ResendLink = styled.h2`
   }
 `;
 
+/* ---------- Component ---------- */
+
 const ChangeCard = ({
   id,
   inputs,
@@ -129,7 +136,7 @@ const ChangeCard = ({
 }) => {
   const { Request, HTTP_METHOD } = useRequest();
 
-  const [step, setStep] = useState("phone"); // "phone" | "code"
+  const [step, setStep] = useState(STEP.PHONE);
   const [busy, setBusy] = useState(false);
   const [timer, setTimer] = useState(0);
   const [values, setValues] = useState({});
@@ -151,20 +158,19 @@ const ChangeCard = ({
     if (!Array.isArray(inputs)) return [];
 
     const base = inputs.filter((item) => String(item.id) !== CODE_INPUT_ID);
-    return step === "phone" ? base : [...base, CODE_INPUT];
+    return step === STEP.PHONE ? base : [...base, CODE_INPUT];
   }, [inputs, step]);
 
   const getValue = (inputId) => values[inputId] ?? "";
-  const getError = (inputId) => errors[inputId] ?? "";
 
+  // با تغییر inputs فرم از اول شروع می‌شود
   const resetForm = () => {
     setValues(initialValues);
     setErrors({});
-    setStep("phone");
+    setStep(STEP.PHONE);
     setTimer(0);
   };
 
-  // با تغییر inputs فرم از اول شروع می‌شود
   useEffect(() => {
     resetForm();
   }, [initialValues]);
@@ -182,11 +188,10 @@ const ChangeCard = ({
   }, [timer]);
 
   const handleInputChange = (inputId, value) => {
-    const key = String(inputId);
-    const input = visibleInputs.find((item) => String(item.id) === key);
+    const input = visibleInputs.find((item) => String(item.id) === inputId);
 
-    setValues((prev) => ({ ...prev, [key]: value }));
-    setErrors((prev) => ({ ...prev, [key]: validateInput(input, value) }));
+    setValues((prev) => ({ ...prev, [inputId]: value }));
+    setErrors((prev) => ({ ...prev, [inputId]: validateInput(input, value) }));
   };
 
   const clearCodeValue = () => {
@@ -245,36 +250,39 @@ const ChangeCard = ({
     }
   };
 
-  const handleSave = async () => {
+  // اجرای یک اکشن async با قفل busy تا کلیک دوباره‌ی همزمان نتواند اجرا شود
+  const runLocked = async (action) => {
     if (busy) return;
     setBusy(true);
 
     try {
-      if (step === "phone") {
-        if (await sendCode()) setStep("code");
-      } else {
-        await verifyCode();
-      }
+      await action();
     } finally {
       setBusy(false);
     }
   };
 
-  const handleResend = async () => {
-    if (busy || timer > 0) return;
-    setBusy(true);
+  const handleSave = () =>
+    runLocked(async () => {
+      if (step === STEP.PHONE) {
+        if (await sendCode()) setStep(STEP.CODE);
+      } else {
+        await verifyCode();
+      }
+    });
 
-    try {
+  const handleResend = () => {
+    if (timer > 0) return;
+
+    runLocked(async () => {
       if (await sendCode()) clearCodeValue();
-    } finally {
-      setBusy(false);
-    }
+    });
   };
 
   if (visibleInputs.length === 0) return null;
 
   const isDisabled =
-    step === "phone"
+    step === STEP.PHONE
       ? !getValue(PHONE_INPUT_ID)
       : !isValidCode(getValue(CODE_INPUT_ID));
 
@@ -284,25 +292,28 @@ const ChangeCard = ({
 
       <Warn>
         <RiErrorWarningLine size={22} />
-        <h3>
-          {convertToPersian(remainingResets)} {getTranslation("1830")}
-        </h3>
+        <TitleBody
+          title={`${convertToPersian(remainingResets)} ${getTranslation(1830)}`}
+        />
       </Warn>
 
       <Inputs>
         {visibleInputs.map((item) => {
           const inputId = String(item.id);
-          const error = getError(inputId);
+          const error = errors[inputId];
 
           return (
             <div key={inputId}>
-              <EditInput
+              <LabeledInput
+                variant="default"
                 type={item.type}
                 value={getValue(inputId)}
-                onchange={(e) => handleInputChange(inputId, e.target.value)}
-                title={getTranslation(item.label) || item.label}
+                onChange={(e) => handleInputChange(inputId, e.target.value)}
+                placeholder={getTranslation(item.label) || item.label}
                 error={error}
-                maxLength={11}
+                maxLength={
+                  inputId === CODE_INPUT_ID ? CODE_LENGTH : PHONE_MAX_LENGTH
+                }
               />
               {error && <ErrorText>{error}</ErrorText>}
             </div>
@@ -310,12 +321,12 @@ const ChangeCard = ({
         })}
       </Inputs>
 
-      {step === "code" && (
+      {step === STEP.CODE && (
         <ResendBox>
           <h4>{convertToPersian(formatTime(timer))}</h4>
 
           {timer > 0 ? (
-            <span>{getTranslation("863")}</span>
+            <span>{getTranslation(863)}</span>
           ) : (
             <ResendLink $busy={busy} onClick={handleResend}>
               {getTranslation(1642)}
@@ -326,9 +337,9 @@ const ChangeCard = ({
 
       <Button
         full
-        label={getTranslation(step === "phone" ? "34" : "628")}
+        label={getTranslation(step === STEP.PHONE ? 34 : 628)}
         onClick={handleSave}
-        disabled={isDisabled ? true : busy ? "pending" : false}
+        disabled={isDisabled || (busy ? "pending" : false)}
       />
     </Container>
   );

@@ -6,6 +6,8 @@ import { AiFillCloseCircle } from "react-icons/ai";
 import { BsCheckCircleFill } from "react-icons/bs";
 import { IoReloadCircleSharp } from "react-icons/io5";
 import ModalXs from "../../../../components/Modal/ModalXs";
+import TitleBody from "../../../../components/TitleBody";
+import TitleHeader from "../../../../components/TitleHeader";
 import Button from "../../../../components/Button";
 import {
   ConvertJalali,
@@ -112,28 +114,6 @@ const StatusIcon = styled.div`
   }
 `;
 
-const StatusTitle = styled.p`
-  margin: 0;
-  font-size: 24px;
-  font-weight: 600;
-  color: ${({ $color }) => $color};
-
-  @media (max-width: 1000px) {
-    font-size: 18px;
-  }
-`;
-
-const StatusText = styled.span`
-  font-size: 16px;
-  font-weight: 400;
-  text-align: center;
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-
-  @media (max-width: 1000px) {
-    font-size: 13px;
-  }
-`;
-
 const Info = styled.div`
   width: 100%;
   margin-top: 20px;
@@ -157,30 +137,6 @@ const Row = styled.div`
   }
 `;
 
-const Label = styled.h3`
-  margin: 0;
-  font-size: 16px;
-  font-weight: 500;
-  white-space: nowrap;
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-
-  @media (max-width: 1000px) {
-    font-size: 13px;
-  }
-`;
-
-const Value = styled.h3`
-  margin: 0;
-  font-size: 16px;
-  font-weight: 400;
-  text-align: left;
-  word-break: break-word;
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-
-  @media (max-width: 1000px) {
-    font-size: 13px;
-  }
-`;
 
 const AssetValue = styled.div`
   display: flex;
@@ -212,22 +168,28 @@ const PrintModal = ({
       value: (
         <AssetValue>
           <img loading="lazy" width={26} height={26} src={gif} alt="" />
-          <Value>
-            {getTranslation("353")} {convertToPersian(count)}
-          </Value>
+          <TitleBody
+            title={`${getTranslation("353")} ${convertToPersian(count)}`}
+          />
         </AssetValue>
       ),
     },
-    { label: "747", value: <Value>{code}</Value> },
-    { label: "748", value: <Value>{ConvertJalali(date)}</Value> },
-    { label: "749", value: <Value>{convertToPersian(time)}</Value> },
-    { label: "750", value: <Value>{title}</Value> },
-    { label: "751", value: <Value>{convertToPersian(count)}</Value> },
+    { label: "747", value: <TitleBody title={code} /> },
+    { label: "748", value: <TitleBody title={ConvertJalali(date)} /> },
+    { label: "749", value: <TitleBody title={convertToPersian(time)} /> },
+    { label: "750", value: <TitleBody title={title} /> },
+    { label: "751", value: <TitleBody title={convertToPersian(count)} /> },
   ];
-
   // پورتال لازم است چون این مدال داخل <tr> رندر می‌شود و div داخل tr معتبر نیست
   return createPortal(
-    <ModalXs global onlyExit handleExitClick={close} onClose={close} hideTitle compact>
+    <ModalXs
+      global
+      onlyExit
+      handleExitClick={close}
+      onClose={close}
+      hideTitle
+      compact
+    >
       <PrintStyles />
 
       <Receipt id="print-header">
@@ -235,18 +197,23 @@ const PrintModal = ({
           <Icon size={80} />
         </StatusIcon>
 
-        <StatusTitle $color={color}>{getTranslation(heading)}</StatusTitle>
-        <StatusText>{getTranslation(description)}</StatusText>
+        <TitleHeader
+          noMargin
+          big
+          color={color}
+          title={getTranslation(heading)}
+        />
+        <TitleBody title={getTranslation(description)} />
 
         <Info>
           {rows.map(({ label, value }, index) => (
             <Row key={index}>
-              <Label>{getTranslation(label)}</Label>
-              {value}
+              <TitleBody title={getTranslation(label)} />
+              <TitleBody title={value} />
             </Row>
           ))}
 
-          <PrintAction className="print-hide">
+          <PrintAction>
             <Button full label={getTranslation("67")} onClick={window.print} />
           </PrintAction>
         </Info>

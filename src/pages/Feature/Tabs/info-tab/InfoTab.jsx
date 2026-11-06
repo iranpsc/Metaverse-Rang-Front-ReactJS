@@ -27,7 +27,7 @@ const reverseAddress = (address) =>
         .join(", ")
     : "";
 
-const getOwner = (owner) => (owner === "rgb" ? "سیستم" : owner);
+const getOwner = (owner) => (owner === "rgb" ? getTranslation(1941) : owner);
 
 const getRows = ({ id, owner, rgb, area, density, address } = {}) => [
   {
@@ -88,7 +88,7 @@ const getRows = ({ id, owner, rgb, area, density, address } = {}) => [
       {
         id: 8,
         title: getTranslation("351"),
-        value: "آزاد",
+        value: getTranslation("1942"),
         icon: <MdOutlinePlaylistAddCheckCircle />,
       },
     ],

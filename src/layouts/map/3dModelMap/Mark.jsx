@@ -6,7 +6,7 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { HemisphereLight } from "three";
 import { useNavigate } from "react-router";
 import { useSelectedEnvironment } from "../../../hooks/useSelectedEnvironment.js";
-import { ToastError, ToastSuccess } from "../../../services/Utility";
+import { getTranslation, ToastError, ToastSuccess } from "../../../services/Utility";
 import { flyToMapPosition } from "../../../services/Utility/flyToMapPosition.js";
 import AngleControl from "../../../pages/Feature/Tabs/PropertyConstruction/Tabs/components/AngleControl.jsx";
 
@@ -151,10 +151,10 @@ const Mark = memo(() => {
   }, [map, isConfirmed]);
   const handleConfirmation = useCallback(() => {
     if (!isRotatedPolygonInside) {
-      ToastError("محیط شما در محدوده زمین شما نیست");
+      ToastError(getTranslation(1946));
     } else {
       setIsConfirmed(true);
-      ToastSuccess("محیط با موفقیت در محدوده زمین شما ثبت شد");
+      ToastSuccess(getTranslation(1945));
     }
   }, [isRotatedPolygonInside]);
 

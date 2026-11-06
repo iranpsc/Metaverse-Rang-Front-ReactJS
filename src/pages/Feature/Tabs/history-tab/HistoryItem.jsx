@@ -83,7 +83,7 @@ const HistoryItem = ({
   rial,
   psc,
   color,
-  colorAmount,
+  colorAmount,gift
 }) => {
   const showTime = `${convertToPersian(time)} | ${ConvertJalali(date)}`;
   const isColorTrade = Boolean(color);
@@ -103,7 +103,7 @@ const HistoryItem = ({
             )}
           </Div>
           {owner ? (
-            <TitleBody weight title={"متارنگ سیستم"} />
+            <TitleBody weight title={getTranslation(1947)} />
           ) : (
             <h4>
               <a target="_blank" rel="noreferrer" href={link}>
@@ -124,6 +124,7 @@ const HistoryItem = ({
           amount={colorAmount}
           color={color}
           index={index}
+          gift={gift}
         />
       )}
     </Container>

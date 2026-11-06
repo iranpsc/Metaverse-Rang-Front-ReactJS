@@ -1,15 +1,30 @@
 // لیست جدولی عمومی (هدر + ردیف + فیلترهای چندانتخابی + اسکرول بی‌نهایت + اسکلتون)؛ مناسب بخش‌هایی مثل تیکت‌ها و تراکنش‌ها که با type یا نوع دیتا، ستون‌ها و ردیف مخصوص همان بخش را نمایش می‌دهد
 
 import styled, { css } from "styled-components";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
+import { isValidJalaaliDate, toGregorian } from "jalaali-js";
 import VodRow from "../../pages/Documents/Tabs/DocsList/VodRow";
 import TransactionRow from "../../pages/Profile/Tabs/transactions-tab/TransactionRow";
 import { Skeleton } from "../Skeleton";
 import { COLOR_CONFIG } from "../../services/constants/colorConfig";
 import { getTranslation, isMobile } from "../../services/Utility";
+import SearchInput from "../SearchInput";
+import CustomDatePicker from "../CustomDatePicker";
 import RequestRow from "../../pages/Profile/Tabs/dynasty/components/RequestRow";
 import ReportRow from "../../pages/Report/reports/ReportsListTab/ReportRow";
+import { getSize } from "../../styles/sizes";
+const responsiveFont = css`
+  font-size: ${({ $size }) => getSize($size, "base")};
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
+
+  @media (min-width: 1280px) {
+    font-size: ${({ $size }) => getSize($size, "desktop")};
+  }
+`;
 const LOAD_STEP = 10;
 
 const gif = (key) => COLOR_CONFIG[key].gif;
@@ -27,15 +42,27 @@ const VARIANTS = {
 };
 
 /* ----------------------------- Styles ----------------------------- */
-const Container = styled.div`
-  min-height: 93vh;
-  margin-top: 20px;
+const TableScroller = styled.div`
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow-x: auto;
+  overscroll-behavior-x: contain;
   border-radius: 0.25rem;
 
   &::-webkit-scrollbar {
     display: none;
   }
+`;
+
+const Container = styled.div`
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  min-height: 93vh;
+  margin-top: 20px;
+  border-radius: 0.25rem;
 
   @media (min-width: 840px) {
     min-height: 80vh !important;
@@ -50,10 +77,41 @@ const Container = styled.div`
     css`
       min-height: ${$minHeight} !important;
     `}
+
+  ${TableScroller} th,
+  ${TableScroller} td {
+    padding: 10px 12px;
+  }
+
+  ${TableScroller} th,
+  ${TableScroller} td h2,
+  ${TableScroller} td h3,
+  ${TableScroller} td h4,
+  ${TableScroller} td p,
+  ${TableScroller} td span,
+  ${TableScroller} td a,
+  ${TableScroller} td button {
+    ${responsiveFont}
+  }
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    ${TableScroller} th,
+    ${TableScroller} td {
+      padding: 12px 14px;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    ${TableScroller} th,
+    ${TableScroller} td {
+      padding: 16px 18px;
+    }
+  }
 `;
 
 const Table = styled.table`
-  width: 100%;
+  width: max-content;
+  min-width: 100%;
   margin-top: 5px;
   border-collapse: collapse;
 `;
@@ -66,19 +124,9 @@ const TableHead = styled.thead`
 
 const TableHeader = styled.th`
   position: relative;
-  padding: 20px;
-  font-size: 16px;
   font-weight: 500;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
-
-  @media (max-width: 1024px) {
-    padding: 16px;
-    font-size: 15px;
-  }
-
-  @media (max-width: 950px) {
-    padding: 13px;
-  }
+  ${responsiveFont}
 `;
 
 const HeaderContent = styled.div`
@@ -113,6 +161,7 @@ const FilterMenu = styled.div`
   h1 {
     font-size: 16px;
     font-weight: 400;
+    ${responsiveFont}
 
     &:first-of-type {
       margin: 3px 0;
@@ -174,6 +223,7 @@ const Loader = styled.div`
   padding-bottom: 10px;
 
   button {
+    ${responsiveFont};
     border: none;
     background-color: transparent;
     color: ${({ theme }) => theme.colors.newColors.shades.title};
@@ -184,6 +234,95 @@ const Sentinel = styled.div`
   width: 100%;
   height: 1px;
 `;
+
+const Toolbar = styled.div`
+  display: grid;
+  grid-template-columns: ${({ $single }) =>
+    $single ? "minmax(0, 1fr)" : "minmax(0, 3fr) minmax(0, 2fr)"};
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 15px;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: ${({ $single }) =>
+      $single ? "minmax(0, 1fr)" : "minmax(0, 3fr) minmax(0, 1fr)"};
+  }
+`;
+
+const normalizeDigits = (value) =>
+  String(value).replace(/[۰-۹٠-٩]/g, (digit) => {
+    const code = digit.charCodeAt(0);
+    return String(code - (code >= 0x06f0 ? 0x06f0 : 0x0660));
+  });
+
+const parseDate = (value) => {
+  if (value instanceof Date) {
+    return Number.isNaN(value.getTime()) ? null : value;
+  }
+  if (typeof value !== "string" || !value.trim()) return null;
+
+  const normalized = normalizeDigits(value.trim());
+  if (/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(normalized)) {
+    const date = new Date(normalized);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+  const dateParts = normalized.match(/^(\d{4})[/-](\d{1,2})[/-](\d{1,2})/);
+
+  if (!dateParts) {
+    const date = new Date(normalized);
+    return Number.isNaN(date.getTime()) ? null : date;
+  }
+
+  let [, year, month, day] = dateParts.map(Number);
+  if (year < 1700) {
+    if (!isValidJalaaliDate(year, month, day)) return null;
+    ({ gy: year, gm: month, gd: day } = toGregorian(year, month, day));
+  }
+
+  const date = new Date(year, month - 1, day);
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return null;
+  }
+
+  const timeParts = normalized.match(/(?:T|\s)(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if (timeParts) {
+    date.setHours(
+      Number(timeParts[1]),
+      Number(timeParts[2]),
+      Number(timeParts[3] ?? 0),
+      0,
+    );
+  }
+  return date;
+};
+
+const startOfDay = (date) => {
+  const value = new Date(date);
+  value.setHours(0, 0, 0, 0);
+  return value.getTime();
+};
+
+const filterRowsByDate = (rows, dateKey, [start, end]) => {
+  if (!dateKey || !start || !end) return rows;
+
+  const firstDay = startOfDay(start);
+  const lastDay = startOfDay(end);
+  if (!Number.isFinite(firstDay) || !Number.isFinite(lastDay)) return rows;
+
+  const from = Math.min(firstDay, lastDay);
+  const to = new Date(Math.max(firstDay, lastDay));
+  to.setDate(to.getDate() + 1);
+  const toExclusive = to.getTime();
+
+  return rows.filter((row) => {
+    const date = parseDate(row?.[dateKey]);
+    return date && date.getTime() >= from && date.getTime() < toExclusive;
+  });
+};
 
 /* ----------------------------- Config ----------------------------- */
 const STATUS_OPTIONS = [
@@ -196,16 +335,20 @@ const STATUS_OPTIONS = [
 const LIST_CONFIG = {
   tickets: {
     RowComponent: VodRow,
+    getRowProps: (row, index, variant) => ({ variant }),
     // تشخیص خودکار وقتی type پاس داده نشده
     detect: (row) => row && "code" in row && "sender" in row,
     // مقدار(های) عددی status برای هر فیلتر؛ می‌تونه عدد یا آرایه باشه
     statusValues: { pending: 0, confirmed: 1, read: 4, failed: 5 },
     // فیلد متنی که سرچ روی اون انجام میشه
     searchKey: "title",
-    columns: [
+    columns: (variant) => [
       { title: "1339", skeleton: skeleton("60px") },
       { title: "1319", skeleton: skeleton("200px") },
-      { title: "1340", skeleton: skeleton("200px") },
+      {
+        title: variant === "sent" ? "1448" : "1340",
+        skeleton: skeleton("200px"),
+      },
       {
         title: "1341",
         filter: { stateKey: "status", options: STATUS_OPTIONS },
@@ -373,7 +516,7 @@ export const filterListRows = (type, rows, searched, status) => {
 
   return rows.filter((row) => {
     const searchMatch =
-      row?.[cfg.searchKey]?.toString().includes(searched) || false;
+      !searched || row?.[cfg.searchKey]?.toString().includes(searched) || false;
     const statusMatch =
       activeKeys.length === 0 ||
       activeKeys.some((k) =>
@@ -387,28 +530,58 @@ export const filterListRows = (type, rows, searched, status) => {
 const GenericList = ({
   type,
   variant, // مثلاً "sent" یا "received" برای لیست درخواست‌ها
-
   rows,
   status = {},
   setStatus,
   filters, // { status, title, subject }؛ اگر نباشد از status استفاده می‌شود
   setFilters, // { status: setStatus, title: setTitle, ... }
   isLoading,
+  searchConfig,
+  dateFilterConfig,
   loadMore,
   hasMore,
   isLoadMoreLoading,
+  size = "default",
+
   ...rowExtraProps // domain, subdomain و ... به ردیف پاس داده میشن
 }) => {
   const config = resolveConfig(type, rows);
   const serverSide = Boolean(config?.serverSide);
 
   const [visibleCount, setVisibleCount] = useState(LOAD_STEP);
+  const [internalSearch, setInternalSearch] = useState("");
+  const [internalDateRange, setInternalDateRange] = useState([null, null]);
   const [openFilter, setOpenFilter] = useState(null);
   const sentinelRef = useRef(null);
   const filterRef = useRef(null);
 
+  const searchValue = searchConfig?.value ?? internalSearch;
+  const dateRange = dateFilterConfig?.value ?? internalDateRange;
+  const filteredRows = useMemo(() => {
+    if (serverSide) return rows;
+
+    let result = rows ?? [];
+    if (searchConfig?.key && searchValue) {
+      const query = searchValue.trim().toLocaleLowerCase();
+      result = result.filter((row) =>
+        String(row?.[searchConfig.key] ?? "")
+          .toLocaleLowerCase()
+          .includes(query),
+      );
+    }
+
+    return filterRowsByDate(result, dateFilterConfig?.key, dateRange);
+  }, [
+    rows,
+    serverSide,
+    searchConfig?.key,
+    searchValue,
+    dateFilterConfig?.key,
+    dateRange,
+  ]);
   const canLoadMore =
-    Boolean(hasMore) || (!serverSide && visibleCount < (rows?.length ?? 0));
+    Boolean(hasMore) ||
+    (!serverSide && visibleCount < (filteredRows?.length ?? 0));
 
   const handleLoadMore = useCallback(async () => {
     if (serverSide) return loadMore?.();
@@ -460,7 +633,21 @@ const GenericList = ({
     typeof config.columns === "function"
       ? config.columns(variant)
       : config.columns;
-  const visibleRows = serverSide ? rows : rows?.slice(0, visibleCount);
+  const visibleRows = serverSide ? rows : filteredRows.slice(0, visibleCount);
+
+  const handleSearchChange = (value) => {
+    if (searchConfig?.value === undefined) {
+      setInternalSearch(value);
+    }
+    searchConfig?.onChange?.(value);
+  };
+
+  const handleDateChange = (value) => {
+    if (dateFilterConfig?.value === undefined) {
+      setInternalDateRange(value ?? [null, null]);
+    }
+    dateFilterConfig?.onChange?.(value);
+  };
 
   // سازگار با VodList: اگر filters پاس داده نشود از status و setStatus استفاده می‌شود
   const getFilterState = (stateKey) =>
@@ -479,7 +666,7 @@ const GenericList = ({
     const state = getFilterState(stateKey);
 
     return (
-      <FilterMenu>
+      <FilterMenu $size={size}>
         {options.map(({ key, title, variant, icon }) => (
           <FilterOption
             key={key}
@@ -503,6 +690,7 @@ const GenericList = ({
 
           return (
             <TableHeader
+              $size={size}
               key={title}
               ref={isOpen ? filterRef : null}
               style={{
@@ -545,28 +733,52 @@ const GenericList = ({
     ));
 
   return (
-    <Container $minHeight={config.minHeight}>
-      <Table>
-        {renderHeader()}
-        <tbody>
-          {isLoading
-            ? renderSkeleton()
-            : visibleRows?.map((row, index) => (
-                <RowComponent
-                  key={row.id ?? index}
-                  {...row}
-                  {...rowExtraProps}
-                  {...getRowProps?.(row, index, variant)}
-                  isLoading={false}
-                />
-              ))}
-        </tbody>
-      </Table>
+    <Container $minHeight={config.minHeight} $size={size}>
+      {(searchConfig || dateFilterConfig) && (
+        <Toolbar $single={!searchConfig || !dateFilterConfig}>
+          {searchConfig && (
+            <SearchInput
+              placeholder={searchConfig.placeholder}
+              value={searchValue}
+              onchange={(event) => handleSearchChange(event.target.value)}
+            />
+          )}
+          {dateFilterConfig && (
+            <CustomDatePicker
+              $size={size}
+              placeholder={dateFilterConfig.placeholder}
+              format={dateFilterConfig.format}
+              plugins={dateFilterConfig.plugins}
+              range
+              value={dateRange}
+              onChange={handleDateChange}
+            />
+          )}
+        </Toolbar>
+      )}
+      <TableScroller>
+        <Table>
+          {renderHeader()}
+          <tbody>
+            {isLoading
+              ? renderSkeleton()
+              : visibleRows?.map((row, index) => (
+                  <RowComponent
+                    key={row.id ?? index}
+                    {...row}
+                    {...rowExtraProps}
+                    {...getRowProps?.(row, index, variant)}
+                    isLoading={false}
+                  />
+                ))}
+          </tbody>
+        </Table>
+      </TableScroller>
 
       {!isLoading && canLoadMore && (
         <>
           {isMobile ? (
-            <Loader>
+            <Loader $size={size}>
               <button onClick={handleLoadMore} disabled={isLoadMoreLoading}>
                 {isLoadMoreLoading
                   ? getTranslation(1824)

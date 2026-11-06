@@ -31,7 +31,6 @@ const useWalletLink = () => {
   const { Request, HTTP_METHOD } = useRequest();
   const navigate = useNavigate();
   const [, dispatch] = useContext(UserContext);
-
   const openMetaMaskInstallPage = async () => {
     const browser = await getBrowser();
     window.open(METAMASK_LINKS[browser] || DEFAULT_METAMASK_LINK, "_blank");
@@ -41,6 +40,10 @@ const useWalletLink = () => {
     dispatch({
       type: UserContextTypes.UPDATE_FIELD,
       payload: { key: "has_wallet", value: true },
+    });
+    dispatch({
+      type: UserContextTypes.UPDATE_FIELD,
+      payload: { key: "wallet_login", value: true },
     });
     dispatch({
       type: UserContextTypes.UPDATE_FIELD,

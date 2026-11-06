@@ -11,7 +11,8 @@ import {
   ToastError,
   ToastSuccess,
 } from "../../../../services/Utility";
-
+import TitleBody from "../../../../components/TitleBody.jsx";
+import LabeledInput from "../../../../components/LabeledInput.jsx";
 // name = کلید تنظیم در بک‌اند، label = کلید ترجمه‌ی عنوان
 // minError و maxError = کلید ترجمه‌ی پیام خطا وقتی مقدار از بازه بیرون باشد
 const FIELDS = [
@@ -39,7 +40,6 @@ const getInitialValues = (settings) =>
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 20px;
   padding: 20px;
   border-radius: 5px;
   background-color: ${({ theme }) =>
@@ -50,6 +50,7 @@ const Fields = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
+
   margin-bottom: 20px;
 `;
 
@@ -59,33 +60,8 @@ const Field = styled.div`
   justify-content: space-between;
 
   &:not(:last-child) {
-    padding-bottom: 20px;
+    padding: 20px 0;
     border-bottom: 1px solid #454545;
-  }
-`;
-
-const Label = styled.span`
-  font-size: 16px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-`;
-
-const Input = styled.input`
-  width: 70px;
-  height: 50px;
-  font-size: 16px;
-  text-align: center;
-  outline: none;
-  border: 1px solid ${({ $error }) => ($error ? "red" : "#454545")};
-  border-radius: 5px;
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.inputBg};
-
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    margin: 0;
-    -webkit-appearance: none;
   }
 `;
 
@@ -165,7 +141,6 @@ const Bank = ({ settings }) => {
   }));
 
   const isDisabled = FIELDS.some(({ name }) => values[name] === "");
-
   return (
     <Container>
       <TitleHeader title={getTranslation("635")} />
@@ -182,14 +157,18 @@ const Bank = ({ settings }) => {
       <Fields>
         {FIELDS.map(({ name, label }) => (
           <Field key={name}>
-            <Label>{getTranslation(label)}</Label>
-            <Input
-              type="number"
-              placeholder="0"
-              value={values[name]}
-              $error={errors[name]}
-              onChange={(e) => handleInputChange(name, e)}
-            />
+            <TitleBody title={getTranslation(label)} />
+            <div>
+              {" "}
+              <LabeledInput
+                digits={2}
+                type="number"
+                placeholder="0"
+                value={values[name]}
+                $error={errors[name]}
+                onChange={(e) => handleInputChange(name, e)}
+              />
+            </div>
           </Field>
         ))}
       </Fields>

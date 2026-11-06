@@ -17,7 +17,7 @@ const Container = styled.div`
   }
 `;
 
-const Pricing = ({ type, amount, color, index }) => {
+const Pricing = ({ type, amount, color, index, gift }) => {
   const colorImages = {
     red,
     blue,
@@ -28,6 +28,7 @@ const Pricing = ({ type, amount, color, index }) => {
     psc,
     color: colorImages[color],
   };
+  console.log("gift", gift);
   return (
     <Container>
       <div>
@@ -38,7 +39,9 @@ const Pricing = ({ type, amount, color, index }) => {
       </div>
 
       <TitleBody
-        title={amount === 0 && index === 2 ? "هدیه" : convertToPersian(amount)}
+        title={
+          gift && index === 2 ? getTranslation(157) : convertToPersian(amount)
+        }
       />
     </Container>
   );

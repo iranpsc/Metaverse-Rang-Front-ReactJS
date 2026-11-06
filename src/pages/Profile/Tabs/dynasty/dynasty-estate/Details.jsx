@@ -1,15 +1,14 @@
 // کارت جزئیات ملک سلسله (کد ملک، مساحت، تراکم، افزایش سود، تعداد اعضا و آخرین بروزرسانی)؛ مناسب صفحه‌ی املاک سلسله (estate) برای نمایش اطلاعات ملک انتخاب‌شده
 
 import styled from "styled-components";
-import { useLocation, useNavigate } from "react-router";
 import { AiOutlineExclamationCircle } from "react-icons/ai";
 import { getTranslation } from "../../../../../services/Utility";
-
+import TitleBody from "../../../../../components/TitleBody";
+import LandText from "../../../../../components/LandText";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
-  min-width: 350px;
   padding: 20px;
   border-radius: 5px;
   background-color: ${({ theme }) =>
@@ -20,49 +19,20 @@ const Header = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-
-  h3 {
-    font-size: 20px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-
-  span {
-    font-size: 16px;
-    font-weight: 600;
-    text-transform: uppercase;
-    cursor: pointer;
-    color: ${({ theme }) => theme.colors.newColors.otherColors.orange};
-  }
 `;
 
 const Row = styled.div`
   display: flex;
   justify-content: space-between;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
-`;
-
-const Label = styled.h3`
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 18px;
-  font-weight: 500;
-  white-space: nowrap;
-`;
-
-const Value = styled.span`
-  font-size: 16px;
-  font-weight: 500;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+  div {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
 `;
 
 const Details = ({ data }) => {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
-
   const feature = data?.["dynasty-feature"];
   if (!feature) return null;
 
@@ -88,23 +58,17 @@ const Details = ({ data }) => {
   return (
     <Container>
       <Header>
-        <h3>{getTranslation(813)}</h3>
-        <span
-          onClick={() =>
-            navigate(`/feature/${id}/info`, { state: { from: pathname } })
-          }
-        >
-          {propertyId}
-        </span>
+        <TitleBody weight title={getTranslation(813)} />
+        <LandText label={propertyId} to={`/feature/${id}/info} `} />
       </Header>
 
       {rows.map(({ label, value, icon }) => (
         <Row key={label}>
-          <Label>
-            {getTranslation(label)}
+          <div>
+            <TitleBody noWrap title={getTranslation(label)} />
             {icon && <AiOutlineExclamationCircle />}
-          </Label>
-          <Value>{value}</Value>
+          </div>
+          <TitleBody align="end" title={value} />
         </Row>
       ))}
     </Container>

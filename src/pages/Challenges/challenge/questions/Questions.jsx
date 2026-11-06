@@ -7,6 +7,7 @@ import rial from "../../../../assets/gif/rial.gif";
 import yellow from "../../../../assets/gif/yellow-color.gif";
 import nopic from "../../../../assets/images/nopic.jpg";
 import useRequest from "../../../../hooks/useRequest.js";
+import TitleBody from "../../../../components/TitleBody.jsx";
 import {
   convertToPersian,
   formatTime,
@@ -308,13 +309,14 @@ const Questions = ({
 
           <TimerBar>
             <Time>
-              <p>{getTranslation("1473")}</p>
-              <span>{convertToPersian(formatTime(timer))}</span>
+              <TitleBody title={getTranslation(1473)} />
+              <TitleBody title={convertToPersian(formatTime(timer))} />
             </Time>
             <Prize>
-              <p>{getTranslation("1474")}</p>
+              <TitleBody title={getTranslation(1474)} />
               <div>
-                <span>{convertToPersian(data?.prize)}</span>
+                <TitleBody title={convertToPersian(data?.prize)} />
+
                 <img
                   loading="lazy"
                   src={prizeImage}

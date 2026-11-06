@@ -23,6 +23,25 @@ const Container = styled.div`
   }
 `;
 
+const SubmitWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  margin-top: 20px;
+
+  button {
+    min-width: 120px;
+  }
+
+  @media (max-width: 499px) {
+    margin-top: 14px;
+
+    button {
+      min-width: 100px;
+    }
+  }
+`;
+
 // این کامپوننت برای فرم ثبت یادداشت جدید (عنوان، توضیحات با ادیتور، پیوست فایل و ذخیره) استفاده میشه و بعد از ثبت موفق، یادداشت جدید رو از طریق onNoteCreated به والد برمیگردونه و به بالای صفحه اسکرول میکنه
 const WriteNote = ({ onNoteCreated }) => {
   const { Request, HTTP_METHOD } = useRequest();
@@ -88,17 +107,20 @@ const WriteNote = ({ onNoteCreated }) => {
       />
 
       <FileUploader
+        mode="upload"
         files={files}
         onFilesChange={setFiles}
         maxFileSizeMB={MAX_FILE_SIZE_MB}
       />
-
-      <Button
-        fit
-        label={getTranslation("629")}
-        onclick={handleSaveNote}
-        disabled={!canSubmit ? true : isSending ? "pending" : false}
-      />
+      <SubmitWrapper>
+        {" "}
+        <Button
+          fit
+          label={getTranslation("629")}
+          onclick={handleSaveNote}
+          disabled={!canSubmit ? true : isSending ? "pending" : false}
+        />
+      </SubmitWrapper>
     </Container>
   );
 };

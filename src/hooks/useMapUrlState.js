@@ -1,13 +1,13 @@
 import { useCallback } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { isMobile } from "../services/Utility";
-export const showPolygons = isMobile ? 12.75 : 14;
+export const showPolygons = isMobile ? 12.75 : 13.96;
 const DEFAULT_MAP_STATE = {
   lat: 25.229,
   lng: 54.2199,
   zoom: showPolygons,
   bearing: 0,
-  pitch: 40,
+  pitch: 65.5,
 };
 
 export default function useMapUrlState() {

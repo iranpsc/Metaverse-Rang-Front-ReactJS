@@ -154,6 +154,7 @@ const WriteVodTab = () => {
       />
 
       <FileUploader
+        mode="upload"
         title={getTranslation("1328")}
         files={state.files}
         onFilesChange={(files) =>

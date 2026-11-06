@@ -264,7 +264,7 @@ const AngleControl = ({
   onCancel,
   onBack,
   onSubmitted,
-  label = "زاویه",
+  label = getTranslation(1943),
 }) =>
   createPortal(
     <Overlay role="dialog" aria-modal="false">
@@ -305,7 +305,7 @@ const AngleControl = ({
             <Row>
               <div>
                 {" "}
-                <ConfirmButton label="تایید ساخت" onClick={onConfirm} />
+                <ConfirmButton label={getTranslation(1944)} onClick={onConfirm} />
                 {PRESETS.map((angle) => (
                   <Button
                     key={angle}

@@ -7,11 +7,11 @@ import {
   getTranslation,
   sanitizePriceInputValue,
   convertToPersian,
+  formatNumber,
 } from "../../../../../services/Utility";
 import TitleValue from "../../../../../components/TitleValue";
 import Button from "../../../../../components/Button";
 import LabeledInput from "../../../../../components/LabeledInput.jsx";
-
 const Div = styled.div`
   display: flex;
   flex-direction: column;
@@ -39,61 +39,17 @@ const ResultWrapper = styled.div`
   display: grid;
   gap: 20px;
   width: 100%;
-
-  @media (min-width: 741px) {
-    grid-template-columns: 2fr 1fr;
-  }
-
-  @media (min-width: 840px) {
-    grid-template-columns: 5fr 2fr;
-  }
+  grid-template-columns: 3fr 1fr;
 
   @media (min-width: 1200px) {
-    grid-template-columns: 4fr 1fr;
-  }
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  border-radius: 5px;
-  height: 40px;
-  border: 1px solid
-    ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
-  font-weight: 400;
-  overflow: hidden;
-
-  @media (min-width: 998px) {
-    height: 48px;
-  }
-`;
-
-const Title = styled.h3`
-  font-size: 16px;
-  font-weight: 400;
-  height: fit-content;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  padding: 5px 20px;
-
-  @media (min-width: 998px) {
-    padding: 8px 20px;
-  }
-`;
-
-const Value = styled.p`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  font-size: 18px;
-  padding: 5px 20px;
-
-  @media (min-width: 998px) {
-    padding: 8px 20px;
+    grid-template-columns: 5fr 1fr;
   }
 `;
 
 const FillInputs = ({
   setAssign,
   validateAndSubmit,
+  checkSecurity,
   rial,
   setRial,
   psc,
@@ -114,6 +70,7 @@ const FillInputs = ({
 
   const handleSubmit = () => {
     if (isSubmitLoading || isCancelLoading) return;
+    if (!checkSecurity()) return;
 
     setIsSubmitLoading(true);
 
@@ -141,7 +98,7 @@ const FillInputs = ({
     <Div>
       <InputsWrapper>
         <LabeledInput
-          value={rialValue}
+          value={rialValue === "" ? "" : formatNumber(rialValue)}
           maxLength={14}
           onChange={handleRialChange}
           type="number"
@@ -150,7 +107,7 @@ const FillInputs = ({
         />
         <LabeledInput
           maxLength={14}
-          value={pscValue}
+          value={pscValue === "" ? "" : formatNumber(pscValue)}
           onChange={handlePscChange}
           type="number"
           placeholder={`${getTranslation("521")} (${getTranslation("47")})`}
@@ -159,14 +116,11 @@ const FillInputs = ({
       </InputsWrapper>
 
       <ResultWrapper>
-        <Wrapper>
-          <Title>{getTranslation("522")}</Title>
-
-          <Value>
-            {convertToPersian(calculateFee(rial) || 0)} IRR /{" "}
-            {convertToPersian(calculateFee(psc) || 0)} PSC
-          </Value>
-        </Wrapper>
+        <TitleValue
+          title={getTranslation("522")}
+          value={`${convertToPersian(calculateFee(rial) || 0)} IRR /
+            ${convertToPersian(calculateFee(psc) || 0)} PSC`}
+        />
 
         <TitleValue title={getTranslation("523")} value="5%" />
       </ResultWrapper>

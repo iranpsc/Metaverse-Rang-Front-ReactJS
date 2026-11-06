@@ -14,7 +14,9 @@ import {
   removeItem,
   setItem,
 } from "../../services/Utility/LocalStorage";
-
+import LabeledInput from "../../components/LabeledInput.jsx";
+import TitleBody from "../../components/TitleBody.jsx";
+import TitleHeader from "../../components/TitleHeader.jsx";
 const CODE_LENGTH = 6;
 const INITIAL_TIMER = 2 * 60;
 const MS_PER_MINUTE = 60 * 1000;
@@ -27,75 +29,40 @@ const toDigits = (value) =>
   String(fixNumbers(String(value ?? ""))).replace(/\D/g, "");
 
 const isFilled = (values) => values.every((value) => value !== "");
-
-// ⚠️ استایل‌های Codes و Container عمداً بدون تغییر مانده‌اند
 const Codes = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(${CODE_LENGTH}, 1fr);
   gap: 10px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 10px 0;
   direction: ltr;
-  margin-bottom: 30px !important;
 
   input {
-    width: 30px;
     height: 50px;
+    padding: 8px;
     font-size: 16px;
-    padding: 12px;
     text-align: center;
-    border-radius: 5px;
-    border: 1px solid
-      ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-weight: 400;
-    outline: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
   @media (min-width: 1024px) {
     input {
-      width: 60px;
       height: 60px;
-      font-size: 16px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    gap: 6px;
+    margin-bottom: 20px;
+
+    input {
+      height: 42px;
+      padding: 4px;
+      font-size: 14px;
     }
   }
 `;
 
 const Container = styled.div`
-  margin-top: 20px;
-
-  h3 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 16px;
-    font-weight: 400;
-  }
-
-  p {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 16px;
-    font-weight: 400;
-  }
-
-  input {
-    border-radius: 5px;
-    background-color: ${(props) =>
-      props.theme.colors.newColors.otherColors.inputBg};
-    border: 1px solid
-      ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
-    padding: 14px 18px 14px 18px;
-    outline: none;
-    width: 93%;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    margin-top: 20px;
-
-    &::-webkit-inner-spin-button,
-    &::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-  }
-
   button {
     border-radius: 5px;
     height: 50px;
@@ -111,35 +78,54 @@ const Container = styled.div`
     cursor: pointer;
   }
 
-  div {
-    display: flex;
-    align-items: center;
-    font-size: 15px;
-    text-align: center;
-    width: fit-content;
-    margin: 0 auto;
+  @media (max-width: 1024px) {
+    margin-top: 0;
 
-    h4 {
-      color: #008bf8;
-      margin-left: 5px;
-    }
-
-    span {
-      color: #969696;
-    }
-
-    h2 {
-      font-size: 12px;
-      color: #dc920a;
-      cursor: pointer;
-
-      &:hover {
-        color: #ad740a;
-      }
+    button {
+      height: 42px;
+      margin-top: 18px;
+      margin-bottom: 10px;
+      font-size: 14px;
     }
   }
 `;
 
+// ردیف تایمر و ارسال مجدد؛ قانون‌هایش قبلاً روی همه‌ی divهای داخل Container اعمال می‌شد
+const ResendRow = styled.div`
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0 auto;
+  font-size: 15px;
+  text-align: center;
+
+  h4 {
+    margin-left: 5px;
+    color: #008bf8;
+  }
+
+  span {
+    color: #969696;
+  }
+
+  h2 {
+    font-size: 12px;
+    color: #dc920a;
+    cursor: pointer;
+
+    &:hover {
+      color: #ad740a;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 13px;
+
+    h4 {
+      margin-left: 4px;
+    }
+  }
+`;
 const SecondStep = ({ setStep, time }) => {
   const { Request, HTTP_METHOD } = useRequest();
   const inputRefs = useRef([]);
@@ -317,18 +303,17 @@ const SecondStep = ({ setStep, time }) => {
 
   return (
     <Container>
-      <h3>{getTranslation("860")}</h3>
-      <p>{getTranslation("861")}</p>
+      <TitleHeader title={getTranslation("860")} />
+      <TitleBody title={getTranslation("861")} />
 
       <Codes>
         {codeValues.map((value, index) => (
-          <input
+          <LabeledInput
             key={index}
             ref={(element) => {
               inputRefs.current[index] = element;
             }}
-            type="text"
-            inputMode="numeric"
+            type="number"
             maxLength={1}
             placeholder="-"
             autoComplete={index === 0 ? "one-time-code" : "off"}
@@ -336,13 +321,14 @@ const SecondStep = ({ setStep, time }) => {
             onChange={(event) => handleChange(index, event)}
             onKeyDown={(event) => handleKeyDown(index, event)}
             onPaste={handlePaste}
-            className={hasError ? "invalid-input" : ""}
+            error={hasError}
+            size="big"
           />
         ))}
       </Codes>
 
-      <div>
-        <h4>{convertToPersian(formatTime(timer))}</h4>
+      <ResendRow>
+        <TitleBody title={convertToPersian(formatTime(timer))} />
 
         {timer > 0 ? (
           <span>{getTranslation("863")}</span>
@@ -354,7 +340,7 @@ const SecondStep = ({ setStep, time }) => {
             {getTranslation("1642")}
           </h2>
         )}
-      </div>
+      </ResendRow>
 
       <Button
         label={getTranslation("859")}

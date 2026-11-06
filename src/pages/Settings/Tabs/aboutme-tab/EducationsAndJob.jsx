@@ -58,6 +58,7 @@ const EducationsAndJob = ({ education, occupation, onChange }) => {
         value={occupation || ""}
         onChange={handleJobChange}
         placeholder={getTranslation("783")}
+        maxLength={200}
       />
     </Container>
   );

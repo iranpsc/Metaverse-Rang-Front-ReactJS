@@ -1,12 +1,12 @@
-// کاستوم ادیتور متن؛ در هر جایی که کاربر متن طولانی وارد می‌کند (مثل درباره ما)
+// کاستوم ادیتور متن؛ در هر جایی که کاربر متن طولانی وارد می‌کند (مثل درباره ما)؛ فونت با پراپ size ریسپانسیو است (مثل LabeledInput)
 import "react-quill-new/dist/quill.snow.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CiEdit } from "react-icons/ci";
 import ReactQuill from "react-quill-new";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
 import { convertToPersian, getTranslation } from "../../services/Utility";
-import { responsiveFontSize } from "../../styles/sizes";
+import { getSize } from "../../styles/sizes";
 import TitleBody from "../TitleBody";
 
 /* ---------- Constants ---------- */
@@ -30,6 +30,19 @@ const FORMATS = [
 ];
 
 /* ---------- Styles ---------- */
+
+// فونت ریسپانسیو با همان بریک‌پوینت‌های LabeledInput (۵۰۰ تا ۹۹۹ تبلت، از ۱۲۸۰ دسکتاپ)
+const responsiveFont = css`
+  font-size: ${({ $size }) => getSize($size, "base")};
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
+
+  @media (min-width: 1280px) {
+    font-size: ${({ $size }) => getSize($size, "desktop")};
+  }
+`;
 
 const Container = styled.div`
   margin-top: 20px;
@@ -101,7 +114,7 @@ const EditorContainer = styled.div`
     line-height: 1.6;
     font-family: ${FONT_FAMILY} !important;
     -webkit-text-size-adjust: 100%;
-    ${responsiveFontSize}
+    ${responsiveFont}
   }
 
   && .ql-editor::before {
@@ -123,11 +136,7 @@ const Counter = styled.div`
       $isOverLimit ? "red" : theme.colors.newColors.shades.title};
   }
 
-  span {
-    font-weight: 400;
-    color: ${({ $isOverLimit }) => ($isOverLimit ? "red" : "#a0a0ab")};
-    ${responsiveFontSize}
-  }
+
 `;
 
 /* ---------- Helpers ---------- */
@@ -165,7 +174,7 @@ const CustomEditor = ({
   border = false,
   img = false,
   showToolbar = true,
-  size = "default", // "small" | "default" | "big"
+  size = "default",
 }) => {
   const [charCount, setCharCount] = useState(() => getHtmlLength(value));
   const quillRef = useRef(null);
@@ -243,7 +252,7 @@ const CustomEditor = ({
     <Container>
       {label && <TitleBody title={label} size={size} />}
 
-      <EditorContainer $size={size} $showToolbar={showToolbar} $border={border}>
+      <EditorContainer $showToolbar={showToolbar} $border={border}>
         <ReactQuill
           ref={quillRef}
           theme="snow"
@@ -257,9 +266,8 @@ const CustomEditor = ({
 
       <Counter $isOverLimit={isOverLimit} $size={size}>
         {showIcon && <CiEdit size={18} />}
-        <span>
-          {convertToPersian(remainingChars)} {getTranslation("530")}
-        </span>
+        <TitleBody gray2 small title={`${convertToPersian(remainingChars)} ${getTranslation("530")}`} />
+    
       </Counter>
     </Container>
   );

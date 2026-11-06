@@ -5,7 +5,6 @@ import Dropdown from "../../../../components/Common/Dropdown.jsx";
 import TitleBody from "../../../../components/TitleBody.jsx";
 import { useLanguage } from "../../../../hooks/useLanguageContext.js";
 import { convertToPersian, getTranslation } from "../../../../services/Utility";
-
 const START_YEAR = { persian: 1401, gregorian: 2022 };
 
 const Container = styled.div`
@@ -32,11 +31,6 @@ const Content = styled.div`
   color: ${({ theme }) => theme.colors.newColors.shades.title};
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
-`;
-
-const Text = styled.p`
-  margin: 0;
-  line-height: 1.6;
 `;
 
 const CurrentYears = () => {
@@ -81,9 +75,11 @@ const CurrentYears = () => {
 
       <Content>
         <TitleBody title={getTranslation("804")} />
-        <Text>
-          لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ... سال 1403
-        </Text>
+        <TitleBody
+          title={
+            "  لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ... سال 1403"
+          }
+        />
       </Content>
     </Container>
   );

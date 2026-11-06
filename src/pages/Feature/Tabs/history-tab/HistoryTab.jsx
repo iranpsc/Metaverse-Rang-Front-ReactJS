@@ -30,7 +30,7 @@ const HistoryTab = () => {
 
     fetchData();
   }, []);
-
+console.log("setData",data)
   return (
     <StyledContainer>
       {data.map((item, index) => {
@@ -54,6 +54,8 @@ const HistoryTab = () => {
                 : undefined
             }
             owner={type === "genesis"}
+                        gift={type === "gift"}
+
             time={date_time.time}
             date={date_time.date}
             rial={price.price_irr}

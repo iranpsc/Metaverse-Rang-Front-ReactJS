@@ -7,7 +7,7 @@ import PublicComponent from "../../middleware/PublicComponent";
 import BtnsAfterLogin from "./BtnsAfterLogin";
 import BtnLogin from "./BtnAction/BtnLogin";
 import { useScrollDirectionContext } from "../../hooks/useScrollDirectionContext.js";
-import { useLanguage } from "../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../hooks/useLanguageContext.js";
 
 const BlurOverlay = styled.div`
   position: fixed;
@@ -74,7 +74,7 @@ position: relative;
 const Menu = () => {
   const { isOpen } = useMenuContext();
   const { isModalOpen, isGlobalFullScreenMap } = useScrollDirectionContext();
-  const isPersian = useLanguage();
+  const isPersian = useIsRtl();
   return (
     <>
       <BlurOverlay show={isModalOpen && isOpen} />

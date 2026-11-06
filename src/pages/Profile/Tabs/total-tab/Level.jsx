@@ -1,17 +1,18 @@
 import styled, { keyframes } from "styled-components";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../../../services/reducers/UserContext";
-import { useLanguage } from "../../../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../../../hooks/useLanguageContext.js";
 import {
   formatNumber,
   convertToPersian,
   getTranslation,
   levelIds,
 } from "../../../../services/Utility";
-import { Skeleton } from "../../../../components/Skeleton";
+import LevelSkeleton from "../../../../components/Skeletons/LevelSkeleton";
 import useRequest from "../../../../hooks/useRequest.js";
 import ToolTip from "../../../../components/Tooltip/Tooltip.jsx";
-
+import TitleBody from "../../../../components/TitleBody.jsx";
+import i18n from "../../../../i18n/i18n";
 const Container = styled.div`
   position: relative;
   border-radius: 10px;
@@ -40,18 +41,6 @@ const Title = styled.div`
   align-items: center;
   margin-bottom: 16px;
   justify-content: space-between;
-
-  h2 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-weight: 600;
-    font-size: 16px;
-  }
-
-  h3 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-weight: 500;
-    font-size: 16px;
-  }
 `;
 
 const ProgressContainer = styled.div`
@@ -129,7 +118,7 @@ const Level = () => {
   const [user] = useContext(UserContext);
   const [loading, setLoading] = useState(true);
   const [levelData, setLevelData] = useState(null);
-  const IsPersian = useLanguage();
+  const IsPersian = useIsRtl();
   const { Request } = useRequest();
 
   useEffect(() => {
@@ -154,28 +143,7 @@ const Level = () => {
       });
   }, []);
 
-  if (loading) {
-    return (
-      <Container>
-        <Percent IsPersian={IsPersian}>
-          <Title>
-            <Skeleton width="120px" height="20px" radius="4px" />
-            <Skeleton width="50px" height="20px" radius="4px" />
-          </Title>
-
-          <ProgressContainer>
-            <Skeleton width="70%" height="8px" radius="8px" />
-          </ProgressContainer>
-        </Percent>
-
-        <LevelCount>
-          <Skeleton width="44px" height="44px" radius="50%" />
-          <Skeleton width="44px" height="44px" radius="50%" />
-          <Skeleton width="44px" height="44px" radius="50%" />
-        </LevelCount>
-      </Container>
-    );
-  }
+  if (loading) return <LevelSkeleton isPersian={Boolean(IsPersian)} />;
 
   if (!levelData) {
     return null;
@@ -196,10 +164,15 @@ const Level = () => {
     <Container>
       <Percent IsPersian={IsPersian}>
         <Title>
-          <h2>{getTranslation(levelIds[latest_level?.name])}</h2>
-          <h3>
-            {convertToPersian(formatNumber(score_percentage_to_next_level))}%
-          </h3>
+          <TitleBody
+            weight
+            title={getTranslation(levelIds[latest_level?.name])}
+          />
+
+          <TitleBody
+            weight
+            title={`${convertToPersian(formatNumber(score_percentage_to_next_level))}%`}
+          />
         </Title>
 
         <ProgressContainer>
@@ -213,7 +186,7 @@ const Level = () => {
             <ToolTip
               width={"auto"}
               content={getTranslation(levelIds[level.name] ?? 382)}
-              lang={IsPersian ? "fa" : "en"}
+              lang={i18n.language}
               place={"top"}
               Chidren={
                 <LevelItem>

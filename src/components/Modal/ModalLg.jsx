@@ -2,7 +2,7 @@
 import { createPortal } from "react-dom";
 import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
-import { useLanguage } from "../../hooks/useLanguageContext";
+import { useIsRtl } from "../../hooks/useLanguageContext";
 import TitleHeader from "../TitleHeader";
 import { ExitIcon, ReportIcon } from "../Icons/IconsHeader";
 import { getTranslation } from "../../services/Utility";
@@ -54,7 +54,7 @@ const Actions = styled.div`
 const ModalLg = ({ children, titleId, setShowModal, report }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const isPersian = useLanguage();
+  const isPersian = useIsRtl();
   const handleReport = () => {
     navigate("/report/send", { state: { from: pathname } });
   };

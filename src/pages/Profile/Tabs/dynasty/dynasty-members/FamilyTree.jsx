@@ -4,25 +4,38 @@ import defulte from "../../../../../assets/images/defulte-profile.png";
 import TreeMember from "./TreeMember";
 import styled from "styled-components";
 import TitleHeader from "../../../../../components/TitleHeader";
+import TitleBody from "../../../../../components/TitleBody";
 import { getTranslation } from "../../../../../services/Utility";
 
 const Container = styled.div`
-  padding: 20px 25px;
-  overflow-y: auto;
+  width: max-content;
+  min-width: 100%;
+  box-sizing: border-box;
+
+  padding: 12px;
+  overflow: visible;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  gap: 18px;
+
+  @media (min-width: 768px) {
+    padding: 20px 25px;
+    gap: 30px;
+  }
 `;
 
 const Head = styled.div`
+    z-index: 1000;
+
   & img {
     border-radius: 100%;
     border: 2px solid transparent;
     cursor: pointer;
     transition: all 0.2s linear;
   }
-  &:hover img {
+  &:hover img {   
+
     box-shadow: 0px 10px 25px -5px ${({ theme }) => theme.colors.primary};
     border: 2px solid ${({ theme }) => theme.colors.primary};
   }
@@ -31,11 +44,16 @@ const Head = styled.div`
 const Family = styled.div`
   display: flex;
   justify-content: space-between;
-  gap: 60px;
+  gap: 20px;
   width: fit-content;
 
   position: relative;
-  padding: 20px 0;
+  padding: 14px 0;
+
+  @media (min-width: 768px) {
+    gap: 60px;
+    padding: 20px 0;
+  }
   &::before {
     content: "";
     position: absolute;
@@ -73,11 +91,16 @@ const Parent = styled.div`
 const Children = styled.div`
   display: flex;
   justify-content: space-between;
-  gap: 60px;
+  gap: 20px;
   width: fit-content;
 
   position: relative;
-  padding-top: 20px;
+  padding-top: 14px;
+
+  @media (min-width: 768px) {
+    gap: 60px;
+    padding-top: 20px;
+  }
   &::before {
     content: "";
     position: absolute;
@@ -118,21 +141,29 @@ const Add = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
+  gap: 6px;
   z-index: 1;
   background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
   border: 2px dashed #454545;
   border-radius: 10px;
   cursor: pointer;
-  height: 205px;
-  width: 145px;
-  span {
-    font-size: 14px;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-    font-weight: 400;
-  }
+  height: 150px;
+  width: 115px;
+  padding: 8px;
+  box-sizing: border-box;
   svg {
+    font-size: 24px;
     color: ${({ theme }) => theme.colors.newColors.shades.title};
+  }
+
+  @media (min-width: 768px) {
+    gap: 10px;
+    height: 205px;
+    width: 145px;
+
+    svg {
+      font-size: 32px;
+    }
   }
 `;
 
@@ -145,14 +176,14 @@ const FamilyTree = ({ members, setMode, ownerImg }) => {
     <Container>
       <TitleHeader right title={getTranslation(112)} />
       <Head>
-        <img src={ownerImg || defulte} width={110} height={110} />
+        <img src={ownerImg || defulte} width={88} height={88} alt="" />
       </Head>
       <Family>
         <Sibling>
           {members.siblings.length < 4 && (
             <Add onClick={() => handleAddMember("siblings")}>
               <FaPlus size={32} />
-              <span>{getTranslation(826)}</span>
+              <TitleBody title={getTranslation(826)} size="small" />
             </Add>
           )}
           {members.siblings.map((sibling, i) => (
@@ -167,7 +198,7 @@ const FamilyTree = ({ members, setMode, ownerImg }) => {
           {members.parent.length < 2 && (
             <Add onClick={() => handleAddMember("parent")}>
               <FaPlus size={32} />
-              <span>{getTranslation(1396)}</span>
+              <TitleBody title={getTranslation(1396)} size="small" />
             </Add>
           )}
           {members.parent.map((item, i) => (
@@ -184,7 +215,7 @@ const FamilyTree = ({ members, setMode, ownerImg }) => {
           {members.children.length < 4 && (
             <Add onClick={() => handleAddMember("children")}>
               <FaPlus size={32} />
-              <span>{getTranslation(827)}</span>
+              <TitleBody title={getTranslation(827)} size="small" />
             </Add>
           )}
           {members.children.map((child, i) => (
@@ -199,7 +230,7 @@ const FamilyTree = ({ members, setMode, ownerImg }) => {
           {members.spouse.length < 1 && (
             <Add onClick={() => handleAddMember("spouse")}>
               <FaPlus size={32} />
-              <span>{getTranslation(1397)}</span>
+              <TitleBody title={getTranslation(1397)} size="small" />
             </Add>
           )}
           {members.spouse.map((item, i) => (

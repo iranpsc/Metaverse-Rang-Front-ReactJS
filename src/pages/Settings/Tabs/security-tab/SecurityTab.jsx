@@ -152,15 +152,12 @@ const LEFT_SECTIONS = SECTIONS_WITH_IDS.slice(5);
 
 const Wrapper = styled.div`
   display: grid;
-  grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
   align-items: flex-start;
   gap: 20px;
   margin-top: 20px;
   padding-bottom: 20px;
 
-  @media (min-width: 1400px) {
-    grid-template-columns: 1fr 1fr;
-  }
 `;
 
 const Column = styled.div`
@@ -218,7 +215,12 @@ const SecurityTab = () => {
       ? sections
           .filter(matchesSearch)
           .map((section) => (
-            <Item key={section.id} {...withValues(section)} privacy={privacy} />
+            <Item
+              key={section.id}
+              {...withValues(section)}
+              privacy={privacy}
+              setPrivacy={setPrivacy}
+            />
           ))
       : null;
 

@@ -2,7 +2,7 @@ import ConfettiExplosion from "react-confetti-explosion";
 import styled, { css } from "styled-components";
 import image from "../../../../assets/gif/blue-color.gif";
 import { convertToPersian } from "../../../../services/Utility";
-
+import TitleBody from "../../../../components/TitleBody";
 const CORRECT_COLOR = "#18C08F";
 const WRONG_COLOR = "#C30000";
 
@@ -71,15 +71,6 @@ const Body = styled.div`
   flex-grow: 1;
 `;
 
-const OptionTitle = styled.h3`
-  max-width: 320px;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 28px;
-  color: ${({ $state }) => STATES[$state]?.color ?? "inherit"};
-
-  ${compactOnly("font-size: 13px;")}
-`;
 
 const PercentRow = styled.div`
   display: flex;
@@ -109,7 +100,13 @@ const ProgressBar = styled.div`
   background-color: ${({ $state }) => STATES[$state]?.color ?? CORRECT_COLOR};
 `;
 
-const confettiStyle = { position: "absolute", top: "50px", left: "200px" };
+const confettiStyle = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  pointerEvents: "none",
+};
 
 const getState = ({ showAnswer, isSelected, isCorrect }) => {
   if (!showAnswer) return null;
@@ -156,14 +153,14 @@ const Question = ({
         </Photo>
 
         <Body>
-          <OptionTitle $state={state}>{convertToPersian(title)}</OptionTitle>
+          <TitleBody title={convertToPersian(title)} />
 
           {showAnswer && (
             <PercentRow>
               <Progress>
                 <ProgressBar $percent={percent} $state={state} />
               </Progress>
-              <span>{convertToPersian(percent)}%</span>
+              <TitleBody title={`${convertToPersian(percent)}%`} />
             </PercentRow>
           )}
         </Body>

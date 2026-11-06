@@ -14,7 +14,7 @@ import { UserContextTypes } from "../../../../services/actions/UserContextAction
 import { UserContext } from "../../../../services/reducers/UserContext";
 import useRequest from "../../../../hooks/useRequest.js";
 import DefaultProfile from "../../../../assets/images/defulte-profile.png";
-import { Skeleton } from "../../../../components/Skeleton";
+import SliderSkeleton from "../../../../components/Skeletons/SliderSkeleton";
 import ImageCropper from "../../../../components/ImageCropper/ImageCropper";
 import { getTranslation } from "../../../../services/Utility";
 
@@ -36,19 +36,10 @@ const normalizeImagePayload = (payload) => {
 const Container = styled.div`
   overflow: hidden;
   height: 317px;
+
   @media (min-width: 740px) {
     height: 300px;
   }
-`;
-const SkeletonContainer = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  border-radius: 10px;
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.inputBg};
 `;
 
 const SwiperContainer = styled.div`
@@ -246,13 +237,7 @@ export default function Slider() {
       .finally(() => setUploading(false));
   };
 
-  if (loading) {
-    return (
-      <SkeletonContainer>
-        <Skeleton width="100%" height="100%" radius="10px" />
-      </SkeletonContainer>
-    );
-  }
+  if (loading) return <SliderSkeleton />;
 
   return (
     <Container>

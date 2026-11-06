@@ -5,35 +5,44 @@ export default function useLanguage() {
   const [currentLang, setCurrentLang] = useState(i18n.language || "fa");
 
   const isPersian = currentLang === "fa";
-
-  useEffect(() => {
-    document.body.dir = i18n.dir();
-
-    const savedLang = localStorage.getItem("selectedLanguage");
-    if (savedLang && savedLang !== i18n.language) {
-      changeLanguage(savedLang);
-    }
-  }, []);
+  const isRtl = i18n.dir(currentLang) === "rtl";
 
   const changeLanguage = useCallback(async (lang) => {
     try {
-      if (!i18n.options.supportedLngs.includes(lang)) {
-        console.warn(`Unsupported language: ${lang}`);
+      if (typeof lang !== "string" || !lang.trim()) {
+        console.warn("Cannot change to an invalid language code:", lang);
         return;
       }
 
       await i18n.changeLanguage(lang);
 
       document.body.dir = i18n.dir();
+      document.documentElement.lang = lang;
 
       localStorage.setItem("selectedLanguage", lang);
-      
       setCurrentLang(lang);
-
     } catch (error) {
       console.error("Language change error:", error);
     }
   }, []);
 
-  return { currentLang, isPersian, changeLanguage };
+  useEffect(() => {
+    const updateDocumentLanguage = (language) => {
+      document.body.dir = i18n.dir(language);
+      document.documentElement.lang = language;
+      setCurrentLang(language);
+    };
+
+    updateDocumentLanguage(i18n.language || "fa");
+    i18n.on("languageChanged", updateDocumentLanguage);
+
+    const savedLang = localStorage.getItem("selectedLanguage");
+    if (savedLang && savedLang !== i18n.language) {
+      changeLanguage(savedLang);
+    }
+
+    return () => i18n.off("languageChanged", updateDocumentLanguage);
+  }, [changeLanguage]);
+
+  return { currentLang, isPersian, isRtl, changeLanguage };
 }

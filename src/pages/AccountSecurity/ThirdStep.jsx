@@ -30,24 +30,18 @@ const Card = styled.div`
   border: 1px solid
     ${({ theme }) => theme.colors.newColors.otherColors.inputBorder};
 
-  h3,
-  h4 {
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-
-  h4 {
-    font-size: 16px;
-    font-weight: 400;
+  @media (max-width: 1024px) {
+    margin-top: 20px;
+    padding: 14px;
+    gap: 10px;
   }
 `;
 
 const BackLink = styled.button`
   margin: 10px 0 15px;
-  padding: 0;
   font-size: 15px;
   border: none;
   background: none;
-  color: #008bf8;
   cursor: pointer;
 `;
 
@@ -63,14 +57,11 @@ const ThirdStep = ({ setStep }) => {
       return;
     }
 
-    const timeout = setTimeout(
-      () => {
-        const nextRemaining = getRemainingSeconds(endTime);
-        setRemaining(nextRemaining);
-        if (nextRemaining === 0) setStep(1);
-      },
-      1000,
-    );
+    const timeout = setTimeout(() => {
+      const nextRemaining = getRemainingSeconds(endTime);
+      setRemaining(nextRemaining);
+      if (nextRemaining === 0) setStep(1);
+    }, 1000);
 
     return () => clearTimeout(timeout);
   }, [endTime, remaining, setStep]);
@@ -79,13 +70,13 @@ const ThirdStep = ({ setStep }) => {
     <Container>
       <Card>
         <TitleBody title={getTranslation("864")} />
-        <h4>
-          {convertToPersian(formatTime(remaining))} {getTranslation("33")}
-        </h4>
+        <TitleBody
+          title={`${convertToPersian(formatTime(remaining))} ${getTranslation("33")}`}
+        />
       </Card>
 
-      <BackLink type="button" onClick={() => setStep(1)}>
-        {getTranslation("35")}
+      <BackLink onClick={() => setStep(1)}>
+        <TitleBody color="#008bf8" title={getTranslation("35")} />
       </BackLink>
     </Container>
   );

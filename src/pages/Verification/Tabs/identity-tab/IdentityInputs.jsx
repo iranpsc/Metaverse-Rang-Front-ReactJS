@@ -1,18 +1,16 @@
 // فرم ارسال مدارک احراز هویت (نام، نام خانوادگی، کد ملی، استان، تاریخ تولد، جنسیت، کارت ملی و ویدیو)؛ بدون اعتبارسنجی سمت کلاینت، فقط فیلدهایی که بک‌اند ایراد گرفته (initialKyc.errors) کادر قرمز می‌گیرند و بعد از ارسال موفق، داده‌ی برگشتی به والد داده می‌شود
 
-import "react-multi-date-picker/styles/backgrounds/bg-dark.css";
 import styled from "styled-components";
 import { useMemo, useState } from "react";
 import * as Sentry from "@sentry/react";
-import DatePicker from "react-multi-date-picker";
+import DateObject from "react-date-object";
 import persian from "react-date-object/calendars/persian";
-import persian_fa from "react-date-object/locales/persian_fa";
-import { FaRegCalendarAlt } from "react-icons/fa";
 import Alert from "../../../../components/Alert/Alert";
 import Button from "../../../../components/Button";
 import Container from "../../../../components/Common/Container";
+import CustomDatePicker from "../../../../components/CustomDatePicker"; // مسیر را با ساختار پروژه تنظیم کنید
 import Dropdown from "../../../../components/Common/Dropdown";
-import LabeledInput from "../../../../components/LabeledInput"; // مسیر را با ساختار پروژه تنظیم کنید
+import LabeledInput from "../../../../components/LabeledInput";
 import TitleHeader from "../../../../components/TitleHeader";
 import ErrorModal from "../ErrorModal";
 import useRequest from "../../../../hooks/useRequest.js";
@@ -23,6 +21,7 @@ import {
 } from "../../../../services/Utility";
 import VideoRecord from "./VideoRecord";
 import FileUploader from "../../../../components/FileUploader/FileUploader.jsx";
+
 // بازه‌ی کلید ترجمه‌ی استان‌ها (همان range گروه cities در FIELD_CONFIGS)
 const PROVINCE_RANGE = [907, 990];
 const GENDER_KEYS = ["887", "886"];
@@ -39,13 +38,21 @@ const SLUGS = [
   "gender",
 ];
 
-const DEFAULT_VALUES = { birthdate: "1370/01/01" };
+const DEFAULT_BIRTHDATE = new Date(1991, 2, 21); // ۱۳۷۰/۰۱/۰۱ شمسی
 const MALE_VALUE = "877";
 
-const getInitialValues = (kyc) =>
-  Object.fromEntries(
-    SLUGS.map((slug) => [slug, kyc?.[slug] || DEFAULT_VALUES[slug] || ""]),
-  );
+// بک‌اند تاریخ را شمسی (YYYY/MM/DD) می‌دهد؛ در state به Date تبدیل می‌شود
+const parseBirthdate = (value) =>
+  new DateObject({
+    date: convertToEnglish(value),
+    format: "YYYY/MM/DD",
+    calendar: persian,
+  }).toDate();
+
+const getInitialValues = (kyc) => ({
+  ...Object.fromEntries(SLUGS.map((slug) => [slug, kyc?.[slug] || ""])),
+  birthdate: kyc?.birthdate ? parseBirthdate(kyc.birthdate) : DEFAULT_BIRTHDATE,
+});
 
 // نام خطاهای بک‌اند مثل fname_err به slug فیلد تبدیل می‌شود
 const getErrorFields = (kyc) =>
@@ -66,32 +73,6 @@ const Fields = styled.div`
   gap: 10px;
 `;
 
-const Birthday = styled.div`
-  display: flex;
-  flex-grow: 1;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px;
-  overflow: hidden;
-  border: 1px solid ${({ $error }) => ($error ? "red" : "#454545")};
-  border-radius: 5px;
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.inputBg};
-
-  svg {
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-
-  input {
-    width: 100%;
-    height: 100%;
-    border: none;
-    outline: none;
-    font-size: 16px;
-    background-color: transparent;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-`;
 const Media = styled.div`
   display: grid;
   gap: 30px;
@@ -102,6 +83,7 @@ const Media = styled.div`
     grid-template-columns: 800px 1fr;
   }
 `;
+
 const IdentityInputs = ({ initialKyc = {}, onSubmitSuccess }) => {
   const { Request, HTTP_METHOD } = useRequest();
 
@@ -121,11 +103,10 @@ const IdentityInputs = ({ initialKyc = {}, onSubmitSuccess }) => {
 
   // باید داخل کامپوننت ساخته شود چون getFieldsByTabName از ترجمه‌های لودشده می‌خواند
   const provinceOptions = useMemo(
-    () => [
-      ...getFieldsByTabName(...PROVINCE_RANGE).map(
+    () =>
+      getFieldsByTabName(...PROVINCE_RANGE).map(
         ({ translation }) => translation,
       ),
-    ],
     [],
   );
 
@@ -145,6 +126,7 @@ const IdentityInputs = ({ initialKyc = {}, onSubmitSuccess }) => {
   // کلیدهای خطای اعتبارسنجی بک‌اند: { melli_code: "..." } => ["melli_code"]
   const getResponseErrorFields = (error) =>
     Object.keys(error?.response?.data?.errors ?? {});
+
   const handleSubmit = () => {
     setIsSending(true);
 
@@ -154,7 +136,13 @@ const IdentityInputs = ({ initialKyc = {}, onSubmitSuccess }) => {
     ["fname", "lname", "melli_code", "province"].forEach((slug) =>
       formData.append(slug, values[slug]),
     );
-    formData.append("birthdate", convertToEnglish(values.birthdate));
+    // بک‌اند همیشه تاریخ شمسی می‌خواهد، حتی اگر کاربر با تقویم میلادی انتخاب کرده باشد
+    formData.append(
+      "birthdate",
+      new DateObject({ date: values.birthdate, calendar: persian }).format(
+        "YYYY/MM/DD",
+      ),
+    );
     formData.append("gender", values.gender === MALE_VALUE ? "male" : "female");
     formData.append("melli_card", nationImage);
     formData.append("video[name]", video.name);
@@ -167,7 +155,7 @@ const IdentityInputs = ({ initialKyc = {}, onSubmitSuccess }) => {
     })
       .then((response) => onSubmitSuccess?.(response.data.data))
       .catch((error) => {
-        // فیلدهایی که بک‌اند ایراد گرفته، کادر قرمز می‌گیرند
+
         const fields = getResponseErrorFields(error);
         if (fields.length > 0) {
           setErrorFields((prev) => [...new Set([...prev, ...fields])]);
@@ -180,12 +168,12 @@ const IdentityInputs = ({ initialKyc = {}, onSubmitSuccess }) => {
       .finally(() => setIsSending(false));
   };
 
-  // بالای return
   const isFormComplete =
-    SLUGS.every((slug) => values[slug].trim()) &&
+    SLUGS.every((slug) => String(values[slug]).trim()) &&
     convertToEnglish(values.melli_code).trim().length === MELLI_CODE_LENGTH &&
     nationImage &&
     isVideoUploaded;
+
   return (
     <Container>
       <Form>
@@ -224,17 +212,13 @@ const IdentityInputs = ({ initialKyc = {}, onSubmitSuccess }) => {
             hasError={hasError("province")}
           />
 
-          <Birthday $error={hasError("birthdate")}>
-            <DatePicker
-              value={values.birthdate}
-              onChange={(date) => setField("birthdate", date.format())}
-              calendar={persian}
-              locale={persian_fa}
-              calendarPosition="bottom-right"
-              zIndex={100}
-            />
-            <FaRegCalendarAlt size={20} />
-          </Birthday>
+          <CustomDatePicker
+            range={false}
+            value={values.birthdate}
+            onChange={(date) => setField("birthdate", date)}
+            error={hasError("birthdate")}
+          />
+
           <Dropdown
             selectPlaceHolder={false}
             options={GENDER_KEYS.map((key) => getTranslation(key))}
@@ -256,6 +240,7 @@ const IdentityInputs = ({ initialKyc = {}, onSubmitSuccess }) => {
             setIsVideoUploaded={setIsVideoUploaded}
           />
           <FileUploader
+            mode="upload"
             variant="card"
             title={getTranslation("878")}
             files={nationImage ? [nationImage] : []}

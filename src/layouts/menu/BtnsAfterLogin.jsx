@@ -13,6 +13,7 @@ import { useMenuContext } from "../../hooks/useMenuContext.js";
 import ToolTip from "../../components/Tooltip/Tooltip";
 
 import i18n from "../../i18n/i18n";
+import { getSize } from "../../styles/sizes";
 
 const Container = styled.div`
   display: flex;
@@ -65,10 +66,14 @@ const Text = styled.p`
   font-style: normal;
   font-weight: 500;
   line-height: 180%;
-  font-size: 14px;
+  font-size: ${({ $size }) => getSize($size, "base")};
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
 
   @media (min-width: 1024px) {
-    font-size: 16px;
+    font-size: ${({ $size }) => getSize($size, "desktop")};
   }
 
   display: ${(props) => (props.$isOpen ? "block" : "none")};
@@ -141,7 +146,9 @@ const BtnsAfterLogin = () => {
             rel="noreferrer"
           >
             <Icon src={item.icon} />
-            <Text $isOpen={isOpen}>{title}</Text>
+            <Text $isOpen={isOpen} $size="default">
+              {title}
+            </Text>
           </Btn>
         );
 

@@ -3,7 +3,6 @@ import styled from "styled-components";
 import Compressor from "compressorjs";
 import PhotoActionButton from "./components/PhotoActionButton.jsx";
 import Slider from "./Slider";
-import AttachmentItem from "../../../../components/AttachmentItem";
 import FileUploader from "../../../../components/FileUploader/FileUploader.jsx";
 import { Skeleton } from "../../../../components/Skeleton";
 import useRequest from "../../../../hooks/useRequest.js";
@@ -117,7 +116,12 @@ const Album = ({ feature, setFeature, isLoading }) => {
             key={image.id}
             onClickCapture={(event) => handlePreviewClick(event, image)}
           >
-            <AttachmentItem file={image.url} fit="contain" noDownload />
+            <FileUploader
+              mode="display"
+              file={image.url}
+              fit="contain"
+              noDownload
+            />
             <ActionButton
               image={image}
               isOwner={isOwner}
@@ -129,6 +133,7 @@ const Album = ({ feature, setFeature, isLoading }) => {
 
         {isOwner && (
           <FileUploader
+            mode="upload"
             files={NO_FILES}
             onFilesChange={([file]) => handleUpload(file)}
             accept="image/jpeg"

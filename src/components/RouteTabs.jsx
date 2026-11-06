@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router";
 import styled from "styled-components";
 import { useScrollDirectionContext } from "../hooks/useScrollDirectionContext";
-
+import ResponsiveText from "./ResponsiveText";
 const TAB_BAR_HEIGHT = 40;
 const mobileLandscape = "@media (max-height: 500px) and (max-width: 1000px)";
 
@@ -33,8 +33,7 @@ const Tab = styled.h3`
       : props.theme.colors.newColors.shades[30]};
   font-weight: 500;
   margin: 0;
-  font-size: 15px;
-  padding: 8px 26px;
+  padding: 5px 26px;
   cursor: pointer;
   border-bottom: 2px solid
     ${(props) =>
@@ -42,10 +41,6 @@ const Tab = styled.h3`
         ? props.theme.colors.primary
         : props.theme.colors.newColors.otherColors.inputBorder};
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-
-  @media (min-width: 998px) {
-    font-size: 18px;
-  }
 
   &:hover {
     color: ${(props) => props.theme.colors.primary};
@@ -163,7 +158,7 @@ function Tabs({ items = [] }) {
               navigate(`${basePath}/${item.path}`, { replace: true })
             }
           >
-            {item.title}
+            <ResponsiveText as="span">{item.title}</ResponsiveText>
           </Tab>
         ))}
       </TabContainer>

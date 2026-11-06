@@ -79,7 +79,6 @@ const Followers = () => {
               key={item.id}
               {...item}
               setFollowers={setFollowers}
-              followers={followers}
               canFollow={item.can?.follow}
               online={isOnline(item.id)}
             />

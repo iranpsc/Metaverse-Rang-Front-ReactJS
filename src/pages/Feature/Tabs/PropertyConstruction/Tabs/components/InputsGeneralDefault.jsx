@@ -62,14 +62,16 @@ const InputsGeneralDefault = () => {
   const navigate = useNavigate();
 
   const [inputs, setInputs] = useState(INITIAL_INPUTS);
+  const isNameValid = inputs.name.trim().length >= 4;
 
   const updateField = (field, value) =>
     setInputs((prev) => ({ ...prev, [field]: value }));
 
-  // LabeledInput پراپ name نمی‌گیره، پس نام فیلد از اینجا میاد
   const handleChange = (field) => (e) => updateField(field, e.target.value);
 
   const handleButtonClick = () => {
+    if (!isNameValid) return;
+
     if (inputs.postal_code && inputs.postal_code.length < POSTAL_CODE_LENGTH) {
       ToastError(getTranslation("1602"));
       return;
@@ -131,7 +133,11 @@ const InputsGeneralDefault = () => {
 
       <Note>{getTranslation("366")}</Note>
 
-      <Button label={getTranslation("367")} onClick={handleButtonClick} />
+      <Button
+        label={getTranslation("367")}
+        onClick={handleButtonClick}
+        disabled={!isNameValid}
+      />
     </Container>
   );
 };

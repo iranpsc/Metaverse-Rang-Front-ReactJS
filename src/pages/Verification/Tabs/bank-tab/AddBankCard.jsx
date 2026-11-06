@@ -19,13 +19,13 @@ const SHEBA_LENGTH = 24;
 const CARD_LENGTH = 16;
 
 const MESSAGES = {
-  invalidSheba: "شماره شبا صحیح نمی باشد لطفا آنرا بررسی نمایید.",
-  bankMismatch: "شماره شبا و شماره کارت باید متعلق به یک کارت باشد.",
-  invalidCard: "شماره کارت صحیح نمی باشد لطفا آنرا بررسی نمایید.",
-  duplicateCard: "شما قبلا این کارت را ثبت کرده‌اید.",
+  invalidSheba: getTranslation(1935),
+  bankMismatch: getTranslation(1936),
+  invalidCard: getTranslation(1937),
+  duplicateCard: getTranslation(1938),
   success:
-    "حساب بانکی شما با موفقیت ثبت شد. تایید نهایی پس از بررسی های لازم صورت میگیرد",
-  requestFailed: "خطایی در ثبت حساب بانکی رخ داد.",
+    getTranslation(1939),
+  requestFailed: getTranslation(1940),
 };
 
 const Inputs = styled.div`

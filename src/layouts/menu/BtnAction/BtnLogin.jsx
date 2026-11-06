@@ -1,66 +1,21 @@
+// دکمه‌ی ورود به حساب در منوی کناری (آیکون ورود و متن؛ با بسته بودن منو فقط آیکون)؛ با کلیک آدرس ورود را از سرور می‌گیرد و کاربر را به آن هدایت می‌کند و در حین درخواست اسپینر نشان می‌دهد
 
-import styled from "styled-components";
-import LoginIcon from "../../../assets/svg/login.svg?react";
-import { useMenuContext } from "../../../hooks/useMenuContext.js";
-import { getTranslation } from "../../../services/Utility";
-import useRequest from "../../../hooks/useRequest.js";
 import { useState } from "react";
+import LoginIcon from "../../../assets/svg/login.svg?react";
+import Button from "../../../components/Button.jsx";
+import { useMenuContext } from "../../../hooks/useMenuContext.js";
+import useRequest from "../../../hooks/useRequest.js";
+import { getTranslation } from "../../../services/Utility";
 
-const Btn = styled.div`
-  width: 100%;
-  min-height: 39px;
-
-  @media (min-width: 1024px) {
-    min-height: 49px;
-  }
-
-  background-color: ${(props) => props.theme.colors.primary};
-  color: ${(props) => props.theme.colors.newColors.primaryText};
-  display: flex;
-  align-items: center;
-  justify-content: ${(props) => (props.isOpen ? "space-between" : "center")};
-  border-radius: 10px;
-  padding: 0 10px;
-  cursor: ${(props) => (props.loading ? "wait" : "pointer")};
-  pointer-events: ${(props) => (props.loading ? "none" : "auto")};
-  opacity: ${(props) => (props.loading ? 0.7 : 1)};
-  transition: opacity 0.2s ease;
-`;
-
-const Text = styled.p`
-  display: ${(props) => (props.isOpen ? "block" : "none")};
-`;
-
-const Icon = styled(LoginIcon)`
-  stroke: ${(props) => props.theme.colors.newColors.primaryText};
-  width: 24px;
-  height: 24px;
-`;
-
-const Loader = styled.span`
-  width: 20px;
-  height: 20px;
-  border: 2px solid
-    ${(props) => props.theme.colors.newColors.primaryText};
-  border-top-color: transparent;
-  border-radius: 50%;
-  animation: spin 0.7s linear infinite;
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
-  }
-`;
+// اندازه‌ی آیکون از font-size خود Button می‌آید (مثل react-icons) و رنگ خط از رنگ متن دکمه
+const LOGIN_ICON = <LoginIcon width="1em" height="1em" stroke="currentColor" />;
 
 const BtnLogin = () => {
   const { isOpen } = useMenuContext();
   const { Request, HTTP_METHOD } = useRequest();
   const [loading, setLoading] = useState(false);
 
-  const handleClick = () => {
-    if (loading) return;
-
+  const handleLogin = () => {
     setLoading(true);
 
     Request(
@@ -71,33 +26,32 @@ const BtnLogin = () => {
       "development",
     )
       .then((response) => {
-        if (response && response.data.url) {
-          window.location.href = response.data.url;
-        } else {
-          console.error("No link found in response");
-          setLoading(false);
-        }
+        const url = response?.data?.url;
+        if (!url) throw new Error("No link found in response");
+
+        window.location.href = url;
       })
       .catch((error) => {
-        console.error("Request failed", error);
+        console.error("Login redirect failed:", error);
         setLoading(false);
       });
   };
 
   return (
-    <Btn
-      isOpen={isOpen}
-      $loading={loading}
-      onClick={handleClick}
-    >
-      {loading ? <Loader /> : <Icon />}
-
-      <Text isOpen={isOpen}>
-        {getTranslation("4")}
-      </Text>
-    </Btn>
+    <Button
+      style={{
+        borderRadius: "10px",
+        justifyContent: "space-between",
+        minHeight: "40px",
+        width: "100%",
+      }}
+      fill
+      icon={LOGIN_ICON}
+      label={isOpen ? getTranslation("4") : ""}
+      onClick={handleLogin}
+      disabled={loading ? "pending" : false}
+    />
   );
 };
 
 export default BtnLogin;
-

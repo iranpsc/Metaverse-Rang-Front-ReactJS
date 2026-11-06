@@ -8,8 +8,12 @@ import { useState, useEffect } from "react";
 import useLanguage from "../../hooks/useLanguage.js";
 import DropdownLanguageModule from "../../components/DropDownLang/DropdownLanguageModule";
 import ThemeMenuModule from "./ThemeMenuModule";
-import { languagesMeta } from "../../i18n/i18n";
+import {
+  getLanguagesMeta,
+  subscribeLanguagesMeta,
+} from "../../i18n/i18n";
 import { metarangUrl } from "../../services/Utility";
+import { getSize } from "../../styles/sizes";
 const Logo = styled.img`
 padding-top: 2px;
   height: 42px;
@@ -50,7 +54,7 @@ const ContainerText = styled.div`
 
 const Title = styled.p`
   color: ${(props) => props.theme.colors.newColors.otherColors.headerMenu};
-  font-size: 16px;
+  font-size: ${({ $size }) => getSize($size, "base")};
       padding-top: 2px;
 
   height: 25px;
@@ -58,6 +62,14 @@ const Title = styled.p`
   font-style: normal;
   font-weight: 700;
   line-height: 180%;
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
+
+  @media (min-width: 1024px) {
+    font-size: ${({ $size }) => getSize($size, "desktop")};
+  }
 `;
 
 const Details = styled.p`
@@ -117,17 +129,16 @@ const Icon = styled(ArowMenu)`
 `;
 
 const Header = () => {
-  const { currentLang, changeLanguage, isPersian } = useLanguage();
-  const [langArray, setLangArray] = useState([]);
-  const [currentLangObject, setCurrentLangObject] = useState(null);
+  const { currentLang, changeLanguage, isRtl } = useLanguage();
+  const [langArray, setLangArray] = useState(getLanguagesMeta);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const { isOpen, toggleMenu } = useMenuContext();
+  const currentLangObject =
+    langArray.find((item) => item.code === currentLang) || langArray[0];
 
   useEffect(() => {
-    setLangArray(languagesMeta);
-    const found = languagesMeta.find((item) => item.code === currentLang);
-    setCurrentLangObject(found || languagesMeta[0]);
-  }, [currentLang]);
+    return subscribeLanguagesMeta(() => setLangArray(getLanguagesMeta()));
+  }, []);
   return (
     <Container $isOpen={isOpen}>
       <ContainerMain>
@@ -139,6 +150,7 @@ const Header = () => {
         />
         <ContainerText $isOpen={isOpen}>
           <Title
+            $size="default"
             onClick={() => {
               window.open(metarangUrl(), "_blank");
             }}
@@ -181,7 +193,7 @@ const Header = () => {
         </Headerbtn>
       </ContainerMain>
       <BtnOpenCloseMenu onClick={toggleMenu} $isOpen={isOpen}>
-        <Icon $isOpen={isOpen} $isPersian={isPersian} />
+        <Icon $isOpen={isOpen} $isPersian={isRtl} />
       </BtnOpenCloseMenu>
     </Container>
   );

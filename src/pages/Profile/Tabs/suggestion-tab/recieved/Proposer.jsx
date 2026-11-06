@@ -1,39 +1,47 @@
 // Proposer.jsx
-import Button from "../../../../../components/Button";
+import { useMemo, useState, useContext } from "react";
 import ConfettiExplosion from "react-confetti-explosion";
 import { MdOutlineKeyboardArrowUp } from "react-icons/md";
-import {
-  convertToPersian,
-  getTranslation,
-  SanitizeHTML,
-  ToastError,
-  metarangUrlCitizen,
-  pscToIrr,
-  formatNumber,
-} from "../../../../../services/Utility/index";
+import styled from "styled-components";
+import moment from "moment-jalaali";
+
+import DefaultProfile from "../../../../../assets/images/defulte-profile.png";
 import line from "../../../../../assets/images/profile/Line.png";
 import pscpng from "../../../../../assets/images/profile/psc.gif";
 import rialpng from "../../../../../assets/images/profile/rial.gif";
-import styled from "styled-components";
-import { useState, useContext } from "react";
-import moment from "moment-jalaali";
-import { useLanguage } from "../../../../../hooks/useLanguageContext.js";
-import {
-  Info,
-  proposerContainer,
-  BasePrice,
-  Prices,
-  RejectButton,
-  Text,
-} from "../suggestionStyles";
+
+import Button from "../../../../../components/Button";
+import HtmlContent from "../../../../../components/HtmlContent.jsx";
+import TitleBody from "../../../../../components/TitleBody.jsx";
+import UserCode from "../../../../../components/Usercode.jsx";
+import { useIsRtl } from "../../../../../hooks/useLanguageContext.js";
 import useRequest from "../../../../../hooks/useRequest.js";
-import DefaultProfile from "../../../../../assets/images/defulte-profile.png";
 import {
   WalletContext,
   WalletContextTypes,
 } from "../../../../../services/reducers/WalletContext";
-const Price = BasePrice;
-const ProposalStatus = styled.div``;
+import {
+  calculateTotalIrr,
+  convertToPersian,
+  formatNumber,
+  getTranslation,
+  SanitizeHTML,
+  ToastError,
+} from "../../../../../services/Utility/index";
+import {
+  BasePrice,
+  Info,
+  Prices,
+  proposerContainer,
+  Text,
+} from "../suggestionStyles";
+
+const Container = proposerContainer;
+
+const NOTE_LIMIT = 277;
+const SUCCESS_STATUSES = [200, 204];
+const GRACE_OPTIONS = [7, 1];
+const MS_PER_DAY = 1000 * 60 * 60 * 24;
 
 const Header = styled.div`
   display: flex;
@@ -41,38 +49,20 @@ const Header = styled.div`
   justify-content: space-between;
   margin-bottom: 16px;
 `;
+
 const Person = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  & img {
+
+  img {
     border-radius: 100%;
   }
-  p {
-    color: #a0a0ab;
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 5px;
-  }
-  a {
-    text-decoration: none;
-    color: #0066ff;
-  }
 `;
-const Time = styled.div`
-  p {
-    color: #a0a0ab;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  h3 {
-    color: ${(props) => props.theme.colors.newColors.shades[30]};
-    font-size: 18px;
-    font-weight: 500;
-    margin-top: 4px;
-  }
+
+const ToggleText = styled.span`
+  cursor: pointer;
 `;
-const Container = proposerContainer;
 
 const Days = styled.div`
   display: flex;
@@ -80,10 +70,11 @@ const Days = styled.div`
   gap: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid
-    ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
+    ${({ theme }) => theme.colors.newColors.otherColors.inputBorder};
+
   button {
-    background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.iconBg};
+    background-color: ${({ theme }) =>
+      theme.colors.newColors.otherColors.iconBg};
     white-space: nowrap;
     font-size: 16px;
     padding: 8px;
@@ -91,20 +82,11 @@ const Days = styled.div`
   }
 `;
 
-const Buttons = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-top: 16px;
-  @media (min-width: 1366px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-const Div = styled.div`
+const RemainedWrapper = styled.div`
   padding-bottom: 16px;
   border-bottom: 1px solid #a0a0ab;
 `;
+
 const Remained = styled.div`
   display: flex;
   align-items: center;
@@ -112,59 +94,126 @@ const Remained = styled.div`
   padding: 9px 22px;
   border-radius: 10px;
   border: 1px solid #a0a0ab;
-  color: #949494;
-  font-size: 16px;
-  font-weight: 400;
 `;
+
+const Buttons = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+
+  @media (min-width: 1366px) {
+    grid-template-columns: 1fr;
+  }
+`;
+
+const ButtonWrapper = styled.div`
+  position: relative;
+`;
+
 const StyledArrowUp = styled(MdOutlineKeyboardArrowUp)`
-  color: ${({ percent }) => (percent > 0 ? "#18C08F" : "#FF0000")};
-  rotate: ${({ percent }) => (percent > 0 ? "" : "180deg")};
+  color: ${({ $isPositive }) => ($isPositive ? "#18C08F" : "#FF0000")};
+  rotate: ${({ $isPositive }) => ($isPositive ? "" : "180deg")};
 `;
 
 const getGraceRemainingDays = (gracePeriod) => {
   if (!gracePeriod) return 0;
-  const remaining = Math.ceil(
-    (moment(gracePeriod, "jYYYY/jMM/jDD HH:mm:ss").toDate() - new Date()) /
-    (1000 * 60 * 60 * 24),
-  );
-  return remaining <= 0 ? 0 : remaining;
+
+  const graceDate = moment(gracePeriod, "jYYYY/jMM/jDD HH:mm:ss").toDate();
+  return Math.max(0, Math.ceil((graceDate - new Date()) / MS_PER_DAY));
 };
 
-const Proposer = ({ item, onRemoved }) => {
+// درصد سود/ضرر کاربر: پیشنهاد خریدار نسبت به قیمت نهایی ملک
+// مثبت = خریدار بیشتر از قیمت نهایی پیشنهاد داده (سود)
+// منفی = پیشنهاد کمتر از قیمت نهایی است (ضرر)
+// اگر قیمت نهایی نامعتبر باشد null برمی‌گرداند
+const calculateProfitPercent = (buyerPrice, finalPrice) => {
+  if (!finalPrice) return null;
+  return ((buyerPrice - finalPrice) / finalPrice) * 100;
+};
+
+const PriceItem = ({ src, value }) => (
+  <div>
+    <img width={24} height={24} src={src} alt="" />
+    <TitleBody title={convertToPersian(formatNumber(value))} />
+  </div>
+);
+
+const Divider = () => <img width={1} height={24} src={line} alt="" />;
+
+const ConfettiEffect = ({ color }) => (
+  <ConfettiExplosion
+    zIndex={9999}
+    particleCount={150}
+    duration={3000}
+    colors={[color]}
+    particleSize={5}
+    height="100vh"
+    width={400}
+    style={{
+      position: "absolute",
+      left: "50%",
+      top: "50%",
+      transform: "translate(-50%, -50%)",
+      pointerEvents: "none",
+    }}
+  />
+);
+
+const ActionButton = ({ color, showConfetti, ...props }) => (
+  <ButtonWrapper>
+    <Button full color={color} textColor="#FFFFFF" {...props} />
+    {showConfetti && <ConfettiEffect color={color} />}
+  </ButtonWrapper>
+);
+
+const Proposer = ({ item, finalPrice, onRemoved }) => {
   const [day, setDay] = useState(() =>
     getGraceRemainingDays(item.requested_grace_period),
   );
-  const [Wallet, dispatch] = useContext(WalletContext);
   const [isExpanded, setIsExpanded] = useState(false);
   const [isExploding, setIsExploding] = useState(false);
   const [isExplodingAccept, setIsExplodingAccept] = useState(false);
-
-  const isPersian = useLanguage();
+  const [Wallet, dispatch] = useContext(WalletContext);
+  const isPersian = useIsRtl();
   const { Request, checkSecurity } = useRequest();
-  const calculatePercentDiff = (item) => {
-    const baseIrr = +item.price_irr || 0;
-    const basePsc = pscToIrr(item.price_psc);
-    const suggestedIrr = +item.feature_properties?.price_irr;
-    const suggestedPsc = pscToIrr(item.feature_properties?.price_psc);
-    const baseTotal = baseIrr + basePsc;
-    const suggestedTotal = suggestedIrr + suggestedPsc;
 
-    if (!baseTotal) return 0;
+  const { buyer, feature_properties: feature } = item;
 
-    return ((suggestedTotal - baseTotal) / baseTotal) * 100;
-  };
+  // پیشنهاد خریدار به ریال (ریال + psc تبدیل‌شده)
+  const buyerPrice = calculateTotalIrr(item.price_irr, item.price_psc);
+  const percent = calculateProfitPercent(buyerPrice, finalPrice);
+  const hasPercent = percent !== null;
 
   const information = item.note || "";
-  const percent = calculatePercentDiff(item);
+  const isLongNote = information.length > NOTE_LIMIT;
+
+  const noteHtml = useMemo(() => {
+    const text =
+      isLongNote && !isExpanded
+        ? `${information.slice(0, NOTE_LIMIT)}...`
+        : information;
+    return SanitizeHTML(text);
+  }, [information, isLongNote, isExpanded]);
+
+  const performAction = async (endpoint, onSuccess) => {
+    if (!checkSecurity()) return;
+
+    try {
+      const response = await Request(
+        `buy-requests/${endpoint}/${item.id}`,
+        "POST",
+      );
+      if (SUCCESS_STATUSES.includes(response.status)) onSuccess();
+    } catch (error) {
+      ToastError(error?.response?.data?.message);
+    }
+  };
 
   const handleGracePeriod = async (selectedDay) => {
-    if (!item?.id) {
-      console.error("Error: id is undefined!");
-      return;
-    }
-    try {
-      if (!checkSecurity()) return;
+    if (!checkSecurity()) return;
 
+    try {
       const formData = new FormData();
       formData.append("grace_period", selectedDay);
 
@@ -175,52 +224,32 @@ const Proposer = ({ item, onRemoved }) => {
         {},
         "production",
       );
-
       setDay(selectedDay);
     } catch (error) {
       ToastError(error?.response?.data?.message);
     }
   };
 
-  const handleReject = async () => {
-    try {
-      if (!checkSecurity()) return;
-      const response = await Request(`buy-requests/reject/${item.id}`, "POST");
+  const handleReject = () =>
+    performAction("reject", () => {
+      setIsExploding(true);
+      setTimeout(() => onRemoved?.(), 1000);
+    });
 
-      if ([200, 204].includes(response.status)) {
-        setIsExploding(true);
-        setTimeout(() => onRemoved?.(), 300);
-      }
-    } catch (error) {
-      ToastError(error?.response?.data?.message);
-    }
-  };
+  const handleAccept = () =>
+    performAction("accept", () => {
+      setIsExplodingAccept(true);
+      setTimeout(() => onRemoved?.(), 100);
 
-  const handleAccept = async () => {
-    try {
-      if (!checkSecurity()) return;
-      const response = await Request(`buy-requests/accept/${item.id}`, "POST");
-
-      if ([200, 204].includes(response.status)) {
-        setIsExplodingAccept(true);
-        setTimeout(() => onRemoved?.(), 100);
-
-        dispatch({
-          type: WalletContextTypes.ADD_WALLET,
-          payload: {
-            ...Wallet,
-            irr: Wallet.irr + +item.feature_properties.price_irr,
-            psc: Wallet.psc + +item.feature_properties.price_psc
-          },
-        });
-      }
-
-
-
-    } catch (error) {
-      ToastError(error?.response?.data?.message);
-    }
-  };
+      dispatch({
+        type: WalletContextTypes.ADD_WALLET,
+        payload: {
+          ...Wallet,
+          irr: Wallet.irr + (+feature?.price_irr || 0),
+          psc: Wallet.psc + (+feature?.price_psc || 0),
+        },
+      });
+    });
 
   return (
     <Container>
@@ -228,8 +257,8 @@ const Proposer = ({ item, onRemoved }) => {
         <Header>
           <Person>
             <img
-              src={item.buyer?.profile_photo || DefaultProfile}
-              alt={item.buyer?.code}
+              src={buyer?.profile_photo || DefaultProfile}
+              alt={buyer?.code}
               width={60}
               height={60}
               onError={(e) => {
@@ -237,139 +266,92 @@ const Proposer = ({ item, onRemoved }) => {
               }}
             />
             <div>
-              <p>{getTranslation("768")}</p>
-              <a target="blank" href={metarangUrlCitizen(item.buyer?.code)}>
-                {item.buyer?.code?.toUpperCase?.()}
-              </a>
+              <TitleBody gray title={getTranslation("768")} />
+              <UserCode code={buyer?.code} />
             </div>
           </Person>
-          <Time>
-            <div>
-              <p>{getTranslation("769")}</p>
-              <h3>{convertToPersian(item.created_at)}</h3>
-            </div>
-          </Time>
+
+          <div>
+            <TitleBody gray title={getTranslation("769")} />
+            <TitleBody title={convertToPersian(item.created_at)} />
+          </div>
         </Header>
-        <Price percent={percent}>
-          <h3>{getTranslation("773")}</h3>
+
+        <BasePrice percent={percent}>
+          <TitleBody title={getTranslation("773")} />
           <Prices percent={percent}>
-            <div>
-              <img width={24} height={24} src={rialpng} />
-              <span>
-                {convertToPersian(
-                  formatNumber(item.feature_properties.price_irr),
-                )}
-              </span>
-            </div>
-            <img width={1} height={24} src={line} />
-            <div>
-              <img width={24} height={24} src={pscpng} />
-              <span>
-                {convertToPersian(
-                  formatNumber(item.feature_properties.price_psc),
-                )}
-              </span>
-            </div>
-            <img width={1} height={24} src={line} />
-            <div>
-              <StyledArrowUp percent={percent} />
-              <h3>{convertToPersian(formatNumber(Math.abs(percent)))}%</h3>
-            </div>
+            <PriceItem src={rialpng} value={item.price_irr} />
+            <Divider />
+            <PriceItem src={pscpng} value={item.price_psc} />
+            {hasPercent && (
+              <>
+                <Divider />
+                <div>
+                  <StyledArrowUp $isPositive={percent > 0} />
+                  <TitleBody
+                    title={`${convertToPersian(
+                      formatNumber(Math.abs(percent)),
+                    )}%`}
+                  />
+                </div>
+              </>
+            )}
           </Prices>
-        </Price>
+        </BasePrice>
+
         <Text>
-          <p
-            dangerouslySetInnerHTML={{
-              __html:
-                information.length > 277
-                  ? isExpanded
-                    ? SanitizeHTML(information)
-                    : SanitizeHTML(`${information.slice(0, 277)}...`)
-                  : SanitizeHTML(information),
-            }}
-          />
-          {information.length > 277 && (
-            <span onClick={() => setIsExpanded(!isExpanded)}>
-              {getTranslation(isExpanded ? "884" : "774")}
-            </span>
+          <HtmlContent html={noteHtml} />
+          {isLongNote && (
+            <ToggleText onClick={() => setIsExpanded((prev) => !prev)}>
+              <TitleBody
+                primary
+                title={getTranslation(isExpanded ? "884" : "774")}
+              />
+            </ToggleText>
           )}
         </Text>
       </Info>
-      <ProposalStatus>
-        {day === 0 && (
+
+      <div>
+        {day === 0 ? (
           <Days>
-            <Button
-              onClick={() => handleGracePeriod(7)}
-              label={`${convertToPersian(7)} ${getTranslation("772")} `}
-              color="#3B3B3B"
-              textColor="#949494"
-              full
-            />
-            <Button
-              onClick={() => handleGracePeriod(1)}
-              label={`${convertToPersian(1)} ${getTranslation("772")} `}
-              color="#3B3B3B"
-              textColor="#949494"
-              full
-            />
+            {GRACE_OPTIONS.map((option) => (
+              <Button
+                key={option}
+                onClick={() => handleGracePeriod(option)}
+                label={`${convertToPersian(option)} ${getTranslation("772")}`}
+                color="#3B3B3B"
+                textColor="#949494"
+                full
+              />
+            ))}
           </Days>
-        )}
-        {day !== 0 && (
-          <Div>
+        ) : (
+          <RemainedWrapper>
             <Remained>
-              {convertToPersian(day)} {getTranslation("1413")}
+              <TitleBody
+                gray
+                title={`${convertToPersian(day)} ${getTranslation("1413")}`}
+              />
             </Remained>
-          </Div>
+          </RemainedWrapper>
         )}
+
         <Buttons>
-          <RejectButton onClick={handleReject}>
-            {getTranslation("775")}
-            {isExploding && (
-              <ConfettiExplosion
-                zIndex={9999}
-                particleCount={150}
-                duration={3000}
-                colors={["#C30000"]}
-                particleSize={5}
-                height="100vh"
-                width={400}
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: "50%",
-                  transform: "translate(-50%, -50%)",
-                }}
-              />
-            )}
-          </RejectButton>
-          <div style={{ position: "relative" }}>
-            <Button
-              label={getTranslation("776")}
-              color="#18C08F"
-              textColor="#FFFFFF"
-              onClick={handleAccept}
-              full
-            />
-            {isExplodingAccept && (
-              <ConfettiExplosion
-                zIndex={9999}
-                particleCount={150}
-                duration={3000}
-                colors={["#18C08F"]}
-                particleSize={5}
-                height="100vh"
-                width={400}
-                style={{
-                  position: "absolute",
-                  left: "50%",
-                  top: "50%",
-                  transform: "translate(-50%, -50%)",
-                }}
-              />
-            )}
-          </div>
+          <ActionButton
+            color="#c30000"
+            label={getTranslation("775")}
+            onClick={handleReject}
+            showConfetti={isExploding}
+          />
+          <ActionButton
+            color="#18C08F"
+            label={getTranslation("776")}
+            onClick={handleAccept}
+            showConfetti={isExplodingAccept}
+          />
         </Buttons>
-      </ProposalStatus>
+      </div>
     </Container>
   );
 };

@@ -1,37 +1,13 @@
 // باکس جستجوی استاندارد با debounce داخلی؛ مناسب همه‌ی لیست‌ها و صفحه‌هایی که سرچ دارند و در کل پروژه باید از همین استفاده شود
 // کاراکترهای نامرئی هنگام تایپ/paste پاک می‌شوند؛ paste و Enter بدون انتظار debounce ارسال می‌شوند
 
-import styled from "styled-components";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import debounce from "lodash/debounce";
 import { stripInvisibleChars } from "../services/Utility";
+import LabeledInput from "./LabeledInput";
+
 const DEBOUNCE_MS = 500;
-
-const Container = styled.div`
-  display: grid;
-  grid-template-columns: 5px 1fr;
-  align-items: center;
-  gap: 50px;
-  height: 50px;
-  padding: 5px 12px;
-  border: 1px solid
-    ${({ theme }) => theme.colors.newColors.otherColors.inputBorder};
-  border-radius: 5px;
-  color: #84858f;
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.inputBg};
-
-  input {
-    width: 100%;
-    height: 100%;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 18px;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-`;
 
 const SearchInput = ({ placeholder, value = "", onchange, onSearch }) => {
   const [inputValue, setInputValue] = useState(value);
@@ -99,17 +75,14 @@ const SearchInput = ({ placeholder, value = "", onchange, onSearch }) => {
   };
 
   return (
-    <Container>
-      <FiSearch size={34} />
-      <input
-        type="text"
-        placeholder={placeholder}
-        value={inputValue}
-        onChange={handleChange}
-        onPaste={handlePaste}
-        onKeyDown={handleKeyDown}
-      />
-    </Container>
+    <LabeledInput
+      prefix={<FiSearch size={24} />}
+      placeholder={placeholder}
+      value={inputValue}
+      onChange={handleChange}
+      onPaste={handlePaste}
+      onKeyDown={handleKeyDown}
+    />
   );
 };
 

@@ -9,6 +9,7 @@ import ModalLg from "../Modal/ModalLg";
 import TitleHeader from "../TitleHeader.jsx";
 import useRequest from "../../hooks/useRequest.js";
 import getModalHeaderFromPrevious from "../../services/TitleManager";
+import TitleBody from "../TitleBody.jsx";
 import { UserContext } from "../../services/reducers/UserContext";
 import {
   ConvertJalali,
@@ -121,7 +122,7 @@ const Body = styled.div`
 `;
 
 const Card = styled.div`
-  margin-top: 10px;
+  margin: 10px 20px;
   padding: 20px;
   border-radius: 10px;
   background-color: ${({ theme }) =>
@@ -136,12 +137,10 @@ const CardHeader = styled.div`
   border-bottom: 1px solid #454545;
 `;
 
+// span برای بخش‌های پررنگ زیرعنوان گزارش (page و title)
 const Texts = styled.div`
-  p {
+  h4 {
     margin: 10px 0;
-    font-size: 16px;
-    font-weight: 400;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
   }
 
   span {
@@ -152,12 +151,6 @@ const Texts = styled.div`
 const Socials = styled.div`
   padding-right: 20px;
   border-right: 1px solid #454545;
-
-  h3 {
-    font-size: 13px;
-    font-weight: 600;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
 
   div {
     display: flex;
@@ -174,20 +167,6 @@ const Fields = styled.div`
   margin-top: 20px;
 `;
 
-const Label = styled.h3`
-  margin-bottom: 4px;
-  font-size: 14px;
-  font-weight: 600;
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-`;
-
-const Value = styled.h2`
-  font-size: 16px;
-  font-weight: 400;
-  color: ${({ $color, theme }) =>
-    $color ?? theme.colors.newColors.shades.title};
-`;
-
 const Buttons = styled.div`
   display: flex;
   gap: 10px;
@@ -196,8 +175,8 @@ const Buttons = styled.div`
 
 const Field = ({ label, color, children }) => (
   <div>
-    <Label>{getTranslation(label)}</Label>
-    <Value $color={color}>{children}</Value>
+    <TitleBody size="small" weight={600} title={getTranslation(label)} />
+    <TitleBody color={color} title={children} />
   </div>
 );
 
@@ -237,11 +216,15 @@ const ConversationDetails = ({ type, data, setData, setShowDetails }) => {
           <CardHeader>
             <Texts>
               <TitleHeader title={title} />
-              <p>{subtitle}</p>
+              <TitleBody title={subtitle} />
             </Texts>
 
             <Socials>
-              <h3>{getTranslation(config.socialsLabelId)}</h3>
+              <TitleBody
+                size="small"
+                weight={600}
+                title={getTranslation(config.socialsLabelId)}
+              />
               <div>
                 {SOCIAL_ICONS.map((icon) => (
                   <img key={icon} width={24} height={24} src={icon} alt="" />

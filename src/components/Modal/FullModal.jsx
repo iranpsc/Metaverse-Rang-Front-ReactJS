@@ -15,12 +15,13 @@ const MOBILE_BREAKPOINT = 768;
 const DRAG_HANDLE = "modal-drag-handle";
 
 // المان‌های تعاملی داخل هدر (دکمه بستن، فول‌اسکرین و...) درگ رو شروع نکنن
-const CANCEL_SELECTOR = "button, a, input, select, textarea, [role='button'], [data-no-drag]";
+const CANCEL_SELECTOR =
+  "button, a, input, select, textarea, [role='button'], [data-no-drag]";
 
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: ${({ $zIndex }) => $zIndex};
   background-color: rgba(0, 0, 0, 0.5);
 `;
 
@@ -29,7 +30,8 @@ const StyledRnd = styled(Rnd)`
   flex-direction: column;
   box-sizing: border-box;
   background-color: ${(props) =>
-    props.theme?.colors?.newColors?.shades?.background || "#fff"};
+    props.theme?.colors?.newColors?.shades?.background ||
+    props.theme.colors.newColors.shades.bg2};
   border-radius: ${({ $fullscreen }) => ($fullscreen ? "0" : "10px")};
   padding: ${({ $fullscreen }) => ($fullscreen ? "10px" : "15px 20px")};
   overflow: hidden;
@@ -82,6 +84,7 @@ const FullModal = ({
   fullscreenable = true,
   defaultFullscreen = false,
   closeOnOverlayClick = false,
+  overlayZIndex = 9999,
   children,
 }) => {
   const [fullscreen, setFullscreen] = useState(defaultFullscreen);
@@ -118,9 +121,7 @@ const FullModal = ({
 
   const canDrag = !fullscreen && draggable && !isMobile;
 
-  const rndSize = fullscreen
-    ? { width: winW, height: winH }
-    : modalSize;
+  const rndSize = fullscreen ? { width: winW, height: winH } : modalSize;
 
   const position = fullscreen
     ? { x: 0, y: 0 }
@@ -129,8 +130,14 @@ const FullModal = ({
         y: Math.max((winH - modalSize.height) / 2, 0),
       };
 
+  const content =
+    typeof children === "function"
+      ? children({ isFullscreen: fullscreen, toggleFullscreen })
+      : children;
+
   return createPortal(
     <Overlay
+      $zIndex={overlayZIndex}
       onMouseDown={(e) => {
         if (closeOnOverlayClick && e.target === e.currentTarget) onClose?.();
       }}
@@ -156,10 +163,10 @@ const FullModal = ({
             onToggleFullscreen={fullscreenable ? toggleFullscreen : undefined}
           />
         </HeaderWrap>
-        <Content>{children}</Content>
+        <Content>{content}</Content>
       </StyledRnd>
     </Overlay>,
-    document.body
+    document.body,
   );
 };
 

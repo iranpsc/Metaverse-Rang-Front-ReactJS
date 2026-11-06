@@ -83,7 +83,6 @@ const Page = styled(BaseContainer)`
   gap: 10px;
   width: 100%;
   padding-top: 20px;
-
   p {
     line-height: 1.5rem;
     color: ${({ theme }) => theme.colors.newColors.shades.title};
@@ -161,6 +160,7 @@ const SuggestPrice = () => {
     })
       .then(() => {
         ToastSuccess(getTranslation("1607"));
+        setSubmitted(true);
 
         dispatch({
           type: WalletContextTypes.ADD_WALLET,
@@ -171,7 +171,6 @@ const SuggestPrice = () => {
           },
         });
 
-        setSubmitted(true);
       })
       .catch((error) =>
         ToastError(error?.response?.data?.message || "خطای غیرمنتظره"),
@@ -183,7 +182,7 @@ const SuggestPrice = () => {
       <TitleBody title={getTranslation(527)} />
 
       {submitted ? (
-        <ResultInfo rial={rialValue} psc={pscValue} setAssign={setSubmitted} />
+        <ResultInfo rial={formatNumber(rialValue)} psc={pscValue} setAssign={setSubmitted} notEdit/>
       ) : (
         <>
           <InputsWrapper>

@@ -1,18 +1,21 @@
 // کارت نمایش یک ملک در لیست دارایی‌ها (عکس، نام، آدرس، پایداری، قیمت فروش) با دکمه‌ی تعیین قیمت یا لغو درخواست فروش؛ مناسب لیست املاک من یا املاک یک بازیکن
 
 import styled from "styled-components";
-import { useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import { Tooltip as ReactTooltip } from "react-tooltip";
 import pscIcon from "../../../../../assets/gif/psc.gif";
 import rialIcon from "../../../../../assets/gif/rial.gif";
 import Button from "../../../../../components/Button.jsx";
+import LandText from "../../../../../components/LandText.jsx";
+import TitleBody from "../../../../../components/TitleBody.jsx";
+import ToolTip from "../../../../../components/Tooltip/Tooltip.jsx";
 import useRequest from "../../../../../hooks/useRequest.js";
 import {
   convertToPersian,
   formatNumber,
   getTranslation,
 } from "../../../../../services/Utility/index.jsx";
+
 const formatPrice = (value) => convertToPersian(formatNumber(value));
 
 const Container = styled.div`
@@ -42,6 +45,7 @@ const Left = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr 130px;
   align-items: center;
+  white-space: wrap;
 `;
 
 const PhotoName = styled.div`
@@ -51,11 +55,11 @@ const PhotoName = styled.div`
 `;
 
 const ImageWrapper = styled.div`
-  width: 80px;
-  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
+  width: 80px;
+  height: 80px;
   border-radius: 5px;
   background-color: ${({ $color }) => $color};
 `;
@@ -66,21 +70,13 @@ const Name = styled.div`
   gap: 4px;
 
   h3 {
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
     font-size: 14px;
     font-weight: 600;
+    color: ${({ theme }) => theme.colors.newColors.shades.title};
 
     @media (min-width: 1400px) {
       font-size: 16px;
     }
-  }
-
-  span {
-    color: #ffc700;
-    font-size: 14px;
-    font-weight: 500;
-    text-transform: uppercase;
-    cursor: pointer;
   }
 `;
 
@@ -88,27 +84,22 @@ const Field = styled.div`
   display: flex;
   flex-direction: column;
   align-items: ${({ $center }) => ($center ? "center" : "stretch")};
-  text-align: ${({ $center }) => ($center ? "center" : "start")};
   gap: 4px;
+  text-align: ${({ $center }) => ($center ? "center" : "start")};
 `;
 
-const Label = styled.span`
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-  font-size: 14px;
-  font-weight: 600;
-`;
+// آدرس بیشتر از دو خط با سه‌نقطه کوتاه می‌شود
+const AddressClamp = styled.div`
+  min-width: 0;
 
-const Value = styled.p`
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-  font-size: 16px;
-  font-weight: 400;
-`;
+  & > * {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
 
-const AddressText = styled(Value)`
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
+    overflow-wrap: anywhere;
+  }
 `;
 
 const Prices = styled.div`
@@ -125,18 +116,6 @@ const PriceItem = styled.div`
   gap: 6px;
 `;
 
-const StyledTooltip = styled(ReactTooltip)`
-  width: 265px;
-  border-radius: 10px;
-  text-align: center;
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.inputBg};
-
-  &.place-top {
-    margin-bottom: 10px;
-  }
-`;
-
 const CardItem = ({
   id,
   name,
@@ -151,13 +130,24 @@ const CardItem = ({
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const addressRef = useRef(null);
 
   const [isForSale, setIsForSale] = useState(Number(forSale) === 1);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const [isTruncated, setIsTruncated] = useState(false);
 
-  const tooltipId = `address-${navigateId}`;
+  // فقط وقتی آدرس واقعاً بریده شده تولتیپ فعال می‌شود
+  useLayoutEffect(() => {
+    const el = addressRef.current?.firstElementChild;
+    if (!el) return;
 
-  const goTo = (path) => navigate(path, { state: { from: pathname } });
+    const check = () => setIsTruncated(el.scrollHeight > el.clientHeight);
+    check();
+
+    const observer = new ResizeObserver(check);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [address]);
 
   const handleDelete = () => {
     if (isDeleteLoading || !checkSecurity()) return;
@@ -179,37 +169,47 @@ const CardItem = ({
           </ImageWrapper>
 
           <Name>
-            <h3>{getTranslation(name)}</h3>
-            <span onClick={() => goTo(`/feature/${navigateId}/info`)}>
-              {id}
-            </span>
+            <TitleBody weight title={getTranslation(name)} />
+            <LandText to={`/feature/${navigateId}/info`} label={id} />
           </Name>
         </PhotoName>
 
         <Field>
-          <Label>{getTranslation("59")}</Label>
-          <AddressText data-tooltip-id={tooltipId}>{address}</AddressText>
-          <StyledTooltip id={tooltipId} place="top" content={address} />
+          <TitleBody weight title={getTranslation(59)} />
+
+          <ToolTip
+            content={address}
+            place="top"
+            width="auto"
+            height="auto"
+            disabled={!isTruncated}
+            Chidren={
+              <AddressClamp ref={addressRef}>
+                <TitleBody small title={address} />
+              </AddressClamp>
+            }
+          />
         </Field>
       </Right>
 
       <Left>
         <Field $center>
-          <Label>{getTranslation("347")}</Label>
-          <Value>{formatPrice(stability)}</Value>{" "}
+          <TitleBody weight title={getTranslation(347)} />
+          <TitleBody title={formatPrice(stability)} />
         </Field>
 
         {isForSale ? (
           <Field $center>
-            <Label>{getTranslation("60")}</Label>
+            <TitleBody weight title={getTranslation(60)} />
+
             <Prices>
               <PriceItem>
                 <img width={24} height={24} src={rialIcon} alt="" />
-                <Label>{formatPrice(sellReq?.price_irr)}</Label>
+                <TitleBody title={formatPrice(sellReq?.price_irr)} />
               </PriceItem>
               <PriceItem>
                 <img width={24} height={24} src={pscIcon} alt="" />
-                <Label>{formatPrice(sellReq?.price_psc)}</Label>
+                <TitleBody title={formatPrice(sellReq?.price_psc)} />
               </PriceItem>
             </Prices>
           </Field>
@@ -230,7 +230,11 @@ const CardItem = ({
           <Button
             fit
             label={getTranslation("352")}
-            onClick={() => goTo(`/feature/${navigateId}/sell/PriceDefine`)}
+            onClick={() =>
+              navigate(`/feature/${navigateId}/sell/PriceDefine`, {
+                state: { from: pathname },
+              })
+            }
           />
         )}
       </Left>

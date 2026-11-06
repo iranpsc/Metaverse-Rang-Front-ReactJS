@@ -1,15 +1,19 @@
 import { createContext } from "react";
 import { useTranslation } from "react-i18next";
 
-export const LanguageContext = createContext(false);
+export const LanguageContext = createContext({
+  isPersian: false,
+  isRtl: false,
+});
 
 export const LanguageProvider = ({ children }) => {
   const { i18n } = useTranslation();
 
   const isPersian = i18n.language === "fa";
+  const isRtl = i18n.dir() === "rtl";
 
   return (
-    <LanguageContext.Provider value={isPersian}>
+    <LanguageContext.Provider value={{ isPersian, isRtl }}>
       {children}
     </LanguageContext.Provider>
   );

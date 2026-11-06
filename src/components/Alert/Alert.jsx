@@ -6,7 +6,7 @@ import { AiFillWarning, AiOutlineClockCircle } from "react-icons/ai";
 import { BsFillExclamationOctagonFill } from "react-icons/bs";
 import { IoIosCheckmarkCircle } from "react-icons/io";
 import Button from "../Button";
-
+import TitleBody from "../TitleBody";
 const ALERT_TYPES = {
   success: { color: "#18C08F", Icon: IoIosCheckmarkCircle },
   error: { color: "#C30000", Icon: BsFillExclamationOctagonFill },
@@ -31,6 +31,7 @@ const Container = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 5px;
+  margin-bottom: 10px;
   padding: 10px;
   border: 1px solid ${({ $color }) => $color};
   border-radius: 5px;
@@ -96,7 +97,7 @@ const Alert = ({
               {info}
             </Text>
           )}
-          <Text>{text}</Text>
+          <TitleBody $isInfo $color={color} title={text} />
         </div>
       </Content>
 

@@ -105,12 +105,6 @@ const HobbyItem = styled.label`
     gap: 8px;
   }
 
-  span {
-    font-weight: 400;
-    white-space: nowrap;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-
   input[type="checkbox"] {
     position: relative;
     width: 20px;
@@ -153,7 +147,11 @@ const Hobby = ({ value = {}, onChange }) => {
       <Header>
         <TitleBody title={getTranslation("784")} />
         <Counter $limitReached={limitReached}>
-          {`${convertToPersian(remaining)} ${getTranslation("790")}`}
+          <TitleBody
+            gray
+            small
+            title={`${convertToPersian(remaining)} ${getTranslation("790")}`}
+          />
         </Counter>
       </Header>
 
@@ -171,7 +169,7 @@ const Hobby = ({ value = {}, onChange }) => {
               />
               <div>
                 <HobbyIcon src={icon} alt="" $themeMode={theme} />
-                <span>{getTranslation(translationId)}</span>
+                <TitleBody title={getTranslation(translationId)} />
               </div>
             </HobbyItem>
           );

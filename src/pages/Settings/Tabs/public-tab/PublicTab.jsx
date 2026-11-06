@@ -10,6 +10,7 @@ import useRequest from "../../../../hooks/useRequest.js";
 import { AlertContext } from "../../../../services/reducers/AlertContext";
 import { getTranslation } from "../../../../services/Utility";
 import { SettingsSkeleton } from "../../../../components/Skeletons/SettingsSkeleton.jsx";
+import TitleBody from "../../../../components/TitleBody.jsx";
 const ALERT_DURATION_MS = 3000;
 
 // key = کلید تنظیم در بک‌اند، label = کلید ترجمه‌ی عنوان
@@ -42,21 +43,10 @@ const Item = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 10px;
+  gap: 10px;
   border-radius: 5px;
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
-
-  p {
-    font-size: 14px;
-    font-weight: 500;
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-  }
-
-  @media (min-width: 1024px) {
-    p {
-      font-size: 16px;
-    }
-  }
 `;
 
 const PublicTab = () => {
@@ -105,7 +95,7 @@ const PublicTab = () => {
           <Settings>
             {SETTINGS.map(({ key, label }) => (
               <Item key={key}>
-                <p>{getTranslation(label)}</p>
+                <TitleBody title={getTranslation(label)} />
                 <OnOff
                   isOn={!settings[key]}
                   onToggle={(value) => handleToggle(key, value)}

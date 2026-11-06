@@ -2,19 +2,22 @@
 
 import styled from "styled-components";
 
-const WIDTH = 45;
-const HEIGHT = 25;
-const GAP = 2; 
-const KNOB_SIZE = HEIGHT - GAP * 2;
+const WIDTH = "clamp(36px, 4.5vw, 45px)";
+const HEIGHT = "clamp(20px, 2.5vw, 25px)";
+const GAP = "clamp(1.5px, 0.2vw, 2px)";
 
 const Track = styled.button`
+  --switch-height: ${HEIGHT};
+  --switch-gap: ${GAP};
+  --switch-knob-size: calc(
+    var(--switch-height) - var(--switch-gap) - var(--switch-gap)
+  );
   position: relative;
   display: flex;
   align-items: center;
   flex-shrink: 0;
-  width: ${WIDTH}px;
-  height: ${HEIGHT}px;
-  margin-top: 5px;
+  width: ${WIDTH};
+  height: ${HEIGHT};
   padding: 0;
   border: none;
   border-radius: 20px;
@@ -26,10 +29,13 @@ const Track = styled.button`
 
 const Knob = styled.span`
   position: absolute;
-  top: ${GAP}px;
-  left: ${({ $active }) => ($active ? WIDTH - KNOB_SIZE - GAP : GAP)}px;
-  width: ${KNOB_SIZE}px;
-  height: ${KNOB_SIZE}px;
+  top: var(--switch-gap);
+  left: ${({ $active }) =>
+    $active
+      ? "calc(100% - var(--switch-knob-size) - var(--switch-gap))"
+      : "var(--switch-gap)"};
+  width: var(--switch-knob-size);
+  height: var(--switch-knob-size);
   border-radius: 50%;
   transition: all 0.2s linear;
   background-color: ${({ $active, theme }) =>
@@ -37,7 +43,7 @@ const Knob = styled.span`
 `;
 
 // توجه: isOn=false یعنی کلید رنگی (فعال) نمایش داده می‌شود
-const OnOff = ({ isOn, onToggle }) => {
+const OnOff = ({ isOn, onToggle, label, disabled = false }) => {
   const active = !isOn;
 
   return (
@@ -45,8 +51,10 @@ const OnOff = ({ isOn, onToggle }) => {
       type="button"
       role="switch"
       aria-checked={active}
+      aria-label={label}
       $active={active}
-      onClick={() => onToggle(!active)}
+      disabled={disabled}
+      onClick={() => onToggle?.(!active)}
     >
       <Knob $active={active} />
     </Track>

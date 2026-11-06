@@ -1,6 +1,10 @@
 import { useState, useEffect, useContext } from "react";
 import styled from "styled-components";
-import { getTranslation, convertToPersian, formatNumber } from "../../services/Utility";
+import {
+  getTranslation,
+  convertToPersian,
+  formatNumber,
+} from "../../services/Utility";
 import AccountSecurityIcon from "../../assets/svg/accountSecurity.svg";
 import CentralSearch from "../../assets/svg/centralSearch.svg";
 import GlobalStatisticsIcon from "../../assets/svg/globalStatistics.svg";
@@ -21,6 +25,7 @@ import { UserContext } from "../../services/reducers/UserContext";
 import ToolTip from "../../components/Tooltip/Tooltip.jsx";
 import useRequest from "../../hooks/useRequest.js";
 import { removeItem } from "../../services/Utility/LocalStorage";
+import { getSize } from "../../styles/sizes";
 
 const Container = styled.div`
   height: 100vh;
@@ -48,11 +53,12 @@ const Btn = styled.button`
     props.isSelected
       ? props.theme.colors.newColors.otherColors.iconBackground
       : "transparent"};
-      &:hover{
-border-radius:10px ;
+  &:hover {
+    border-radius: 10px;
 
-   background-color: ${(props) =>
-    props.isDanger ? "rgba(224, 49, 49, 0.12)" : "transparent"};      }
+    background-color: ${(props) =>
+      props.isDanger ? "rgba(224, 49, 49, 0.12)" : "transparent"};
+  }
 `;
 const Icon = styled.img`
   width: 20px;
@@ -84,9 +90,12 @@ const Text = styled.p`
   font-style: normal;
   font-weight: 500;
   line-height: 180%;
-  font-size: 14px;
+  font-size: ${({ $size }) => getSize($size, "base")};
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
   @media (min-width: 1024px) {
-    font-size: 16px;
+    font-size: ${({ $size }) => getSize($size, "desktop")};
   }
   display: ${(props) => (props.isOpen ? "block" : "none")};
 `;
@@ -160,12 +169,12 @@ const BtnsMenu = () => {
 
     ...(!user?.wallet_login
       ? [
-        {
-          icon: AccountSecurityIcon,
-          translationId: "31",
-          navigate: "confirmation",
-        },
-      ]
+          {
+            icon: AccountSecurityIcon,
+            translationId: "31",
+            navigate: "confirmation",
+          },
+        ]
       : []),
 
     {
@@ -223,7 +232,6 @@ const BtnsMenu = () => {
       translationId: "230",
       onClick: logoutHandler,
       isDanger: true,
-
     },
   ];
 
@@ -242,7 +250,6 @@ const BtnsMenu = () => {
               isSelected={selectedItem === item.translationId}
               onClick={() => handleClick(item)}
               isDanger={item.isDanger}
-
               disabled={
                 !item.onClick &&
                 item.navigate === "" &&
@@ -253,11 +260,14 @@ const BtnsMenu = () => {
                 <Icon
                   src={item.icon}
                   isSelected={selectedItem === item.translationId}
-                  isCompleted={item.navigate == "connectWallet" && user?.has_wallet}
+                  isCompleted={
+                    item.navigate == "connectWallet" && user?.has_wallet
+                  }
                   isDanger={item.isDanger}
                 />
                 <Text
                   isOpen={isOpen}
+                  $size="default"
                   isSelected={selectedItem === item.translationId}
                   isDanger={item.isDanger}
                 >
@@ -266,7 +276,10 @@ const BtnsMenu = () => {
               </div>
               {item.translationId === "236" && user && (
                 <ValueBtn isOpen={isOpen}>
-                  %{convertToPersian(formatNumber(user.hourly_profit_time_percentage, 1))}
+                  %
+                  {convertToPersian(
+                    formatNumber(user.hourly_profit_time_percentage, 1),
+                  )}
                 </ValueBtn>
               )}
               {item.translationId === "238" && user && (

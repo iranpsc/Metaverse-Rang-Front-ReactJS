@@ -1,72 +1,38 @@
-import { useEffect, useState } from "react";
-
-import { FaChevronCircleLeft } from "react-icons/fa";
+import { useRef } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
-  height: ${(props) => (props.size ? "100%" : "220px")};
+  flex: ${({ $fullscreen }) => ($fullscreen ? "1" : "0 0 220px")};
+  min-height: ${({ $fullscreen }) => ($fullscreen ? "0" : "220px")};
+  height: ${({ $fullscreen }) => ($fullscreen ? "100%" : "220px")};
   border-radius: 10px;
   position: relative;
-  margin:5px;
+  margin: ${({ $fullscreen }) => ($fullscreen ? "0" : "5px")};
   background-color: #000000;
-  margin-top: ${(props) => (props.size ? "0" : "20px")};
-  display: ${(props) => (props.show && props.isMobile ? "none" : "block")};
+  margin-top: ${({ $fullscreen }) => ($fullscreen ? "0" : "20px")};
+  @media (max-width: 599px) {
+    flex: ${({ $fullscreen }) =>
+      $fullscreen ? "1" : "0 0 clamp(110px, 38vw, 150px)"};
+    min-height: ${({ $fullscreen }) =>
+      $fullscreen ? "0" : "clamp(110px, 38vw, 150px)"};
+    height: ${({ $fullscreen }) =>
+      $fullscreen ? "100%" : "clamp(110px, 38vw, 150px)"};
+  }
+
   video {
     /* object-fit: contain !important; */
   }
 `;
 
-const Icon = styled.div`
-  width: 40px;
-  height: 40px;
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  display: flex;
-  z-index: 888;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  div {
-    background-color: white;
-    width: 30px;
-    height: 30px;
-    border-radius: 100%;
-    position: absolute;
-  }
-  svg {
-    height: 100%;
-    width: 100%;
-    position: relative;
-    color: #3b3b3b;
-  }
-`;
+const Video = ({ isFullscreen, video }) => {
+  const videoRef = useRef(null);
 
-const Video = ({ show, size, setSize, video }) => {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1369);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 1369);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
   return (
-    <Container isMobile={isMobile} $size={size} show={show}>
-      {size && (
-        <Icon>
-          <div />
-          <FaChevronCircleLeft onClick={() => setSize(false)} />
-        </Icon>
-      )}
+    <Container $fullscreen={isFullscreen}>
       <video
+        ref={videoRef}
         width={450}
-        height={230}
+        height={200}
         alt="education"
         style={{
           borderRadius: "10px",

@@ -15,6 +15,7 @@ import gift from "../../../../../../assets/images/satisfy.png";
 import pscGif from "../../../../../../assets/gif/psc.gif";
 import ModalLg from "../../../../../../components/Modal/ModalLg.jsx";
 import useRequest from "../../../../../../hooks/useRequest.js";
+import TitleBody from "../../../../../../components/TitleBody.jsx";
 import {
   WalletContext,
   WalletContextTypes,
@@ -34,16 +35,7 @@ const Buttons = styled.div`
   margin-top: 30px;
 `;
 
-const Texts = styled.div`
-  padding-top: 30px;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  font-size: 16px;
-  font-weight: 400;
-  &:last-of-type {
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.newColors.otherColors.title};
-  }
-`;
+
 const RewardBox = styled.div`
   width: 100%;
   display: flex;
@@ -212,8 +204,9 @@ const RequestDetails = ({
           name={data.from_user.name}
           image={data?.from_user?.profile_photo}
         />
-
-        <Texts>{SanitizeHTML(data.message)}</Texts>
+        <div style={{ marginTop: "30px" }}>
+          <TitleBody title={SanitizeHTML(data.message)} />
+        </div>
 
         <Buttons>
           {data?.status === 0 && !isSendType && (
@@ -239,12 +232,13 @@ const RequestDetails = ({
           <RewardBox>
             <Rewards>
               <Reward>
-                <span>{convertToPersian(gif ?? 0)}</span>
+                <TitleBody title={convertToPersian(gif ?? 0)} />
                 <img src={gift} alt="" />
               </Reward>
 
               <Reward>
-                <span>{convertToPersian(psc ?? 0)}</span>
+                <TitleBody title={convertToPersian(psc ?? 0)} />
+
                 <img src={pscGif} alt="" />
               </Reward>
             </Rewards>

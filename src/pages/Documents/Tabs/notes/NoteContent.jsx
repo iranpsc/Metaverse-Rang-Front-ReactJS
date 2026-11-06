@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import AttachmentItem from "../../../../components/AttachmentItem";
+import FileUploader from "../../../../components/FileUploader/FileUploader";
 import { getTranslation, getPlainText } from "../../../../services/Utility";
 
 const EMPTY_ATTACHMENTS = [];
@@ -50,7 +50,8 @@ const NoteContent = ({ data }) => {
 
         <Attachments>
           {attachments.map((file, index) => (
-            <AttachmentItem
+            <FileUploader
+              mode="display"
               key={typeof file === "string" ? file : `${file.name}-${index}`}
               file={file}
               fit="contain"

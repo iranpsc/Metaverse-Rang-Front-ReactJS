@@ -1,13 +1,9 @@
 // تب لیست گزارش‌های کاربر (سرچ روی عنوان، بازه‌ی تاریخ و فیلتر نوع گزارش) با بارگذاری صفحه‌به‌صفحه؛ مناسب صفحه‌ی گزارش‌ها که لیست را از سرور می‌گیرد و فیلترها را روی ردیف‌های لودشده اعمال می‌کند
 
-import styled from "styled-components";
 import { useEffect, useMemo, useRef, useState } from "react";
 import Container from "../../../../components/Common/Container";
-import CustomDatePicker from "../../../../components/CustomDatePicker";
 import GenericList from "../../../../components/GenericList/GenericList.jsx";
-import SearchInput from "../../../../components/SearchInput";
 import TitleHeader from "../../../../components/TitleHeader";
-import useDateFilter from "../../../../hooks/useDateFilter.js";
 import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 
@@ -20,24 +16,10 @@ const INITIAL_MEMBER = {
   spellingError: false,
 };
 
-const Toolbar = styled.div`
-  display: grid;
-  grid-template-columns: 3fr 2fr;
-  align-items: center;
-  gap: 20px;
-  margin-top: 15px;
-
-  @media (min-width: 1024px) {
-    grid-template-columns: 3fr 1fr;
-  }
-`;
-
 const ReportsListTab = () => {
   const { Request } = useRequest();
-  const { dateRange, setDateRange, filterByDate } = useDateFilter();
   const pageRef = useRef(1);
 
-  const [searched, setSearched] = useState("");
   const [member, setMember] = useState(INITIAL_MEMBER);
   const [rows, setRows] = useState([]);
   const [hasMore, setHasMore] = useState(true);
@@ -74,28 +56,21 @@ const ReportsListTab = () => {
     const subjects = Object.keys(member).filter((key) => member[key]);
 
     return rows.filter(
-      (row) =>
-        String(row.title).includes(searched) &&
-        (!subjects.length || subjects.includes(row.subject)) &&
-        filterByDate(row),
+      (row) => !subjects.length || subjects.includes(row.subject),
     );
-  }, [rows, searched, member, filterByDate, dateRange]);
+  }, [rows, member]);
 
   return (
     <Container>
       <TitleHeader title={getTranslation("22")} />
 
-      <Toolbar>
-        <SearchInput
-          placeholder={getTranslation("1381")}
-          value={searched}
-          onchange={(e) => setSearched(e.target.value)}
-        />
-        <CustomDatePicker value={dateRange} onChange={setDateRange} range />
-      </Toolbar>
-
       <GenericList
         type="reports"
+        searchConfig={{
+          key: "title",
+          placeholder: getTranslation("1381"),
+        }}
+        dateFilterConfig={{ key: "datetime" }}
         rows={filteredRows}
         isLoading={loading}
         loadMore={handleLoadMore}

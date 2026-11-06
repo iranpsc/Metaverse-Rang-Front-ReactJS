@@ -1,17 +1,16 @@
-import { Tooltip as ReactTooltip } from "react-tooltip";
 import styled, { css } from "styled-components";
 import blue from "../../../../assets/gif/blue-color.gif";
 import red from "../../../../assets/gif/red-color.gif";
 import yellow from "../../../../assets/gif/yellow-color.gif";
 import useLanguage from "../../../../hooks/useLanguage.js";
-import { useTheme } from "../../../../hooks/useTheme.js";
 import {
   ConvertJalali,
   convertToPersian,
   getTranslation,
-  metarangUrlCitizen,
 } from "../../../../services/Utility";
-
+import TitleBody from "../../../../components/TitleBody.jsx";
+import ToolTip from "../../../../components/Tooltip/Tooltip.jsx";
+import UserCode from "../../../../components/UserCode.jsx";
 const ASSET_GIFS = { red, blue, yellow };
 const LIGHT_TEXT = "#fcfcfc";
 
@@ -60,20 +59,6 @@ const Timer = styled.div`
   border-radius: 5px;
   color: ${({ theme }) => theme.colors.newColors.otherColors.headerMenu};
   background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
-
-  h3 {
-    font-weight: 500;
-    ${fontSize(18, { lg: 16, md: 15, sm: 14 })}
-  }
-
-  span {
-    display: block;
-    width: 50px;
-    text-align: left;
-    font-weight: 700;
-    color: ${({ theme }) => theme.colors.primary};
-    ${fontSize(24, { lg: 20, md: 18, sm: 16 })}
-  }
 `;
 
 const Overlay = styled.div`
@@ -166,12 +151,6 @@ const Stat = styled.div`
   flex-direction: column;
 `;
 
-const StatLabel = styled.h2`
-  font-weight: 500;
-  color: ${LIGHT_TEXT};
-  ${fontSize(13, { md: 12, sm: 11 })}
-`;
-
 const StatValue = styled.span`
   display: flex;
   align-items: center;
@@ -179,12 +158,6 @@ const StatValue = styled.span`
   font-weight: 400;
   color: ${LIGHT_TEXT};
   ${fontSize(13, { md: 12, sm: 11 })}
-`;
-
-const CodeLink = styled.a`
-  text-decoration: none;
-  color: ${({ theme }) => theme.colors.primary};
-  ${fontSize(13, { sm: 12 })}
 `;
 
 const Video = styled.video`
@@ -198,31 +171,8 @@ const Image = styled.img`
   object-fit: fill;
 `;
 
-const timerTooltipStyle = {
-  backgroundColor: "#1a1a18",
-  borderRadius: "10px",
-  width: "150px",
-  paddingBottom: "9.5px",
-  textAlign: "center",
-  zIndex: 999,
-};
-
-const getPrizeTooltipStyle = (theme) => {
-  const isLight = theme === "light";
-
-  return {
-    backgroundColor: isLight ? "#FCFCFC" : "#1A1A18",
-    color: isLight ? "#1A1A18" : "#FCFCFC",
-    borderRadius: "10px",
-    width: "100px",
-    textAlign: "center",
-    zIndex: 999,
-  };
-};
-
 const Content = ({ organizers, time }) => {
-  const { theme } = useTheme();
-  const { isPersian } = useLanguage();
+  const { currentLang, isRtl } = useLanguage();
 
   const main = organizers?.[0];
   const assetGif = ASSET_GIFS[main?.investment_asset] ?? null;
@@ -230,58 +180,58 @@ const Content = ({ organizers, time }) => {
   return (
     <Container>
       <Timer>
-        <h3>{getTranslation("1469")}</h3>
-        <div data-tooltip-id="time">
-          <span>{time}</span>
-          <ReactTooltip
-            id="time"
-            place="top"
-            style={timerTooltipStyle}
-            content={getTranslation("1468")}
-          />
-        </div>
+        <TitleBody weight title={getTranslation(1469)} />
+        <TitleBody big weight primary title={time} />
       </Timer>
 
       <MainPhoto>
-        <PrizeBadge data-tooltip-id="main" $isPersian={isPersian}>
-          <span>{convertToPersian(main?.prize_per_question)}</span>
-          <img
-            src={assetGif}
-            alt={main?.investment_asset}
-            width={20}
-            height={20}
-          />
-          <ReactTooltip
-            id="main"
-            place="bottom"
-            style={getPrizeTooltipStyle(theme)}
-            content={getTranslation("1323")}
-          />
-        </PrizeBadge>
+        <ToolTip
+          place="bottom"
+          lang={currentLang}
+          content={getTranslation("1323")}
+          Chidren={
+            <PrizeBadge $isPersian={isRtl}>
+              <TitleBody title={convertToPersian(main?.prize_per_question)} />
+
+              <img
+                src={assetGif}
+                alt={main?.investment_asset}
+                width={20}
+                height={20}
+              />
+            </PrizeBadge>
+          }
+        />
 
         <Overlay>
           <Details>
             <Description>
-              <h2>{main?.title}</h2>
-              <h3>{main?.description}</h3>
+              <TitleBody color="#fcfcfc" weight title={main?.title} />
+              <TitleBody color="#fcfcfc" title={main?.description} />
             </Description>
 
             <Stats>
               <Stat>
-                <StatLabel>{getTranslation("1470")}</StatLabel>
-                <CodeLink
-                  href={metarangUrlCitizen(main?.code)}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  {main?.code?.toUpperCase()}
-                </CodeLink>
+                <TitleBody
+                  small
+                  color="#fcfcfc"
+                  title={getTranslation("1470")}
+                />
+                <UserCode code={main?.code} />
               </Stat>
 
               <Stat>
-                <StatLabel>{getTranslation("1471")}</StatLabel>
+                <TitleBody
+                  small
+                  color="#fcfcfc"
+                  title={getTranslation("1471")}
+                />
                 <StatValue>
-                  {convertToPersian(main?.investment_value)}
+                  <TitleBody
+                    small
+                    color="#fcfcfc"
+                    title={convertToPersian(main?.investment_value)}
+                  />
                   <img
                     loading="lazy"
                     src={assetGif}
@@ -293,9 +243,17 @@ const Content = ({ organizers, time }) => {
               </Stat>
 
               <Stat>
-                <StatLabel>{getTranslation("1472")}</StatLabel>
+                <TitleBody
+                  small
+                  color="#fcfcfc"
+                  title={getTranslation("1472")}
+                />
                 <StatValue>
-                  {convertToPersian(ConvertJalali(main?.ends_at))}
+                  <TitleBody
+                    small
+                    color="#fcfcfc"
+                    title={convertToPersian(ConvertJalali(main?.ends_at))}
+                  />
                 </StatValue>
               </Stat>
             </Stats>

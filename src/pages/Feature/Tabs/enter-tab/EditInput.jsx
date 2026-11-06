@@ -10,7 +10,6 @@ const InputContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   overflow: hidden;
-  background-color: red;
   height: 48px;
   padding: 0 10px;
 
