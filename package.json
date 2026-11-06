@@ -17,7 +17,8 @@
     "react": "$react",
     "react-dom": "$react-dom",
     "axios": "$axios",
-    "image-size": "2.0.2"
+    "image-size": "2.0.2",
+    "zod": "4.6.7"
   },
   "dependencies": {
     "@persian-tools/persian-tools": "^3.4.1",
