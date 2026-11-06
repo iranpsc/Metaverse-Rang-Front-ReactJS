@@ -28,7 +28,6 @@ const Pricing = ({ type, amount, color, index, gift }) => {
     psc,
     color: colorImages[color],
   };
-  console.log("gift", gift);
   return (
     <Container>
       <div>

@@ -53,7 +53,6 @@ const SentList = () => {
   };
 
   const filteredItems = filterListRows("tickets", rows, "", status);
-  console.log("row",filteredItems)
   return (
     <Container>
       <TitleHeader title={getTranslation("1336")} />

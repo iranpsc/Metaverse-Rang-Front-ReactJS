@@ -197,7 +197,7 @@ const SatisfactionForm = ({
           type: WalletContextTypes.ADD_WALLET,
           payload: { ...wallet, satisfaction: balance - input },
         });
-        console.log("res", res.data);
+      //  console.log("res", res.data);
         addBuilding(res.data.data.building_models[0]);
 
         ToastSuccess(getTranslation("1606"));

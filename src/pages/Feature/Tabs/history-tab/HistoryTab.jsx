@@ -30,7 +30,6 @@ const HistoryTab = () => {
 
     fetchData();
   }, []);
-console.log("setData",data)
   return (
     <StyledContainer>
       {data.map((item, index) => {
