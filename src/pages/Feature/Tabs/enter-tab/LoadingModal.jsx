@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import loader from "../../../../assets/gif/loader.svg";
 import { getTranslation } from "../../../../services/Utility";
-import FullModal from "../../../../components/Modal/fullModal";
+import FullModal from "../../../../components/Modal/FullModal";
 import TitleHeader from "../../../../components/TitleHeader";
 const Loader = styled.div`
   display: flex;

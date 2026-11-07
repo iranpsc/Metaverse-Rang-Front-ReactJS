@@ -8,7 +8,7 @@ import styled from "styled-components";
 import { useState } from "react";
 import useRequest from "../../hooks/useRequest.js";
 import TitleBody from "../../components/TitleBody.jsx";
-import UserCode from "../../components/Usercode.jsx";
+import UserCode from "../../components/UserCode.jsx";
 import { getSize } from "../../styles/sizes";
 
 const Left = styled.div`

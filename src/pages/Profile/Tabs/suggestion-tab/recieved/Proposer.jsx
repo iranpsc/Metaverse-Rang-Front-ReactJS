@@ -13,7 +13,7 @@ import rialpng from "../../../../../assets/images/profile/rial.gif";
 import Button from "../../../../../components/Button";
 import HtmlContent from "../../../../../components/HtmlContent.jsx";
 import TitleBody from "../../../../../components/TitleBody.jsx";
-import UserCode from "../../../../../components/Usercode.jsx";
+import UserCode from "../../../../../components/UserCode.jsx";
 import { useIsRtl } from "../../../../../hooks/useLanguageContext.js";
 import useRequest from "../../../../../hooks/useRequest.js";
 import {
