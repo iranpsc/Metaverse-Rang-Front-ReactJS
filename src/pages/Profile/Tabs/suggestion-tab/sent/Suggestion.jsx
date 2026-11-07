@@ -9,7 +9,7 @@ import blue from "../../../../../assets/images/profile/blue-color.gif";
 import LandText from "../../../../../components/LandText";
 import SuggestionSkeleton from "../../../../../components/Skeletons/SuggestionSkeleton";
 import TitleBody from "../../../../../components/TitleBody";
-import UserCode from "../../../../../components/Usercode";
+import UserCode from "../../../../../components/UserCode";
 import {
   convertToPersian,
   getTranslation,

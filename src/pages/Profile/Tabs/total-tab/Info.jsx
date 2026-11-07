@@ -12,7 +12,7 @@ import {
 } from "../../../../services/Utility";
 import Button from "../../../../components/Button.jsx";
 import TitleBody from "../../../../components/TitleBody.jsx";
-import UserCode from "../../../../components/Usercode.jsx";
+import UserCode from "../../../../components/UserCode.jsx";
 import InfoSkeleton from "../../../../components/Skeletons/InfoSkeleton.jsx";
 const BORDER_COLOR = "#454545";
 

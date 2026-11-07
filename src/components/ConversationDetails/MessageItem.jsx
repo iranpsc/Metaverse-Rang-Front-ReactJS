@@ -12,7 +12,7 @@ import {
   convertToPersian,
 } from "../../services/Utility";
 /* ---------- Helpers ---------- */
-import UserCode from "../Usercode";
+import UserCode from "../UserCode";
 const getAttachments = ({ attachments, attachment }) => {
   if (Array.isArray(attachments) && attachments.length > 0) return attachments;
   if (typeof attachment !== "string" || !attachment) return [];

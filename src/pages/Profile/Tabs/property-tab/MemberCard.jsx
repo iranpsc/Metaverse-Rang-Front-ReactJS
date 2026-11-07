@@ -2,7 +2,7 @@ import { useState } from "react";
 import { TiUserAddOutline } from "react-icons/ti";
 import styled from "styled-components";
 import Button from "../../../../components/Button.jsx";
-import UserCode from "../../../../components/Usercode.jsx";
+import UserCode from "../../../../components/UserCode.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
 import DefaultProfile from "../../../../assets/images/defulte-profile.png";
 import { getTranslation } from "../../../../services/Utility/index.jsx";
