@@ -59,6 +59,8 @@ const ModalXs = ({
   global = false,
   onReportClick,
   onHelpClick,
+  locationPage,
+  reportFrom,
 }) => {
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) onClose?.();
@@ -78,6 +80,8 @@ const ModalXs = ({
               onClose={onClose}
               onReportClick={onReportClick}
               onHelpClick={onHelpClick}
+              locationPage={locationPage}
+              reportFrom={reportFrom}
             />
           )
         )}

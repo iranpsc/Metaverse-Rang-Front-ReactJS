@@ -142,6 +142,8 @@ const Header = ({
   onClose,
   onReportClick,
   onHelpClick,
+  locationPage,
+  reportFrom,
 }) => {
   const [isEducationOpen, setIsEducationOpen] = useState(false);
   const location = useLocation();
@@ -150,11 +152,19 @@ const Header = ({
   const { updateScrollDirection } = useScrollDirectionContext();
 
   const adviserKey = `${location.pathname.replace(/\//g, "")}-`;
-  const adviserData = useAdviserData(adviserKey, location.state?.locationPage);
+  const adviserData = useAdviserData(
+    adviserKey,
+    locationPage ?? location.state?.locationPage,
+  );
 
   const handleReportClick = () => {
     onReportClick?.();
-    navigate("/report/send", { state: { from: location.pathname } });
+    navigate("/report/send", {
+      state: {
+        from: reportFrom ?? location.pathname,
+        returnTo: location.pathname,
+      },
+    });
   };
 
   const handleHelpClick = () => {
@@ -181,7 +191,9 @@ const Header = ({
       return;
     }
 
-    navigate(location.state?.from || "/", { replace: true });
+    navigate(location.state?.returnTo || location.state?.from || "/", {
+      replace: true,
+    });
 
     if (action === "ChangeHiddenState") resetStates();
   };

@@ -9,6 +9,8 @@ const AccountSecurityModal = ({ onClose, onReportClick, onHelpClick }) => {
       onClose={onClose}
       onReportClick={onReportClick}
       onHelpClick={onHelpClick}
+      locationPage="confirmation-"
+      reportFrom="/confirmation"
     >
       <AccountSecurity />
     </ModalXs>
