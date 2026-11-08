@@ -23,6 +23,7 @@ export default defineConfig({
     extensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
   },
   build: {
+    emptyOutDir: true,
     sourcemap: "hidden",
     rollupOptions: {
       onwarn(warning, warn) {

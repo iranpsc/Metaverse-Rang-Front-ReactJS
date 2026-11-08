@@ -2,6 +2,7 @@ import SellerPriceInfo from "./SellerPriceInfo";
 import styled from "styled-components";
 import { getTranslation } from "../../../../services/Utility";
 import Container from "../../../../components/Common/Container";
+import TitleBody from "../../../../components/TitleBody";
 const Wrapper = styled(Container)`
   display: flex;
   flex-direction: column;
@@ -13,15 +14,10 @@ const Wrapper = styled(Container)`
   width: 100%;
 `;
 
-const Text = styled.p`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  line-height: 1.7rem;
-`;
-
 const SellerPrice = () => {
   return (
     <Wrapper>
-      <Text>{getTranslation(1528)} </Text>
+    <TitleBody title={getTranslation(1528)} />
       <SellerPriceInfo />
     </Wrapper>
   );

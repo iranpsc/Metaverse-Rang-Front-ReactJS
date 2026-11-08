@@ -1,9 +1,7 @@
 import styled from "styled-components";
 import { useContext } from "react";
 import { useNavigate } from "react-router";
-import {
-  WalletContext,
-} from "../../../../services/reducers/WalletContext";
+import { WalletContext } from "../../../../services/reducers/WalletContext";
 import useWalletUpdate from "../../../../hooks/useWalletUpdate.js";
 import { FeatureContext } from "../../Context/FeatureProvider";
 import Button from "../../../../components/Button";
