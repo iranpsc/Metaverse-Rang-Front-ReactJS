@@ -5,7 +5,7 @@ import { HiOutlineTrash } from "react-icons/hi";
 import styled from "styled-components";
 import TitleBody from "../../../components/TitleBody.jsx";
 import useRequest from "../../../hooks/useRequest.js";
-import { useTheme } from "../../../hooks/useTheme.js";
+import { useTheme } from "../../../services/reducers/ThemeContext.jsx";
 import { convertToPersian, getTranslation } from "../../../services/Utility";
 
 const Wrapper = styled.div`

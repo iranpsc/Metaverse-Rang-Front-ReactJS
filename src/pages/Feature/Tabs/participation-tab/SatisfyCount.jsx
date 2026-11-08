@@ -1,4 +1,4 @@
-import { Fragment, useContext, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import styled from "styled-components";
 
@@ -7,15 +7,12 @@ import {
   getTranslation,
   ToastSuccess,
 } from "../../../../services/Utility";
-import {
-  WalletContext,
-  WalletContextTypes,
-} from "../../../../services/reducers/WalletContext";
+import useWalletUpdate from "../../../../hooks/useWalletUpdate.js";
 import Button from "../../../../components/Button";
 import TitleBody from "../../../../components/TitleBody.jsx";
-import { useTheme } from "../../../../hooks/useTheme.js";
+import { useTheme } from "../../../../services/reducers/ThemeContext.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
-import { useMapData } from "../../../../hooks/useMapData.js";
+import { useMapData } from "../../../../services/reducers/mapContext.jsx";
 import clocklight from "../../../../assets/gif/clocklight.gif";
 import clockdark from "../../../../assets/gif/clockdark.gif";
 
@@ -133,7 +130,7 @@ const SatisfyCount = ({ isOwner }) => {
   const { theme } = useTheme();
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
   const { buildings, removeBuilding } = useMapData();
-  const [wallet, dispatch] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
   const [timeLeft, setTimeLeft] = useState(EMPTY_TIME);
 
   const activeBuilding = useMemo(
@@ -168,13 +165,7 @@ const SatisfyCount = ({ isOwner }) => {
 
       ToastSuccess(getTranslation("1609"));
       navigate("");
-      dispatch({
-        type: WalletContextTypes.ADD_WALLET,
-        payload: {
-          ...wallet,
-          satisfaction: (Number(wallet.satisfaction) || 0) + launchedSatisfaction,
-        },
-      });
+      updateWallet("satisfaction", launchedSatisfaction, "+");
       removeBuilding(buildingId);
     } catch (error) {
       console.error("❌ Delete building error:", error);

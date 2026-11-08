@@ -3,7 +3,7 @@
 import styled from "styled-components";
 import { useState } from "react";
 import { LuEye } from "react-icons/lu";
-import { Skeleton } from "../../../../../components/Skeleton";
+import { Skeleton } from "../../../../../components/Skeletons/Skeleton.jsx";
 import useRequestDetails from "../../../../../hooks/useRequestDetails";
 import RequestDetails from "./RequestDetails/RequestDetails";
 import satisfyIcon from "../../../../../assets/images/satisfy.png";

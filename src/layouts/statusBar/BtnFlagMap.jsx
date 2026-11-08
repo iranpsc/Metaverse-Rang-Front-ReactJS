@@ -3,7 +3,7 @@ import styled from "styled-components";
 import FilterIcon from "../../assets/svg/filter.svg?react";
 import LocationIcon from "../../assets/svg/location.svg?react";
 import useRequest from "../../hooks/useRequest.js";
-import { useMapData } from "../../hooks/useMapData.js";
+import { useMapData } from "../../services/reducers/mapContext.jsx";
 const Btn = styled.div`
   display: flex;
   align-items: center;

@@ -1,8 +1,10 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 import AccountSecurityModal from "../../pages/AccountSecurity";
 import Education from "../../pages/Education/Education";
 
 export const AccountSecurityContext = createContext(null);
+
+export const useAccountSecurity = () => useContext(AccountSecurityContext);
 
 export const AccountSecurityProvider = ({ children }) => {
   const [isAccountSecurityOpen, setIsAccountSecurityOpen] = useState(false);

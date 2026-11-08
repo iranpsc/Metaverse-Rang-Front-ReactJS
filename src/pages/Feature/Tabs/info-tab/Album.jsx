@@ -4,7 +4,7 @@ import Compressor from "compressorjs";
 import PhotoActionButton from "./components/PhotoActionButton.jsx";
 import Slider from "./Slider";
 import FileUploader from "../../../../components/FileUploader/FileUploader.jsx";
-import { Skeleton } from "../../../../components/Skeleton";
+import { Skeleton } from "../../../../components/Skeletons/Skeleton.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import {

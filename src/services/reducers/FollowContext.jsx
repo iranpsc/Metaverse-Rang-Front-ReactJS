@@ -1,10 +1,19 @@
-import { createContext, useEffect, useMemo, useState, useCallback } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import {  onSocketEvent } from "../socket"; 
 export const FollowContext = createContext({
   onlineMap: {},
   isOnline: () => false,
   mergeOnline: () => {},
 });
+
+export const useFollow = () => useContext(FollowContext);
 
 export default function FollowProvider({ children }) {
   const [onlineMap, setOnlineMap] = useState({});

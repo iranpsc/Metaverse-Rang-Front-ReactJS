@@ -1,7 +1,7 @@
 //والد همه کامپوننت ها برای جمع شدن خودکار تب 
 import styled from "styled-components";
 import { useRef, useEffect, forwardRef } from "react";
-import { useScrollDirectionContext } from "../../hooks/useScrollDirectionContext.js";
+import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext.jsx";
 const TAB_BAR_HEIGHT = 40;
 const StyledContainer = styled.div`
   padding: 15px;

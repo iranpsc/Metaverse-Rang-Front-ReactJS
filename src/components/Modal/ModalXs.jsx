@@ -3,7 +3,6 @@
 import { createPortal } from "react-dom";
 import styled, { css } from "styled-components";
 import Header from "../Header/Header";
-import { ExitIcon } from "../Icons/IconsHeader";
 import { Overlay } from "./styles";
 
 // استایل قبلی کانتینر مدال رسید
@@ -39,7 +38,7 @@ const Dialog = styled.div`
   width: 550px;
   margin: 0 auto;
   padding: 15px 20px;
-  
+
   overflow: hidden;
   border-radius: 10px;
   background-color: ${({ theme }) => theme.colors.newColors.shades.bg2};
@@ -69,11 +68,9 @@ const ModalXs = ({
   const modal = (
     <GlobalAwareOverlay $global={global} onClick={handleOverlayClick}>
       <Dialog $compact={compact}>
-        {hideTitle ? (
-          <ExitIcon trans="trans" onClick={handleExitClick ?? onClose} />
-        ) : (
-          !noIcon && (
+        {!noIcon&&(
             <Header
+              hideTitle={hideTitle}
               title={title}
               handleExit={handleExitClick}
               onlyExit={onlyExit}
@@ -84,7 +81,8 @@ const ModalXs = ({
               reportFrom={reportFrom}
             />
           )
-        )}
+        }
+
         {children}
       </Dialog>
     </GlobalAwareOverlay>

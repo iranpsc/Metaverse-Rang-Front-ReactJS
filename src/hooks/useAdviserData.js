@@ -1,5 +1,5 @@
-// The following function is a custom hook that returns adviser data based on the location state or string passed in.
-// It uses another custom hook called "useRequest" to make an HTTP request to an API.
+// تابع برای دانلود ویدیو های راهنما 
+
 import { useState, useEffect } from "react";
 import useRequest from "./useRequest";
 

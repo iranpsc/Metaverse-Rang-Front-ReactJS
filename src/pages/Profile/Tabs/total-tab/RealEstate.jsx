@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { useContext, useEffect, useState } from "react";
 import PropertyCard from "./PropertyCard";
-import property1 from "../../../../assets/gif/satisfaction.gif";
 import property2 from "../../../../assets/images/building.png";
 import property3 from "../../../../assets/images/house.png";
 import property4 from "../../../../assets/images/courthouse.png";
@@ -9,10 +8,16 @@ import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import { WalletContext } from "../../../../services/reducers/WalletContext";
-import { Skeleton } from "../../../../components/Skeleton";
+import { Skeleton } from "../../../../components/Skeletons/Skeleton.jsx";
+import { COLOR_CONFIG } from "../../../../services/constants/colorConfig.js";
 
 const PROPERTY_ITEMS = [
-  { key: "satisfaction", source: "wallet", image: property1, labelKey: "52" },
+  {
+    key: "satisfaction",
+    source: "wallet",
+    image: COLOR_CONFIG.satisfaction.gif,
+    labelKey: COLOR_CONFIG.satisfaction.labelKey,
+  },
   {
     key: "tejari_features_count",
     source: "assets",

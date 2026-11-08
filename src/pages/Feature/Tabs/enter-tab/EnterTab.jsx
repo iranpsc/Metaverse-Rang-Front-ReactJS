@@ -6,8 +6,7 @@ import { MdOutlineHome } from "react-icons/md";
 import EnterEdit from "./EnterEdit";
 import EnterInfo from "./EnterInfo";
 import { COLOR_CONFIG } from "../../../../services/constants/colorConfig";
-import Psc from "../../../../components/Psc";
-import Rial from "../../../../components/Rial";
+import WalletAsset from "../../../../components/WalletAsset.jsx";
 // داده‌ی نمونه؛ ویدیوها فعلاً همان گیف ریال هستند
 const PLACEHOLDER_VIDEO = COLOR_CONFIG.irr.gif;
 
@@ -25,7 +24,7 @@ const ENTER_DATA = [
         slug: "psc",
         type: "number",
         icon: COLOR_CONFIG.psc.gif,
-        suffix:<Psc/>
+        suffix:<WalletAsset asset="psc" showLabel/>
       },
       {
         id: 2,
@@ -36,7 +35,7 @@ const ENTER_DATA = [
         slug: "rial",
         type: "number",
         icon: COLOR_CONFIG.irr.gif,
-                suffix:<Rial/>
+                suffix:<WalletAsset asset="irr" showLabel/>
 
       },
       {

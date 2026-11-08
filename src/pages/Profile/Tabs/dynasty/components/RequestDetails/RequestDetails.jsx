@@ -12,15 +12,12 @@ import { createPortal } from "react-dom";
 import ConfettiExplosion from "react-confetti-explosion";
 import styled from "styled-components";
 import gift from "../../../../../../assets/images/satisfy.png";
-import pscGif from "../../../../../../assets/gif/psc.gif";
 import ModalLg from "../../../../../../components/Modal/ModalLg.jsx";
 import useRequest from "../../../../../../hooks/useRequest.js";
+import useWalletUpdate from "../../../../../../hooks/useWalletUpdate.js";
 import TitleBody from "../../../../../../components/TitleBody.jsx";
-import {
-  WalletContext,
-  WalletContextTypes,
-} from "../../../../../../services/reducers/WalletContext.jsx";
-import { useContext, useRef, useState } from "react";
+import { useRef, useState } from "react";
+import { COLOR_CONFIG } from "../../../../../../services/constants/colorConfig.js";
 
 const Container = styled.div`
   max-height: 100%;
@@ -111,7 +108,7 @@ const RequestDetails = ({
   gif,
   psc,
 }) => {
-  const [Wallet, dispatch] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
   const [isSending, setIsSending] = useState(false);
   const { Request, HTTP_METHOD } = useRequest();
   const rewardButtonRef = useRef(null);
@@ -172,14 +169,8 @@ const RequestDetails = ({
         });
       }
 
-      dispatch({
-        type: WalletContextTypes.ADD_WALLET,
-        payload: {
-          ...Wallet,
-          psc: Wallet.psc + psc,
-          satisfaction: Wallet.satisfaction + gif,
-        },
-      });
+      updateWallet("psc", Number(psc) || 0, "+");
+      updateWallet("satisfaction", Number(gif) || 0, "+");
 
       setTimeout(() => {
         setShowDetails(false);
@@ -239,7 +230,7 @@ const RequestDetails = ({
               <Reward>
                 <TitleBody title={convertToPersian(psc ?? 0)} />
 
-                <img src={pscGif} alt="" />
+                <img src={COLOR_CONFIG.psc.gif} alt="" />
               </Reward>
             </Rewards>
 

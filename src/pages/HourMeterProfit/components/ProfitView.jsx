@@ -7,12 +7,9 @@ import education from "../../../assets/images/courthouse.png";
 import house from "../../../assets/images/house.png";
 import Container from "../../../components/Common/Container";
 import useRequest from "../../../hooks/useRequest.js";
+import useWalletUpdate from "../../../hooks/useWalletUpdate.js";
 import { UserContextTypes } from "../../../services/actions/UserContextAction";
 import { UserContext } from "../../../services/reducers/UserContext";
-import {
-  WalletContext,
-  WalletContextTypes,
-} from "../../../services/reducers/WalletContext";
 import { getTranslation } from "../../../services/Utility";
 import Button from "./Button";
 import ProfitList from "./ProfitList";
@@ -107,8 +104,7 @@ const ConfettiAnchor = styled.div`
 const ProfitView = () => {
   const { Request, HTTP_METHOD } = useRequest();
   const [user, userDispatch] = useContext(UserContext);
-  const [wallet, walletDispatch] = useContext(WalletContext);
-
+  const updateWallet = useWalletUpdate();
   const [cards, setCards] = useState([]);
   const [totals, setTotals] = useState(null); // { [color]: مجموع سود }
   const [page, setPage] = useState(1);
@@ -197,10 +193,7 @@ const ProfitView = () => {
     const walletKey = KARBARI_BY_COLOR[color]?.walletKey;
     if (!walletKey || amount <= 0) return;
 
-    walletDispatch({
-      type: WalletContextTypes.ADD_WALLET,
-      payload: { ...wallet, [walletKey]: (+wallet[walletKey] || 0) + amount },
-    });
+    updateWallet(walletKey, amount, "+");
   };
 
   const setHourlyPercentage = (value) =>

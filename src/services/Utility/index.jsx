@@ -363,13 +363,6 @@ export const pscToIrr = (psc) => {
 };
 export const calculateTotalIrr = (irr, psc) => (+irr || 0) + pscToIrr(psc);
 
-
-
-
-
-
-
-
 const KARBARI_UNIT_PRICE_IRR = {
   m: 10000, // مسکونی (زرد)
   t: 30000, // تجاری (قرمز)
@@ -378,21 +371,6 @@ const KARBARI_UNIT_PRICE_IRR = {
 
 export const calculateFallbackPriceIrr = (karbari, stability) =>
   (+stability || 0) * (KARBARI_UNIT_PRICE_IRR[karbari] || 0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 export const getTranslation = (fieldId) => {
   const resources = i18n.store.data;

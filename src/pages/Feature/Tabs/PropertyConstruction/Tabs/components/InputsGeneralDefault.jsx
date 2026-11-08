@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Button from "../../../../../../components/Button";
 import IsicSelect from "../../../../../../components/IsicCode/IsicSelect.jsx";
 import LabeledInput from "../../../../../../components/LabeledInput.jsx";
-import { useSelectedEnvironment } from "../../../../../../hooks/useSelectedEnvironment.js";
+import { useSelectedEnvironment } from "../../../../../../services/reducers/SelectedEnvironmentContext.jsx";
 import { getTranslation, ToastError } from "../../../../../../services/Utility";
 import { FeatureContext } from "../../../../Context/FeatureProvider";
 const POSTAL_CODE_LENGTH = 10;

@@ -1,7 +1,4 @@
 import styled, { css } from "styled-components";
-import blue from "../../../../assets/gif/blue-color.gif";
-import red from "../../../../assets/gif/red-color.gif";
-import yellow from "../../../../assets/gif/yellow-color.gif";
 import useLanguage from "../../../../hooks/useLanguage.js";
 import {
   ConvertJalali,
@@ -11,7 +8,12 @@ import {
 import TitleBody from "../../../../components/TitleBody.jsx";
 import ToolTip from "../../../../components/Tooltip/Tooltip.jsx";
 import UserCode from "../../../../components/UserCode.jsx";
-const ASSET_GIFS = { red, blue, yellow };
+import { COLOR_CONFIG } from "../../../../services/constants/colorConfig.js";
+const ASSET_GIFS = {
+  red: COLOR_CONFIG.red.gif,
+  blue: COLOR_CONFIG.blue.gif,
+  yellow: COLOR_CONFIG.yellow.gif,
+};
 const LIGHT_TEXT = "#fcfcfc";
 
 // اندازه‌ی فونت پایه + مقدار آن در breakpointهای کوچک‌تر

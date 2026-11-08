@@ -1,6 +1,6 @@
 import ConfettiExplosion from "react-confetti-explosion";
 import styled from "styled-components";
-import { useIsRtl } from "../../../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../../../services/reducers/LanguageContext.jsx";
 import { convertToPersian } from "../../../../services/Utility";
 import ToolTip from "../../../../components/Tooltip/Tooltip.jsx";
 import TitleBody from "../../../../components/TitleBody.jsx";

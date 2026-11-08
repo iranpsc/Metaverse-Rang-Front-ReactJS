@@ -1,7 +1,5 @@
 import { LuBuilding2 } from "react-icons/lu";
 import styled from "styled-components";
-import psc from "../../../../assets/gif/psc.gif";
-import rial from "../../../../assets/gif/rial.gif";
 import {
   formatNumber,
   getTranslation,
@@ -10,6 +8,7 @@ import {
 import TitleBody from "../../../../components/TitleBody";
 import LandText from "../../../../components/LandText";
 import UserCode from "../../../../components/UserCode";
+import { COLOR_CONFIG } from "../../../../services/constants/colorConfig.js";
 const Container = styled.div`
   padding-bottom: 15px;
 `;
@@ -110,14 +109,14 @@ const Bio = ({ item }) => {
             title: getTranslation("45"),
             value: sellRequest.price_psc,
             type: "price",
-            icon: psc,
+            icon: COLOR_CONFIG.psc.gif,
           },
           {
             key: "irr",
             title: getTranslation("44"),
             value: sellRequest.price_irr,
             type: "price",
-            icon: rial,
+            icon: COLOR_CONFIG.irr.gif,
           },
         ]
       : []),

@@ -5,7 +5,7 @@ import { Canvas } from "react-three-map/maplibre";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { HemisphereLight } from "three";
 import { useNavigate } from "react-router";
-import { useSelectedEnvironment } from "../../../hooks/useSelectedEnvironment.js";
+import { useSelectedEnvironment } from "../../../services/reducers/SelectedEnvironmentContext.jsx";
 import { getTranslation, ToastError, ToastSuccess } from "../../../services/Utility";
 import { flyToMapPosition } from "../../../services/Utility/flyToMapPosition.js";
 import AngleControl from "../../../pages/Feature/Tabs/PropertyConstruction/Tabs/components/AngleControl.jsx";

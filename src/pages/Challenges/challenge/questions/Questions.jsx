@@ -1,10 +1,5 @@
-import { useContext, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import blue from "../../../../assets/gif/blue-color.gif";
-import psc from "../../../../assets/gif/psc.gif";
-import red from "../../../../assets/gif/red-color.gif";
-import rial from "../../../../assets/gif/rial.gif";
-import yellow from "../../../../assets/gif/yellow-color.gif";
 import nopic from "../../../../assets/images/nopic.jpg";
 import useRequest from "../../../../hooks/useRequest.js";
 import TitleBody from "../../../../components/TitleBody.jsx";
@@ -13,20 +8,18 @@ import {
   formatTime,
   getTranslation,
 } from "../../../../services/Utility";
-import {
-  WalletContext,
-  WalletContextTypes,
-} from "../../../../services/reducers/WalletContext";
+import useWalletUpdate from "../../../../hooks/useWalletUpdate.js";
 import Content from "./Content";
 import Footer from "./Footer";
+import { COLOR_CONFIG } from "../../../../services/constants/colorConfig.js";
 
 // نوع جایزه => آیکون و کلید آن در کیف پول
 const PRIZES = {
-  psc: { image: psc, walletKey: "psc" },
-  rial: { image: rial, walletKey: "irr" },
-  blue: { image: blue, walletKey: "blue" },
-  red: { image: red, walletKey: "red" },
-  yellow: { image: yellow, walletKey: "yellow" },
+  psc: { image: COLOR_CONFIG.psc.gif, walletKey: "psc" },
+  rial: { image: COLOR_CONFIG.irr.gif, walletKey: "irr" },
+  blue: { image: COLOR_CONFIG.blue.gif, walletKey: "blue" },
+  red: { image: COLOR_CONFIG.red.gif, walletKey: "red" },
+  yellow: { image: COLOR_CONFIG.yellow.gif, walletKey: "yellow" },
 };
 
 const RETURN_AFTER_ANSWER_MS = 14000;
@@ -176,7 +169,7 @@ const Questions = ({
   answerTime,
 }) => {
   const { Request, HTTP_METHOD } = useRequest();
-  const [wallet, dispatch] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
 
   const [timer, setTimer] = useState(questionTime);
   const [data, setData] = useState();
@@ -185,7 +178,7 @@ const Questions = ({
 
   const main = organizers?.[0];
   const prize = PRIZES[data?.prize_type];
-  const prizeImage = prize?.image ?? psc;
+  const prizeImage = prize?.image ?? COLOR_CONFIG.psc.gif;
   const showAnswer = Boolean(answer);
 
   // دریافت سوال
@@ -266,13 +259,7 @@ const Questions = ({
       if (isCorrect && prize?.walletKey) {
         const { walletKey } = prize;
 
-        dispatch({
-          type: WalletContextTypes.ADD_WALLET,
-          payload: {
-            ...wallet,
-            [walletKey]: (+wallet[walletKey] || 0) + data.prize,
-          },
-        });
+        updateWallet(walletKey, Number(data.prize), "+");
       }
     } catch (error) {
       console.error("Error submitting answer:", error);

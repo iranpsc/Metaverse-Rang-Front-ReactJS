@@ -1,18 +1,10 @@
-import React, { useEffect, useState } from 'react'
-import useAuth from '../hooks/useAuth.js'
+// گارد بخش‌های عمومی؛ فقط وقتی کاربر لاگین نکرده باشد children را نشان می‌دهد (مثلاً صفحه‌ی ورود)، وگرنه چیزی رندر نمی‌کند.
+import useAuth from "../hooks/useAuth.js";
 
-export default function PublicComponent({ children }) {
-  const { getUser } = useAuth();
-  const [user, setUser] = useState();
+const PublicComponent = ({ children }) => {
+  const { getUser, isLoggedIn } = useAuth();
 
-  useEffect(() => {
-    setUser(getUser());
-  }, [getUser])
+  return isLoggedIn() && getUser()?.id ? null : children;
+};
 
-
-  return (
-    <>
-        {!user?.id ? children : <React.Fragment></React.Fragment> }
-    </>
-  )
-}
+export default PublicComponent;

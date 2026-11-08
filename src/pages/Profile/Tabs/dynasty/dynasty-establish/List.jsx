@@ -1,19 +1,16 @@
 import Row from "./Row";
 import cav from "../../../../../assets/gif/cav.gif";
-import gif from "../../../../../assets/gif/satisfaction.gif";
-import limit from "../../../../../assets/gif/limit-of-influence.gif";
-import psc from "../../../../../assets/gif/psc.gif";
 import pscplus from "../../../../../assets/gif/pscplus.gif";
-import rial from "../../../../../assets/gif/rial.gif";
 import styled from "styled-components";
+import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
 const HEADER_ICONS = [
-  { alt: "limit", src: limit },
-  { alt: "psc", src: psc },
+  { alt: "limit", src: COLOR_CONFIG.effect.gif },
+  { alt: "psc", src: COLOR_CONFIG.psc.gif },
   { alt: "pscplus", src: pscplus },
   { alt: "cav", src: cav },
-  { alt: "rial", src: rial },
-  { alt: "gif", src: gif },
+  { alt: "rial", src: COLOR_CONFIG.irr.gif },
+  { alt: "gif", src: COLOR_CONFIG.satisfaction.gif },
 ];
 
 const Container = styled.div`

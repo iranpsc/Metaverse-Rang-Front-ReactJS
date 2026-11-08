@@ -1,23 +1,18 @@
 import styled from "styled-components";
 import { useContext } from "react";
 import ColorCard from "./ColorCard";
-import gif1 from "../../../../assets/gif/limit-of-influence.gif";
-import gif2 from "../../../../assets/gif/yellow-color.gif";
-import gif3 from "../../../../assets/gif/red-color.gif";
-import gif4 from "../../../../assets/gif/blue-color.gif";
-import gif5 from "../../../../assets/gif/rial.gif";
-import gif6 from "../../../../assets/gif/psc.gif";
 import { getTranslation } from "../../../../services/Utility";
-import { Skeleton } from "../../../../components/Skeleton";
+import { Skeleton } from "../../../../components/Skeletons/Skeleton.jsx";
 import { WalletContext } from "../../../../services/reducers/WalletContext.jsx";
+import { COLOR_CONFIG } from "../../../../services/constants/colorConfig.js";
 
 const COLOR_ITEMS = [
-  { key: "effect", gif: gif1, labelKey: "723" },
-  { key: "yellow", gif: gif2, labelKey: "51" },
-  { key: "red", gif: gif3, labelKey: "50" },
-  { key: "blue", gif: gif4, labelKey: "49" },
-  { key: "irr", gif: gif5, labelKey: "48" },
-  { key: "psc", gif: gif6, labelKey: "47" },
+  { key: "effect", ...COLOR_CONFIG.effect },
+  { key: "yellow", ...COLOR_CONFIG.yellow },
+  { key: "red", ...COLOR_CONFIG.red },
+  { key: "blue", ...COLOR_CONFIG.blue },
+  { key: "irr", ...COLOR_CONFIG.irr },
+  { key: "psc", ...COLOR_CONFIG.psc },
 ];
 
 const Container = styled.div`

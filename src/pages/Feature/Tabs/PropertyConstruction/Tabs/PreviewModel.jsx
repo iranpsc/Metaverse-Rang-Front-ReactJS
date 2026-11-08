@@ -44,7 +44,7 @@ const PreviewModel = ({ data, setShowModal }) => {
   const [model] = data;
 
   return (
-    <ModalLg setShowModal={setShowModal} titleId="371" report>
+    <ModalLg setShowModal={setShowModal} titleId="371">
       <Container>
         <ContainerDetail>
           <div>

@@ -1,7 +1,7 @@
 //این مدال برای کامپوننت های عمومی مانند پروفایل و تنظیمات استفاده شده
 import styled from "styled-components";
 import Header from "../Header/Header";
-import { useIsRtl } from "../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../services/reducers/LanguageContext.jsx";
 import { Overlay } from "./styles";
 
 const Dialog = styled.div`

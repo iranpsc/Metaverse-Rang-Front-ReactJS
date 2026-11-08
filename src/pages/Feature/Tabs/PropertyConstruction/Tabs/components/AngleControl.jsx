@@ -6,8 +6,9 @@ import TitleBody from "../../../../../../components/TitleBody.jsx";
 import Button from "../../../../../../components/Button";
 import WatchIcon from "../../../../../../assets/svg/watch.svg?react";
 import useRequest from "../../../../../../hooks/useRequest.js";
-import { useMapData } from "../../../../../../hooks/useMapData.js";
-import { useSelectedEnvironment } from "../../../../../../hooks/useSelectedEnvironment.js";
+import useWalletUpdate from "../../../../../../hooks/useWalletUpdate.js";
+import { useMapData } from "../../../../../../services/reducers/mapContext.jsx";
+import { useSelectedEnvironment } from "../../../../../../services/reducers/SelectedEnvironmentContext.jsx";
 import {
   getTranslation,
   ToastError,
@@ -18,7 +19,6 @@ import {
 } from "../../../../../../services/Utility";
 import {
   WalletContext,
-  WalletContextTypes,
 } from "../../../../../../services/reducers/WalletContext";
 
 const GREEN = "#3fbf7f";
@@ -161,7 +161,8 @@ const SatisfactionForm = ({
 }) => {
   const { selectedEnvironment, formState } = useSelectedEnvironment();
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
-  const [wallet, dispatch] = useContext(WalletContext);
+  const [wallet] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
   const { addBuilding } = useMapData();
 
   const balance = parseFloat(wallet?.satisfaction) || 0;
@@ -193,10 +194,7 @@ const SatisfactionForm = ({
       },
     )
       .then((res) => {
-        dispatch({
-          type: WalletContextTypes.ADD_WALLET,
-          payload: { ...wallet, satisfaction: balance - input },
-        });
+        updateWallet("satisfaction", input, "-");
       //  console.log("res", res.data);
         addBuilding(res.data.data.building_models[0]);
 

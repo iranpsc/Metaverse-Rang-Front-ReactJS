@@ -13,7 +13,7 @@ import note from "../../../../assets/images/settings/note-2.png";
 import pet from "../../../../assets/images/settings/pet.png";
 import tree from "../../../../assets/images/settings/tree.png";
 import weight from "../../../../assets/images/settings/weight.png";
-import { useTheme } from "../../../../hooks/useTheme.js";
+import { useTheme } from "../../../../services/reducers/ThemeContext.jsx";
 import { convertToPersian } from "../../../../services/Utility/index";
 import { getTranslation } from "../../../../services/Utility";
 import TitleBody from "../../../../components/TitleBody.jsx";

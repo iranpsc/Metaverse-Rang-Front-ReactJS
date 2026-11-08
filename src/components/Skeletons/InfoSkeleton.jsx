@@ -1,6 +1,6 @@
 // اسکلتون یک آمار دنبال‌کننده/دنبال‌شونده؛ مناسب حالت لودینگ کارت اطلاعات پروفایل (Info)
 import styled from "styled-components";
-import { Skeleton } from "../Skeleton";
+import { Skeleton } from "./Skeleton.jsx";
 
 const Wrapper = styled.div`
   display: flex;

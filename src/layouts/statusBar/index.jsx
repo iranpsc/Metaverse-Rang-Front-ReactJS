@@ -5,7 +5,7 @@ import PrivateComponent from "../../middleware/PrivateComponent";
 import PublicComponent from "../../middleware/PublicComponent";
 import ListPositions from "./ListPositions";
 import AssetsWallet from "./AssetsWallet";
-import { useScrollDirectionContext } from "../../hooks/useScrollDirectionContext.js";
+import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext.jsx";
 const Container = styled.div`
   display: ${({ show }) => (show ? "none" : "flex")};
   flex-direction: column;

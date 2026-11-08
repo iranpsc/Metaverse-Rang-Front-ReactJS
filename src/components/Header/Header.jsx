@@ -13,8 +13,8 @@ import Help from "../../assets/svg/question.svg?react";
 import { ExitIcon } from "../Icons/IconsHeader";
 import Education from "../../pages/Education/Education.jsx";
 import useAdviserData from "../../hooks/useAdviserData.js";
-import { useSelectedEnvironment } from "../../hooks/useSelectedEnvironment.js";
-import { useScrollDirectionContext } from "../../hooks/useScrollDirectionContext.js";
+import { useSelectedEnvironment } from "../../services/reducers/SelectedEnvironmentContext.jsx";
+import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext.jsx";
 import { getTranslation } from "../../services/Utility";
 
 const DESKTOP = "@media (min-width: 1280px)";
@@ -144,6 +144,7 @@ const Header = ({
   onHelpClick,
   locationPage,
   reportFrom,
+  hideTitle,
 }) => {
   const [isEducationOpen, setIsEducationOpen] = useState(false);
   const location = useLocation();
@@ -199,7 +200,7 @@ const Header = ({
   };
   return (
     <HeaderWrapper>
-      <Title $long={long}>{getTranslation(title)}</Title>
+      <Title $long={long}>{!hideTitle && getTranslation(title)}</Title>
 
       <Icons>
         {!onlyExit && (

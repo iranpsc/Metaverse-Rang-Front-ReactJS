@@ -40,7 +40,11 @@ function resolveSocketURL() {
 
 function resolveToken() {
   const user = getItem("user");
-  return user?.token || "";
+  return user?.token &&
+    Number.isFinite(user.expire) &&
+    user.expire > Date.now()
+    ? user.token
+    : "";
 }
 
 function currentSocketToken(current) {
@@ -61,7 +65,14 @@ function attachHandlers(sock) {
  * Without arguments, uses the token stored in localStorage (if any).
  */
 export function connectSocket(token = resolveToken()) {
-  const nextToken = token || "";
+  const user = getItem("user");
+  const nextToken =
+    token &&
+    token === user?.token &&
+    Number.isFinite(user.expire) &&
+    user.expire > Date.now()
+      ? token
+      : "";
 
   if (socket && currentSocketToken(socket) === nextToken) {
     return socket;

@@ -1,7 +1,7 @@
 // بخش نمایش اطلاعات تب ورود در حالت غیرویرایشی (اطلاعات مجوز، فیلد کد و تایید پرداخت، توضیحات، دکمه‌های ویرایش و حذف ساختمان و اسلایدر ویدیوها)؛ در عرض‌های کمتر از ۱۳۶۹ پیکسل اطلاعات بالای اسلایدر و در عرض‌های بیشتر زیر آن قرار می‌گیرد؛ مناسب EnterTab
 
 import styled from "styled-components";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { LuEye } from "react-icons/lu";
 import { useNavigate, useParams } from "react-router";
 import EnterConfirmModal from "./EnterConfirmModal";
@@ -13,12 +13,9 @@ import LabeledInput from "../../../../components/LabeledInput";
 import TitleBody from "../../../../components/TitleBody";
 import TitleHeader from "../../../../components/TitleHeader";
 import TitleValue from "../../../../components/TitleValue";
-import { useMapData } from "../../../../hooks/useMapData.js";
+import { useMapData } from "../../../../services/reducers/mapContext.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
-import {
-  WalletContext,
-  WalletContextTypes,
-} from "../../../../services/reducers/WalletContext";
+import useWalletUpdate from "../../../../hooks/useWalletUpdate.js";
 import {
   convertToPersian,
   getTranslation,
@@ -92,7 +89,7 @@ const EnterInfo = ({ data, setEdit, payed, setPayed, isOwner }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { buildings, removeBuilding } = useMapData();
-  const [wallet, dispatch] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
 
   const [isMobile, setIsMobile] = useState(
@@ -117,10 +114,6 @@ const EnterInfo = ({ data, setEdit, payed, setPayed, isOwner }) => {
   const buildingId = activeBuilding?.model_id;
 
   // بعد از حذف ساختمان، رضایتی که برای راه‌اندازی آن مصرف شده بود به کیف پول برمی‌گردد
-  const restoredSatisfaction =
-    (Number(wallet?.satisfaction) || 0) +
-    (Number(activeBuilding?.building?.launched_satisfaction) || 0);
-
   const fields = data[0].inputs.slice(0, INFO_FIELDS_COUNT);
   const about = data[0].inputs.find((input) => input.about)?.about;
 
@@ -135,10 +128,11 @@ const EnterInfo = ({ data, setEdit, payed, setPayed, isOwner }) => {
 
       ToastSuccess(getTranslation("1609"));
       navigate("");
-      dispatch({
-        type: WalletContextTypes.ADD_WALLET,
-        payload: { ...wallet, satisfaction: restoredSatisfaction },
-      });
+      updateWallet(
+        "satisfaction",
+        Number(activeBuilding?.building?.launched_satisfaction) || 0,
+        "+",
+      );
       removeBuilding(buildingId);
     } catch (error) {
       console.error("Delete building error:", error);

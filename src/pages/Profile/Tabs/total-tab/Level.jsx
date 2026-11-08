@@ -1,7 +1,7 @@
 import styled, { keyframes } from "styled-components";
 import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../../../../services/reducers/UserContext";
-import { useIsRtl } from "../../../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../../../services/reducers/LanguageContext.jsx";
 import {
   formatNumber,
   convertToPersian,

@@ -6,7 +6,7 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import { isValidJalaaliDate, toGregorian } from "jalaali-js";
 import VodRow from "../../pages/Documents/Tabs/DocsList/VodRow";
 import TransactionRow from "../../pages/Profile/Tabs/transactions-tab/TransactionRow";
-import { Skeleton } from "../Skeleton";
+import { Skeleton } from "../Skeletons/Skeleton.jsx";
 import { COLOR_CONFIG } from "../../services/constants/colorConfig";
 import { getTranslation, isMobile } from "../../services/Utility";
 import SearchInput from "../SearchInput";

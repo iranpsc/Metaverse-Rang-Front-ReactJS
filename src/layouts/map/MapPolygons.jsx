@@ -6,9 +6,9 @@ import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { BORDER_COLORS } from "../../services/constants/BorderColors";
 import { POLYGON_COLORS } from "../../services/constants/PolygonColors";
 import useRequest from "../../hooks/useRequest.js";
-import { useMapData } from "../../hooks/useMapData.js";
-import { useSelectedEnvironment } from "../../hooks/useSelectedEnvironment.js";
-import { useMapLands } from "../../hooks/useMapLands.js";
+import { useMapData } from "../../services/reducers/mapContext.jsx";
+import { useSelectedEnvironment } from "../../services/reducers/SelectedEnvironmentContext.jsx";
+import { useMapLands } from "../../services/reducers/MapLandsContext.jsx";
 import { showPolygons } from "../../hooks/useMapUrlState.js";
 import {
   onSocketEvent,

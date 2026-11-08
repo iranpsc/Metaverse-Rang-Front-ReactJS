@@ -4,15 +4,9 @@ import { useMap } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router";
 import styled from "styled-components";
 
-import blue from "../../../../../assets/images/profile/blue-color.gif";
-import psc from "../../../../../assets/images/profile/psc.gif";
-import red from "../../../../../assets/images/profile/red-color.gif";
-import rial from "../../../../../assets/images/profile/rial.gif";
-import yellow from "../../../../../assets/images/profile/yellow-color.gif";
-
 import SuggestionSkeleton from "../../../../../components/Skeletons/SuggestionSkeleton";
 import TitleBody from "../../../../../components/TitleBody.jsx";
-import { useIsRtl } from "../../../../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../../../../services/reducers/LanguageContext.jsx";
 import {
   convertToPersian,
   getTranslation,
@@ -34,8 +28,13 @@ import {
   Value,
 } from "../suggestionStyles";
 import Proposer from "./Proposer";
+import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
-const KARBARI_ICONS = { m: yellow, t: red, a: blue };
+const KARBARI_ICONS = {
+  m: COLOR_CONFIG.yellow.gif,
+  t: COLOR_CONFIG.red.gif,
+  a: COLOR_CONFIG.blue.gif,
+};
 const Pricing = styled.div`
   display: flex;
   align-items: center;
@@ -143,11 +142,11 @@ const Suggestion = ({ item, isLoading }) => {
             <TitleBody gray title={getTranslation("770")} />
             {hasPrice ? (
               <Prices $isPersian={isPersian}>
-                <PriceItem src={rial} value={price_irr} />
-                <PriceItem src={psc} value={price_psc} />
+                <PriceItem src={COLOR_CONFIG.irr.gif} value={price_irr} />
+                <PriceItem src={COLOR_CONFIG.psc.gif} value={price_psc} />
               </Prices>
             ) : (
-              <PriceItem src={rial} value={finalPrice} />
+              <PriceItem src={COLOR_CONFIG.irr.gif} value={finalPrice} />
             )}
           </div>
         </Pricing>

@@ -2,10 +2,6 @@
 import { useCallback, useMemo, useState } from "react";
 import styled from "styled-components";
 
-import red from "../../../../../assets/images/profile/red-color.gif";
-import yellow from "../../../../../assets/images/profile/yellow-color.gif";
-import blue from "../../../../../assets/images/profile/blue-color.gif";
-
 import LandText from "../../../../../components/LandText";
 import SuggestionSkeleton from "../../../../../components/Skeletons/SuggestionSkeleton";
 import TitleBody from "../../../../../components/TitleBody";
@@ -26,8 +22,13 @@ import {
   Value,
 } from "../suggestionStyles";
 import Proposer from "./Proposer";
+import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
-const KARBARI_ICONS = { m: yellow, t: red, a: blue };
+const KARBARI_ICONS = {
+  m: COLOR_CONFIG.yellow.gif,
+  t: COLOR_CONFIG.red.gif,
+  a: COLOR_CONFIG.blue.gif,
+};
 
 const Pricing = styled.div`
   width: 100%;

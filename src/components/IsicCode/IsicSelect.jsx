@@ -1,3 +1,4 @@
+// استفاده شده در کد های ایسیک ساخت بنا و اطلاعات فیزیکی
 import { useMemo, useState } from "react";
 import TagsSelect from "./TagsSelect";
 import useIsicCodes from "../../hooks/useIsicCodes";
@@ -25,7 +26,7 @@ const IsicSelect = ({ value, onChange }) => {
       loading={loading}
       max={MAX_ACTIVITIES}
       placeholder={getTranslation("360")}
-      emptyText="موردی یافت نشد"
+      emptyText={getTranslation(601)}
       onSearchChange={setSearch}
       onOpenChange={setOpen}
       onLoadMore={loadMore}

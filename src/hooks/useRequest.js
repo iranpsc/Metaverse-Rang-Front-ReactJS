@@ -4,7 +4,7 @@ import { getItem } from "../services/Utility/LocalStorage";
 import { ToastError, getTranslation } from "../services/Utility";
 import { UserContext } from "../services/reducers/UserContext";
 import { useCallback, useContext, useMemo } from "react";
-import { AccountSecurityContext } from "../services/reducers/accountSecurityContext";
+import { useAccountSecurity } from "../services/reducers/accountSecurityContext";
 const isProduction = window.location.hostname === "world.metarang.com";
 const PROD_BASE_URL = "https://api.metarang.com/api/";
 const DEV_BASE_URL = "https://dev-api.metarang.com/api/";
@@ -13,7 +13,7 @@ export const BASE_URL = isProduction ? PROD_BASE_URL : DEV_BASE_URL;
 export default function useRequest() {
   const accountSecurity = getItem("account_security")?.account_security;
   const [userInfo] = useContext(UserContext);
-  const accountSecurityContext = useContext(AccountSecurityContext);
+  const accountSecurityContext = useAccountSecurity();
 
   const HTTP_METHOD = useMemo(
     () => ({
@@ -58,6 +58,9 @@ export default function useRequest() {
         ...(user?.token ? { Authorization: `Bearer ${user.token}` } : {}),
         ...customHeader,
       };
+      if (!Number.isFinite(user?.expire) || user.expire <= Date.now()) {
+        delete headers.Authorization;
+      }
 
       try {
         return await axios.request({

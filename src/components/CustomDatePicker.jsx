@@ -8,8 +8,8 @@ import gregorian_en from "react-date-object/locales/gregorian_en";
 import persian from "react-date-object/calendars/persian";
 import persian_fa from "react-date-object/locales/persian_fa";
 import styled, { css } from "styled-components";
-import { useLanguage } from "../hooks/useLanguageContext.js";
-import { useTheme } from "../hooks/useTheme.js";
+import { useLanguage } from "../services/reducers/LanguageContext.jsx";
+import { useTheme } from "../services/reducers/ThemeContext.jsx";
 import { getTranslation } from "../services/Utility";
 import { getSize } from "../styles/sizes.js";
 

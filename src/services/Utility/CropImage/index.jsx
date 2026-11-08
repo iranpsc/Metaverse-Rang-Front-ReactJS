@@ -1,3 +1,4 @@
+//توسعه داده شده برای برش دادن تصاویر
 export const createImage = (url) =>
   new Promise((resolve, reject) => {
     const image = new Image()

@@ -1,6 +1,14 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 export const MapContext = createContext();
+
+export const useMapData = () => {
+  const context = useContext(MapContext);
+  if (!context) {
+    throw new Error("useMapData must be used within a MapContextProvider");
+  }
+  return context;
+};
 
 export const MapContextProvider = ({ children }) => {
   const [flags, setFlags] = useState([]);

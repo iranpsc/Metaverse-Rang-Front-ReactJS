@@ -1,7 +1,6 @@
 import styled from "styled-components";
 import { useState } from "react";
-import Rial from "../../../../../components/Rial";
-import Psc from "../../../../../components/Psc";
+import WalletAsset from "../../../../../components/WalletAsset.jsx";
 import {
   calculateFee,
   getTranslation,
@@ -103,7 +102,7 @@ const FillInputs = ({
           onChange={handleRialChange}
           type="number"
           placeholder={`${getTranslation("521")} (${getTranslation("48")})`}
-          suffix={<Rial />}
+          suffix={<WalletAsset asset="irr" showLabel />}
         />
         <LabeledInput
           maxLength={14}
@@ -111,7 +110,7 @@ const FillInputs = ({
           onChange={handlePscChange}
           type="number"
           placeholder={`${getTranslation("521")} (${getTranslation("47")})`}
-          suffix={<Psc />}
+          suffix={<WalletAsset asset="psc" showLabel />}
         />
       </InputsWrapper>
 

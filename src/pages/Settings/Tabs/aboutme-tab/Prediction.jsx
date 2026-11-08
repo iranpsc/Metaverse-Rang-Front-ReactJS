@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import moment from "moment-jalaali";
 import CustomEditor from "../../../../components/Common/CustomEditor";
-import { useLanguage } from "../../../../hooks/useLanguageContext.js";
+import { useLanguage } from "../../../../services/reducers/LanguageContext.jsx";
 import { convertToPersian, getTranslation } from "../../../../services/Utility";
 import CurrentYears from "./CurrentYears";
 

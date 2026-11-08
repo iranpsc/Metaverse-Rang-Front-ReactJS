@@ -3,8 +3,6 @@
 import styled from "styled-components";
 import { useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
-import pscIcon from "../../../../../assets/gif/psc.gif";
-import rialIcon from "../../../../../assets/gif/rial.gif";
 import Button from "../../../../../components/Button.jsx";
 import LandText from "../../../../../components/LandText.jsx";
 import TitleBody from "../../../../../components/TitleBody.jsx";
@@ -15,6 +13,7 @@ import {
   formatNumber,
   getTranslation,
 } from "../../../../../services/Utility/index.jsx";
+import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
 const formatPrice = (value) => convertToPersian(formatNumber(value));
 
@@ -204,11 +203,11 @@ const CardItem = ({
 
             <Prices>
               <PriceItem>
-                <img width={24} height={24} src={rialIcon} alt="" />
+                <img width={24} height={24} src={COLOR_CONFIG.irr.gif} alt="" />
                 <TitleBody title={formatPrice(sellReq?.price_irr)} />
               </PriceItem>
               <PriceItem>
-                <img width={24} height={24} src={pscIcon} alt="" />
+                <img width={24} height={24} src={COLOR_CONFIG.psc.gif} alt="" />
                 <TitleBody title={formatPrice(sellReq?.price_psc)} />
               </PriceItem>
             </Prices>

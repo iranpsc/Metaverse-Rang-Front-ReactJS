@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Skeleton } from "../Skeleton";
+import { Skeleton } from "./Skeleton.jsx";
 
 const Container = styled.div`
   background-color: ${({ theme }) =>

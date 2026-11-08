@@ -77,7 +77,7 @@ const Third = styled.div`
 `;
 
 const EditInputs = ({ hasData, inputs, setEdit, buildingID, featureID }) => {
-  const { Request, HTTP_METHOD } = useRequest();
+  const { Request, HTTP_METHOD,checkSecurity } = useRequest();
   const [, setFeature] = useContext(FeatureContext);
 
   const [fields, setFields] = useState(() => buildInitialFields(inputs));
@@ -104,7 +104,9 @@ const EditInputs = ({ hasData, inputs, setEdit, buildingID, featureID }) => {
   };
 
   const handleSend = async () => {
-    const payload = {
+            if (!checkSecurity()) return;
+
+    const values = {
       activity: fields.activity.join(","),
       name: fields.name.trim(),
       address: fields.address.trim(),
@@ -114,26 +116,30 @@ const EditInputs = ({ hasData, inputs, setEdit, buildingID, featureID }) => {
     };
 
     const nextErrors = {
-      address: hasError("address", payload.address),
-      post: hasError("post", payload.post),
-      web: hasError("web", payload.web),
+      address: hasError("address", values.address),
+      post: hasError("post", values.post),
+      web: hasError("web", values.web),
     };
+
     setErrors(nextErrors);
     if (Object.values(nextErrors).some(Boolean)) return;
 
-    const formData = new FormData();
-    formData.append("activity_line", payload.activity);
-    formData.append("name", payload.name);
-    formData.append("address", payload.address);
-    formData.append("postal_code", payload.post);
-    formData.append("website", payload.web);
-    formData.append("description", payload.about);
+    // بدنه JSON با کلیدهای بکند؛ همین آبجکت در state هم استفاده می‌شود
+    const information = {
+      activity_line: values.activity,
+      name: values.name,
+      address: values.address,
+      postal_code: values.post,
+      website: values.web,
+      description: values.about,
+    };
 
     try {
       await Request(
         `features/${featureID}/build/buildings/${buildingID}`,
         HTTP_METHOD.PATCH,
-        formData,
+        information,
+        { "Content-Type": "application/json" },
       );
 
       setFeature((prev) => ({
@@ -146,12 +152,7 @@ const EditInputs = ({ hasData, inputs, setEdit, buildingID, featureID }) => {
                   ...item.building,
                   information: {
                     ...(item.building?.information ?? {}),
-                    activity_line: payload.activity,
-                    name: payload.name,
-                    address: payload.address,
-                    postal_code: payload.post,
-                    website: payload.web,
-                    description: payload.about,
+                    ...information,
                   },
                 },
               }

@@ -5,15 +5,12 @@ import { useContext } from "react";
 import { useNavigate } from "react-router";
 import Button from "../../../../../components/Button";
 import Container from "../../../../../components/Common/Container";
-import Psc from "../../../../../components/Psc";
-import Rial from "../../../../../components/Rial";
+import WalletAsset from "../../../../../components/WalletAsset.jsx";
 import TitleValue from "../../../../../components/TitleValue";
 import useRequest from "../../../../../hooks/useRequest.js";
+import useWalletUpdate from "../../../../../hooks/useWalletUpdate.js";
 import { FeatureSvg } from "../../../../../services/constants/FeatureType";
-import {
-  WalletContext,
-  WalletContextTypes,
-} from "../../../../../services/reducers/WalletContext";
+import { WalletContext } from "../../../../../services/reducers/WalletContext";
 import {
   calculateFee,
   formatNumber,
@@ -62,7 +59,8 @@ const Results = styled.div`
 
 const SellerPrice = () => {
   const [feature] = useContext(FeatureContext);
-  const [wallet, dispatch] = useContext(WalletContext);
+  const [wallet] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
   const navigate = useNavigate();
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
   const { price_irr: rial, price_psc: psc, rgb } = feature.latest_sell_request;
@@ -81,10 +79,8 @@ const SellerPrice = () => {
 
     Request(`features/buy/${feature?.id}`, HTTP_METHOD.POST)
       .then(() => {
-        dispatch({
-          type: WalletContextTypes.ADD_WALLET,
-          payload: { ...wallet, psc: pscAfter, irr: irrAfter },
-        });
+        updateWallet("psc", total.psc, "-");
+        updateWallet("irr", total.irr, "-");
         navigate(FeatureSvg(rgb));
       })
       .catch((error) =>
@@ -103,14 +99,14 @@ const SellerPrice = () => {
             type="number"
             value={formatNumber(rial)}
             placeholder={`${getTranslation("521")} (${getTranslation("48")})`}
-            suffix={<Rial />}
+            suffix={<WalletAsset asset="irr" showLabel />}
           />
           <LabeledInput
             disabled
             type="number"
             value={formatNumber(psc)}
             placeholder={`${getTranslation("521")} (${getTranslation("47")})`}
-            suffix={<Psc />}
+            suffix={<WalletAsset asset="psc" showLabel />}
           />
         </Inputs>
 

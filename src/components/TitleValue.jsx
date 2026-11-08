@@ -1,4 +1,5 @@
-import styled from "styled-components";
+import { useEffect, useRef, useState } from "react";
+import styled, { css, keyframes } from "styled-components";
 import TitleBody from "./TitleBody";
 import {
   ConvertJalali,
@@ -23,7 +24,13 @@ const PDI = "\u2069";
 const formatId = (text) => `${LRI}${text.toUpperCase()}${PDI}`;
 
 const formatValue = (value) => {
-  if (value === undefined || value === null || value === "") return EMPTY;
+  if (
+    value === undefined ||
+    value === null ||
+    value === "" ||
+    Number.isNaN(value)
+  )
+    return EMPTY;
 
   const text = toEnglishDigits(String(value).trim());
 
@@ -33,6 +40,12 @@ const formatValue = (value) => {
     ? ConvertJalali(value)
     : convertToPersian(value);
 };
+
+const scrollText = keyframes`
+  from { transform: translateX(0); }
+  to { transform: translateX(50%); }
+`;
+
 const Wrapper = styled.div`
   display: flex;
   min-width: 0;
@@ -47,6 +60,7 @@ const Wrapper = styled.div`
     ${({ $wrap }) => ($wrap ? "min-height: 48px;" : "height: 48px;")}
   }
 `;
+
 // سلول عنوان پس‌زمینه می‌گیرد و سلول مقدار شفاف است
 const Cell = styled.div`
   display: flex;
@@ -60,6 +74,37 @@ const Cell = styled.div`
   @media (min-width: 998px) {
     padding: ${({ $wrap }) => ($wrap ? "6px 20px" : "0 20px")};
   }
+`;
+
+const ValueCell = styled(Cell)`
+  overflow-x: auto;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  ${({ $small }) => $small && "p { font-size: 14px; }"}
+  ${({ $veryLong }) => $veryLong && "p { font-size: 15px; }"}
+`;
+
+const ValueScroll = styled.span`
+  display: flex;
+  gap: 5px;
+  ${({ $animate }) =>
+    $animate &&
+    css`
+      animation: ${scrollText} 12s linear infinite;
+    `}
+`;
+
+const Tag = styled.span`
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 14px;
+  white-space: nowrap;
+  background: ${({ theme }) => theme.colors.newColors.otherColors.iconBg};
+  border: 1px solid
+    ${({ theme }) => theme.colors.newColors.otherColors.inputBorder};
 `;
 
 const IconBox = styled.span`
@@ -88,18 +133,53 @@ const TitleValue = ({
   title,
   value,
   icon,
+  valueIcon,
   full = false,
   long = false,
   wrap = false,
-}) => (
-  <Wrapper $wrap={wrap} $full={full || long}>
-    <Cell $filled $wrap={wrap}>
-      {renderIcon(icon)}
-      <TitleBody noWrap title={title} />
-    </Cell>
-    <Cell $wrap={wrap}>
-      <TitleBody noWrap={!wrap} title={formatValue(value)} />
-    </Cell>
-  </Wrapper>
-);
+  tag = false,
+  smallValue = false,
+  very_long = false,
+}) => {
+  const boxRef = useRef(null);
+  const textRef = useRef(null);
+  const [animate, setAnimate] = useState(false);
+
+  // اگر متن از جعبه بیشتر بود، اسکرول خودکار شروع می‌شود (در حالت wrap لازم نیست)
+  useEffect(() => {
+    const box = boxRef.current;
+    const text = textRef.current;
+    setAnimate(!wrap && !!box && !!text && text.scrollWidth > box.clientWidth);
+  }, [value, tag, wrap]);
+
+  return (
+    <Wrapper $wrap={wrap} $full={full || long}>
+      <Cell $filled $wrap={wrap}>
+        {renderIcon(icon)}
+        <TitleBody noWrap title={title} />
+      </Cell>
+      <ValueCell
+        ref={boxRef}
+        $wrap={wrap}
+        $small={smallValue}
+        $veryLong={very_long}
+        onScroll={() => setAnimate(false)}
+      >
+        <ValueScroll ref={textRef} $animate={animate}>
+          {tag ? (
+            String(value ?? EMPTY)
+              .split(",")
+              .map((item, index) => (
+                <Tag key={index}>{formatValue(item.trim())}</Tag>
+              ))
+          ) : (
+            <TitleBody noWrap={!wrap} title={formatValue(value)} />
+          )}
+        </ValueScroll>
+        {valueIcon}
+      </ValueCell>
+    </Wrapper>
+  );
+};
+
 export default TitleValue;

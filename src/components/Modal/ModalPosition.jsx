@@ -1,7 +1,7 @@
 // جهت نمایش مدال های سود انباشه و چالش ها و مدال های مشابه
 import Header from "../Header/Header.jsx";
 
-import { useScrollDirectionContext } from "../../hooks/useScrollDirectionContext.js";
+import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext.jsx";
 // Styles.js
 import styled, { keyframes } from "styled-components";
 

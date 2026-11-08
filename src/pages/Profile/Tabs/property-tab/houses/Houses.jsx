@@ -11,7 +11,7 @@ import house from "../../../../../assets/images/house.png";
 import TitleHeader from "../../../../../components/TitleHeader.jsx";
 import Container from "../../../../../components/Common/Container.jsx";
 import SearchInput from "../../../../../components/SearchInput.jsx";
-import { Skeleton } from "../../../../../components/Skeleton.jsx";
+import { Skeleton } from "../../../../../components/Skeletons/Skeleton.jsx";
 import useRequest from "../../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../../services/Utility/index.jsx";
 import { getSize } from "../../../../../styles/sizes.js";

@@ -8,7 +8,7 @@ import TitleHeader from "../../../../../components/TitleHeader.jsx";
 import SearchInput from "../../../../../components/SearchInput.jsx";
 import Container from "../../../../../components/Common/Container.jsx";
 import useRequest from "../../../../../hooks/useRequest.js";
-import { useFollow } from "../../../../../hooks/useFollow.js";
+import { useFollow } from "../../../../../services/reducers/FollowContext.jsx";
 import { getTranslation } from "../../../../../services/Utility/index.jsx";
 import { FollowingSkeletons } from "../../../../../components/Skeletons/FollowingSkeletons.jsx";
 

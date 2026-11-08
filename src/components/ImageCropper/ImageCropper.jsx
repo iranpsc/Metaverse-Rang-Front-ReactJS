@@ -1,3 +1,4 @@
+// کراپر مناسب برش عکس استفاده شده در عکس پروفایل
 import { useCallback, useState } from "react";
 import Cropper from "react-easy-crop";
 import styled from "styled-components";

@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
 import useAuth from "../../hooks/useAuth.js";
-import { useMenuContext } from "../../hooks/useMenuContext.js";
+import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import BtnsMenu from "./BtnsMenu";
 import { FaChevronDown } from "react-icons/fa";
 import DefaultProfile from "../../assets/images/defulte-profile.png";
@@ -13,7 +13,7 @@ import userEdit from "../../assets/svg/user-edit.svg";
 
 import { useNavigate } from "react-router";
 import { getTranslation, metarangUrlCitizen } from "../../services/Utility";
-import { useIsRtl } from "../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../services/reducers/LanguageContext.jsx";
 import { getSize } from "../../styles/sizes";
 const MessageIcon = styled(Message)`
   fill: #868b907c;

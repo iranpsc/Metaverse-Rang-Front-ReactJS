@@ -137,7 +137,8 @@ const Item = styled.li`
   color: ${({ theme }) => theme.colors.newColors.shades.title};
 
   &:hover {
-    background-color: ${({ theme }) => theme.colors.newColors.otherColors.iconBg};
+    background-color: ${({ theme }) =>
+      theme.colors.newColors.otherColors.iconBg};
   }
 `;
 

@@ -6,10 +6,10 @@ import {
 import { useContext, useState } from "react";
 import { ParticipantsContext } from "./ParticipationTab";
 import styled from "styled-components";
-import TextValueIcon from "../../../../components/TextValueIcon";
 import Button from "../../../../components/Button";
 import { Title } from "../../Styles";
 import { getTranslation } from "../../../../services/Utility";
+import TitleValue from "../../../../components/TitleValue";
 
 const Container = styled.div``;
 const Inputs = styled.div`
@@ -127,13 +127,10 @@ const AddSatisfy = () => {
             step={0.00001}
           />
         </Div>
-        <TextValueIcon
+        <TitleValue
           icon={<MdAccessTime />}
           title="زمان کسر شده"
           value="۳۴ روز | ۱۸ ساعت ۲۹ دقیقه ۴۵ ثانیه"
-          smallValue
-          long
-          very_long
         />
       </Inputs>
       <Button

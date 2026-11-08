@@ -1,5 +1,5 @@
 // Proposer.jsx
-import { useMemo, useState, useContext } from "react";
+import { useMemo, useState } from "react";
 import ConfettiExplosion from "react-confetti-explosion";
 import { MdOutlineKeyboardArrowUp } from "react-icons/md";
 import styled from "styled-components";
@@ -7,19 +7,14 @@ import moment from "moment-jalaali";
 
 import DefaultProfile from "../../../../../assets/images/defulte-profile.png";
 import line from "../../../../../assets/images/profile/Line.png";
-import pscpng from "../../../../../assets/images/profile/psc.gif";
-import rialpng from "../../../../../assets/images/profile/rial.gif";
 
 import Button from "../../../../../components/Button";
 import HtmlContent from "../../../../../components/HtmlContent.jsx";
 import TitleBody from "../../../../../components/TitleBody.jsx";
 import UserCode from "../../../../../components/UserCode.jsx";
-import { useIsRtl } from "../../../../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../../../../services/reducers/LanguageContext.jsx";
 import useRequest from "../../../../../hooks/useRequest.js";
-import {
-  WalletContext,
-  WalletContextTypes,
-} from "../../../../../services/reducers/WalletContext";
+import useWalletUpdate from "../../../../../hooks/useWalletUpdate.js";
 import {
   calculateTotalIrr,
   convertToPersian,
@@ -35,6 +30,7 @@ import {
   proposerContainer,
   Text,
 } from "../suggestionStyles";
+import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
 const Container = proposerContainer;
 
@@ -174,7 +170,7 @@ const Proposer = ({ item, finalPrice, onRemoved }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isExploding, setIsExploding] = useState(false);
   const [isExplodingAccept, setIsExplodingAccept] = useState(false);
-  const [Wallet, dispatch] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
   const isPersian = useIsRtl();
   const { Request, checkSecurity } = useRequest();
 
@@ -241,14 +237,8 @@ const Proposer = ({ item, finalPrice, onRemoved }) => {
       setIsExplodingAccept(true);
       setTimeout(() => onRemoved?.(), 100);
 
-      dispatch({
-        type: WalletContextTypes.ADD_WALLET,
-        payload: {
-          ...Wallet,
-          irr: Wallet.irr + (+feature?.price_irr || 0),
-          psc: Wallet.psc + (+feature?.price_psc || 0),
-        },
-      });
+      updateWallet("irr", Number(feature?.price_irr) || 0, "+");
+      updateWallet("psc", Number(feature?.price_psc) || 0, "+");
     });
 
   return (
@@ -280,9 +270,9 @@ const Proposer = ({ item, finalPrice, onRemoved }) => {
         <BasePrice percent={percent}>
           <TitleBody title={getTranslation("773")} />
           <Prices percent={percent}>
-            <PriceItem src={rialpng} value={item.price_irr} />
+            <PriceItem src={COLOR_CONFIG.irr.gif} value={item.price_irr} />
             <Divider />
-            <PriceItem src={pscpng} value={item.price_psc} />
+            <PriceItem src={COLOR_CONFIG.psc.gif} value={item.price_psc} />
             {hasPercent && (
               <>
                 <Divider />

@@ -3,7 +3,7 @@ import {
   getTranslation,
 } from "../../../../services/Utility";
 import CustomEditor from "../../../../components/Common/CustomEditor";
-import { useLanguage } from "../../../../hooks/useLanguageContext.js";
+import { useLanguage } from "../../../../services/reducers/LanguageContext.jsx";
 import moment from "moment-jalaali";
 
 const NextYear = ({ value, onChange }) => {

@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import LogoIcon from "../../assets/images/metarang-newLogo.png";
 import { getTranslation } from "../../services/Utility";
-import { useMenuContext } from "../../hooks/useMenuContext.js";
+import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import ArowMenu from "../../assets/svg/arowMenu.svg?react";
 import { LangContainer, LangButton, LangMenu } from "./LangSelector.styles";
 import { useState, useEffect } from "react";

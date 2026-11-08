@@ -1,19 +1,15 @@
 // ردیف یک تراکنش در جدول تراکنش‌ها (کد، تاریخ، وضعیت، نوع، دارایی، مقدار) با دکمه‌ی مشاهده/چاپ رسید؛ مناسب GenericList با type="transactions" و شارژ خودکار کیف پول بعد از بازگشت از پرداخت
 
 import styled from "styled-components";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LuEye } from "react-icons/lu";
 import PrintModal from "./PrintModal";
-import {
-  WalletContext,
-  WalletContextTypes,
-} from "../../../../services/reducers/WalletContext";
 import {
   ConvertJalali,
   convertToPersian,
   getTranslation,
 } from "../../../../services/Utility";
-import { updateWalletValue } from "../../../../services/Utility/walletUtils";
+import useWalletUpdate from "../../../../hooks/useWalletUpdate.js";
 
 // کلید status بک‌اند => ترجمه و رنگ (هر مقدار ناشناخته مثل -138 ناموفق حساب می‌شود)
 const STATUSES = {
@@ -117,7 +113,7 @@ const TransactionRow = ({
   assetGif,
   paymentReturned,
 }) => {
-  const [wallet, dispatch] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
   const [openPrint, setOpenPrint] = useState(false);
   const handledRef = useRef(false);
 
@@ -136,14 +132,12 @@ const TransactionRow = ({
       // اول علامت بزن، بعد اضافه کن
       sessionStorage.setItem(processedKey, "1");
 
-      dispatch({
-        type: WalletContextTypes.ADD_WALLET,
-        payload: updateWalletValue(wallet, { asset, value: amount }),
-      });
+      const walletKey = asset === "rial" ? "irr" : asset;
+      updateWallet(walletKey, Number(amount), "+");
     }
 
     sessionStorage.removeItem("payment_returned");
-  }, [paymentReturned]);
+  }, [paymentReturned, id, status, asset, amount, updateWallet]);
 
   const typeTitle = TYPE_TITLES[type]
     ? getTranslation(TYPE_TITLES[type])

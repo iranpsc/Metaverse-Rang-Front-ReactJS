@@ -9,7 +9,7 @@ import AboutIcon from "../../assets/svg/about.svg";
 import ContactIcon from "../../assets/svg/contact.svg";
 import CitizenIcon from "../../assets/svg/profileMember.svg";
 import CalendarIcon from "../../assets/svg/calendar.svg";
-import { useMenuContext } from "../../hooks/useMenuContext.js";
+import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import ToolTip from "../../components/Tooltip/Tooltip";
 
 import i18n from "../../i18n/i18n";

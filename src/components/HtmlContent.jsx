@@ -1,3 +1,5 @@
+// برای نمایش محتوای html ک با تگ از سکند دریافت میشود 
+
 import styled from "styled-components";
 import { SanitizeHTML } from "../services/Utility";
 import { getSize } from "../styles/sizes";

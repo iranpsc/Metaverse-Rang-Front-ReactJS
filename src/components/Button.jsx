@@ -1,4 +1,4 @@
-
+// دکمه اصلی در کل پروژه استفاده شده
 import { useEffect, useRef, useState } from "react";
 import ConfettiExplosion from "react-confetti-explosion";
 import styled, { css } from "styled-components";

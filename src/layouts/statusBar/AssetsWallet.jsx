@@ -2,13 +2,8 @@
 import { useContext } from "react";
 import { WalletContext } from "../../services/reducers/WalletContext";
 import styled from "styled-components";
-import BlueSpray from "../../assets/gif/blue-color.gif";
-import RedSpray from "../../assets/gif/red-color.gif";
-import YellowSpray from "../../assets/gif/yellow-color.gif";
-import Satisfaction from "../../assets/gif/satisfaction.gif";
-import Psc from "../../assets/gif/psc.gif";
-import Irr from "../../assets/gif/rial.gif";
 import { convertToPersian, formatAmount } from "../../services/Utility";
+import { COLOR_CONFIG } from "../../services/constants/colorConfig.js";
 
 const Asset = styled.div`
   display: flex;
@@ -71,12 +66,16 @@ const AssetsWallet = () => {
   const [wallet] = useContext(WalletContext);
 
   const assets = [
-    { title: "blue", value: wallet?.blue, img: BlueSpray },
-    { title: "red", value: wallet?.red, img: RedSpray },
-    { title: "yellow", value: wallet?.yellow, img: YellowSpray },
-    { title: "satisfaction", value: wallet?.satisfaction, img: Satisfaction },
-    { title: "psc", value: wallet?.psc, img: Psc },
-    { title: "irr", value: wallet?.irr, img: Irr },
+    { title: "blue", value: wallet?.blue, img: COLOR_CONFIG.blue.gif },
+    { title: "red", value: wallet?.red, img: COLOR_CONFIG.red.gif },
+    { title: "yellow", value: wallet?.yellow, img: COLOR_CONFIG.yellow.gif },
+    {
+      title: "satisfaction",
+      value: wallet?.satisfaction,
+      img: COLOR_CONFIG.satisfaction.gif,
+    },
+    { title: "psc", value: wallet?.psc, img: COLOR_CONFIG.psc.gif },
+    { title: "irr", value: wallet?.irr, img: COLOR_CONFIG.irr.gif },
   ];
 
   return (

@@ -1,22 +1,16 @@
-import { useEffect, useMemo, useState, useContext } from "react";
+import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
 import moment from "moment-jalaali";
 
 import line from "../../../../../assets/images/profile/Line.png";
-import pscpng from "../../../../../assets/images/profile/psc.gif";
-import rialpng from "../../../../../assets/images/profile/rial.gif";
 
 import HtmlContent from "../../../../../components/HtmlContent.jsx";
 import TitleBody from "../../../../../components/TitleBody.jsx";
 import Button from "../../../../../components/Button.jsx";
 
-import { useIsRtl } from "../../../../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../../../../services/reducers/LanguageContext.jsx";
 import useRequest from "../../../../../hooks/useRequest.js";
-
-import {
-  WalletContext,
-  WalletContextTypes,
-} from "../../../../../services/reducers/WalletContext";
+import useWalletUpdate from "../../../../../hooks/useWalletUpdate.js";
 
 import {
   calculateFee,
@@ -33,6 +27,7 @@ import {
   Text,
   proposerContainer,
 } from "../suggestionStyles";
+import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
 const Container = proposerContainer;
 
@@ -139,7 +134,7 @@ const Proposer = ({ item, onRemoved }) => {
 
   const { Request, checkSecurity } = useRequest();
 
-  const [Wallet, dispatch] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
 
   const isFinished = !time.hours && !time.minutes && !time.seconds;
 
@@ -182,14 +177,8 @@ const Proposer = ({ item, onRemoved }) => {
 
       setIsExploding(true);
 
-      dispatch({
-        type: WalletContextTypes.ADD_WALLET,
-        payload: {
-          ...Wallet,
-          irr: Wallet.irr + calculateFee(item.price_irr),
-          psc: Wallet.psc + calculateFee(item.price_psc),
-        },
-      });
+      updateWallet("irr", calculateFee(item.price_irr), "+");
+      updateWallet("psc", calculateFee(item.price_psc), "+");
 
       setTimeout(() => onRemoved?.(), 3000);
     } catch (error) {
@@ -204,11 +193,11 @@ const Proposer = ({ item, onRemoved }) => {
           <TitleBody title={getTranslation(773)} />
 
           <Prices>
-            <PriceItem src={rialpng} value={item.price_irr} />
+            <PriceItem src={COLOR_CONFIG.irr.gif} value={item.price_irr} />
 
             <img width={1} height={24} src={line} alt="Line" />
 
-            <PriceItem src={pscpng} value={item.price_psc} />
+            <PriceItem src={COLOR_CONFIG.psc.gif} value={item.price_psc} />
           </Prices>
         </Price>
 

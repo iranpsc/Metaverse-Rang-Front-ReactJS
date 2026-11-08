@@ -1,11 +1,7 @@
-import psc from "../../../../assets/gif/psc.gif";
-import rial from "../../../../assets/gif/rial.gif";
-import blue from "../../../../assets/gif/blue-color.gif";
-import red from "../../../../assets/gif/red-color.gif";
-import yellow from "../../../../assets/gif/yellow-color.gif";
 import TitleBody from "../../../../components/TitleBody";
 import styled from "styled-components";
 import { convertToPersian, getTranslation } from "../../../../services/Utility";
+import { COLOR_CONFIG } from "../../../../services/constants/colorConfig.js";
 
 const Container = styled.div`
   display: flex;
@@ -19,13 +15,13 @@ const Container = styled.div`
 
 const Pricing = ({ type, amount, color, index, gift }) => {
   const colorImages = {
-    red,
-    blue,
-    yellow,
+    red: COLOR_CONFIG.red.gif,
+    blue: COLOR_CONFIG.blue.gif,
+    yellow: COLOR_CONFIG.yellow.gif,
   };
   const icons = {
-    rial,
-    psc,
+    rial: COLOR_CONFIG.irr.gif,
+    psc: COLOR_CONFIG.psc.gif,
     color: colorImages[color],
   };
   return (

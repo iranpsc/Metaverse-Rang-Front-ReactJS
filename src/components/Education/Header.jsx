@@ -1,3 +1,4 @@
+// هدر برای مدال راهنما
 import { IoIosClose } from "react-icons/io";
 import { TbMinimize, TbMaximize } from "react-icons/tb";
 import styled from "styled-components";

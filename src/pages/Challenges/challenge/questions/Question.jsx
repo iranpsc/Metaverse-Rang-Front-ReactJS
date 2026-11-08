@@ -1,8 +1,8 @@
 import ConfettiExplosion from "react-confetti-explosion";
 import styled, { css } from "styled-components";
-import image from "../../../../assets/gif/blue-color.gif";
 import { convertToPersian } from "../../../../services/Utility";
 import TitleBody from "../../../../components/TitleBody";
+import { COLOR_CONFIG } from "../../../../services/constants/colorConfig.js";
 const CORRECT_COLOR = "#18C08F";
 const WRONG_COLOR = "#C30000";
 
@@ -149,7 +149,7 @@ const Question = ({
 
       <Row>
         <Photo $state={state}>
-          <img src={image} alt={title} width={40} height={40} />
+          <img src={COLOR_CONFIG.blue.gif} alt={title} width={40} height={40} />
         </Photo>
 
         <Body>

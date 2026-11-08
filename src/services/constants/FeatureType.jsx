@@ -1,6 +1,4 @@
-import Red from "../../components/Red";
-import Yellow from "../../components/Yellow";
-import Blue from "../../components/Blue";
+import WalletAsset from "../../components/WalletAsset.jsx";
 export const TypeRGB = {
   a: "ساختمان مسکونی فروخته شده و قیمت گذاری شده",
   b: "ساختمان مسکونی فروخته شده و قیمت گذاری نشده",
@@ -181,15 +179,15 @@ export default function FeatureType(karbari) {
 
 export function FeatureColor(rgb) {
   if (RESIDENTIAL[rgb]) {
-    return <Yellow />;
+    return <WalletAsset asset="yellow" />;
   }
 
   if (COMMERCIAL[rgb]) {
-    return <Red />;
+    return <WalletAsset asset="red" />;
   }
 
   if (EDUCATIONAL[rgb]) {
-    return <Blue />;
+    return <WalletAsset asset="blue" />;
   }
 
   return false;

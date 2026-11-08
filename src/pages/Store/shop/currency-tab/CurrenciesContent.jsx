@@ -8,7 +8,7 @@ import useRequest from "../../../../hooks/useRequest.js";
 import Container from "../../../../components/Common/Container";
 import { useLocation } from "react-router";
 import { currencies } from "../data";
-import { Skeleton } from "../../../../components/Skeleton";
+import { Skeleton } from "../../../../components/Skeletons/Skeleton.jsx";
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;

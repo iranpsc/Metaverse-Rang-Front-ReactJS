@@ -1,7 +1,7 @@
 // جهت نمایش مدال های کوچک مثل نوتیفیکیشن  
 import styled from "styled-components";
 import Header from "../Header/Header";
-import { useIsRtl } from "../../hooks/useLanguageContext.js";
+import { useIsRtl } from "../../services/reducers/LanguageContext.jsx";
 import { Overlay } from "./styles";
 import { scale } from "../../styles/sizes";
 

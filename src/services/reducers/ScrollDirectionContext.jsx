@@ -1,6 +1,16 @@
-import { createContext, useState } from "react";
+import { createContext, useContext, useState } from "react";
 
 export const ScrollDirectionContext = createContext();
+
+export const useScrollDirectionContext = () => {
+  const context = useContext(ScrollDirectionContext);
+  if (!context) {
+    throw new Error(
+      "useScrollDirectionContext must be used within ScrollDirectionProvider",
+    );
+  }
+  return context;
+};
 
 export const ScrollDirectionProvider = ({ children }) => {
   const [isScrollingDown, setIsScrollingDown] = useState(false);

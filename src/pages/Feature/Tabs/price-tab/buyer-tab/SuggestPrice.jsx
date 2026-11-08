@@ -8,16 +8,13 @@ import { FeaturePrice } from "../../../../../services/constants/FeatureType";
 import BaseContainer from "../../../../../components/Common/Container";
 import Button from "../../../../../components/Button";
 import CustomEditor from "../../../../../components/Common/CustomEditor";
-import Psc from "../../../../../components/Psc";
-import Rial from "../../../../../components/Rial";
+import WalletAsset from "../../../../../components/WalletAsset.jsx";
 import TitleValue from "../../../../../components/TitleValue";
 import TitleBody from "../../../../../components/TitleBody.jsx";
 import LabeledInput from "../../../../../components/LabeledInput.jsx";
 import useRequest from "../../../../../hooks/useRequest.js";
-import {
-  WalletContext,
-  WalletContextTypes,
-} from "../../../../../services/reducers/WalletContext";
+import { WalletContext } from "../../../../../services/reducers/WalletContext";
+import useWalletUpdate from "../../../../../hooks/useWalletUpdate.js";
 import {
   calculateFee,
   convertToPersian,
@@ -92,7 +89,8 @@ const Page = styled(BaseContainer)`
 /* ---------- Component ---------- */
 
 const SuggestPrice = () => {
-  const [wallet, dispatch] = useContext(WalletContext);
+  const [wallet] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
   const [feature] = useContext(FeatureContext);
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
 
@@ -162,14 +160,8 @@ const SuggestPrice = () => {
         ToastSuccess(getTranslation("1607"));
         setSubmitted(true);
 
-        dispatch({
-          type: WalletContextTypes.ADD_WALLET,
-          payload: {
-            ...wallet,
-            irr: walletIrr - calculateFee(rialValue, FEE_PERCENT),
-            psc: walletPsc - calculateFee(pscValue, FEE_PERCENT),
-          },
-        });
+        updateWallet("irr", calculateFee(rialValue, FEE_PERCENT), "-");
+        updateWallet("psc", calculateFee(pscValue, FEE_PERCENT), "-");
 
       })
       .catch((error) =>
@@ -190,14 +182,14 @@ const SuggestPrice = () => {
               type="number"
               value={rial === "" ? "" : formatNumber(rial)}
               onChange={handleRialChange}
-              suffix={<Rial />}
+              suffix={<WalletAsset asset="irr" showLabel />}
             />
             <LabeledInput
               type="text"
               inputMode="decimal"
               value={convertToPersian(psc)}
               onChange={handlePscChange}
-              suffix={<Psc />}
+              suffix={<WalletAsset asset="psc" showLabel />}
             />
           </InputsWrapper>
 

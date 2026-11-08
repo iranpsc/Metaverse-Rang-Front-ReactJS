@@ -1,11 +1,8 @@
 // این مدال مخصوص نمایش اطلاعات است و نمونه های استفاده در نمایش گزارش یا سند ارسال شده وقتی روی دکمه چشم کلیک میکنیم
 import { createPortal } from "react-dom";
-import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
-import { useIsRtl } from "../../hooks/useLanguageContext";
-import TitleHeader from "../TitleHeader";
-import { ExitIcon, ReportIcon } from "../Icons/IconsHeader";
-import { getTranslation } from "../../services/Utility";
+import { useIsRtl } from "../../services/reducers/LanguageContext.jsx";
+import Header from "../Header/Header";
 import { Overlay } from "./styles";
 
 const Dialog = styled.div`
@@ -40,34 +37,13 @@ const Dialog = styled.div`
   }
 `;
 
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-`;
-
-const Actions = styled.div`
-  display: flex;
-  gap: 10px;
-`;
-
-const ModalLg = ({ children, titleId, setShowModal, report }) => {
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
+const ModalLg = ({ children, titleId, setShowModal }) => {
   const isPersian = useIsRtl();
-  const handleReport = () => {
-    navigate("/report/send", { state: { from: pathname } });
-  };
+
   return createPortal(
     <Overlay $isLarge>
       <Dialog $isPersian={isPersian}>
-        <Header>
-          <TitleHeader title={getTranslation(titleId)} />
-          <Actions>
-            {report && <ReportIcon onClick={handleReport} />}
-            <ExitIcon onClick={() => setShowModal(false)} />
-          </Actions>
-        </Header>
+        <Header title={titleId} onlyExit onClose={() => setShowModal(false)} />
         {children}
       </Dialog>
     </Overlay>,

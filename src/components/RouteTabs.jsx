@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router";
 import styled from "styled-components";
-import { useScrollDirectionContext } from "../hooks/useScrollDirectionContext";
+import { useScrollDirectionContext } from "../services/reducers/ScrollDirectionContext.jsx";
 import ResponsiveText from "./ResponsiveText";
 const TAB_BAR_HEIGHT = 40;
 const mobileLandscape = "@media (max-height: 500px) and (max-width: 1000px)";

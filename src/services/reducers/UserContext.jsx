@@ -9,6 +9,9 @@ const reducer = (state, action) => {
     case UserContextTypes.ADD_USER:
       return action.payload.user;
 
+    case UserContextTypes.DELETE_USER:
+      return {};
+
     case UserContextTypes.UPDATE_FIELD:
       return {
         ...state,
@@ -35,4 +38,3 @@ export default function UserProvider({ children }) {
         </UserContext.Provider>
     );
 }
-

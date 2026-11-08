@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import { useMapData } from "../../hooks/useMapData.js";
+import { useMapData } from "../../services/reducers/mapContext.jsx";
 import { Layer, Marker, Source, useMap } from "react-map-gl/maplibre";
 
 const FlagIcon = styled.div`

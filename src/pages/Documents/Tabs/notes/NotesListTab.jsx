@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useEffect, useRef, useState } from "react";
 import useRequest from "../../../../hooks/useRequest.js";
 import { useScrollDirection } from "../../../../hooks/useScrollDirection";
-import { useScrollDirectionContext } from "../../../../hooks/useScrollDirectionContext.js";
+import { useScrollDirectionContext } from "../../../../services/reducers/ScrollDirectionContext.jsx";
 
 const updateNote = (notes, updatedNote) =>
   notes.map((note) =>

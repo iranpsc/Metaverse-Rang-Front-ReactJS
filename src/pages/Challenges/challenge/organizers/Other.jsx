@@ -1,6 +1,6 @@
 import { Tooltip as ReactTooltip } from "react-tooltip";
 import { convertToPersian } from "../../../../services/Utility";
-import { useTheme } from "../../../../hooks/useTheme.js";
+import { useTheme } from "../../../../services/reducers/ThemeContext.jsx";
 
 import styled from "styled-components";
 

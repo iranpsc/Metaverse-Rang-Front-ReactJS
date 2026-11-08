@@ -3,9 +3,8 @@ import { useContext } from "react";
 import { useNavigate } from "react-router";
 import {
   WalletContext,
-  WalletContextTypes,
 } from "../../../../services/reducers/WalletContext";
-import TextValueIcon from "../../../../components/TextValueIcon";
+import useWalletUpdate from "../../../../hooks/useWalletUpdate.js";
 import { FeatureContext } from "../../Context/FeatureProvider";
 import Button from "../../../../components/Button";
 import useRequest from "../../../../hooks/useRequest.js";
@@ -14,6 +13,7 @@ import {
   FeatureSvg,
 } from "../../../../services/constants/FeatureType.jsx";
 import { getTranslation, ToastError } from "../../../../services/Utility";
+import TitleValue from "../../../../components/TitleValue.jsx";
 const InputsWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -26,7 +26,8 @@ const InputsWrapper = styled.div`
 `;
 
 const SellerPriceInfo = () => {
-  const [wallet, dispatch] = useContext(WalletContext);
+  const [wallet] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
   const [feature] = useContext(FeatureContext);
 
   const Navigate = useNavigate();
@@ -60,16 +61,8 @@ const SellerPriceInfo = () => {
     if (!checkSecurity()) return;
     Request(`features/buy/${feature.id}`, HTTP_METHOD.POST)
       .then(() => {
-        const newAmount = walletRaw - featurePrice;
+        updateWallet(colorKey, Number(featurePrice), "-");
 
-        dispatch({
-          type: WalletContextTypes.ADD_WALLET,
-          payload: {
-            ...wallet,
-            [colorKey]: newAmount,
-          },
-        });
-      
         Navigate(FeatureSvg(feature.properties.rgb));
       })
       .catch((error) => {
@@ -79,11 +72,11 @@ const SellerPriceInfo = () => {
   return (
     <>
       <InputsWrapper>
-        <TextValueIcon
+        <TitleValue
+          full
           title={getTranslation("521")}
           value={feature.properties.stability}
           valueIcon={FeatureColor(feature.properties.rgb)}
-          very_long
         />
       </InputsWrapper>
 

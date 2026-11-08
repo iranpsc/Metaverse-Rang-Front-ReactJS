@@ -6,7 +6,7 @@ import { FeatureContext } from "../../../../Context/FeatureProvider";
 import useRequest from "../../../../../../hooks/useRequest.js";
 import Eye from "../../../../../../assets/svg/eye.svg?react";
 import EnvironmentSkeleton from "../../../../../../components/Skeletons/EnvironmentSkeleton.jsx";
-import { useSelectedEnvironment } from "../../../../../../hooks/useSelectedEnvironment.js";
+import { useSelectedEnvironment } from "../../../../../../services/reducers/SelectedEnvironmentContext.jsx";
 
 import PreviewModel from "../PreviewModel.jsx";
 
