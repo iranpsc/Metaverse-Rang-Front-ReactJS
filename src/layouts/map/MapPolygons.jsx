@@ -1,35 +1,55 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react";
-import { Layer, Marker, Source, useMap } from "react-map-gl/maplibre";
+import { memo, useEffect, useRef, useState, useMemo } from "react";
+import { Layer, Source, useMap } from "react-map-gl/maplibre";
+import { useLoader } from "@react-three/fiber";
+import { Canvas, NearCoordinates } from "react-three-map/maplibre";
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { BORDER_COLORS } from "../../services/constants/BorderColors";
 import { POLYGON_COLORS } from "../../services/constants/PolygonColors";
-import useRequest from "../../hooks/useRequest.js";
-import { useMapData } from "../../services/reducers/mapContext.jsx";
-import { useSelectedEnvironment } from "../../services/reducers/SelectedEnvironmentContext.jsx";
-import { useMapLands } from "../../services/reducers/MapLandsContext.jsx";
-import { showPolygons } from "../../hooks/useMapUrlState.js";
+import useRequest from "../../hooks/useRequest";
+import { useMapData } from "../../services/reducers/mapContext";
+import { useSelectedEnvironment } from "../../services/reducers/SelectedEnvironmentContext";
+import { useMapLands } from "../../services/reducers/MapLandsContext";
+import { showPolygons } from "../../hooks/useMapUrlState";
 import { onSocketEvent } from "../../services/socket";
-import { Skeleton } from "../../components/Skeletons/Skeleton";
-
-const MapBuildings = lazy(() => import("./MapBuildings"));
-
-const MapBuildingsSkeleton = ({ buildings }) =>
-  buildings.map((model) => {
-    const [latitude, longitude] = model?.building?.position
-      ?.split(",")
-      .map(Number) || [];
-    if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return null;
-
-    return (
-      <Marker
-        key={model.uniqueKey}
-        latitude={latitude}
-        longitude={longitude}
-        anchor="center"
-      >
-        <Skeleton width="40px" height="40px" radius="6px" />
-      </Marker>
-    );
+import { clone as cloneSkeleton } from "three/examples/jsm/utils/SkeletonUtils";
+const FBXModel = memo(({ url, rotation, setLoading, opacity }) => {
+  const fbx = useLoader(FBXLoader, url, (loader) => {
+    loader.manager.onStart = () => setLoading(true);
+    loader.manager.onLoad = () => setLoading(false);
+    loader.manager.onError = () => setLoading(false);
   });
+
+  const clonedScene = useMemo(() => cloneSkeleton(fbx), [fbx]);
+  useEffect(() => {
+    if (!clonedScene) return;
+
+    clonedScene.traverse((child) => {
+      if (!child.isMesh) return;
+
+      const applyOpacity = (material) => {
+        material.transparent = true;
+        material.opacity = opacity;
+        material.depthWrite = opacity === 1;
+        material.needsUpdate = true;
+      };
+
+      if (Array.isArray(child.material)) {
+        child.material = child.material.map((m) => m.clone());
+        child.material.forEach(applyOpacity);
+      } else if (child.material) {
+        child.material = child.material.clone();
+        applyOpacity(child.material);
+      }
+    });
+  }, [clonedScene, opacity]);
+
+  return (
+    <group rotation={rotation} scale={0.0097}>
+      <hemisphereLight args={["#ffffff", "#60666C"]} intensity={12} />
+      <primitive object={clonedScene} />
+    </group>
+  );
+});
 
 const MapPolygons = () => {
   const { buildings, setBuildings } = useMapData();
@@ -347,13 +367,36 @@ const MapPolygons = () => {
       {zoom >= showPolygons &&
         isPolygonSourceLoaded &&
         buildings.length > 0 && (
-          <Suspense fallback={<MapBuildingsSkeleton buildings={buildings} />}>
-            <MapBuildings
-              buildings={buildings}
-              selectedEnvironment={selectedEnvironment}
-              setLoading={setIsLoading}
-            />
-          </Suspense>
+          <Canvas
+            latitude={30.233922946967866}
+            longitude={54.20761223027057}
+            key={selectedEnvironment ? selectedEnvironment.id : "no-env"}
+          >
+            {buildings.map((model) => {
+              const endDate = new Date(model?.building?.construction_end_date);
+
+              const opacity = new Date() < endDate ? 0.3 : 1;
+
+              const [latitude, longitude] = model?.building?.position
+                ?.split(",")
+                .map(Number);
+              return (
+                <NearCoordinates
+                  key={model.uniqueKey}
+                  latitude={latitude}
+                  longitude={longitude}
+                >
+                  <FBXModel
+                    opacity={opacity}
+                    url={model.file.url}
+                    rotation={[0, model?.building?.rotation ?? 0, 0]}
+                    setLoading={setIsLoading}
+                    uniqueKey={model.uniqueKey}
+                  />
+                </NearCoordinates>
+              );
+            })}
+          </Canvas>
         )}
     </>
   );

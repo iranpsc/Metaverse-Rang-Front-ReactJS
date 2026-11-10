@@ -32,7 +32,6 @@
     "compressorjs": "^1.2.1",
     "dompurify": "^3.3.0",
     "i18next": "^23.15.1",
-    "jalali-moment": "^3.3.11",
     "keen-slider": "^6.8.6",
     "leaflet": "^1.9.4",
     "lottie-react": "^2.4.0",

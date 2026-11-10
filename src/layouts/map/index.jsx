@@ -8,7 +8,7 @@ import React, {
 } from "react";
 import Map from "react-map-gl/maplibre";
 import { setWorkerUrl } from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css"
+import "maplibre-gl/dist/maplibre-gl.css";
 import { useNavigate } from "react-router";
 import { Container } from "./styles";
 import MapPolygons from "./MapPolygons";
@@ -54,7 +54,7 @@ const MapTreeD = () => {
     map.zoomTo(map.getZoom() + delta, { duration: 200 });
   }, []);
 
-  const handleZoomEnd = useCallback(() => { }, []);
+  const handleZoomEnd = useCallback(() => {}, []);
 
   const handleFullscreenToggle = useCallback(() => {
     updateFullScreenMap(!isFullScreenMap);
@@ -104,7 +104,7 @@ const MapTreeD = () => {
 
   useEffect(() => {
     if (isFullScreen && screen.orientation) {
-      screen.orientation.lock("landscape-primary").catch(() => { });
+      screen.orientation.lock("landscape-primary").catch(() => {});
     }
   }, [isFullScreen]);
   useEffect(() => {
@@ -122,30 +122,30 @@ const MapTreeD = () => {
     [theme],
   );
 
- useEffect(() => {
-  if (!mapLoaded) return;
+  useEffect(() => {
+    if (!mapLoaded) return;
 
-  const map = mapRef.current?.getMap();
-  if (!map) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
 
-  try {
-    themeStyle.layers.forEach((layer) => {
-      if (!layer.paint || !map.getLayer(layer.id)) return;
+    try {
+      themeStyle.layers.forEach((layer) => {
+        if (!layer.paint || !map.getLayer(layer.id)) return;
 
-      Object.entries(layer.paint).forEach(([paintProperty, paintValue]) => {
-        if (!paintProperty.toLowerCase().includes("color")) return;
-        map.setPaintProperty(layer.id, paintProperty, paintValue);
+        Object.entries(layer.paint).forEach(([paintProperty, paintValue]) => {
+          if (!paintProperty.toLowerCase().includes("color")) return;
+          map.setPaintProperty(layer.id, paintProperty, paintValue);
+        });
       });
-    });
 
-    // آسمان هم با تم عوض شود
-    if (themeStyle.sky) {
-      map.setSky(themeStyle.sky);
+      // آسمان هم با تم عوض شود
+      if (themeStyle.sky) {
+        map.setSky(themeStyle.sky);
+      }
+    } catch (e) {
+      console.error(e);
     }
-  } catch (e) {
-    console.error(e);
-  }
-}, [mapLoaded, themeStyle]);
+  }, [mapLoaded, themeStyle]);
 
   const [initialStyle] = useState(() =>
     theme === "dark" ? styleMapDark : styleMapLight,
@@ -228,11 +228,7 @@ const MapTreeD = () => {
                       longitude={mapRef.current?.getCenter().lng ?? 54.2199}
                       anchor="center"
                     >
-                      <Skeleton
-                        width="48px"
-                        height="48px"
-                        radius="50%"
-                      />
+                      <Skeleton width="48px" height="48px" radius="50%" />
                     </Marker>
                   }
                 >
