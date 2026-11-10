@@ -1,8 +1,6 @@
-// این کامپوننت برای نمایش یک پیام در چت تیکت (آواتار، نام و کد فرستنده، متن، زمان و پیوست‌ها) مناسبه و جهت چیدمان رو بر اساس isCurrentUser تعیین می‌کنه
-// رنگ حباب با tone تعیین می‌شود: "default" برای تیکت و "confirmed" برای پیام گزارش
 
 import styled, { css } from "styled-components";
-import avatar from "../../assets/images/avatars/defulte-profile.png";
+import avatar from "../../assets/images/avatars/defulte-profile.webp";
 import FileUploader from "../FileUploader/FileUploader";
 import TitleBody from "../TitleBody";
 import { getTone } from "./messageTone";

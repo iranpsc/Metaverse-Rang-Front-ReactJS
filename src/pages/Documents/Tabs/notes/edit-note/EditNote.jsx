@@ -1,21 +1,17 @@
 import { useState } from "react";
 import styled from "styled-components";
-import {
-  getTranslation,
-  getPlainText,
-  ToastSuccess,
-} from "../../../../../services/Utility";
+import { getTranslation, ToastSuccess } from "../../../../../services/Utility";
 import Button from "../../../../../components/Button";
 import useRequest from "../../../../../hooks/useRequest.js";
 import CustomEditor from "../../../../../components/Common/CustomEditor";
 import FileUploader from "../../../../../components/FileUploader/FileUploader.jsx";
-
 const MIN_TEXT_LENGTH = 3;
 const MAX_FILE_SIZE_MB = 5;
 
 const Buttons = styled.div`
   display: flex;
   gap: 10px;
+  padding-top: 20px;
 `;
 
 const Container = styled.div`
@@ -32,8 +28,7 @@ const EditNote = ({ setIsEditing, data, onNoteUpdated }) => {
   const [files, setFiles] = useState(data.attachments ?? []);
   const { Request, HTTP_METHOD } = useRequest();
 
-  const isTextValid =
-    getPlainText(description).trim().length >= MIN_TEXT_LENGTH;
+  const isTextValid = description.trim().length >= MIN_TEXT_LENGTH;
 
   const handleSave = () => {
     const formData = new FormData();

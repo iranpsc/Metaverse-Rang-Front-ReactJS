@@ -145,7 +145,7 @@ const BtnsAfterLogin = () => {
             target="_blank"
             rel="noreferrer"
           >
-            <Icon src={item.icon} />
+            <Icon src={item.icon} alt="" />
             <Text $isOpen={isOpen} $size="default">
               {title}
             </Text>

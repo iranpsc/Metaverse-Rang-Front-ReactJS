@@ -1,9 +1,9 @@
-import defulte from "../../../../../assets/images/avatars/defulte-profile.png";
+import defulte from "../../../../../assets/images/avatars/defulte-profile.webp";
 import styled from "styled-components";
 import { getTranslation } from "../../../../../services/Utility";
 import Message from "../../../../../assets/svg/message.svg?react";
-import { metarangUrlCitizen } from "../../../../../services/Utility";
 import { useFollow } from "../../../../../services/reducers/FollowContext.jsx";
+import UserCode from "../../../../../components/UserCode.jsx";
 const Container = styled.div`
   background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
   border-radius: 5px;
@@ -161,9 +161,8 @@ const TreeMember = ({ item }) => {
         />
       </Image>
       <h3>{getRelationshipLabel(item.relationship)}</h3>
-      <a href={metarangUrlCitizen(item.code)} target="_blank" rel="noreferrer">
-        {item.code}
-      </a>
+      <UserCode code={item.code} />
+
     </Container>
   );
 };

@@ -1,0 +1,17 @@
+{
+  "specVersion": "1.0",
+  "entries": [
+    {
+      "identifier": "urn:air:metarang.com:docs:llms-txt",
+      "displayName": "راهنمای دنیای متارنگ برای مدل‌های هوش مصنوعی",
+      "type": "text/markdown",
+      "description": "معرفی متارنگ و صفحات مهم سایت",
+      "url": "https://world.metarang.com/llms.txt",
+      "representativeQueries": [
+        "متارنگ چیست؟",
+        "متاورس رنگ چه امکاناتی دارد؟",
+        "چگونه با تیم متارنگ تماس بگیرم؟"
+      ]
+    }
+  ]
+}

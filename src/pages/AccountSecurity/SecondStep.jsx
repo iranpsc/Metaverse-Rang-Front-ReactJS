@@ -5,7 +5,7 @@ import useRequest from "../../hooks/useRequest.js";
 import {
   ToastError,
   convertToPersian,
-  fixNumbers,
+  convertToEnglish,
   formatTime,
   getTranslation,
 } from "../../services/Utility";
@@ -26,7 +26,7 @@ const MAX_TIME = 60;
 const createEmptyCode = () => Array(CODE_LENGTH).fill("");
 
 const toDigits = (value) =>
-  String(fixNumbers(String(value ?? ""))).replace(/\D/g, "");
+  String(convertToEnglish(String(value ?? ""))).replace(/\D/g, "");
 
 const isFilled = (values) => values.every((value) => value !== "");
 const Codes = styled.div`

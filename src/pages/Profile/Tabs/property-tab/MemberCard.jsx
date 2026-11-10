@@ -4,7 +4,7 @@ import styled from "styled-components";
 import Button from "../../../../components/Button.jsx";
 import UserCode from "../../../../components/UserCode.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
-import DefaultProfile from "../../../../assets/images/avatars/defulte-profile.png";
+import DefaultProfile from "../../../../assets/images/avatars/defulte-profile.webp";
 import { getTranslation } from "../../../../services/Utility/index.jsx";
 import TitleBody from "../../../../components/TitleBody.jsx";
 const Card = styled.article`

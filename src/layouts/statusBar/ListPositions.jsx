@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { getTranslation } from "../../services/Utility";
 import { useTranslation } from "react-i18next";
-import mataphoto from "../../assets/images/showcase/3ddevelop.jpg";
+import mataphoto from "../../assets/images/showcase/3ddevelop.webp";
 import ToolTip from "../../components/Tooltip/Tooltip";
 
 const Container = styled.div`
@@ -97,7 +97,7 @@ const TooltipContent = ({ imgSrc, name, lang, href, onlineUser }) => {
       }
       Chidren={
         <a href={href} target="_blank" rel="noreferrer">
-          <ImgPosition src={imgSrc} />
+          <ImgPosition src={imgSrc} alt={name} />
         </a>
       }
     />

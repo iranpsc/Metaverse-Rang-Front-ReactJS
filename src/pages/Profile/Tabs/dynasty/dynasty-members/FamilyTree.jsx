@@ -1,5 +1,5 @@
 import { FaPlus } from "react-icons/fa";
-import defulte from "../../../../../assets/images/avatars/defulte-profile.png";
+import defulte from "../../../../../assets/images/avatars/defulte-profile.webp";
 
 import TreeMember from "./TreeMember";
 import styled from "styled-components";

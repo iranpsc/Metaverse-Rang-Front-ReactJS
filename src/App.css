@@ -10,9 +10,7 @@
 *::after {
   box-sizing: border-box;
 }
-* {
-  scrollbar-width: thin;
-}
+
 html,
 body,
 #root {
@@ -66,7 +64,6 @@ a {
 /* light mode */
 ::-webkit-scrollbar {
   width: 5px;
-  height: 0;
 }
 
 ::-webkit-scrollbar-thumb {
@@ -82,3 +79,6 @@ html.dark ::-webkit-scrollbar-thumb {
 button {
   cursor: pointer;
 }
+
+
+

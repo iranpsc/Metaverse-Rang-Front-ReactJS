@@ -10,7 +10,7 @@ import TitleHeader from "../../../../components/TitleHeader";
 import useRequest from "../../../../hooks/useRequest";
 import {
   convertToPersian,
-  fixNumbers,
+  convertToEnglish,
   formatTime,
   getTranslation,
   ToastError,
@@ -40,7 +40,7 @@ const CODE_INPUT = {
 
 // ارقام فارسی و عربی به انگلیسی تبدیل می‌شوند و پیش‌شماره‌ی 98 و 0098 به 09 تبدیل می‌شود
 const normalizePhone = (value) => {
-  let digits = fixNumbers(String(value ?? "")).replace(/\D/g, "");
+  let digits = convertToEnglish(String(value ?? "")).replace(/\D/g, "");
 
   if (digits.startsWith("0098")) digits = digits.slice(4);
   else if (digits.startsWith("98")) digits = digits.slice(2);

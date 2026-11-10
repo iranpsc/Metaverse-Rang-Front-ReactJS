@@ -8,7 +8,7 @@ import SearchInput from "../../../../../components/SearchInput";
 import useRequest from "../../../../../hooks/useRequest.js";
 import { UserContext } from "../../../../../services/reducers/UserContext";
 import {
-  fixNumbers,
+  convertToEnglish,
   getTranslation,
   ToastError,
   ToastSuccess,
@@ -30,7 +30,7 @@ const List = styled.div`
 `;
 
 const normalize = (value) =>
-  fixNumbers(String(value ?? ""))
+  convertToEnglish(String(value ?? ""))
     .toLowerCase()
     .trim();
 

@@ -2,7 +2,7 @@
 
 import styled, { css } from "styled-components";
 import TitleBody from "./TitleBody";
-import { convertToPersian, fixNumbers } from "../services/Utility";
+import { convertToPersian, convertToEnglish } from "../services/Utility";
 import { getSize } from "../styles/sizes";
 
 const INVALID_BORDER = "red";
@@ -160,7 +160,7 @@ const LabeledInput = ({
   // برای ورودی عددی ارقام فارسی و عربی به انگلیسی تبدیل و بقیه‌ی کاراکترها حذف می‌شوند
   const handleChange = (e) => {
     if (isNumeric) {
-      e.target.value = fixNumbers(e.target.value).replace(/\D/g, "");
+      e.target.value = convertToEnglish(e.target.value).replace(/\D/g, "");
     }
     onChange?.(e);
   };

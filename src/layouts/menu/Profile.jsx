@@ -4,7 +4,7 @@ import useAuth from "../../hooks/useAuth.js";
 import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import BtnsMenu from "./BtnsMenu";
 import { FaChevronDown } from "react-icons/fa";
-import DefaultProfile from "../../assets/images/avatars/defulte-profile.png";
+import DefaultProfile from "../../assets/images/avatars/defulte-profile.webp";
 import Message from "../../assets/svg/message.svg?react";
 import ProfileMember from "../../assets/svg/profileMember.svg";
 import Ticket from "../../assets/svg/ticket.svg";
@@ -209,6 +209,7 @@ const Profile = () => {
         <BtbContainer isOpen={isOpen}>
           <ImgUser
             src={user?.image || DefaultProfile}
+            alt={user?.code ? `تصویر پروفایل ${user.code}` : "تصویر پروفایل"}
             onError={(e) => {
               e.target.src = DefaultProfile;
             }}
@@ -230,6 +231,9 @@ const Profile = () => {
               <BtbContainer2>
                 <ImgUser
                   src={user?.image || DefaultProfile}
+                  alt={
+                    user?.code ? `تصویر پروفایل ${user.code}` : "تصویر پروفایل"
+                  }
                   onError={(e) => {
                     e.target.src = DefaultProfile;
                   }}
@@ -240,8 +244,11 @@ const Profile = () => {
               <ChevronIcon2 $isOpenDrop={isOpenDrop} />
             </Btn>
 
-            <BtnNavigator $size="default" onClick={() => navigate("/documents")}>
-              <Icon src={Ticket} />
+            <BtnNavigator
+              $size="default"
+              onClick={() => navigate("/documents")}
+            >
+              <Icon src={Ticket} alt="" />
               {getTranslation("241")}
             </BtnNavigator>
 
@@ -254,12 +261,12 @@ const Profile = () => {
             </BtnNavigator>
 
             <BtnNavigator $size="default" onClick={() => navigate("/profile")}>
-              <Icon src={ProfileMember} />
+              <Icon src={ProfileMember} alt="" />
               {getTranslation("243")}
             </BtnNavigator>
 
             <BtnNavigator $size="default" onClick={() => navigate("/settings")}>
-              <Icon src={Setting} />
+              <Icon src={Setting} alt="" />
               {getTranslation("642")}
             </BtnNavigator>
             <BtnNavigator
@@ -269,7 +276,7 @@ const Profile = () => {
                   window.location.href = metarangUrlCitizen(user.code);
               }}
             >
-              <Icon src={userEdit} />
+              <Icon src={userEdit} alt="" />
 
               {getTranslation("162")}
             </BtnNavigator>

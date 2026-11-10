@@ -1,7 +1,8 @@
 import styled from "styled-components";
 import FileUploader from "../../../../components/FileUploader/FileUploader";
-import { getTranslation, getPlainText } from "../../../../services/Utility";
-
+import { getTranslation } from "../../../../services/Utility";
+import HtmlContent from "../../../../components/HtmlContent";
+import TitleBody from "../../../../components/TitleBody";
 const EMPTY_ATTACHMENTS = [];
 
 const Wrapper = styled.div`
@@ -14,19 +15,6 @@ const Box = styled.div`
   padding: 12px;
   border-radius: 10px;
   margin-top: 10px;
-`;
-
-const Title = styled.h2`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  font-size: 16px;
-  font-weight: 600;
-  margin-bottom: 10px;
-`;
-
-const Text = styled.p`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  font-size: 16px;
-  font-weight: 400;
 `;
 
 const Attachments = styled.div`
@@ -45,8 +33,8 @@ const NoteContent = ({ data }) => {
   return (
     <Wrapper>
       <Box>
-        <Title>{getTranslation("1371")}</Title>
-        <Text>{getPlainText(data?.content)}</Text>
+        <TitleBody weight title={getTranslation("1371")} />
+        <HtmlContent html={data?.content} />
 
         <Attachments>
           {attachments.map((file, index) => (

@@ -7,6 +7,7 @@ import {
   getTranslation,
   ConvertJalali,
 } from "../../../../services/Utility";
+import UserCode from "../../../../components/UserCode";
 import TitleBody from "../../../../components/TitleBody";
 const UserTime = styled.div`
   display: flex;
@@ -76,14 +77,14 @@ const Div = styled.div`
 const HistoryItem = ({
   index,
   user,
-  link,
   owner,
   time,
   date,
   rial,
   psc,
   color,
-  colorAmount,gift
+  colorAmount,
+  gift,
 }) => {
   const showTime = `${convertToPersian(time)} | ${ConvertJalali(date)}`;
   const isColorTrade = Boolean(color);
@@ -105,11 +106,7 @@ const HistoryItem = ({
           {owner ? (
             <TitleBody weight title={getTranslation(1947)} />
           ) : (
-            <h4>
-              <a target="_blank" rel="noreferrer" href={link}>
-                {user}
-              </a>
-            </h4>
+            <UserCode small code={user} />
           )}
         </User>
       </UserTime>

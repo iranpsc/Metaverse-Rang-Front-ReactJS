@@ -259,6 +259,7 @@ const BtnsMenu = () => {
               <div>
                 <Icon
                   src={item.icon}
+                  alt=""
                   isSelected={selectedItem === item.translationId}
                   isCompleted={
                     item.navigate == "connectWallet" && user?.has_wallet

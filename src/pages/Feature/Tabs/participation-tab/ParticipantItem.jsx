@@ -12,8 +12,8 @@ import TitleValue from "../../../Store/shop/TitleValue";
 import {
   convertToPersian,
   getTranslation,
-  metarangUrlCitizen,
 } from "../../../../services/Utility";
+import UserCode from "../../../../components/UserCode";
 
 const USER_CODE = "HM-2000081";
 
@@ -176,13 +176,8 @@ const ParticipantItem = ({ id, time, debt, level, satisfyCount, options }) => {
                 <HiOutlineUser size={20} />
                 <span>{getTranslation("563")}</span>
               </CodeLabel>
-              <a
-                href={metarangUrlCitizen(USER_CODE)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                {USER_CODE}
-              </a>
+              <UserCode code={USER_CODE} />
+       
             </CodeBox>
 
             <TitleValue title={getTranslation("564")} value={time} />

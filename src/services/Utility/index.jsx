@@ -68,20 +68,8 @@ export const SanitizeHTML = (html) => {
 
   return cleanHTML;
 };
-export const getPlainText = (htmlString) => {
-  if (!htmlString) return "";
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlString, "text/html");
-  return doc.body.textContent || "";
-};
 
-export function TextShorter(content, endStr = 20) {
-  if (content?.length > endStr) {
-    return `${SanitizeHTML(content).substring(0, endStr)}...`;
-  }
-
-  return SanitizeHTML(content);
-}
+// تاریخ شمسی بگیره میلادی بر میگردونه و میلادی بگیره شمسی بر میگردونه
 export function ConvertJalali(date) {
   const isPersian = i18n.language === "fa";
 
@@ -113,7 +101,7 @@ const JALALI_MAX_YEAR = 1700;
 export function TimeAgo(time) {
   if (typeof time !== "string") return 0;
 
-  const match = fixNumbers(time.trim()).match(BIRTHDATE_REGEX);
+  const match = convertToEnglish(time.trim()).match(BIRTHDATE_REGEX);
   if (!match) return 0;
 
   const [year, month, day] = match.slice(1).map(Number);
@@ -148,7 +136,7 @@ export function TimeAgo(time) {
 
 //تابع محاسبه  زمان باقیمانده
 export const parseServerDate = (value) => {
-  const text = fixNumbers(String(value ?? "").trim());
+  const text = convertToEnglish(String(value ?? "").trim());
   const match = text.match(
     /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/,
   );
@@ -209,48 +197,6 @@ export function GetTimeElapsed(date) {
     seconds: secondsDiff,
   };
 }
-export function EmailValidator(email) {
-  return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-    email,
-  );
-}
-// این تابع برای فرمت اعداد اعشاری هست و فقط در صورتی که اعداد اعشار داشته باشد باشند
-// اعشار ان نمایش داده میشود در غیر این صورت اعداد بدون اعشار نمایش داده میشوند
-export const normalizeDecimalInput = (value, maxDecimals = Infinity) => {
-  if (value === "" || value == null) return "";
-
-  const normalized = fixNumbers(String(value))
-    .replace(/٫/g, ".")
-    .replace(/[^0-9.]/g, "");
-
-  if (!normalized.includes(".")) return normalized;
-
-  const [wholePart, ...decimalParts] = normalized.split(".");
-  const decimal = decimalParts.join("").slice(0, maxDecimals);
-
-  return `${wholePart || "0"}.${decimal}`;
-};
-
-export const sanitizePriceInputValue = (value) => {
-  if (value === "" || value === null || value === undefined) return "";
-
-  const raw = String(value).trim().replace(/,/g, "");
-  if (!/\d/.test(raw)) return "";
-
-  if (!/^\d*\.?\d*$/.test(raw)) return "";
-
-  if (raw.startsWith("0") && raw.length > 1 && !raw.startsWith("0.")) {
-    return "";
-  }
-
-  const [wholePart = "", decimalPart = ""] = raw.split(".");
-  const normalizedWhole = wholePart.replace(/^0+(?=\d)/, "") || "0";
-  const normalizedDecimal = decimalPart.replace(/0+$/, "");
-
-  if (!normalizedDecimal) return normalizedWhole;
-
-  return `${normalizedWhole}.${normalizedDecimal}`;
-};
 
 export const formatNumber = (value, decimals = 2) => {
   const num = Number(value);
@@ -265,27 +211,6 @@ export const calculateFee = (number = 100, percent = 5) => {
   return (parseNumber * percent) / 100 + parseNumber;
 };
 
-export const persianNumbers = [
-    /۰/g,
-    /۱/g,
-    /۲/g,
-    /۳/g,
-    /۴/g,
-    /۵/g,
-    /۶/g,
-    /۷/g,
-    /۸/g,
-    /۹/g,
-  ],
-  arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g],
-  fixNumbers = function (str) {
-    if (typeof str === "string") {
-      for (var i = 0; i < 10; i++) {
-        str = str.replace(persianNumbers[i], i).replace(arabicNumbers[i], i);
-      }
-    }
-    return str;
-  };
 export const convertToPersian = (value) => {
   if (value == null) return "";
 
@@ -304,10 +229,12 @@ export const convertToEnglish = (value) => {
   if (value == null) return "";
 
   const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+  const arabicDigits = "٠١٢٣٤٥٦٧٨٩";
   const englishDigits = "0123456789";
 
-  return String(value).replace(/[۰-۹]/g, (d) => {
-    return englishDigits[persianDigits.indexOf(d)];
+  return String(value).replace(/[۰-۹٠-٩]/g, (digit) => {
+    const index = persianDigits.indexOf(digit);
+    return englishDigits[index !== -1 ? index : arabicDigits.indexOf(digit)];
   });
 };
 export const ToastError = (message) => {
@@ -586,9 +513,7 @@ export const metarangLevelUrl = (levelName) =>
 
 export const metarangLevelUrlById = (levelId) =>
   Object.hasOwn(LEVEL_SLUGS_BY_ID, levelId)
-    ? metarangUrl(
-        `levels/citizen/${LEVEL_SLUGS_BY_ID[levelId]}/general-info`,
-      )
+    ? metarangUrl(`levels/citizen/${LEVEL_SLUGS_BY_ID[levelId]}/general-info`)
     : undefined;
 
 export const DATE_PATTERN = /^\d{4}[/-]\d{1,2}[/-]\d{1,2}/;

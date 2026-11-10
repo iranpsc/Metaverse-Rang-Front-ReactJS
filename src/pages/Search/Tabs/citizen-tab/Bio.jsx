@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import DefaultProfile from "../../../../assets/images/avatars/defulte-profile.png";
+import DefaultProfile from "../../../../assets/images/avatars/defulte-profile.webp";
 import { getTranslation } from "../../../../services/Utility";
 import TitleBody from "../../../../components/TitleBody";
 import UserCode from "../../../../components/UserCode";

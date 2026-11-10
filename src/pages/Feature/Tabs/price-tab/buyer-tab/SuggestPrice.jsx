@@ -20,7 +20,6 @@ import {
   convertToPersian,
   formatNumber,
   getTranslation,
-  normalizeDecimalInput,
   pscToIrr,
   ToastError,
   ToastSuccess,
@@ -134,7 +133,7 @@ const SuggestPrice = () => {
   };
 
   const handlePscChange = (e) =>
-    setPsc(normalizeDecimalInput(e.target.value, PSC_DECIMALS));
+    setPsc(e.target.value, PSC_DECIMALS);
 
   const validate = () => {
     if (remainingPsc > 0) {

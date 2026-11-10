@@ -7,7 +7,6 @@ import {
   ToastError,
   ToastSuccess,
   formatNumber,
-  sanitizePriceInputValue,
 } from "../../../../../services/Utility";
 import useRequest from "../../../../../hooks/useRequest.js";
 import { FeatureContext } from "../../../Context/FeatureProvider";
@@ -19,21 +18,6 @@ const Wrapper = styled.div`
   gap: 30px;
   width: 100%;
 `;
-
-const sanitizePriceSubmitValue = (value) => {
-  const sanitized = sanitizePriceInputValue(value);
-
-  if (sanitized === "") {
-    return null;
-  }
-
-  const number = Number(sanitized);
-  if (!Number.isFinite(number) || number <= 0) {
-    return null;
-  }
-
-  return number;
-};
 
 const PriceDefine = () => {
   const [feature, setFeature] = useContext(FeatureContext);
@@ -80,8 +64,8 @@ const PriceDefine = () => {
       psc: "",
     });
 
-    const normalizedRial = sanitizePriceSubmitValue(rial);
-    const normalizedPsc = sanitizePriceSubmitValue(psc);
+    const normalizedRial = rial;
+    const normalizedPsc = psc;
 
     if (normalizedRial === null || normalizedPsc === null) {
       ToastError("مقدار وارد شده معتبر نیست.");
@@ -93,22 +77,24 @@ const PriceDefine = () => {
       price_psc: normalizedPsc,
     };
 
-    Request(`sell-requests/store/${feature?.id}`, HTTP_METHOD.POST, formData)
-      .then(() => {
-        ToastSuccess(getTranslation(1650));
+    Request(
+      `sell-requests/store/${feature?.id}`,
+      HTTP_METHOD.POST,
+      formData,
+    ).then(() => {
+      ToastSuccess(getTranslation(1650));
 
-        setAssign(true);
+      setAssign(true);
 
-        setFeature((feature) => ({
-          ...feature,
-          properties: {
-            ...feature.properties,
-            price_irr: formData.price_irr,
-            price_psc: formData.price_psc,
-          },
-        }));
-      })
-      
+      setFeature((feature) => ({
+        ...feature,
+        properties: {
+          ...feature.properties,
+          price_irr: formData.price_irr,
+          price_psc: formData.price_psc,
+        },
+      }));
+    });
   };
 
   return (

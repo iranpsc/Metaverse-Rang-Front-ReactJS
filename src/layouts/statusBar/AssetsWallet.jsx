@@ -56,7 +56,7 @@ const AssetItem = ({ value, img, index, totalassets }) => (
   <>
     <Asset>
       <TextAsset>{convertToPersian(formatAmount(value) || "0.000")}</TextAsset>
-      <ImgAsset src={img} />
+      <ImgAsset src={img}  alt=""/>
     </Asset>
     {index !== totalassets - 1 && <Line />}
   </>

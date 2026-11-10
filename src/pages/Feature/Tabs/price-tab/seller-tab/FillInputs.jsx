@@ -4,7 +4,6 @@ import WalletAsset from "../../../../../components/WalletAsset.jsx";
 import {
   calculateFee,
   getTranslation,
-  sanitizePriceInputValue,
   convertToPersian,
   formatNumber,
 } from "../../../../../services/Utility";
@@ -60,11 +59,11 @@ const FillInputs = ({
   const cancel = rial !== 0 || psc !== 0;
 
   const handleRialChange = (e) => {
-    setRial(sanitizePriceInputValue(e.target.value));
+    setRial(e.target.value);
   };
 
   const handlePscChange = (e) => {
-    setPsc(sanitizePriceInputValue(e.target.value));
+    setPsc(e.target.value);
   };
 
   const handleSubmit = () => {

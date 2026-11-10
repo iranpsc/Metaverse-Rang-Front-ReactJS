@@ -1,6 +1,5 @@
 import styled from "styled-components";
-import LogoIcon from "../../assets/images/brand/metarang-newLogo.png";
-import { getTranslation } from "../../services/Utility";
+import LogoIcon from "../../assets/images/brand/metarang-newLogo.webp";
 import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import ArowMenu from "../../assets/svg/arowMenu.svg?react";
 import { LangContainer, LangButton, LangMenu } from "./LangSelector.styles";
@@ -8,14 +7,11 @@ import { useState, useEffect } from "react";
 import useLanguage from "../../hooks/useLanguage.js";
 import DropdownLanguageModule from "../../components/DropDownLang/DropdownLanguageModule";
 import ThemeMenuModule from "./ThemeMenuModule";
-import {
-  getLanguagesMeta,
-  subscribeLanguagesMeta,
-} from "../../i18n/i18n";
-import { metarangUrl } from "../../services/Utility";
+import { getLanguagesMeta, subscribeLanguagesMeta } from "../../i18n/i18n";
+import { metarangUrl,getTranslation } from "../../services/Utility";
 import { getSize } from "../../styles/sizes";
 const Logo = styled.img`
-padding-top: 2px;
+  padding-top: 2px;
   height: 42px;
   cursor: pointer;
 `;
@@ -55,7 +51,7 @@ const ContainerText = styled.div`
 const Title = styled.p`
   color: ${(props) => props.theme.colors.newColors.otherColors.headerMenu};
   font-size: ${({ $size }) => getSize($size, "base")};
-      padding-top: 2px;
+  padding-top: 2px;
 
   height: 25px;
   cursor: pointer;
@@ -81,23 +77,18 @@ const Details = styled.p`
 `;
 
 const BtnOpenCloseMenu = styled.button`
-  width: ${(p) =>
-    p.$isOpen ? "17px" : "41px"}; 
-      height: ${(p) =>
-    p.$isOpen ? "17px" : "41px"}; 
-      margin-top: ${(p) =>
-    p.$isOpen ? "13px" : ""};
-    border-radius: 100%;
+  width: ${(p) => (p.$isOpen ? "17px" : "41px")};
+  height: ${(p) => (p.$isOpen ? "17px" : "41px")};
+  margin-top: ${(p) => (p.$isOpen ? "13px" : "")};
+  border-radius: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: ${(p) =>
-    p.$isOpen ? "0px" : "13px"};
-background-color: ${(p) =>
+  padding: ${(p) => (p.$isOpen ? "0px" : "13px")};
+  background-color: ${(p) =>
     p.$isOpen ? "transparent" : p.theme.colors.newColors.otherColors.themeBtn};
-    
-    
-    position: ${(props) => (props.$isOpen ? "relative" : "absolute")};
+
+  position: ${(props) => (props.$isOpen ? "relative" : "absolute")};
   ${(props) => {
     const direction = document.body.dir || "ltr";
     return direction === "ltr"
@@ -124,8 +115,6 @@ const Icon = styled(ArowMenu)`
   }};
 
   transition: transform 0.3s ease;
-
-
 `;
 
 const Header = () => {
@@ -147,6 +136,7 @@ const Header = () => {
             window.open(metarangUrl(), "_blank");
           }}
           src={LogoIcon}
+          alt="متارنگ"
         />
         <ContainerText $isOpen={isOpen}>
           <Title
@@ -192,8 +182,13 @@ const Header = () => {
           <ThemeMenuModule />
         </Headerbtn>
       </ContainerMain>
-      <BtnOpenCloseMenu onClick={toggleMenu} $isOpen={isOpen}>
-        <Icon $isOpen={isOpen} $isPersian={isRtl} />
+      <BtnOpenCloseMenu
+        onClick={toggleMenu}
+        $isOpen={isOpen}
+        aria-label={isOpen ? "open menu" : "close menu"}
+        aria-expanded={isOpen}
+      >
+        <Icon $isOpen={isOpen} $isPersian={isRtl} aria-hidden="true" />
       </BtnOpenCloseMenu>
     </Container>
   );

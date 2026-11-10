@@ -3,7 +3,8 @@ import axios from "axios";
 import { getItem } from "../services/Utility/LocalStorage";
 import { ToastError, getTranslation } from "../services/Utility";
 import { UserContext } from "../services/reducers/UserContext";
-import { useCallback, useContext, useMemo } from "react";
+import { useCallback, useContext, useMemo, useRef } from "react";
+
 import { useLocation } from "react-router";
 import { useAccountSecurity } from "../services/reducers/accountSecurityContext";
 const isProduction = window.location.hostname === "world.metarang.com";
@@ -18,7 +19,7 @@ export default function useRequest() {
   const accountSecurityContext = useAccountSecurity();
   const setIsAccountSecurityOpen =
     accountSecurityContext?.setIsAccountSecurityOpen;
-
+const lastErrorRef = useRef(null);
   const openAccountSecurity = useCallback(() => {
     if (location.pathname === "/confirmation" || !setIsAccountSecurityOpen)
       return;
@@ -80,22 +81,36 @@ export default function useRequest() {
           headers,
           data: method !== HTTP_METHOD.GET ? formData : {},
         });
-      } catch (error) {
-        if (error.response?.status === 401 && headers.Authorization) {
-          window.dispatchEvent(new Event("auth:unauthorized"));
-        } else if (error.response?.status === 410) {
-          ToastError(getTranslation("1603"));
-          openAccountSecurity();
-        } else if (showError) {
-          ToastError(
-            error.response?.data?.message ||
-              fallbackMessage ||
-              getTranslation(1387),
-          );
-        }
-
-        throw error;
       }
+      
+    catch (error) {
+  if (error.response?.status === 401 && headers.Authorization) {
+    window.dispatchEvent(new Event("auth:unauthorized"));
+  } else {
+    let message = null;
+
+    if (error.response?.status === 410) {
+      message = getTranslation("1603");
+      openAccountSecurity();
+    } else if (showError) {
+      message =
+        error.response?.data?.message ||
+        fallbackMessage ||
+        getTranslation(1387);
+    }
+
+    if (message) {
+      const errorKey = `${error.response?.status || "network"}-${message}`;
+
+      if (lastErrorRef.current !== errorKey) {
+        ToastError(message);
+        lastErrorRef.current = errorKey;
+      }
+    }
+  }
+
+  throw error;
+}
     },
     [HTTP_METHOD, openAccountSecurity],
   );

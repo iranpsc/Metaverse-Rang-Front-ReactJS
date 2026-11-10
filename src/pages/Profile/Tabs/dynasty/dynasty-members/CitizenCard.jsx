@@ -1,6 +1,6 @@
 import styled, { css } from "styled-components";
 import down from "../../../../../assets/images/dynasty/downcitizen.png";
-import avatar from "../../../../../assets/images/avatars/defulte-profile.png";
+import avatar from "../../../../../assets/images/avatars/defulte-profile.webp";
 import lockGem from "../../../../../assets/images/dynasty/Frame1000003193.png";
 import {
   getTranslation,

@@ -12,10 +12,9 @@ import {
   ConvertJalali,
   convertToPersian,
   getTranslation,
-  metarangUrlCitizen,
   formatNumber,
 } from "../../../../../services/Utility";
-
+import UserCode from "../../../../../components/UserCode.jsx";
 // relationship (فارسی از بک‌اند) => کلید ترجمه؛ مقدار ناشناخته مثل خواهر حساب می‌شود
 const FAMILY_LABELS = {
   برادر: 128,
@@ -38,14 +37,6 @@ const TableCell = styled.td`
   padding: 15px 20px;
   border-bottom: 1px solid #454545;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
-`;
-
-const Code = styled.a`
-  font-size: 16px;
-  font-weight: 500;
-  text-transform: uppercase;
-  cursor: pointer;
-  color: ${({ theme }) => theme.colors.primary};
 `;
 
 const Text = styled.h3`
@@ -153,13 +144,7 @@ const RequestRow = ({
     <>
       <tr>
         <TableCell>
-          <Code
-            href={metarangUrlCitizen(code)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {code}
-          </Code>
+          <UserCode code={code} />
         </TableCell>
 
         <TableCell>

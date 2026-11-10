@@ -5,7 +5,7 @@ import { MdOutlineKeyboardArrowUp } from "react-icons/md";
 import styled from "styled-components";
 import moment from "moment-jalaali";
 
-import DefaultProfile from "../../../../../assets/images/avatars/defulte-profile.png";
+import DefaultProfile from "../../../../../assets/images/avatars/defulte-profile.webp";
 
 import Button from "../../../../../components/Button";
 import HtmlContent from "../../../../../components/HtmlContent.jsx";
