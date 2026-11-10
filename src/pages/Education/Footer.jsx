@@ -1,16 +1,13 @@
-import { BiDislike, BiLike } from "react-icons/bi";
-
+import { BiDislike, BiLike, BiSolidDislike, BiSolidLike } from "react-icons/bi";
 import { FaRegComment } from "react-icons/fa";
 import { IoEyeOutline } from "react-icons/io5";
 import { TfiWrite } from "react-icons/tfi";
-import { ToastError } from "../../services/Utility/index.jsx";
 import styled from "styled-components";
 import { useState } from "react";
 import useRequest from "../../hooks/useRequest.js";
 import TitleBody from "../../components/TitleBody.jsx";
 import UserCode from "../../components/UserCode.jsx";
 import { getSize } from "../../styles/sizes";
-
 const Left = styled.div`
   display: flex;
   align-items: center;
@@ -36,9 +33,7 @@ const Container = styled.div`
   justify-content: space-between;
   color: #969696;
   border-top: 1px solid #2d2d2a;
-  padding-top: 5px;
   gap: 8px;
-
   @media (max-width: 499px) {
     flex-wrap: wrap;
   }
@@ -68,7 +63,7 @@ const Container = styled.div`
   }
 
   @media (max-width: 1400px) {
-    display: ${(props) => (props.show ? "none" : "flex")};
+    display: flex;
   }
 `;
 
@@ -78,74 +73,49 @@ const Right = styled.div`
   gap: 3px;
   min-width: 0;
 `;
-
-const Footer = ({ show, data }) => {
+const Footer = ({ data }) => {
   const { Request, HTTP_METHOD } = useRequest();
-  const [isLiked, setIsLiked] = useState(false);
-  const [isDisliked, setIsDisliked] = useState(false);
-  const [likeCount, setLikeCount] = useState(data?.likes);
-  const [dislikeCount, setDislikeCount] = useState(data?.dislikes);
+  const [reaction, setReaction] = useState(null); // "like" | "dislike" | null
 
-  const handleLike = async () => {
-    if (!isLiked) {
-      try {
-        await Request(`tutorials/like/${data.id}`, HTTP_METHOD.POST);
-        setLikeCount(likeCount + 1);
-        setIsLiked(true);
-        setIsDisliked(false);
-      } catch {
-        ToastError("خطا در ارسال درخواست به سرور برای لایک:");
-      }
-    }
+  const react = async (type) => {
+    if (reaction === type) return;
+    await Request(`tutorials/${data.id}/interactions`, HTTP_METHOD.POST);
+    setReaction(type);
   };
 
-  const handleDislike = async () => {
-    if (!isDisliked) {
-      try {
-        await Request(`tutorials/dislike/${data.id}`, HTTP_METHOD.POST);
-        setDislikeCount(dislikeCount + 1);
-        setIsLiked(false);
-        setIsDisliked(true);
-      } catch {
-        ToastError("خطا در ارسال درخواست به سرور برای دیسلایک:");
-      }
-    }
-  };
+  const isLiked = reaction === "like";
+  const isDisliked = reaction === "dislike";
+
   const actions = [
-    { id: 1, icon: <FaRegComment />, value: "0" },
+    { id: 1, icon: <FaRegComment />, value: 0 },
     {
       id: 2,
-      icon: <BiLike />,
-      value: likeCount,
-      onClick: () => {
-        handleLike();
-      },
+      icon: isLiked ? <BiSolidLike /> : <BiLike />,
+      value: (data?.likes ?? 0) + (isLiked ? 1 : 0),
+      onClick: () => react("like"),
     },
     {
       id: 3,
-      icon: <BiDislike />,
-      value: dislikeCount,
-      onClick: () => {
-        handleDislike();
-      },
+      icon: isDisliked ? <BiSolidDislike /> : <BiDislike />,
+      value: (data?.dislikes ?? 0) + (isDisliked ? 1 : 0),
+      onClick: () => react("dislike"),
     },
     { id: 4, icon: <IoEyeOutline />, value: data?.views },
   ];
+
   return (
-    <Container show={show}>
+    <Container>
       <Right>
         <UserCode code={data?.creator_code} />
-
         <span>
           <TfiWrite />
         </span>
       </Right>
       <Left>
-        {actions.map((item) => (
-          <div key={item.id}>
-            <TitleBody title={item.value} />
-
-            <span onClick={item.onClick}>{item.icon}</span>
+        {actions.map(({ id, icon, value, onClick }) => (
+          <div key={id}>
+            <TitleBody title={value} />
+            <span onClick={onClick}>{icon}</span>
           </div>
         ))}
       </Left>

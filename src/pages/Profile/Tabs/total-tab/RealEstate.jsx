@@ -1,9 +1,9 @@
 import styled from "styled-components";
 import { useContext, useEffect, useState } from "react";
 import PropertyCard from "./PropertyCard";
-import property2 from "../../../../assets/images/building.png";
-import property3 from "../../../../assets/images/house.png";
-import property4 from "../../../../assets/images/courthouse.png";
+import property2 from "../../../../assets/images/properties/building.png";
+import property3 from "../../../../assets/images/properties/house.png";
+import property4 from "../../../../assets/images/properties/courthouse.png";
 import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 import { UserContext } from "../../../../services/reducers/UserContext";

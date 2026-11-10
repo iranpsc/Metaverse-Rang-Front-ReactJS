@@ -5,9 +5,9 @@ import { useEffect, useRef, useState } from "react";
 import { HiOutlineTrash } from "react-icons/hi";
 import styled, { css } from "styled-components";
 
-import downloadIcon from "../../assets/images/download.png";
-import nonPhoto from "../../assets/images/file.png";
-import remove from "../../assets/images/remove.png";
+import downloadIcon from "../../assets/images/file-upload/download.png";
+import nonPhoto from "../../assets/images/file-upload/file.png";
+import remove from "../../assets/images/file-upload/remove.png";
 import { getTranslation } from "../../services/Utility";
 import { responsiveFontSize, scale } from "../../styles/sizes";
 import TitleBody from "../TitleBody";

@@ -2,7 +2,7 @@
 import styled from "styled-components";
 
 import PhotoActionButton from "./components/PhotoActionButton.jsx";
-import noPic from "../../../../assets/images/nopic.jpg";
+import noPic from "../../../../assets/images/placeholders/nopic.jpg";
 
 const Wrapper = styled.div`
   position: relative;

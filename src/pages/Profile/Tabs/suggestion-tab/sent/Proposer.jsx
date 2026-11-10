@@ -1,8 +1,7 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 import moment from "moment-jalaali";
 
-import line from "../../../../../assets/images/profile/Line.png";
 
 import HtmlContent from "../../../../../components/HtmlContent.jsx";
 import TitleBody from "../../../../../components/TitleBody.jsx";
@@ -16,8 +15,6 @@ import {
   calculateFee,
   convertToPersian,
   getTranslation,
-  SanitizeHTML,
-  ToastError,
 } from "../../../../../services/Utility/index";
 
 import {
@@ -25,7 +22,7 @@ import {
   Info,
   Prices,
   Text,
-  proposerContainer,
+  proposerContainer,Divider
 } from "../suggestionStyles";
 import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
@@ -151,14 +148,10 @@ const Proposer = ({ item, onRemoved }) => {
   const information = item.note || "";
   const isLongNote = information.length > NOTE_LIMIT;
 
-  const noteHtml = useMemo(() => {
-    const text =
-      isLongNote && !isExpanded
-        ? `${information.slice(0, NOTE_LIMIT)}...`
-        : information;
-
-    return SanitizeHTML(text);
-  }, [information, isLongNote, isExpanded]);
+  const noteHtml =
+    isLongNote && !isExpanded
+      ? `${information.slice(0, NOTE_LIMIT)}...`
+      : information;
 
   const handleReject = async () => {
     if (!checkSecurity()) return;
@@ -181,8 +174,8 @@ const Proposer = ({ item, onRemoved }) => {
       updateWallet("psc", calculateFee(item.price_psc), "+");
 
       setTimeout(() => onRemoved?.(), 3000);
-    } catch (error) {
-      ToastError(error?.response?.data?.message);
+    } catch {
+      // useRequest already displays request errors.
     }
   };
 
@@ -195,8 +188,7 @@ const Proposer = ({ item, onRemoved }) => {
           <Prices>
             <PriceItem src={COLOR_CONFIG.irr.gif} value={item.price_irr} />
 
-            <img width={1} height={24} src={line} alt="Line" />
-
+<Divider />
             <PriceItem src={COLOR_CONFIG.psc.gif} value={item.price_psc} />
           </Prices>
         </Price>

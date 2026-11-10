@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import styled from "styled-components";
-import nopic from "../../../../assets/images/nopic.jpg";
+import nopic from "../../../../assets/images/placeholders/nopic.jpg";
 import useRequest from "../../../../hooks/useRequest.js";
 import TitleBody from "../../../../components/TitleBody.jsx";
 import {

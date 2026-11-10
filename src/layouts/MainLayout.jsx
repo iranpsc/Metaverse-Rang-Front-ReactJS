@@ -1,13 +1,33 @@
-import MapTreeD from "./map";
+import { lazy, Suspense, useContext, useEffect } from "react";
 import Menu from "./menu";
 import StatusBar from "./statusBar";
-import { useContext, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { MenuContextProvider } from "../services/reducers/MenuContext";
 import styled from "styled-components";
 import { Outlet } from "react-router";
 import { UserContext } from "../services/reducers/UserContext";
 import { getItem } from "../services/Utility/LocalStorage";
+import RouteSkeleton from "../components/Skeletons/RouteSkeleton";
+import spiner from "../assets/gif/loader.svg";
+import TitleBody from "../components/TitleBody";
+const MapTreeD = lazy(() => import("./map"));
+const MapProvider = lazy(() =>
+  import("react-map-gl/maplibre").then(({ MapProvider }) => ({
+    default: MapProvider,
+  })),
+);
+
+const MapFallback = styled.div`
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  overflow-x: hidden;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  box-sizing: border-box;
+`;
 
 const Container = styled.section`
   display: flex;
@@ -60,8 +80,30 @@ const MainLayout = () => {
       <MenuContextProvider>
         <Menu />
       </MenuContextProvider>
-      <MapTreeD />
-      <Outlet />
+      <Suspense
+        fallback={
+          <MapFallback role="status">
+            <img src={spiner} width={100} height={100} alt="" />
+            <TitleBody big color="#FFC700" title={"در حال بارگذاری نقشه"} />
+          </MapFallback>
+        }
+      >
+        <MapProvider>
+          <Suspense
+            fallback={
+              <MapFallback role="status">
+                <img src={spiner} width={100} height={100} alt="" />{" "}
+                <TitleBody big color="#FFC700" title={"در حال بارگذاری نقشه"} />
+              </MapFallback>
+            }
+          >
+            <MapTreeD />
+          </Suspense>
+          <Suspense fallback={<RouteSkeleton />}>
+            <Outlet />
+          </Suspense>
+        </MapProvider>
+      </Suspense>
       <StatusBar />
     </Container>
   );

@@ -1,10 +1,15 @@
 // Modal body showing a model's name and attributes beside its 3D preview; used in the model preview modal.
 import styled from "styled-components";
+import { lazy, Suspense } from "react";
 
-import CanvasPreview from "../../../../../components/CanvasPreview";
 import { getTranslation } from "../../../../../services/Utility";
 import ModalLg from "../../../../../components/Modal/ModalLg";
 import TitleBody from "../../../../../components/TitleBody";
+import { Skeleton } from "../../../../../components/Skeletons/Skeleton";
+
+const CanvasPreview = lazy(
+  () => import("../../../../../components/CanvasPreview"),
+);
 
 const Container = styled.div`
   display: flex;
@@ -59,7 +64,11 @@ const PreviewModel = ({ data, setShowModal }) => {
           ))}
         </ContainerDetail>
         <CanvasWrapper>
-          <CanvasPreview link={model.file?.url} />
+          <Suspense
+            fallback={<Skeleton width="100%" height="100%" radius="10px" />}
+          >
+            <CanvasPreview link={model.file?.url} />
+          </Suspense>
         </CanvasWrapper>
       </Container>
     </ModalLg>

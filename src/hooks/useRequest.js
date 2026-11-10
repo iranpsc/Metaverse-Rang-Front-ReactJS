@@ -4,6 +4,7 @@ import { getItem } from "../services/Utility/LocalStorage";
 import { ToastError, getTranslation } from "../services/Utility";
 import { UserContext } from "../services/reducers/UserContext";
 import { useCallback, useContext, useMemo } from "react";
+import { useLocation } from "react-router";
 import { useAccountSecurity } from "../services/reducers/accountSecurityContext";
 const isProduction = window.location.hostname === "world.metarang.com";
 const PROD_BASE_URL = "https://api.metarang.com/api/";
@@ -13,7 +14,17 @@ export const BASE_URL = isProduction ? PROD_BASE_URL : DEV_BASE_URL;
 export default function useRequest() {
   const accountSecurity = getItem("account_security")?.account_security;
   const [userInfo] = useContext(UserContext);
+  const location = useLocation();
   const accountSecurityContext = useAccountSecurity();
+  const setIsAccountSecurityOpen =
+    accountSecurityContext?.setIsAccountSecurityOpen;
+
+  const openAccountSecurity = useCallback(() => {
+    if (location.pathname === "/confirmation" || !setIsAccountSecurityOpen)
+      return;
+
+    setIsAccountSecurityOpen(true);
+  }, [location.pathname, setIsAccountSecurityOpen]);
 
   const HTTP_METHOD = useMemo(
     () => ({
@@ -33,14 +44,14 @@ export default function useRequest() {
 
     if (!accountSecurity) {
       ToastError(getTranslation("1603"));
-      accountSecurityContext?.setIsAccountSecurityOpen(true);
+      openAccountSecurity();
       return false;
     }
 
     return true;
   }, [
     accountSecurity,
-    accountSecurityContext?.setIsAccountSecurityOpen,
+    openAccountSecurity,
     userInfo?.wallet_login,
   ]);
 
@@ -70,9 +81,11 @@ export default function useRequest() {
           data: method !== HTTP_METHOD.GET ? formData : {},
         });
       } catch (error) {
-        if (error.response?.status === 410) {
+        if (error.response?.status === 401 && headers.Authorization) {
+          window.dispatchEvent(new Event("auth:unauthorized"));
+        } else if (error.response?.status === 410) {
           ToastError(getTranslation("1603"));
-          accountSecurityContext?.setIsAccountSecurityOpen(true);
+          openAccountSecurity();
         } else if (showError) {
           ToastError(
             error.response?.data?.message ||
@@ -84,7 +97,7 @@ export default function useRequest() {
         throw error;
       }
     },
-    [HTTP_METHOD, accountSecurityContext?.setIsAccountSecurityOpen],
+    [HTTP_METHOD, openAccountSecurity],
   );
   return useMemo(
     () => ({ Request, HTTP_METHOD, checkSecurity }),

@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import LogoIcon from "../../assets/images/metarang-newLogo.png";
+import LogoIcon from "../../assets/images/brand/metarang-newLogo.png";
 import { getTranslation } from "../../services/Utility";
 import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import ArowMenu from "../../assets/svg/arowMenu.svg?react";

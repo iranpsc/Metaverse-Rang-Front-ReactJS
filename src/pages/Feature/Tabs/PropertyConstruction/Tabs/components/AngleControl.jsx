@@ -11,15 +11,12 @@ import { useMapData } from "../../../../../../services/reducers/mapContext.jsx";
 import { useSelectedEnvironment } from "../../../../../../services/reducers/SelectedEnvironmentContext.jsx";
 import {
   getTranslation,
-  ToastError,
   ToastSuccess,
   convertToPersian,
   formatNumber,
   convertToEnglish,
 } from "../../../../../../services/Utility";
-import {
-  WalletContext,
-} from "../../../../../../services/reducers/WalletContext";
+import { WalletContext } from "../../../../../../services/reducers/WalletContext";
 
 const GREEN = "#3fbf7f";
 const RED = "#e53935";
@@ -192,16 +189,17 @@ const SatisfactionForm = ({
         rotation: (rotation * Math.PI) / 180,
         position: `${position.latitude}, ${position.longitude}`,
       },
-    )
-      .then((res) => {
-        updateWallet("satisfaction", input, "-");
-      //  console.log("res", res.data);
-        addBuilding(res.data.data.building_models[0]);
+    ).then((res) => {
+      updateWallet("satisfaction", input, "-");
+      const buildingModel = res.data.data[0];
+      addBuilding({
+        ...buildingModel,
+        uniqueKey: `${buildingModel.id}__${buildingModel.building.feature_id}`,
+      });
 
-        ToastSuccess(getTranslation("1606"));
-        onSubmitted();
-      })
-      .catch((err) => ToastError(err.response.data.message));
+      ToastSuccess(getTranslation("1606"));
+      onSubmitted();
+    });
   };
   return (
     <>
@@ -303,7 +301,10 @@ const AngleControl = ({
             <Row>
               <div>
                 {" "}
-                <ConfirmButton label={getTranslation(1944)} onClick={onConfirm} />
+                <ConfirmButton
+                  label={getTranslation(1944)}
+                  onClick={onConfirm}
+                />
                 {PRESETS.map((angle) => (
                   <Button
                     key={angle}

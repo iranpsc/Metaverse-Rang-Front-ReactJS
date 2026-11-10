@@ -4,7 +4,7 @@ const BREAKPOINTS = { tablet: 500, laptop: 1000, desktop: 1280 };
 
 export const SIZES = {
   default: { base: "14px", tablet: "12px", desktop: "16px" },
-  small: { base: "12px", tablet: "12px", desktop: "13px" },
+  small: { base: "12px", tablet: "10px", desktop: "13px" },
   big: { base: "16px", tablet: "14px", desktop: "18px" },
 };
 

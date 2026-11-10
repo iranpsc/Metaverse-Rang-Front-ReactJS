@@ -7,7 +7,6 @@ import OnOff from "../../../../Settings/Tabs/OnOff.jsx";
 import useRequest from "../../../../../hooks/useRequest.js";
 import {
   getTranslation,
-  ToastError,
   ToastSuccess,
 } from "../../../../../services/Utility";
 import TitleBody from "../../../../../components/TitleBody.jsx";
@@ -101,8 +100,8 @@ const SubmitDynastyModal = ({
         setOpenDetails(false);
         setMode({ mode: 1, type: null });
       }
-    } catch (error) {
-      ToastError(error.response.data.error);
+    } catch {
+      // useRequest already displays request errors.
     } finally {
       setSubmitting(false);
     }

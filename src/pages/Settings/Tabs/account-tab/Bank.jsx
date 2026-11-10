@@ -129,9 +129,9 @@ const Bank = ({ settings }) => {
 
     Request("settings", HTTP_METHOD.POST, values)
       .then(() => ToastSuccess(getTranslation(1773)))
-      .catch((error) =>
-        ToastError(error.response?.data?.message || getTranslation(1774)),
-      )
+      .catch(() => {
+        // useRequest already displays request errors.
+      })
       .finally(() => setIsSending(false));
   };
 

@@ -2,17 +2,14 @@
 // رنگ حباب با tone تعیین می‌شود: "default" برای تیکت و "confirmed" برای پیام گزارش
 
 import styled, { css } from "styled-components";
-import avatar from "../../assets/images/defulte-profile.png";
+import avatar from "../../assets/images/avatars/defulte-profile.png";
 import FileUploader from "../FileUploader/FileUploader";
 import TitleBody from "../TitleBody";
 import { getTone } from "./messageTone";
-import {
-  SanitizeHTML,
-  ConvertJalali,
-  convertToPersian,
-} from "../../services/Utility";
+import { ConvertJalali, convertToPersian } from "../../services/Utility";
 /* ---------- Helpers ---------- */
 import UserCode from "../UserCode";
+import HtmlContent from "../HtmlContent";
 const getAttachments = ({ attachments, attachment }) => {
   if (Array.isArray(attachments) && attachments.length > 0) return attachments;
   if (typeof attachment !== "string" || !attachment) return [];
@@ -115,7 +112,6 @@ const MessageItem = ({ data, isCurrentUser, tone = "default" }) => {
   const { name, code, "profile-photo": profilePhoto } = author;
 
   const attachments = getAttachments(data);
-  const messageText = SanitizeHTML(text);
   const messageTime = `${ConvertJalali(date)} | ${convertToPersian(time)}`;
   return (
     <Wrapper>
@@ -130,9 +126,9 @@ const MessageItem = ({ data, isCurrentUser, tone = "default" }) => {
 
           {code && <UserCode code={code} />}
         </Header>
-        {messageText.length > 0 && (
+        {text.length > 0 && (
           <Message $tone={tone} $isCurrentUser={isCurrentUser}>
-            <TitleBody title={messageText} />
+            <HtmlContent html={text} />
             <MessageTime $tone={tone}>
               <TitleBody title={messageTime} />
             </MessageTime>

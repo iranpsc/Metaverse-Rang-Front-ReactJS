@@ -142,20 +142,20 @@ const Header = ({
   onClose,
   onReportClick,
   onHelpClick,
+  educationTitle,
   locationPage,
   reportFrom,
   hideTitle,
 }) => {
   const [isEducationOpen, setIsEducationOpen] = useState(false);
+  const [adviserData, setAdviserData] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
   const { resetStates } = useSelectedEnvironment();
   const { updateScrollDirection } = useScrollDirectionContext();
 
-  const adviserKey = `${location.pathname.replace(/\//g, "")}-`;
-  const adviserData = useAdviserData(
-    adviserKey,
-    locationPage ?? location.state?.locationPage,
+  const loadAdviserData = useAdviserData(
+    locationPage ?? location.state?.locationPage ?? location.pathname,
   );
 
   const handleReportClick = () => {
@@ -168,13 +168,20 @@ const Header = ({
     });
   };
 
-  const handleHelpClick = () => {
-    if (onHelpClick) {
-      onHelpClick(adviserData);
-      return;
-    }
+  const handleHelpClick = async () => {
+    try {
+      const data = await loadAdviserData();
+      setAdviserData(data);
 
-    setIsEducationOpen(true);
+      if (onHelpClick) {
+        onHelpClick(data, educationTitle);
+        return;
+      }
+
+      setIsEducationOpen(true);
+    } catch {
+      // useRequest already displays request errors.
+    }
   };
 
   const handleExitClick = () => {
@@ -234,6 +241,7 @@ const Header = ({
         <Education
           setOpenEducation={setIsEducationOpen}
           adviserData={adviserData}
+          title={educationTitle}
         />
       )}
     </HeaderWrapper>

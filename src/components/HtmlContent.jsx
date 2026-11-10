@@ -8,6 +8,7 @@ const Content = styled.div`
   width: 100%;
   overflow-wrap: anywhere;
   font-size: ${({ $size }) => getSize($size, "base")};
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
 
   @media (min-width: 500px) and (max-width: 999px) {
     font-size: ${({ $size }) => getSize($size, "tablet")};

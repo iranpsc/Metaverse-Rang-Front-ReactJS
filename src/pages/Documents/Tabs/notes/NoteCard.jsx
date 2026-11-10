@@ -2,10 +2,10 @@ import { CiEdit } from "react-icons/ci";
 import { GoTrash } from "react-icons/go";
 import styled from "styled-components";
 
-import circle from "../../../../assets/images/link-circle.png";
-import insta from "../../../../assets/images/instagram.png";
-import send from "../../../../assets/images/send-2.png";
-import whatsapp from "../../../../assets/images/whatsapp.png";
+import circle from "../../../../assets/images/social/link-circle.png";
+import insta from "../../../../assets/images/social/instagram.png";
+import send from "../../../../assets/images/social/send-2.png";
+import whatsapp from "../../../../assets/images/social/whatsapp.png";
 import TitleHeader from "../../../../components/TitleHeader";
 import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";

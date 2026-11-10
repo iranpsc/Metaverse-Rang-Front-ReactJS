@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { useState } from "react";
 import OnOff from "../OnOff.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
-import { getTranslation, ToastError } from "../../../../services/Utility";
+import { getTranslation } from "../../../../services/Utility";
 import TitleBody from "../../../../components/TitleBody.jsx";
 
 const Container = styled.div`
@@ -109,11 +109,8 @@ const Item = ({ translationId, options, privacy, setPrivacy }) => {
         key: optionKey,
         value: Number(newValue),
       });
-    } catch (error) {
+    } catch {
       setPrivacy((previous) => ({ ...previous, [optionKey]: previousValue }));
-      ToastError(
-        error.response?.data?.message || "Failed to update privacy setting",
-      );
     } finally {
       setPendingKeys((previous) => {
         const next = new Set(previous);

@@ -10,7 +10,7 @@ const Container = styled.div`
   margin: ${({ $fullscreen }) => ($fullscreen ? "0" : "5px")};
   background-color: #000000;
   margin-top: ${({ $fullscreen }) => ($fullscreen ? "0" : "20px")};
-  @media (max-width: 599px) {
+  @media (max-width: 1000px) {
     flex: ${({ $fullscreen }) =>
       $fullscreen ? "1" : "0 0 clamp(110px, 38vw, 150px)"};
     min-height: ${({ $fullscreen }) =>
@@ -37,7 +37,7 @@ const Video = ({ isFullscreen, video }) => {
         style={{
           borderRadius: "10px",
           cursor: "pointer",
-          objectFit: "cover",
+          objectFit: "contain",
           height: "100%",
           width: "100%",
         }}

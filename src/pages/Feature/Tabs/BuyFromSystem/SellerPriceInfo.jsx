@@ -63,9 +63,7 @@ const SellerPriceInfo = () => {
 
         Navigate(FeatureSvg(feature.properties.rgb));
       })
-      .catch((error) => {
-        ToastError(error?.response?.data?.message || "خطای غیرمنتظره");
-      });
+      
   };
   return (
     <>

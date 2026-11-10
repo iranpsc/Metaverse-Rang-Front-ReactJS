@@ -92,7 +92,10 @@ const useWalletLink = () => {
       ToastSuccess(getTranslation(1766));
       navigate("/");
     } catch (error) {
-      ToastError(error?.response?.data?.message);
+      // Request errors are already shown by useRequest.
+      if (!error?.isAxiosError) {
+        ToastError(error?.message || getTranslation(1768));
+      }
     }
   };
 
@@ -120,7 +123,8 @@ const useWalletLink = () => {
       navigate("/");
     } catch (error) {
       console.error("Error during WalletConnect process:", error);
-      ToastError(getTranslation(1768));
+      // Request errors are already shown by useRequest.
+      if (!error?.isAxiosError) ToastError(getTranslation(1768));
     }
   };
 

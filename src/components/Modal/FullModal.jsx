@@ -26,7 +26,8 @@ const Overlay = styled.div`
 `;
 
 const StyledRnd = styled(Rnd)`
-  display: flex;
+  display: flex; 
+  
   flex-direction: column;
   box-sizing: border-box;
   background-color: ${(props) =>
@@ -36,6 +37,21 @@ const StyledRnd = styled(Rnd)`
   padding: ${({ $fullscreen }) => ($fullscreen ? "10px" : "15px 20px")};
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+`;
+
+const FullscreenPanel = styled.div`
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+  overflow: hidden;
+  background-color: ${(props) =>
+    props.theme?.colors?.newColors?.shades?.background ||
+    props.theme.colors.newColors.shades.bg2};
 `;
 
 const HeaderWrap = styled.div`
@@ -54,7 +70,6 @@ const Content = styled.div`
   min-height: 0;
   overflow: auto;
   display: flex;
-  padding: 10px 0;
   flex-direction: column;
 `;
 
@@ -121,14 +136,10 @@ const FullModal = ({
 
   const canDrag = !fullscreen && draggable && !isMobile;
 
-  const rndSize = fullscreen ? { width: winW, height: winH } : modalSize;
-
-  const position = fullscreen
-    ? { x: 0, y: 0 }
-    : {
-        x: Math.max((winW - modalSize.width) / 2, 0),
-        y: Math.max((winH - modalSize.height) / 2, 0),
-      };
+  const position = {
+    x: Math.max((winW - modalSize.width) / 2, 0),
+    y: Math.max((winH - modalSize.height) / 2, 0),
+  };
 
   const content =
     typeof children === "function"
@@ -142,29 +153,45 @@ const FullModal = ({
         if (closeOnOverlayClick && e.target === e.currentTarget) onClose?.();
       }}
     >
-      <StyledRnd
-        $fullscreen={fullscreen}
-        // با عوض شدن حالت/سایز، مدال دوباره وسط صفحه یا تمام‌صفحه ست میشه
-        key={`${fullscreen}-${winW}-${winH}-${modalSize.width}-${modalSize.height}`}
-        default={{ ...position, ...rndSize }}
-        size={rndSize}
-        bounds="parent"
-        enableResizing={false}
-        disableDragging={!canDrag}
-        dragHandleClassName={DRAG_HANDLE}
-        cancel={CANCEL_SELECTOR}
-      >
-        <HeaderWrap className={DRAG_HANDLE} $draggable={canDrag}>
-          <Header
-            loading={loading}
-            title={title}
-            setOpenEducation={onClose}
-            isFullscreen={fullscreen}
-            onToggleFullscreen={fullscreenable ? toggleFullscreen : undefined}
-          />
-        </HeaderWrap>
-        <Content>{content}</Content>
-      </StyledRnd>
+      {fullscreen ? (
+        <FullscreenPanel>
+          <HeaderWrap>
+            <Header
+              loading={loading}
+              title={title}
+              setOpenEducation={onClose}
+              isFullscreen={fullscreen}
+              onToggleFullscreen={
+                fullscreenable ? toggleFullscreen : undefined
+              }
+            />
+          </HeaderWrap>
+          <Content>{content}</Content>
+        </FullscreenPanel>
+      ) : (
+        <StyledRnd
+          default={{ ...position, ...modalSize }}
+          size={modalSize}
+          bounds="parent"
+          enableResizing={false}
+          disableDragging={!canDrag}
+          dragHandleClassName={DRAG_HANDLE}
+          cancel={CANCEL_SELECTOR}
+        >
+          <HeaderWrap className={DRAG_HANDLE} $draggable={canDrag}>
+            <Header
+              loading={loading}
+              title={title}
+              setOpenEducation={onClose}
+              isFullscreen={fullscreen}
+              onToggleFullscreen={
+                fullscreenable ? toggleFullscreen : undefined
+              }
+            />
+          </HeaderWrap>
+          <Content>{content}</Content>
+        </StyledRnd>
+      )}
     </Overlay>,
     document.body,
   );

@@ -83,9 +83,7 @@ const SellerPrice = () => {
         updateWallet("irr", total.irr, "-");
         navigate(FeatureSvg(rgb));
       })
-      .catch((error) =>
-        ToastError(error?.response?.data?.message || "خطای سرور"),
-      );
+      
   };
 
   return (

@@ -13,7 +13,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { UserContextTypes } from "../../../../services/actions/UserContextAction";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import useRequest from "../../../../hooks/useRequest.js";
-import DefaultProfile from "../../../../assets/images/defulte-profile.png";
+import DefaultProfile from "../../../../assets/images/avatars/defulte-profile.png";
 import SliderSkeleton from "../../../../components/Skeletons/SliderSkeleton";
 import ImageCropper from "../../../../components/ImageCropper/ImageCropper";
 import { getTranslation } from "../../../../services/Utility";

@@ -1,91 +1,163 @@
-// تابع برای دانلود ویدیو های راهنما 
-
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useRequest from "./useRequest";
 
-const useAdviserData = (newStr, locationState) => {
-  // Here we are initializing two state variables using hooks: "adviserData".
-  const [adviserData, setAdviserData] = useState({});
-  // We are also extracting "Request" and "HTTP_METHOD" from "useRequest".
+const MOBILE_QUERY = "(max-width: 1000px)";
+
+const ADVISER_ROUTES = {
+  "/settings/public": {
+    urlRequest: "setting",
+    adviserPage: "general-setting-desktop",
+  },
+  "/settings/account": {
+    urlRequest: "setting",
+    adviserPage: "account-setting-desktop",
+  },
+  "/profile/total": {
+    urlRequest: "profile",
+    adviserPage: "owner-specifications-desktop",
+  },
+  "/profile/property/houses": {
+    urlRequest: "profile",
+    adviserPage: "owner-property-feature-desktop",
+  },
+  "/profile/property/following": {
+    urlRequest: "profile",
+    adviserPage: "owner-property-feature-desktop",
+  },
+  "/profile/property/followers": {
+    urlRequest: "profile",
+    adviserPage: "owner-property-feature-desktop",
+  },
+  "/documents/write": {
+    urlRequest: "sanad",
+    adviserPage: "vod-send-desktop",
+  },
+  "/documents/notes": {
+    urlRequest: "sanad",
+    adviserPage: "vod-note-desktop",
+  },
+  "/report/send": {
+    urlRequest: "reports",
+    adviserPage: "reports-report-desktop",
+  },
+  "/verification/identity": {
+    urlRequest: "kyc",
+    adviserPage: "kyc-man-desktop",
+  },
+  "/verification/bank": {
+    urlRequest: "kyc",
+    adviserPage: "kyc-bank-desktop",
+  },
+  "/confirmation": {
+    urlRequest: "account-security",
+    adviserPage: "account-security-code-desktop",
+    mobileAdviserPage: "account-security-code-mobile",
+  },
+  "/profile/dynasty/recieved": {
+    urlRequest: "dynasty",
+    adviserPage: "request-received-desktop",
+  },
+  "/profile/dynasty/send": {
+    urlRequest: "dynasty",
+    adviserPage: "submitted-request-desktop",
+  },
+  "/profile/dynasty/members": {
+    urlRequest: "dynasty",
+    adviserPage: "family-members-desktop",
+  },
+  "/profile/dynasty/establish": {
+    urlRequest: "dynasty",
+    adviserPage: "establishment-desktop",
+  },
+  "/notifications": {
+    urlRequest: "notification",
+    adviserPage: "notifications-desktop",
+  },
+  "/store/tools": {
+    urlRequest: "shop",
+    adviserPage: "shop-tools-desktop",
+  },
+  "/store/currency": {
+    urlRequest: "shop",
+    adviserPage: "shop-currency-desktop",
+  },
+  "/search/citizen": {
+    urlRequest: "search",
+    adviserPage: "citizen-desktop",
+  },
+};
+
+const resolveAdviserRoute = (pathname = "", isMobile = false) => {
+  const pathSegments = pathname.split("?")[0].split("/").filter(Boolean);
+  const normalizedPath = `/${pathSegments.join("/")}`;
+  const exactRoute = ADVISER_ROUTES[normalizedPath];
+  if (exactRoute) {
+    if (exactRoute.mobileAdviserPage) {
+      return {
+        ...exactRoute,
+        adviserPage: isMobile
+          ? exactRoute.mobileAdviserPage
+          : exactRoute.adviserPage,
+      };
+    }
+    return exactRoute;
+  }
+
+  if (normalizedPath.startsWith("/profile/property/")) {
+    return ADVISER_ROUTES["/profile/property/houses"];
+  }
+
+  if (normalizedPath.startsWith("/store/tools/")) {
+    return ADVISER_ROUTES["/store/tools"];
+  }
+
+  if (normalizedPath.startsWith("/store/currency/")) {
+    return ADVISER_ROUTES["/store/currency"];
+  }
+
+  if (normalizedPath.startsWith("/feature/")) {
+    return {
+      urlRequest: "feature",
+      adviserPage: "feature-offer-citizen-desktop",
+    };
+  }
+
+  return null;
+};
+
+const useAdviserData = (pathname) => {
   const { Request, HTTP_METHOD } = useRequest();
-  // We define a mapping object that maps page IDs to corresponding URLs and adviser pages.
+  const [isMobile, setIsMobile] = useState(
+    () => window.matchMedia(MOBILE_QUERY).matches,
+  );
+  const route = resolveAdviserRoute(pathname, isMobile);
+  const requestKey = route ? `${route.urlRequest}/${route.adviserPage}` : null;
+  const pendingRef = useRef(null);
 
-  const pageMappings = {
-    // Each key-value pair represents a page ID and its corresponding URL and adviser page.
-    "settings-1": {
-      urlRequest: "setting",
-      adviserPage: "general-setting-desktop",
-    },
-    "settings-2": {
-      urlRequest: "setting",
-      adviserPage: "account-setting-desktop",
-    },
-    "profile-1": {
-      urlRequest: "profile",
-      adviserPage: "owner-specifications-desktop",
-    },
-    "profile-2": {
-      urlRequest: "profile",
-      adviserPage: "owner-property-feature-desktop",
-    },
-    "login-": { urlRequest: "login", adviserPage: "login-desktop" },
-    "signup-": { urlRequest: "register", adviserPage: "register-desktop" },
-    "store-1": { urlRequest: "shop", adviserPage: "shop-tools-desktop" },
-    "store-2": { urlRequest: "shop", adviserPage: "shop-currency-desktop" },
-    "sanad-1": { urlRequest: "sanad", adviserPage: "vod-send-desktop" },
-    "sanad-2": { urlRequest: "sanad", adviserPage: "vod-note-desktop" },
-    "report-1": {
-      urlRequest: "reports",
-      adviserPage: "reports-report-desktop",
-    },
-    "verification-1": { urlRequest: "kyc", adviserPage: "kyc-man-desktop" },
-    "verification-2": {
-      urlRequest: "kyc",
-      adviserPage: "kyc-attachment-desktop",
-    },
-    "verification-3": { urlRequest: "kyc", adviserPage: "kyc-bank-desktop" },
-    "confirmation-": {
-      urlRequest: "account-security",
-      adviserPage: "account-security-code-desktop",
-    },
-    "dynasty-1": {
-      urlRequest: "dynasty",
-      adviserPage: "request-received-desktop",
-    },
-    "dynasty-2": {
-      urlRequest: "dynasty",
-      adviserPage: "submitted-request-desktop",
-    },
-    "dynasty-3": {
-      urlRequest: "dynasty",
-      adviserPage: "family-members-desktop",
-    },
-    "dynasty-4": {
-      urlRequest: "dynasty",
-      adviserPage: "establishment-desktop",
-    },
-    "notifications-": {
-      urlRequest: "notification",
-      adviserPage: "notifications-desktop",
-    },
-  };
-
-  // We use the location state or string passed in to retrieve the corresponding URL and adviser page from "pageMappings".
-  const { urlRequest, adviserPage } =
-    pageMappings[locationState || newStr] || {};
-  // In this effect hook, we make an HTTP POST request to retrieve the adviser data based on the retrieved URL and adviser page.
   useEffect(() => {
-    if (!urlRequest || !adviserPage) return; // If either "urlRequest" or "adviserPage" is null, return.
+    const query = window.matchMedia(MOBILE_QUERY);
+    const handleChange = (event) => setIsMobile(event.matches);
 
-    Request("video-tutorials", HTTP_METHOD.POST, {
-      url: `tutorials/${urlRequest}/${adviserPage}`,
-    }).then((response) => {
-      setAdviserData(response.data.data); // Finally, we update the "adviserData" state variable with the retrieved data.
-    });
-  }, [urlRequest, adviserPage]);
+    query.addEventListener("change", handleChange);
+    return () => query.removeEventListener("change", handleChange);
+  }, []);
 
-  // This function returns the current adviser data.
-  return adviserData;
+  return useCallback(() => {
+    if (!requestKey) return Promise.resolve(null);
+    if (pendingRef.current?.key === requestKey)
+      return pendingRef.current.promise;
+
+    const promise = Request("video-tutorials", HTTP_METHOD.POST, {
+      url: `tutorials/${requestKey}`,
+    })
+      .then(({ data }) => data.data) // آرایه‌ی ویدیوها: [{ id, title, video_url, image_url, ... }]
+      .finally(() => {
+        if (pendingRef.current?.promise === promise) pendingRef.current = null;
+      });
+
+    pendingRef.current = { key: requestKey, promise };
+    return promise;
+  }, [Request, HTTP_METHOD, requestKey]);
 };
 
 export default useAdviserData;

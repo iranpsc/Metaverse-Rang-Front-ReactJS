@@ -1,7 +1,8 @@
 import { useEffect, useRef } from "react";
+import { useNavigate } from "react-router";
 import useAuth from "../hooks/useAuth.js";
 import { getItem } from "../services/Utility/LocalStorage";
-
+import { getTranslation, ToastError } from "../services/Utility/index.jsx";
 const USER_KEY = "user";
 const MAX_TIMEOUT = 2 ** 31 - 1;
 
@@ -26,6 +27,7 @@ const extractLoginParams = () => {
 const loginParams = extractLoginParams();
 
 const AuthMiddleware = ({ children }) => {
+  const navigate = useNavigate();
   const {
     setUserWithToken,
     setUser,
@@ -44,6 +46,8 @@ const AuthMiddleware = ({ children }) => {
       if (!active || expiring.current) return;
       expiring.current = true;
       logout();
+      navigate("/", { replace: true });
+      ToastError(getTranslation(1948));
     };
 
     const scheduleExpiration = () => {
@@ -63,6 +67,7 @@ const AuthMiddleware = ({ children }) => {
         return;
       }
 
+      expiring.current = false;
       timer = window.setTimeout(
         scheduleExpiration,
         Math.min(remaining, MAX_TIMEOUT),
@@ -91,7 +96,10 @@ const AuthMiddleware = ({ children }) => {
       if (document.visibilityState === "visible") scheduleExpiration();
     };
 
+    const handleUnauthorized = () => expireSession();
+
     window.addEventListener("storage", handleStorage);
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
     document.addEventListener("visibilitychange", handleVisibility);
     scheduleExpiration();
 
@@ -99,7 +107,10 @@ const AuthMiddleware = ({ children }) => {
       const initializeSession = async () => {
         if (loginParams) {
           try {
-            await setUser(loginParams);
+            const sessionPromise = setUser(loginParams);
+            loginInProgress.current = false;
+            scheduleExpiration();
+            await sessionPromise;
           } catch (error) {
             console.error("Could not initialize the login session:", error);
             logout();
@@ -131,11 +142,13 @@ const AuthMiddleware = ({ children }) => {
       active = false;
       window.clearTimeout(timer);
       window.removeEventListener("storage", handleStorage);
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
       document.removeEventListener("visibilitychange", handleVisibility);
     };
   }, [
     getUser,
     logout,
+    navigate,
     setUser,
     setUserWithToken,
   ]);

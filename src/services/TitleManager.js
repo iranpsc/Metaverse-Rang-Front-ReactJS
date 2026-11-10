@@ -1,21 +1,8 @@
+// تعیین عنوان و نام صفحه برای هدر مدال‌ها از روی آدرس صفحه‌ی قبل؛ در Header مدال و ErrorReportTab استفاده می‌شود و برای مسیر ناشناخته مقدار پیش‌فرض برمی‌گرداند.
 import { getTranslation } from "./Utility";
-
-const t = (id) => getTranslation(id);
 
 const DEFAULT_TITLE = "905";
 const DEFAULT_PAGE = "148";
-
-const getSegments = (path) => {
-  const pathname = (path ?? "")
-    .replace(/^https?:\/\/[^/]+/, "")
-    .split("?")[0]
-    .split("#")[0];
-
-  return pathname.split("/").filter(Boolean);
-};
-
-const isId = (seg) => /^\d+$/.test(seg);
-const isDynamicSegment = (seg) => /^packet-/.test(seg);
 
 const pageTranslations = {
   Documents: "1315",
@@ -77,78 +64,43 @@ const titleTranslations = {
   physic: "356",
   participation: "357",
   building: "355",
-};
-const getLastTextSegment = (segments) => {
-  for (let i = segments.length - 1; i >= 0; i--) {
-    const seg = segments[i];
-
-    if (isId(seg)) continue;
-    if (isDynamicSegment(seg)) continue;
-
-    return {
-      value: seg,
-      index: i,
-    };
-  }
-
-  return null;
+  history: "1780",
 };
 
-const getPrevTextSegment = (segments, index) => {
-  for (let i = index - 1; i >= 0; i--) {
-    const seg = segments[i];
+// فقط کلیدهای خود آبجکت؛ جلوی مقدارهایی مثل constructor یا __proto__ که از آدرس می‌آیند را می‌گیرد
+const lookup = (map, key) => (Object.hasOwn(map, key) ? map[key] : undefined);
 
-    if (isId(seg)) continue;
-    if (isDynamicSegment(seg)) continue;
+const isId = (seg) => /^\d+$/.test(seg);
+const isDynamicSegment = (seg) => /^packet-/.test(seg);
 
-    return seg;
-  }
+const getSegments = (path) =>
+  (path ?? "")
+    .replace(/^https?:\/\/[^/]+/, "")
+    .split(/[?#]/)[0]
+    .split("/")
+    .filter(Boolean);
 
-  return null;
-};
+const getModalHeaderFromPrevious = (path = "") => {
+  const segments = getSegments(path);
 
-const getPageKey = (segments) =>
-  segments.find((seg) => seg !== "metaverse" && !isId(seg));
-
-const getModalHeaderFromPrevious = (pathname = "") => {
-  const segments = getSegments(pathname);
-
-  if (!segments.length) {
-    return {
-      title: t(DEFAULT_TITLE),
-      page: t(DEFAULT_PAGE),
-    };
-  }
-
-  const lastObj = getLastTextSegment(segments);
-
-  if (!lastObj) {
-    return {
-      title: t(DEFAULT_TITLE),
-      page: t(DEFAULT_PAGE),
-    };
-  }
-
-  const { value: last, index } = lastObj;
-
-  const prev = getPrevTextSegment(segments, index);
-
-  const titleKey = prev ? `${prev}-${last}` : last;
+  // بخش‌های متنی بدون آیدی و بخش‌های پویا؛ آخری عنوان است و ماقبلش پیشوند کلید
+  const textSegments = segments.filter(
+    (seg) => !isId(seg) && !isDynamicSegment(seg),
+  );
+  const last = textSegments.at(-1);
+  const prev = textSegments.at(-2);
 
   const titleId =
-    titleTranslations[titleKey] ??
-    titleTranslations[last] ??
+    lookup(titleTranslations, prev ? `${prev}-${last}` : last) ??
+    lookup(titleTranslations, last) ??
     DEFAULT_TITLE;
 
-  const pageKey = getPageKey(segments);
-
-  const pageId =
-    pageTranslations[pageKey] ??
-    DEFAULT_PAGE;
+  const pageKey = segments.find((seg) => seg !== "metaverse" && !isId(seg));
+  const pageId = lookup(pageTranslations, pageKey) ?? DEFAULT_PAGE;
 
   return {
-    title: t(titleId),
-    page: t(pageId),
+    title: getTranslation(titleId),
+    page: getTranslation(pageId),
   };
 };
 

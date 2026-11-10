@@ -15,14 +15,13 @@ import {
   ConvertJalali,
   convertToPersian,
   getTranslation,
-  ToastError,
   ToastSuccess,
   truncateText,
 } from "../../services/Utility/index.jsx";
-import circle from "../../assets/images/link-circle.png";
-import insta from "../../assets/images/instagram.png";
-import send from "../../assets/images/send-2.png";
-import whatsapp from "../../assets/images/whatsapp.png";
+import circle from "../../assets/images/social/link-circle.png";
+import insta from "../../assets/images/social/instagram.png";
+import send from "../../assets/images/social/send-2.png";
+import whatsapp from "../../assets/images/social/whatsapp.png";
 
 const SOCIAL_ICONS = [circle, whatsapp, insta, send];
 const MAX_TITLE_LENGTH = 60;
@@ -202,7 +201,7 @@ const ConversationDetails = ({ type, data, setData, setShowDetails }) => {
         setData((prev) => ({ ...prev, status: config.closedStatus }));
         setShowDetails(false);
       })
-      .catch((error) => ToastError(error.response?.data?.error));
+      
 
   const handleSent = (newMessages) => {
     if (newMessages) setMessages(newMessages);

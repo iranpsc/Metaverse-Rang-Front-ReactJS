@@ -6,8 +6,7 @@ import Button from "../Button.jsx";
 import CustomEditor from "../Common/CustomEditor.jsx";
 import FileUploader from "../FileUploader/FileUploader.jsx";
 import useRequest from "../../hooks/useRequest.js";
-import { SanitizeHTML, getTranslation } from "../../services/Utility/index.jsx";
-
+import { getTranslation } from "../../services/Utility/index.jsx";
 const CHAR_LIMIT = 2000;
 const MAX_FILE_SIZE_MB = 9;
 
@@ -31,11 +30,10 @@ const ReplyForm = ({ url, onSent }) => {
   };
 
   const handleSend = () => {
-    const cleanMessage = SanitizeHTML(message);
-    if (!cleanMessage || isSending) return;
+    if (!message || isSending) return;
 
     const formData = new FormData();
-    formData.append("response", cleanMessage);
+    formData.append("response", message);
     files.forEach((file) => formData.append("attachments[]", file));
 
     setIsSending(true);

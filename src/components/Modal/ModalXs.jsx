@@ -4,7 +4,7 @@ import { createPortal } from "react-dom";
 import styled, { css } from "styled-components";
 import Header from "../Header/Header";
 import { Overlay } from "./styles";
-
+import { getTranslation } from "../../services/Utility";
 // استایل قبلی کانتینر مدال رسید
 const compactStyles = css`
   width: min(415px, calc(100vw - 24px));
@@ -26,7 +26,7 @@ const compactStyles = css`
 const globalStyles = css`
   position: fixed;
   inset: 0;
-  z-index: 100001;
+  z-index: 2147483645;
 `;
 
 const GlobalAwareOverlay = styled(Overlay)`
@@ -77,6 +77,7 @@ const ModalXs = ({
               onClose={onClose}
               onReportClick={onReportClick}
               onHelpClick={onHelpClick}
+              educationTitle={getTranslation(title)}
               locationPage={locationPage}
               reportFrom={reportFrom}
             />

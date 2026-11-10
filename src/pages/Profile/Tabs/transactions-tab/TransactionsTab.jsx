@@ -10,7 +10,6 @@ import useRequest from "../../../../hooks/useRequest.js";
 import { COLOR_CONFIG } from "../../../../services/constants/colorConfig";
 import {
   getTranslation,
-  ToastError,
 } from "../../../../services/Utility";
 
 // کلیدهای استیت فیلترها => مقداری که به بک‌اند ارسال می‌شود
@@ -122,10 +121,8 @@ const TransactionsTab = () => {
         setTransactions((prev) => (pageNum === 1 ? rows : [...prev, ...rows]));
         setHasMore(!!data.links?.next);
         pageRef.current = pageNum;
-      } catch (err) {
-        if (requestId === requestIdRef.current) {
-          ToastError(err.response?.data?.message || "خطا در دریافت تراکنش‌ها");
-        }
+      } catch {
+        // useRequest already displays request errors.
       } finally {
         if (requestId === requestIdRef.current) {
           setLoading(false);

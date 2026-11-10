@@ -4,7 +4,7 @@ import useAuth from "../../hooks/useAuth.js";
 import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import BtnsMenu from "./BtnsMenu";
 import { FaChevronDown } from "react-icons/fa";
-import DefaultProfile from "../../assets/images/defulte-profile.png";
+import DefaultProfile from "../../assets/images/avatars/defulte-profile.png";
 import Message from "../../assets/svg/message.svg?react";
 import ProfileMember from "../../assets/svg/profileMember.svg";
 import Ticket from "../../assets/svg/ticket.svg";

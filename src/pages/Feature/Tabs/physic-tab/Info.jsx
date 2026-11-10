@@ -1,7 +1,8 @@
 import { BiEditAlt } from "react-icons/bi";
 import styled from "styled-components";
 import TitleHeader from "../../../../components/TitleHeader";
-import { getTranslation, SanitizeHTML } from "../../../../services/Utility";
+import HtmlContent from "../../../../components/HtmlContent";
+import { getTranslation } from "../../../../services/Utility";
 
 const Container = styled.div`
   margin-top: 25px;
@@ -36,7 +37,7 @@ const Button = styled.div`
   }
 `;
 
-const Text = styled.p`
+const Text = styled(HtmlContent)`
   color: ${(props) => props.theme.colors.newColors.shades.title};
   line-height: 1.5rem;
   margin-top: 10px;
@@ -60,11 +61,7 @@ const Info = ({ inputs, setEdit, edit }) => {
   return (
     <Container>
       <TitleHeader title={getTranslation("365")} />
-      <Text
-        dangerouslySetInnerHTML={{
-          __html: SanitizeHTML(description),
-        }}
-      />
+      <Text html={description} />
       {edit && (
         <Button onClick={() => setEdit(true)}>
           <BiEditAlt />

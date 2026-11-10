@@ -147,7 +147,27 @@ export function TimeAgo(time) {
 }
 
 //تابع محاسبه  زمان باقیمانده
+export const parseServerDate = (value) => {
+  const text = fixNumbers(String(value ?? "").trim());
+  const match = text.match(
+    /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/,
+  );
 
+  // میلادی و ISO را خود Date درست می‌خواند
+  if (!match || Number(match[1]) >= JALALI_MAX_YEAR) {
+    return new Date(text).getTime();
+  }
+
+  const [year, month, day, hours, minutes, seconds] = match
+    .slice(1)
+    .map((part) => Number(part ?? 0));
+
+  if (!isValidJalaaliDate(year, month, day)) return NaN;
+
+  const { gy, gm, gd } = toGregorian(year, month, day);
+
+  return new Date(gy, gm - 1, gd, hours, minutes, seconds).getTime();
+};
 export function GetTimeElapsed(date) {
   if (!date) return null;
 
@@ -527,6 +547,50 @@ export const levelIds = {
   داور: 76,
   دادگذار: 77,
 };
+const LEVEL_SLUGS = {
+  شهروند: "citizen-baguette",
+  "روزنامه نگار": "reporter-baguette",
+  "مشارکت کننده": "participation-baguette",
+  "توسعه دهنده": "developer-baguette",
+  بازرس: "inspector-baguette",
+  بازرگان: "businessman-baguette",
+  دادخواه: "lawyer-baguette",
+  "اعضای شورای شهر": "city-council-baguette",
+  شهردار: "the-mayor-baguette",
+  فرماندار: "governor-baguette",
+  وزیر: "minister-baguette",
+  داور: "judge-baguette",
+  دادگذار: "legislator-baguette",
+};
+const LEVEL_SLUGS_BY_ID = {
+  1: "citizen-baguette",
+  2: "reporter-baguette",
+  3: "participation-baguette",
+  4: "developer-baguette",
+  5: "inspector-baguette",
+  6: "businessman-baguette",
+  7: "lawyer-baguette",
+  8: "city-council-baguette",
+  9: "the-mayor-baguette",
+  10: "governor-baguette",
+  11: "minister-baguette",
+  12: "judge-baguette",
+  13: "legislator-baguette",
+};
+
+// آدرس صفحه‌ی لول با زبان فعلی اپ؛ برای لولی که اسلاگ ندارد undefined برمی‌گرداند
+export const metarangLevelUrl = (levelName) =>
+  Object.hasOwn(LEVEL_SLUGS, levelName)
+    ? metarangUrl(`levels/citizen/${LEVEL_SLUGS[levelName]}/general-info`)
+    : undefined;
+
+export const metarangLevelUrlById = (levelId) =>
+  Object.hasOwn(LEVEL_SLUGS_BY_ID, levelId)
+    ? metarangUrl(
+        `levels/citizen/${LEVEL_SLUGS_BY_ID[levelId]}/general-info`,
+      )
+    : undefined;
+
 export const DATE_PATTERN = /^\d{4}[/-]\d{1,2}[/-]\d{1,2}/;
 
 const INVISIBLE_CHARS =

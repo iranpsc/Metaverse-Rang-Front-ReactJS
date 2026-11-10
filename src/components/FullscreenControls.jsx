@@ -4,7 +4,7 @@ import {
   FullscreenControlContainer,
   CustomButton,
 } from "../layouts/map/styles";
-import FullPageIcon from "../assets/images/fullPage.svg?react";
+import FullPageIcon from "../assets/images/controls/fullPage.svg?react";
 
 const FullscreenControls = ({
   isPersian,

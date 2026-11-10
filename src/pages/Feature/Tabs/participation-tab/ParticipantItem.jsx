@@ -5,7 +5,7 @@ import { FiTrash2 } from "react-icons/fi";
 import { HiOutlineUser } from "react-icons/hi";
 import { IoIosArrowDown } from "react-icons/io";
 
-import satisfyIcon from "../../../../assets/images/satisfy.png";
+import satisfyIcon from "../../../../assets/images/rewards/satisfy.png";
 import DeleteConfirmModal from "./DeleteConfirmModal";
 import EditConfirmModal from "./EditConfirmModal";
 import TitleValue from "../../../Store/shop/TitleValue";

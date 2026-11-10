@@ -12,6 +12,7 @@ const Dialog = styled.div`
   width: 81%;
   height: 100%;
   padding: 20px;
+  padding-bottom: 50px;
   overflow: hidden;
   background-color: ${({ theme }) => theme.colors.newColors.shades.bg2};
 

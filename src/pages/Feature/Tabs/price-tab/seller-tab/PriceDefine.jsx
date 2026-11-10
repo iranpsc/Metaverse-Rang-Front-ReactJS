@@ -108,9 +108,7 @@ const PriceDefine = () => {
           },
         }));
       })
-      .catch((error) => {
-        ToastError(error.response.data.message);
-      });
+      
   };
 
   return (

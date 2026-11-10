@@ -8,7 +8,6 @@ import { Skeleton } from "../../../../components/Skeletons/Skeleton.jsx";
 import useRequest from "../../../../hooks/useRequest.js";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import {
-  ToastError,
   ToastSuccess,
   getTranslation,
 } from "../../../../services/Utility";
@@ -59,7 +58,7 @@ const Album = ({ feature, setFeature, isLoading }) => {
         setFeature({ ...feature, images: [...data.data] });
         ToastSuccess(getTranslation(1628));
       })
-      .catch((error) => ToastError(error?.response?.data?.message));
+      
 
   // اعتبارسنجی حجم و تعداد داخل FileUploader انجام می‌شود
   const handleUpload = (file) => {
@@ -86,7 +85,7 @@ const Album = ({ feature, setFeature, isLoading }) => {
         setActiveImage(remaining[0] ?? null);
         ToastSuccess(getTranslation(1631));
       })
-      .catch((error) => ToastError(error?.response?.data?.message));
+      
   };
 
   // کلیک روی خود عکس (نه دکمه‌ی دانلود) به‌جای باز شدن تب جدید، اسلایدر را باز می‌کند

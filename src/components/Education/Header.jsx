@@ -1,10 +1,9 @@
-// هدر برای مدال راهنما
+// هدر مدال راهنما؛ عنوان را از پراپ یا از روی آدرس تبی که کاربر الان داخلش است می‌سازد و دکمه‌های بزرگ/کوچک‌کردن و بستن را نشان می‌دهد.
 import { IoIosClose } from "react-icons/io";
 import { TbMinimize, TbMaximize } from "react-icons/tb";
 import styled from "styled-components";
-import { ExitIcon } from "../Icons/IconsHeader";
 import { useLocation } from "react-router";
-import { useEffect, useState } from "react";
+import { ExitIcon } from "../Icons/IconsHeader";
 import getModalHeaderFromPrevious from "../../services/TitleManager";
 import { getTranslation } from "../../services/Utility";
 
@@ -14,8 +13,8 @@ const Div = styled.div`
   align-items: center;
   justify-content: center;
   border-radius: 100%;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.iconBg};
+  background-color: ${({ theme }) => theme.colors.newColors.otherColors.iconBg};
+
   svg {
     transform: scale(0.7);
     cursor: pointer;
@@ -25,18 +24,19 @@ const Div = styled.div`
 const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
-  width: 100%;
   justify-content: space-between;
+  width: 100%;
 
   @media (max-width: 998px) {
-    display: ${(props) => (props.show ? "none" : "flex")};
+    display: ${({ $hidden }) => ($hidden ? "none" : "flex")};
   }
 `;
 
 const Text = styled.h2`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
   font-weight: 600;
-  font-size: ${(props) => (props.long ? "14px" : "16px")};
+  font-size: 16px;
+
   @media (min-width: 998px) {
     font-size: 20px;
   }
@@ -46,11 +46,13 @@ const Icons = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
+
   svg {
-    color: ${(props) => props.theme.colors.newColors.otherColors.iconText};
+    color: ${({ theme }) => theme.colors.newColors.otherColors.iconText};
     width: 30px;
     height: 30px;
     z-index: 999;
+
     @media (min-width: 998px) {
       width: 40px;
       height: 40px;
@@ -66,36 +68,25 @@ const Header = ({
   isFullscreen,
   onToggleFullscreen,
 }) => {
-  const location = useLocation();
-  const [routeTitle, setRouteTitle] = useState("");
+  const { pathname } = useLocation();
+  const { title } = getModalHeaderFromPrevious(pathname);
 
-  useEffect(() => {
-    // فقط وقتی title از بیرون نیومده، از روی route بگیر
-    if (titleProp) return;
-    const basePath = location.state?.from || location.pathname;
-    const { title } = getModalHeaderFromPrevious(basePath);
-    setRouteTitle(title);
-  }, [location.pathname, location.state, titleProp]);
-
-  // اگه title عدد (کلید ترجمه) بود ترجمه‌ش کن، وگرنه همون رو نشون بده
+  // اگه title عدد (کلید ترجمه) بود ترجمه‌ش کن، اگه نبود از روی آدرس تب فعلی بساز
   const displayTitle = titleProp
     ? typeof titleProp === "number"
       ? getTranslation(String(titleProp))
       : titleProp
-    : routeTitle;
-
+    : title;
   const handleMinimizeClick = (e) => {
     e.stopPropagation();
     if (onToggleFullscreen) onToggleFullscreen();
     else setSize?.(true);
   };
 
-  const handleCloseClick = () => setOpenEducation?.(false);
-
   const showToggle = onToggleFullscreen || setSize;
 
   return (
-    <HeaderWrapper show={show}>
+    <HeaderWrapper $hidden={show}>
       <Text>{displayTitle}</Text>
 
       <Icons>
@@ -114,7 +105,11 @@ const Header = ({
           </Div>
         )}
 
-        <ExitIcon role="button" data-no-drag onClick={handleCloseClick}>
+        <ExitIcon
+          role="button"
+          data-no-drag
+          onClick={() => setOpenEducation?.(false)}
+        >
           <IoIosClose />
         </ExitIcon>
       </Icons>

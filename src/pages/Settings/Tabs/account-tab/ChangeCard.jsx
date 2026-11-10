@@ -221,8 +221,7 @@ const ChangeCard = ({
       setTimer(RESEND_TIMER);
       ToastSuccess(getTranslation(1836));
       return true;
-    } catch (error) {
-      ToastError(error.response?.data?.message || getTranslation(1835));
+    } catch {
       return false;
     }
   };
@@ -246,7 +245,7 @@ const ChangeCard = ({
 
       ToastSuccess(getTranslation(1832));
     } catch {
-      ToastError(getTranslation(1831));
+      return;
     }
   };
 

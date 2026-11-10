@@ -1,7 +1,7 @@
 // کارت یک ملک برای انتخاب در ساخت سلسله (عکس، کد ملک، پایداری و دکمه‌ی انتخاب)؛ مناسب لیست املاک صفحه‌ی PropertySelect
 
 import styled from "styled-components";
-import house from "../../../../../assets/images/house.png";
+import house from "../../../../../assets/images/properties/house.png";
 import Button from "../../../../../components/Button";
 import LandText from "../../../../../components/LandText";
 import TitleBody from "../../../../../components/TitleBody";

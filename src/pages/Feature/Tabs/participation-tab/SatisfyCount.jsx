@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useMemo, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import styled from "styled-components";
 
@@ -6,6 +6,7 @@ import {
   convertToPersian,
   getTranslation,
   ToastSuccess,
+  parseServerDate,
 } from "../../../../services/Utility";
 import useWalletUpdate from "../../../../hooks/useWalletUpdate.js";
 import Button from "../../../../components/Button";
@@ -26,7 +27,8 @@ const Card = styled.div`
   padding: 16px 20px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  background-color: ${({ theme }) => theme.colors.newColors.otherColors.bgContainer};
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.bgContainer};
 `;
 
 const Svg = styled.div`
@@ -111,7 +113,7 @@ const TIME_UNITS = [
 ];
 
 const calculateTimeLeft = (endDate) => {
-  const diff = Math.floor((new Date(endDate).getTime() - Date.now()) / 1000);
+  const diff = Math.floor((parseServerDate(endDate) - Date.now()) / 1000);
   if (!(diff > 0)) return EMPTY_TIME; // پوشش NaN هم
 
   return {
@@ -131,7 +133,9 @@ const SatisfyCount = ({ isOwner }) => {
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
   const { buildings, removeBuilding } = useMapData();
   const updateWallet = useWalletUpdate();
-  const [timeLeft, setTimeLeft] = useState(EMPTY_TIME);
+  const [isDeleting, setIsDeleting] = useState(false);
+  // فقط برای رندر دوباره‌ی هر ثانیه؛ زمان باقی‌مانده هر بار از روی endDate حساب می‌شود
+  const [, tick] = useReducer((count) => count + 1, 0);
 
   const activeBuilding = useMemo(
     () => buildings.find((b) => b?.building?.feature_id === Number(id)) ?? null,
@@ -144,18 +148,18 @@ const SatisfyCount = ({ isOwner }) => {
   const launchedSatisfaction =
     Number(activeBuilding?.building?.launched_satisfaction) || 0;
 
+  const timeLeft = calculateTimeLeft(endDate);
   useEffect(() => {
     if (!endDate) return;
-
-    const tick = () => setTimeLeft(calculateTimeLeft(endDate));
-    tick();
 
     const interval = setInterval(tick, 1000);
     return () => clearInterval(interval);
   }, [endDate]);
 
   const handleDeleteBuilding = async () => {
-    if (!checkSecurity()) return;
+    if (isDeleting || !checkSecurity()) return;
+
+    setIsDeleting(true);
 
     try {
       await Request(
@@ -169,9 +173,10 @@ const SatisfyCount = ({ isOwner }) => {
       removeBuilding(buildingId);
     } catch (error) {
       console.error("❌ Delete building error:", error);
+    } finally {
+      setIsDeleting(false);
     }
   };
-
   return (
     <Card>
       <Svg>
@@ -187,6 +192,7 @@ const SatisfyCount = ({ isOwner }) => {
               color="#ff0000"
               label={getTranslation("1594")}
               onClick={handleDeleteBuilding}
+              disabled={isDeleting ? "pending" : false}
             />
           )}
         </Header>

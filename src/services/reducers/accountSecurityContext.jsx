@@ -9,12 +9,14 @@ export const useAccountSecurity = () => useContext(AccountSecurityContext);
 export const AccountSecurityProvider = ({ children }) => {
   const [isAccountSecurityOpen, setIsAccountSecurityOpen] = useState(false);
   const [educationData, setEducationData] = useState(null);
+  const [educationTitle, setEducationTitle] = useState(null);
   const [sectionId, setSectionId] = useState(null);
   const [selectedItemId, setSelectedItemId] = useState(null);
 
   const closeAccountSecurity = () => setIsAccountSecurityOpen(false);
-  const openEducation = (data) => {
+  const openEducation = (data, title) => {
     setEducationData(data);
+    setEducationTitle(title);
   };
 
   return (
@@ -39,8 +41,13 @@ export const AccountSecurityProvider = ({ children }) => {
       {educationData && (
         <Education
           adviserData={educationData}
+          title={educationTitle}
+          overlayZIndex={2147483646}
           setOpenEducation={(isOpen) => {
-            if (!isOpen) setEducationData(null);
+            if (!isOpen) {
+              setEducationData(null);
+              setEducationTitle(null);
+            }
           }}
         />
       )}

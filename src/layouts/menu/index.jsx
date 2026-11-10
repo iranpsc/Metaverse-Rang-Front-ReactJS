@@ -26,7 +26,7 @@ const BlurOverlay = styled.div`
   }
 `;
 const Container = styled.div`
-position: relative;
+  position: relative;
   display: ${({ show }) => (show ? "none" : "flex")};
   flex-direction: column;
   align-items: start;
@@ -34,7 +34,7 @@ position: relative;
   justify-content: start;
   width: ${({ isPersian, isOpen }) =>
     isPersian ? (isOpen ? "35%" : "9%") : isOpen ? "38%" : "9%"};
-
+  max-width: 250px;
   height: 100%;
   border-radius: 10px;
 
@@ -96,7 +96,6 @@ const Menu = () => {
         <PublicComponent>
           <BtnLogin />
         </PublicComponent>
-       
       </Container>
     </>
   );

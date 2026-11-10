@@ -7,6 +7,7 @@ import {
   convertToPersian,
   getTranslation,
   levelIds,
+  metarangLevelUrl,
 } from "../../../../services/Utility";
 import LevelSkeleton from "../../../../components/Skeletons/LevelSkeleton";
 import useRequest from "../../../../hooks/useRequest.js";
@@ -106,14 +107,16 @@ const LevelItemWrapper = styled.div`
     transform: scale(1.15);
   }
 `;
-
-const LevelItem = styled.div`
+const LevelItem = styled.a`
   display: flex;
   position: relative;
   width: 100%;
   height: 100%;
-`;
 
+  &[href] {
+    cursor: pointer;
+  }
+`;
 const Level = () => {
   const [user] = useContext(UserContext);
   const [loading, setLoading] = useState(true);
@@ -159,7 +162,6 @@ const Level = () => {
     ...(latest_level ? [latest_level] : []),
     ...[...previous_levels].reverse(),
   ];
-
   return (
     <Container>
       <Percent IsPersian={IsPersian}>
@@ -189,7 +191,11 @@ const Level = () => {
               lang={i18n.language}
               place={"top"}
               Chidren={
-                <LevelItem>
+                <LevelItem
+                  href={metarangLevelUrl(level.name)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <img src={level.image} alt={level.name} />
                 </LevelItem>
               }

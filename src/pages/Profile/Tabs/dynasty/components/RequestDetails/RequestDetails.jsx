@@ -2,23 +2,20 @@ import Button from "../../../../../../components/Button.jsx";
 import MemberCard from "./MemberCard.jsx";
 import {
   getTranslation,
-  ToastError,
   ToastSuccess,
-  SanitizeHTML,
   ConvertJalali,
   convertToPersian,
+  formatNumber,
 } from "../../../../../../services/Utility/index.jsx";
-import { createPortal } from "react-dom";
-import ConfettiExplosion from "react-confetti-explosion";
 import styled from "styled-components";
-import gift from "../../../../../../assets/images/satisfy.png";
+import gift from "../../../../../../assets/images/rewards/satisfy.png";
 import ModalLg from "../../../../../../components/Modal/ModalLg.jsx";
 import useRequest from "../../../../../../hooks/useRequest.js";
 import useWalletUpdate from "../../../../../../hooks/useWalletUpdate.js";
 import TitleBody from "../../../../../../components/TitleBody.jsx";
 import { useRef, useState } from "react";
 import { COLOR_CONFIG } from "../../../../../../services/constants/colorConfig.js";
-
+import HtmlContent from "../../../../../../components/HtmlContent.jsx";
 const Container = styled.div`
   max-height: 100%;
   overflow-y: auto;
@@ -31,7 +28,6 @@ const Buttons = styled.div`
   gap: 15px;
   margin-top: 30px;
 `;
-
 
 const RewardBox = styled.div`
   width: 100%;
@@ -67,34 +63,9 @@ const Reward = styled.div`
   }
 `;
 
-const ConfettiAnchor = styled.div`
-  position: fixed;
-  width: 0;
-  height: 0;
-  z-index: 9999;
-  pointer-events: none;
-`;
-
 const ButtonWrap = styled.div`
   display: inline-flex;
 `;
-
-const ConfettiEffect = ({ x, y, onComplete }) =>
-  createPortal(
-    <ConfettiAnchor style={{ left: x, top: y }}>
-      <ConfettiExplosion
-        zIndex={9999}
-        particleCount={150}
-        duration={3000}
-        colors={["#18C08F"]}
-        particleSize={5}
-        width={400}
-        height="100vh"
-        onComplete={onComplete}
-      />
-    </ConfettiAnchor>,
-    document.body,
-  );
 
 const RequestDetails = ({
   setShowDetails,
@@ -112,42 +83,34 @@ const RequestDetails = ({
   const [isSending, setIsSending] = useState(false);
   const { Request, HTTP_METHOD } = useRequest();
   const rewardButtonRef = useRef(null);
-  const [confettiOrigin, setConfettiOrigin] = useState(null);
+  const [isExploding, setIsExploding] = useState(false);
 
   const handleReject = () => {
-    Request(`dynasty/requests/recieved/${data.id}`, HTTP_METHOD.DELETE)
-      .then(() => {
+    Request(`dynasty/requests/recieved/${data.id}`, HTTP_METHOD.DELETE).then(
+      () => {
         ToastSuccess(getTranslation(1852));
         setRows((prev) => prev.filter((row) => row.id !== data.id));
 
         setShowDetails(false);
-      })
-      .catch((error) => {
-        ToastError(error.response.data.message);
-      });
+      },
+    );
   };
   const handleCancel = () => {
-    Request(`dynasty/requests/sent/${data.id}`, HTTP_METHOD.DELETE)
-      .then(() => {
-        ToastSuccess(getTranslation(1853));
-        setRows((prev) => prev.filter((row) => row.id !== data.id));
-        setShowDetails(false);
-      })
-      .catch((error) => {
-        ToastError(error.response.data.message);
-      });
+    Request(`dynasty/requests/sent/${data.id}`, HTTP_METHOD.DELETE).then(() => {
+      ToastSuccess(getTranslation(1853));
+      setRows((prev) => prev.filter((row) => row.id !== data.id));
+      setShowDetails(false);
+    });
   };
   const handleAccept = () => {
-    Request(`dynasty/requests/recieved/${data.id}`, HTTP_METHOD.POST)
-      .then(() => {
+    Request(`dynasty/requests/recieved/${data.id}`, HTTP_METHOD.POST).then(
+      () => {
         ToastSuccess(getTranslation(1854));
         setRows((prev) => prev.filter((row) => row.id !== data.id));
 
         setShowDetails(false);
-      })
-      .catch((error) => {
-        ToastError(error.response.data.message);
-      });
+      },
+    );
   };
   const handleGift = async () => {
     if (isSending) return;
@@ -155,35 +118,25 @@ const RequestDetails = ({
     setIsSending(true);
 
     try {
-      await Request(`dynasty/prizes/${data.id}`, HTTP_METHOD.POST);
+      await Request(`dynasty/prizes/${data.prize.id}`, HTTP_METHOD.POST);
 
       ToastSuccess(getTranslation("جایزه شما با موفقیت دریافت شد"));
 
-      const rect = rewardButtonRef.current?.getBoundingClientRect();
-
-      if (rect) {
-        setConfettiOrigin({
-          x: rect.left + rect.width / 2,
-          y: rect.top + rect.height / 2,
-          key: Date.now(),
-        });
-      }
-
       updateWallet("psc", Number(psc) || 0, "+");
       updateWallet("satisfaction", Number(gif) || 0, "+");
+      setIsExploding(true);
 
       setTimeout(() => {
         setShowDetails(false);
       }, 800);
-    } catch (error) {
-      ToastError(error.response?.data?.message || "خطا در دریافت پاداش");
+    } catch {
+      // useRequest already displays request errors.
     } finally {
       setIsSending(false);
     }
   };
 
   const isSendType = type === "sent";
-
   return (
     <ModalLg setShowModal={setShowDetails} titleId={isSendType ? "113" : "114"}>
       <Container>
@@ -192,11 +145,15 @@ const RequestDetails = ({
           date={ConvertJalali(date)}
           time={convertToPersian(time)}
           code={code}
-          name={data.from_user.name}
-          image={data?.from_user?.profile_photo}
+          name={isSendType ? data?.to_user?.name : data?.from_user?.name}
+          image={
+            isSendType
+              ? data?.to_user?.profile_photo
+              : data?.from_user?.profile_photo
+          }
         />
         <div style={{ marginTop: "30px" }}>
-          <TitleBody title={SanitizeHTML(data.message)} />
+          <HtmlContent html={data.message} />
         </div>
 
         <Buttons>
@@ -223,12 +180,12 @@ const RequestDetails = ({
           <RewardBox>
             <Rewards>
               <Reward>
-                <TitleBody title={convertToPersian(gif ?? 0)} />
+                <TitleBody title={convertToPersian(formatNumber(gif ?? 0))} />
                 <img src={gift} alt="" />
               </Reward>
 
               <Reward>
-                <TitleBody title={convertToPersian(psc ?? 0)} />
+                <TitleBody title={convertToPersian(formatNumber(psc ?? 0))} />
 
                 <img src={COLOR_CONFIG.psc.gif} alt="" />
               </Reward>
@@ -236,23 +193,20 @@ const RequestDetails = ({
 
             <ButtonWrap ref={rewardButtonRef}>
               <Button
-                disabled={isSending}
+                disabled={isSending || data.prize.collected}
                 onClick={handleGift}
-                label={getTranslation(856)}
-                color="#18C08F"
-                textColor="#D7FBF0"
+                label={
+                  data.prize.collected
+                    ? "پاداش دریافت شده"
+                    : getTranslation(856)
+                }
+                color={!data.prize.collected ? "#18C08F" : undefined}
+                grayTheme={data.prize.collected}
+                explode={isExploding}
                 fit
+                explosionColor="#18C08F"
               />
             </ButtonWrap>
-
-            {confettiOrigin && (
-              <ConfettiEffect
-                key={confettiOrigin.key}
-                x={confettiOrigin.x}
-                y={confettiOrigin.y}
-                onComplete={() => setConfettiOrigin(null)}
-              />
-            )}
           </RewardBox>
         )}
       </Container>

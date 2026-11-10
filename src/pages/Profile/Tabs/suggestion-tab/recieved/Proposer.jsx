@@ -1,12 +1,11 @@
-// Proposer.jsx
-import { useMemo, useState } from "react";
-import ConfettiExplosion from "react-confetti-explosion";
+// کارت پیشنهاد خرید روی ملک (خریدار، قیمت، درصد سود/ضرر، مهلت و دکمه‌های رد/قبول)؛ مناسب لیست پیشنهادهای دریافتی مالک که هر پیشنهاد را رد یا قبول می‌کند یا مهلت می‌دهد
+
+import { useState } from "react";
 import { MdOutlineKeyboardArrowUp } from "react-icons/md";
 import styled from "styled-components";
 import moment from "moment-jalaali";
 
-import DefaultProfile from "../../../../../assets/images/defulte-profile.png";
-import line from "../../../../../assets/images/profile/Line.png";
+import DefaultProfile from "../../../../../assets/images/avatars/defulte-profile.png";
 
 import Button from "../../../../../components/Button";
 import HtmlContent from "../../../../../components/HtmlContent.jsx";
@@ -20,15 +19,13 @@ import {
   convertToPersian,
   formatNumber,
   getTranslation,
-  SanitizeHTML,
-  ToastError,
 } from "../../../../../services/Utility/index";
 import {
   BasePrice,
   Info,
   Prices,
   proposerContainer,
-  Text,
+  Text,Divider
 } from "../suggestionStyles";
 import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
@@ -38,6 +35,8 @@ const NOTE_LIMIT = 277;
 const SUCCESS_STATUSES = [200, 204];
 const GRACE_OPTIONS = [7, 1];
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
+const REJECT_COLOR = "#c30000";
+const ACCEPT_COLOR = "#18C08F";
 
 const Header = styled.div`
   display: flex;
@@ -103,14 +102,12 @@ const Buttons = styled.div`
   }
 `;
 
-const ButtonWrapper = styled.div`
-  position: relative;
-`;
-
 const StyledArrowUp = styled(MdOutlineKeyboardArrowUp)`
   color: ${({ $isPositive }) => ($isPositive ? "#18C08F" : "#FF0000")};
   rotate: ${({ $isPositive }) => ($isPositive ? "" : "180deg")};
 `;
+
+
 
 const getGraceRemainingDays = (gracePeriod) => {
   if (!gracePeriod) return 0;
@@ -119,10 +116,7 @@ const getGraceRemainingDays = (gracePeriod) => {
   return Math.max(0, Math.ceil((graceDate - new Date()) / MS_PER_DAY));
 };
 
-// درصد سود/ضرر کاربر: پیشنهاد خریدار نسبت به قیمت نهایی ملک
-// مثبت = خریدار بیشتر از قیمت نهایی پیشنهاد داده (سود)
-// منفی = پیشنهاد کمتر از قیمت نهایی است (ضرر)
-// اگر قیمت نهایی نامعتبر باشد null برمی‌گرداند
+
 const calculateProfitPercent = (buyerPrice, finalPrice) => {
   if (!finalPrice) return null;
   return ((buyerPrice - finalPrice) / finalPrice) * 100;
@@ -133,34 +127,6 @@ const PriceItem = ({ src, value }) => (
     <img width={24} height={24} src={src} alt="" />
     <TitleBody title={convertToPersian(formatNumber(value))} />
   </div>
-);
-
-const Divider = () => <img width={1} height={24} src={line} alt="" />;
-
-const ConfettiEffect = ({ color }) => (
-  <ConfettiExplosion
-    zIndex={9999}
-    particleCount={150}
-    duration={3000}
-    colors={[color]}
-    particleSize={5}
-    height="100vh"
-    width={400}
-    style={{
-      position: "absolute",
-      left: "50%",
-      top: "50%",
-      transform: "translate(-50%, -50%)",
-      pointerEvents: "none",
-    }}
-  />
-);
-
-const ActionButton = ({ color, showConfetti, ...props }) => (
-  <ButtonWrapper>
-    <Button full color={color} textColor="#FFFFFF" {...props} />
-    {showConfetti && <ConfettiEffect color={color} />}
-  </ButtonWrapper>
 );
 
 const Proposer = ({ item, finalPrice, onRemoved }) => {
@@ -184,13 +150,10 @@ const Proposer = ({ item, finalPrice, onRemoved }) => {
   const information = item.note || "";
   const isLongNote = information.length > NOTE_LIMIT;
 
-  const noteHtml = useMemo(() => {
-    const text =
-      isLongNote && !isExpanded
-        ? `${information.slice(0, NOTE_LIMIT)}...`
-        : information;
-    return SanitizeHTML(text);
-  }, [information, isLongNote, isExpanded]);
+  const noteHtml =
+    isLongNote && !isExpanded
+      ? `${information.slice(0, NOTE_LIMIT)}...`
+      : information;
 
   const performAction = async (endpoint, onSuccess) => {
     if (!checkSecurity()) return;
@@ -201,8 +164,8 @@ const Proposer = ({ item, finalPrice, onRemoved }) => {
         "POST",
       );
       if (SUCCESS_STATUSES.includes(response.status)) onSuccess();
-    } catch (error) {
-      ToastError(error?.response?.data?.message);
+    } catch {
+      // useRequest already displays request errors.
     }
   };
 
@@ -221,8 +184,8 @@ const Proposer = ({ item, finalPrice, onRemoved }) => {
         "production",
       );
       setDay(selectedDay);
-    } catch (error) {
-      ToastError(error?.response?.data?.message);
+    } catch {
+      // useRequest already displays request errors.
     }
   };
 
@@ -328,17 +291,23 @@ const Proposer = ({ item, finalPrice, onRemoved }) => {
         )}
 
         <Buttons>
-          <ActionButton
-            color="#c30000"
+          <Button
+            full
+            textColor="#FFFFFF"
+            color={REJECT_COLOR}
             label={getTranslation("775")}
+            explode={isExploding}
+            explosionColor={REJECT_COLOR}
             onClick={handleReject}
-            showConfetti={isExploding}
           />
-          <ActionButton
-            color="#18C08F"
+          <Button
+            full
+            textColor="#FFFFFF"
+            color={ACCEPT_COLOR}
             label={getTranslation("776")}
+            explode={isExplodingAccept}
+            explosionColor={ACCEPT_COLOR}
             onClick={handleAccept}
-            showConfetti={isExplodingAccept}
           />
         </Buttons>
       </div>

@@ -1,4 +1,4 @@
-import defulte from "../../../../../assets/images/defulte-profile.png";
+import defulte from "../../../../../assets/images/avatars/defulte-profile.png";
 import styled from "styled-components";
 import { getTranslation } from "../../../../../services/Utility";
 import Message from "../../../../../assets/svg/message.svg?react";

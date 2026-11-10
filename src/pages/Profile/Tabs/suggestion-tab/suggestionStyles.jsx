@@ -19,7 +19,11 @@ export const SuggestionsContainer = styled.div`
   padding: 10px;
   border-radius: 5px;
 `;
-
+export const Divider = styled.span`
+  width: 0.1px;
+  height: 24px;
+  background-color: ${({ theme }) => theme.colors.newColors.shades.title};
+`;
 export const Wrapper = styled.div`
   display: grid;
   align-items: start;

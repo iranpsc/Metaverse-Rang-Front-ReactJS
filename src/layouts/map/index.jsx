@@ -13,13 +13,14 @@ import { useNavigate } from "react-router";
 import { Container } from "./styles";
 import MapPolygons from "./MapPolygons";
 import MapFlag from "./MapFlag";
-import Mark from "./3dModelMap/Mark";
 import { useSelectedEnvironment } from "../../services/reducers/SelectedEnvironmentContext.jsx";
 import { useIsRtl } from "../../services/reducers/LanguageContext.jsx";
 import * as turf from "@turf/turf";
 import AuthMiddleware from "../../middleware/AuthMiddleware";
 import ZoomControls from "../../components/ZoomControls";
 import FullscreenControls from "../../components/FullscreenControls";
+import { Marker } from "react-map-gl/maplibre";
+import { Skeleton } from "../../components/Skeletons/Skeleton";
 import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext.jsx";
 import { useTheme } from "../../services/reducers/ThemeContext.jsx";
 import styleMapLight from "../../assets/styleMapLight.json";
@@ -29,6 +30,7 @@ import { flyToMapPosition } from "../../services/Utility/flyToMapPosition";
 export const TransactionContext = createContext(null);
 const MemoMapPolygons = React.memo(MapPolygons);
 const MemoMapFlag = React.memo(MapFlag);
+const Mark = React.lazy(() => import("./3dModelMap/Mark"));
 const MemoMark = React.memo(Mark);
 setWorkerUrl("/assets/maplibre-gl-worker.mjs");
 const MapTreeD = () => {
@@ -203,7 +205,6 @@ const MapTreeD = () => {
                 antialias: true,
               }}
               mapStyle={initialStyle}
-              RTLTextPlugin="https://api-map.metarang.com/rtl.js"
               interactiveLayerIds={
                 isPlacementActive ? [] : ["polygon-fill-layer"]
               }
@@ -220,7 +221,23 @@ const MapTreeD = () => {
               onLoad={() => setMapLoaded(true)}
             >
               {confirmation && selectedEnvironment && !hiddenModel && (
-                <MemoMark />
+                <React.Suspense
+                  fallback={
+                    <Marker
+                      latitude={mapRef.current?.getCenter().lat ?? 25.229}
+                      longitude={mapRef.current?.getCenter().lng ?? 54.2199}
+                      anchor="center"
+                    >
+                      <Skeleton
+                        width="48px"
+                        height="48px"
+                        radius="50%"
+                      />
+                    </Marker>
+                  }
+                >
+                  <MemoMark />
+                </React.Suspense>
               )}
 
               <MemoMapPolygons />

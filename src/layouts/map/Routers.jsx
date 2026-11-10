@@ -1,66 +1,147 @@
+import { lazy, Suspense, useContext } from "react";
 import { Outlet, Route, Routes, Navigate } from "react-router";
 
-import Search from "../../pages/Search";
 import PrivateRoute from "../../routes/PrivateRoute";
-import Report from "../../pages/Report";
-import Sanad from "../../pages/Documents";
-import Settings from "../../pages/Settings";
-import Notifications from "../../pages/Notifications";
-import Store from "../../pages/Store";
-import Profile from "../../pages/Profile";
-import Verification from "../../pages/Verification";
-import Feature from "../../pages/Feature";
-import ConditionalPage from "../../pages/Feature/ConditionalPage";
-import Commercial from "../../components/Lottie/Commercial";
-import Residential from "../../components/Lottie/Residential";
-import Educational from "../../components/Lottie/Educational";
-import SignupLottie from "../../components/Lottie/SignupLottie";
-import HourMeterProfit from "../../pages/HourMeterProfit";
-import WalletSetupTab from "../../pages/MetaWallet/WalletSetupTab";
-import AccountSecurityModal from "../../pages/AccountSecurity";
-//import { ProfileInfoProvider } from './services/reducers/profileInfoContext.jsx';
-import WriteVodTab from "../../pages/Documents/Tabs/writeWodTab/WriteVodTab";
-import VodListTab from "../../pages/Documents/Tabs/DocsList/VodListTab";
-import ReceivedList from "../../pages/Documents/Tabs/DocsList/receive/ReceivedList";
-import SentList from "../../pages/Documents/Tabs/DocsList/sent/SentList";
-import NotesListTab from "../../pages/Documents/Tabs/notes/NotesListTab";
-import Challenge from "../../pages/Challenges/Challenge";
-import DynastyTab from "../../pages/Profile/Tabs/dynasty/DynastyTab";
-import PropertyTab from "../../pages/Profile/Tabs/property-tab/PropertyTab";
-import TotalTab from "../../pages/Profile/Tabs/total-tab/TotalTab";
-import SuggestionTab from "../../pages/Profile/Tabs/suggestion-tab/SuggestionTab";
-import TransactionsTab from "../../pages/Profile/Tabs/transactions-tab/TransactionsTab";
-import Followers from "../../pages/Profile/Tabs/property-tab/follower/Followers";
-import Following from "../../pages/Profile/Tabs/property-tab/following/Following";
-import Houses from "../../pages/Profile/Tabs/property-tab/houses/Houses";
-import DynastyEstablishEstate from "../../pages/Profile/Tabs/dynasty/DynastyEstablishEstate";
-import DynastyMembers from "../../pages/Profile/Tabs/dynasty/dynasty-members/DynastyMembers";
-import RecievedListTab from "../../pages/Profile/Tabs/dynasty/recieve/RecievedListTab";
-import SentListTab from "../../pages/Profile/Tabs/dynasty/sent/SentListTab";
-import RecievedSuggestion from "../../pages/Profile/Tabs/suggestion-tab/recieved/RecievedSuggestion";
-import SentSuggestion from "../../pages/Profile/Tabs/suggestion-tab/sent/SentSuggestion";
-import AccountTab from "../../pages/Settings/Tabs/account-tab/AccountTab";
-import PublicTab from "../../pages/Settings/Tabs/public-tab/PublicTab";
-import SecurityTab from "../../pages/Settings/Tabs/security-tab/SecurityTab";
-import AboutMeTab from "../../pages/Settings/Tabs/aboutme-tab/AboutMeTab";
-import CitizenTab from "../../pages/Search/Tabs/citizen-tab/CitizenTab";
-import SearchPropertyTab from "../../pages/Search/Tabs/property-tab/SearchPropertyTab";
-import ProfitView from "../../pages/HourMeterProfit/components/ProfitView";
-import BankTab from "../../pages/Verification/Tabs/bank-tab/BankTab";
-import IdentityTab from "../../pages/Verification/Tabs/identity-tab/IdentityTab";
-import ToolTab from "../../pages/Store/shop/tool-tab/ToolTab";
-import CurrencyTab from "../../pages/Store/shop/currency-tab/CurrencyTab";
-import ToolsContent from "../../pages/Store/shop/tool-tab/ToolsContent";
-import CurrenciesContent from "../../pages/Store/shop/currency-tab/CurrenciesContent";
-import ErrorReportTab from "../../pages/Report/reports/ErrorReportTab/ErrorReportTab";
-import ReportsListTab from "../../pages/Report/reports/ReportsListTab/ReportsListTab";
+import RouteSkeleton from "../../components/Skeletons/RouteSkeleton";
 import MainLayout from "../MainLayout";
-import { useContext } from "react";
+//import { ProfileInfoProvider } from './services/reducers/profileInfoContext.jsx';
 import { UserContext } from "../../services/reducers/UserContext";
+
+const Search = lazy(() => import("../../pages/Search"));
+const Report = lazy(() => import("../../pages/Report"));
+const Sanad = lazy(() => import("../../pages/Documents"));
+const Settings = lazy(() => import("../../pages/Settings"));
+const Notifications = lazy(() => import("../../pages/Notifications"));
+const Store = lazy(() => import("../../pages/Store"));
+const Profile = lazy(() => import("../../pages/Profile"));
+const Verification = lazy(() => import("../../pages/Verification"));
+const Feature = lazy(() => import("../../pages/Feature"));
+const ConditionalPage = lazy(
+  () => import("../../pages/Feature/ConditionalPage"),
+);
+const Commercial = lazy(() => import("../../components/Lottie/Commercial"));
+const Residential = lazy(() => import("../../components/Lottie/Residential"));
+const Educational = lazy(() => import("../../components/Lottie/Educational"));
+const SignupLottie = lazy(() => import("../../components/Lottie/SignupLottie"));
+const HourMeterProfit = lazy(() => import("../../pages/HourMeterProfit"));
+const AccountSecurityModal = lazy(() => import("../../pages/AccountSecurity"));
+const WriteVodTab = lazy(
+  () => import("../../pages/Documents/Tabs/writeWodTab/WriteVodTab"),
+);
+const VodListTab = lazy(
+  () => import("../../pages/Documents/Tabs/DocsList/VodListTab"),
+);
+const ReceivedList = lazy(
+  () => import("../../pages/Documents/Tabs/DocsList/receive/ReceivedList"),
+);
+const SentList = lazy(
+  () => import("../../pages/Documents/Tabs/DocsList/sent/SentList"),
+);
+const NotesListTab = lazy(
+  () => import("../../pages/Documents/Tabs/notes/NotesListTab"),
+);
+const Challenge = lazy(() => import("../../pages/Challenges/Challenge"));
+const DynastyTab = lazy(
+  () => import("../../pages/Profile/Tabs/dynasty/DynastyTab"),
+);
+const PropertyTab = lazy(
+  () => import("../../pages/Profile/Tabs/property-tab/PropertyTab"),
+);
+const TotalTab = lazy(
+  () => import("../../pages/Profile/Tabs/total-tab/TotalTab"),
+);
+const SuggestionTab = lazy(
+  () => import("../../pages/Profile/Tabs/suggestion-tab/SuggestionTab"),
+);
+const TransactionsTab = lazy(
+  () => import("../../pages/Profile/Tabs/transactions-tab/TransactionsTab"),
+);
+const Followers = lazy(
+  () => import("../../pages/Profile/Tabs/property-tab/follower/Followers"),
+);
+const Following = lazy(
+  () => import("../../pages/Profile/Tabs/property-tab/following/Following"),
+);
+const Houses = lazy(
+  () => import("../../pages/Profile/Tabs/property-tab/houses/Houses"),
+);
+const DynastyEstablishEstate = lazy(
+  () => import("../../pages/Profile/Tabs/dynasty/DynastyEstablishEstate"),
+);
+const DynastyMembers = lazy(
+  () =>
+    import("../../pages/Profile/Tabs/dynasty/dynasty-members/DynastyMembers"),
+);
+const RecievedListTab = lazy(
+  () => import("../../pages/Profile/Tabs/dynasty/recieve/RecievedListTab"),
+);
+const SentListTab = lazy(
+  () => import("../../pages/Profile/Tabs/dynasty/sent/SentListTab"),
+);
+const SentSuggestion = lazy(
+  () => import("../../pages/Profile/Tabs/suggestion-tab/sent/SentSuggestion"),
+);
+const AccountTab = lazy(
+  () => import("../../pages/Settings/Tabs/account-tab/AccountTab"),
+);
+const PublicTab = lazy(
+  () => import("../../pages/Settings/Tabs/public-tab/PublicTab"),
+);
+const SecurityTab = lazy(
+  () => import("../../pages/Settings/Tabs/security-tab/SecurityTab"),
+);
+const AboutMeTab = lazy(
+  () => import("../../pages/Settings/Tabs/aboutme-tab/AboutMeTab"),
+);
+const CitizenTab = lazy(
+  () => import("../../pages/Search/Tabs/citizen-tab/CitizenTab"),
+);
+const ProfitView = lazy(
+  () => import("../../pages/HourMeterProfit/components/ProfitView"),
+);
+const BankTab = lazy(
+  () => import("../../pages/Verification/Tabs/bank-tab/BankTab"),
+);
+const IdentityTab = lazy(
+  () => import("../../pages/Verification/Tabs/identity-tab/IdentityTab"),
+);
+const ToolTab = lazy(
+  () => import("../../pages/Store/shop/tool-tab/ToolTab"),
+);
+const CurrencyTab = lazy(
+  () => import("../../pages/Store/shop/currency-tab/CurrencyTab"),
+);
+const ToolsContent = lazy(
+  () => import("../../pages/Store/shop/tool-tab/ToolsContent"),
+);
+const CurrenciesContent = lazy(
+  () => import("../../pages/Store/shop/currency-tab/CurrenciesContent"),
+);
+const ErrorReportTab = lazy(
+  () =>
+    import("../../pages/Report/reports/ErrorReportTab/ErrorReportTab"),
+);
+const ReportsListTab = lazy(
+  () => import("../../pages/Report/reports/ReportsListTab/ReportsListTab"),
+);
+const WalletSetupTab = lazy(
+  () => import("../../pages/MetaWallet/WalletSetupTab"),
+);
+const SearchPropertyTab = lazy(
+  () => import("../../pages/Search/Tabs/property-tab/SearchPropertyTab"),
+);
+const RecievedSuggestion = lazy(
+  () =>
+    import(
+      "../../pages/Profile/Tabs/suggestion-tab/recieved/RecievedSuggestion"
+    ),
+);
+
 export default function Routers() {
   const [user] = useContext(UserContext);
   return (
-    <Routes>
+    <Suspense fallback={<RouteSkeleton />}>
+      <Routes>
       <Route path="" element={<MainLayout />}>
         <Route
           path="documents"
@@ -122,7 +203,10 @@ export default function Routers() {
           </Route>
           <Route path="suggestion" element={<SuggestionTab />}>
             <Route index element={<Navigate to="recieved" replace />} />
-            <Route path="recieved" element={<RecievedSuggestion />} />
+            <Route
+              path="recieved"
+              element={<RecievedSuggestion />}
+            />
             <Route path="sent" element={<SentSuggestion />} />
           </Route>
         </Route>
@@ -177,7 +261,10 @@ export default function Routers() {
         >
           <Route index element={<Navigate to="citizen" replace />} />
           <Route path="citizen" element={<CitizenTab />} />
-          <Route path="property" element={<SearchPropertyTab />} />
+          <Route
+            path="property"
+            element={<SearchPropertyTab />}
+          />
         </Route>
         <Route
           path="profit"
@@ -280,6 +367,7 @@ export default function Routers() {
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
-    </Routes>
+      </Routes>
+    </Suspense>
   );
 }

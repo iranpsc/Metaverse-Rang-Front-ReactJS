@@ -7,9 +7,7 @@ import { useLocation, useNavigate } from "react-router";
 import styled from "styled-components";
 import ToolTip from "../../../../components/Tooltip/Tooltip";
 import useRequest from "../../../../hooks/useRequest.js";
-import { ToastError, getTranslation } from "../../../../services/Utility";
-
-const DEFAULT_ERROR = "خطایی رخ داد، لطفاً دوباره تلاش کنید";
+import { getTranslation } from "../../../../services/Utility";
 
 const Container = styled.div`
   display: flex;
@@ -76,9 +74,6 @@ const Buttons = ({ user }) => {
       setFollowOverride(shouldFollow);
     } catch (error) {
       console.error("Follow API error:", error);
-      ToastError(
-        error?.response?.data?.error || error?.message || DEFAULT_ERROR,
-      );
     } finally {
       setLoading(false);
     }

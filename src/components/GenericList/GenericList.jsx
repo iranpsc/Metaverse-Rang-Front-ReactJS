@@ -4,16 +4,13 @@ import styled, { css } from "styled-components";
 import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { isValidJalaaliDate, toGregorian } from "jalaali-js";
-import VodRow from "../../pages/Documents/Tabs/DocsList/VodRow";
-import TransactionRow from "../../pages/Profile/Tabs/transactions-tab/TransactionRow";
-import { Skeleton } from "../Skeletons/Skeleton.jsx";
-import { COLOR_CONFIG } from "../../services/constants/colorConfig";
+import GenericListSkeleton from "../Skeletons/GenericListSkeleton";
 import { getTranslation, isMobile } from "../../services/Utility";
 import SearchInput from "../SearchInput";
 import CustomDatePicker from "../CustomDatePicker";
-import RequestRow from "../../pages/Profile/Tabs/dynasty/components/RequestRow";
-import ReportRow from "../../pages/Report/reports/ReportsListTab/ReportRow";
 import { getSize } from "../../styles/sizes";
+import { LIST_CONFIG } from "./configs";
+
 const responsiveFont = css`
   font-size: ${({ $size }) => getSize($size, "base")};
 
@@ -27,12 +24,8 @@ const responsiveFont = css`
 `;
 const LOAD_STEP = 10;
 
-const gif = (key) => COLOR_CONFIG[key].gif;
-const skeleton = (width = "100px", height = "16px", radius = "4px") => ({
-  width,
-  height,
-  radius,
-});
+// حداقل ارتفاع جدول‌های فیلتردار تا منوی فیلتر با لیست خالی بریده نشود
+const FILTER_MENU_MIN_HEIGHT = "380px";
 
 // رنگ آیتم‌های فیلتر وضعیت
 const VARIANTS = {
@@ -49,6 +42,12 @@ const TableScroller = styled.div`
   overflow-x: auto;
   overscroll-behavior-x: contain;
   border-radius: 0.25rem;
+
+  ${({ $hasFilter }) =>
+    $hasFilter &&
+    css`
+      min-height: ${FILTER_MENU_MIN_HEIGHT};
+    `}
 
   &::-webkit-scrollbar {
     display: none;
@@ -203,18 +202,6 @@ const FilterOption = styled.div`
   }}
 `;
 
-const SkeletonRow = styled.tr`
-  td {
-    padding: 15px 20px;
-    border-bottom: 1px solid #454545;
-  }
-`;
-
-const SkeletonCell = styled(Skeleton)`
-  margin-right: auto;
-  margin-left: auto;
-`;
-
 const Loader = styled.div`
   display: flex;
   align-items: center;
@@ -322,182 +309,6 @@ const filterRowsByDate = (rows, dateKey, [start, end]) => {
     const date = parseDate(row?.[dateKey]);
     return date && date.getTime() >= from && date.getTime() < toExclusive;
   });
-};
-
-/* ----------------------------- Config ----------------------------- */
-const STATUS_OPTIONS = [
-  { key: "confirmed", title: "1343" },
-  { key: "pending", title: "1373" },
-  { key: "failed", title: "1345" },
-  { key: "read", title: "1346" },
-];
-
-const LIST_CONFIG = {
-  tickets: {
-    RowComponent: VodRow,
-    getRowProps: (row, index, variant) => ({ variant }),
-    // تشخیص خودکار وقتی type پاس داده نشده
-    detect: (row) => row && "code" in row && "sender" in row,
-    // مقدار(های) عددی status برای هر فیلتر؛ می‌تونه عدد یا آرایه باشه
-    statusValues: { pending: 0, confirmed: 1, read: 4, failed: 5 },
-    // فیلد متنی که سرچ روی اون انجام میشه
-    searchKey: "title",
-    columns: (variant) => [
-      { title: "1339", skeleton: skeleton("60px") },
-      { title: "1319", skeleton: skeleton("200px") },
-      {
-        title: variant === "sent" ? "1448" : "1340",
-        skeleton: skeleton("200px"),
-      },
-      {
-        title: "1341",
-        filter: { stateKey: "status", options: STATUS_OPTIONS },
-        skeleton: skeleton("80px"),
-      },
-      { title: "64", nowrap: true, skeleton: skeleton("120px") },
-      { title: "1342", skeleton: skeleton("40px", "40px", "8px") },
-    ],
-  },
-
-  transactions: {
-    RowComponent: TransactionRow,
-    // فیلتر و صفحه‌بندی سمت سرور انجام می‌شود، پس فیلتر و slice محلی غیرفعال است
-    serverSide: true,
-    getRowProps: (row, index) => ({
-      paymentReturned:
-        sessionStorage.getItem("payment_returned") === "true" && index === 0,
-    }),
-    columns: [
-      { title: "63", skeleton: skeleton() },
-      { title: "64", width: "235px", skeleton: skeleton("150px") },
-      {
-        title: "65",
-        skeleton: skeleton("80px"),
-        filter: {
-          stateKey: "status",
-          options: [
-            { key: "success", title: "741", variant: "success" },
-            { key: "pending", title: "743", variant: "pending" },
-            { key: "failed", title: "742", variant: "failed" },
-          ],
-        },
-      },
-      {
-        title: "746",
-        width: "140px",
-        skeleton: skeleton("80px"),
-        filter: {
-          stateKey: "title",
-          options: [
-            { key: "property_buy", title: "739" },
-            { key: "property_dealing", title: "740" },
-          ],
-        },
-      },
-      {
-        title: "750",
-        width: "165px",
-        skeleton: skeleton("80px"),
-        filter: {
-          stateKey: "subject",
-          options: [
-            { key: "blue", title: "753", icon: gif("blue") },
-            { key: "red", title: "754", icon: gif("red") },
-            { key: "yellow", title: "755", icon: gif("yellow") },
-            { key: "rial", title: "756", icon: gif("irr") },
-            { key: "psc", title: "757", icon: gif("psc") },
-          ],
-        },
-      },
-      { title: "66", skeleton: skeleton() },
-      { title: "67", skeleton: skeleton("40px", "40px", "8px") },
-    ],
-  },
-  //برای بخش درخواست های ارسالی دریافتی سلسله
-  requests: {
-    RowComponent: RequestRow,
-    minHeight: "400px",
-    // type ردیف همان variant است (sent یا received)
-    getRowProps: (row, index, variant) => ({ type: variant }),
-    // سربرگ ستون اول بر اساس variant عوض می‌شود
-    columns: (variant) => [
-      {
-        title: variant === "sent" ? "1448" : "1447",
-        skeleton: skeleton("100px"),
-      },
-      { title: "850", skeleton: skeleton("120px") },
-      {
-        title: "145",
-        skeleton: skeleton("80px"),
-        filter: {
-          stateKey: "member",
-          options: [
-            { key: "child", title: "129" },
-            { key: "wife", title: "825" },
-            { key: "sister", title: "127" },
-            { key: "brother", title: "128" },
-            { key: "father", title: "125" },
-            { key: "mother", title: "126" },
-          ],
-        },
-      },
-      {
-        title: "146",
-        skeleton: skeleton("80px"),
-        filter: {
-          stateKey: "status",
-          options: [
-            { key: "confirmed", title: "854" },
-            { key: "pending", title: "852" },
-            { key: "failed", title: "853" },
-          ],
-        },
-      },
-      { title: "851", skeleton: skeleton("100px") },
-      { title: "147", skeleton: skeleton("40px", "40px", "8px") },
-    ],
-  },
-  reports: {
-    RowComponent: ReportRow,
-    minHeight: "300px",
-    columns: [
-      { title: "1383", nowrap: true, width: "0%", skeleton: skeleton("40px") },
-      { title: "19", width: "40%", skeleton: skeleton("200px") },
-      {
-        title: "746",
-        nowrap: true,
-        width: "12%",
-        align: "center",
-
-        skeleton: skeleton("100px"),
-        filter: {
-          stateKey: "member",
-          options: [
-            { key: "displayError", title: "1385" },
-            { key: "spellingError", title: "15" },
-            { key: "codingError", title: "16" },
-            { key: "FPSError", title: "17" },
-            { key: "disrespect", title: "18" },
-          ],
-        },
-      },
-      { title: "64", nowrap: true, width: "16%", skeleton: skeleton("120px") },
-      {
-        title: "1380",
-        nowrap: true,
-        width: "10%",
-        skeleton: skeleton("40px", "40px", "6px"),
-      },
-    ],
-  },
-  // بخش جدید:
-  // receipt: {
-  //   RowComponent: ReceiptRow,
-  //   detect: (row) => row && "receipt_id" in row,
-  //   statusValues: {...},
-  //   searchKey: "...",
-  //   columns: [...],
-  // },
 };
 
 const resolveConfig = (type, rows) => {
@@ -634,6 +445,7 @@ const GenericList = ({
       ? config.columns(variant)
       : config.columns;
   const visibleRows = serverSide ? rows : filteredRows.slice(0, visibleCount);
+  const hasFilter = columns.some(({ filter }) => filter);
 
   const handleSearchChange = (value) => {
     if (searchConfig?.value === undefined) {
@@ -721,17 +533,6 @@ const GenericList = ({
     </TableHead>
   );
 
-  const renderSkeleton = () =>
-    Array.from({ length: 5 }, (_, index) => (
-      <SkeletonRow key={index}>
-        {columns.map(({ title, skeleton: cell }) => (
-          <td key={title}>
-            <SkeletonCell {...cell} />
-          </td>
-        ))}
-      </SkeletonRow>
-    ));
-
   return (
     <Container $minHeight={config.minHeight} $size={size}>
       {(searchConfig || dateFilterConfig) && (
@@ -756,21 +557,23 @@ const GenericList = ({
           )}
         </Toolbar>
       )}
-      <TableScroller>
+      <TableScroller $hasFilter={hasFilter}>
         <Table>
           {renderHeader()}
           <tbody>
-            {isLoading
-              ? renderSkeleton()
-              : visibleRows?.map((row, index) => (
-                  <RowComponent
-                    key={row.id ?? index}
-                    {...row}
-                    {...rowExtraProps}
-                    {...getRowProps?.(row, index, variant)}
-                    isLoading={false}
-                  />
-                ))}
+            {isLoading ? (
+              <GenericListSkeleton columns={columns} />
+            ) : (
+              visibleRows?.map((row, index) => (
+                <RowComponent
+                  key={row.id ?? index}
+                  {...row}
+                  {...rowExtraProps}
+                  {...getRowProps?.(row, index, variant)}
+                  isLoading={false}
+                />
+              ))
+            )}
           </tbody>
         </Table>
       </TableScroller>

@@ -4,9 +4,9 @@ import styled from "styled-components";
 import { useState } from "react";
 import { LuEye } from "react-icons/lu";
 import { Skeleton } from "../../../../../components/Skeletons/Skeleton.jsx";
-import useRequestDetails from "../../../../../hooks/useRequestDetails";
+import useRequest from "../../../../../hooks/useRequest.js";
 import RequestDetails from "./RequestDetails/RequestDetails";
-import satisfyIcon from "../../../../../assets/images/satisfy.png";
+import satisfyIcon from "../../../../../assets/images/rewards/satisfy.png";
 import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig";
 import {
   ConvertJalali,
@@ -126,17 +126,26 @@ const RequestRow = ({
   setRows,
 }) => {
   const [showDetails, setShowDetails] = useState(false);
-  const { data, loading, fetchRequestDetails } = useRequestDetails(type);
-
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const { Request } = useRequest();
   const { color, label } = STATUSES[status] ?? FAILED_STATUS;
   const familyLabel = FAMILY_LABELS[member] ?? DEFAULT_FAMILY_LABEL;
 
   const handleView = async () => {
+    setLoading(true);
     try {
-      await fetchRequestDetails(id);
+      const endpoint =
+        type === "sent"
+          ? `dynasty/requests/sent/${id}`
+          : `dynasty/requests/recieved/${id}`;
+      const response = await Request(endpoint);
+      setData(response.data.data);
       setShowDetails(true);
     } catch (error) {
       console.error("Error fetching request details:", error);
+    } finally {
+      setLoading(false);
     }
   };
 

@@ -164,9 +164,7 @@ const SuggestPrice = () => {
         updateWallet("psc", calculateFee(pscValue, FEE_PERCENT), "-");
 
       })
-      .catch((error) =>
-        ToastError(error?.response?.data?.message || "خطای غیرمنتظره"),
-      );
+      
   };
 
   return (

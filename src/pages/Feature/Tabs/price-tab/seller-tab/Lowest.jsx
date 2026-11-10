@@ -85,8 +85,8 @@ const Lowest = () => {
       }));
 
       ToastSuccess(getTranslation(1634));
-    } catch (error) {
-      ToastError(error.response?.data?.message ?? error.message);
+    } catch {
+      // useRequest already displays request errors.
     } finally {
       setIsSubmitting(false);
     }
