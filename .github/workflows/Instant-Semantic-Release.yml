@@ -1,0 +1,87 @@
+name: Instant Semantic Release
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    name: Calculate Version & Publish Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository (Full History & Tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Normalize Legacy Tags & Check Initial Version
+        run: |
+          for tag in $(git tag); do
+            if ! [[ "$tag" =~ ^[vV]?[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              git tag -d "$tag" || true
+            fi
+          done
+
+      - name: Setup Node.js Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Run Universal Semantic Release (API Mode - Bypass Branch Lock)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          cat << 'EOF' > .releaserc.json
+          {
+            "branches": ["main"],
+            "tagFormat": "v${version}",
+            "plugins": [
+              [
+                "@semantic-release/commit-analyzer",
+                {
+                  "preset": "conventionalcommits",
+                  "releaseRules": [
+                    { "type": "feat", "release": "minor" },
+                    { "type": "fix", "release": "patch" },
+                    { "type": "perf", "release": "patch" },
+                    { "type": "refactor", "release": "patch" },
+                    { "type": "chore", "release": "patch" },
+                    { "breaking": true, "release": "major" }
+                  ]
+                }
+              ],
+              [
+                "@semantic-release/release-notes-generator",
+                {
+                  "preset": "conventionalcommits"
+                }
+              ],
+              [
+                "@semantic-release/github",
+                {
+                  "successComment": "🎉 This issue/PR has been resolved and published in release **${nextRelease.gitTag}** 🎉",
+                  "releasedLabels": ["released", "qa: passed"]
+                }
+              ]
+            ]
+          }
+          EOF
+
+          npx --yes -p semantic-release@23 \
+            -p @semantic-release/commit-analyzer@12 \
+            -p @semantic-release/release-notes-generator@13 \
+            -p @semantic-release/github@10 \
+            -p conventional-changelog-conventionalcommits@7 \
+            semantic-release
