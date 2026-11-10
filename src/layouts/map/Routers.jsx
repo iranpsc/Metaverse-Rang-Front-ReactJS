@@ -105,9 +105,7 @@ const BankTab = lazy(
 const IdentityTab = lazy(
   () => import("../../pages/Verification/Tabs/identity-tab/IdentityTab"),
 );
-const ToolTab = lazy(
-  () => import("../../pages/Store/shop/tool-tab/ToolTab"),
-);
+const ToolTab = lazy(() => import("../../pages/Store/shop/tool-tab/ToolTab"));
 const CurrencyTab = lazy(
   () => import("../../pages/Store/shop/currency-tab/CurrencyTab"),
 );
@@ -118,8 +116,7 @@ const CurrenciesContent = lazy(
   () => import("../../pages/Store/shop/currency-tab/CurrenciesContent"),
 );
 const ErrorReportTab = lazy(
-  () =>
-    import("../../pages/Report/reports/ErrorReportTab/ErrorReportTab"),
+  () => import("../../pages/Report/reports/ErrorReportTab/ErrorReportTab"),
 );
 const ReportsListTab = lazy(
   () => import("../../pages/Report/reports/ReportsListTab/ReportsListTab"),
@@ -132,9 +129,7 @@ const SearchPropertyTab = lazy(
 );
 const RecievedSuggestion = lazy(
   () =>
-    import(
-      "../../pages/Profile/Tabs/suggestion-tab/recieved/RecievedSuggestion"
-    ),
+    import("../../pages/Profile/Tabs/suggestion-tab/recieved/RecievedSuggestion"),
 );
 
 export default function Routers() {
@@ -142,231 +137,214 @@ export default function Routers() {
   return (
     <Suspense fallback={<RouteSkeleton />}>
       <Routes>
-      <Route path="" element={<MainLayout />}>
-        <Route
-          path="documents"
-          element={
-            <PrivateRoute>
-              <Sanad />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Navigate to="write" replace />} />
-
+        <Route path="" element={<MainLayout />}>
           <Route
-            path="write"
-            element={<WriteVodTab />}
-          />
-
-          <Route path="list" element={<VodListTab />}>
-            <Route index element={<Navigate to="received" replace />} />
-            <Route path="received" element={<ReceivedList />} />
-            <Route path="sent" element={<SentList />} />
-          </Route>
-
-          <Route
-            path="notes"
-            element={<NotesListTab />}
-          />
-        </Route>
-
-        <Route
-          path="payment/verify"
-          element={<Navigate to="/profile/transactions" replace />}
-        />
-        <Route
-          path="profile"
-          element={
-            <PrivateRoute>
-              <Profile />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Navigate to="total" replace />} />
-          <Route path="total" element={<TotalTab />} />
-          <Route path="transactions" element={<TransactionsTab />} />
-          <Route path="property" element={<PropertyTab />}>
-            <Route index element={<Navigate to="houses" replace />} />
-            <Route path="houses" element={<Houses />} />
-            <Route path="following" element={<Following />} />
-            <Route path="followers" element={<Followers />} />
-          </Route>
-
-          <Route path="dynasty" element={<DynastyTab />}>
-            <Route index element={<Navigate to="establish" replace />} />
-
-            <Route path=":tab" element={<DynastyEstablishEstate />} />
-
-            <Route path="members" element={<DynastyMembers />} />
-            <Route path="send" element={<SentListTab />} />
-            <Route path="recieved" element={<RecievedListTab />} />
-          </Route>
-          <Route path="suggestion" element={<SuggestionTab />}>
-            <Route index element={<Navigate to="recieved" replace />} />
-            <Route
-              path="recieved"
-              element={<RecievedSuggestion />}
-            />
-            <Route path="sent" element={<SentSuggestion />} />
-          </Route>
-        </Route>
-        <Route
-          path="settings"
-          element={
-            <PrivateRoute>
-              <Settings />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Navigate to="public" replace />} />
-          <Route path="public" element={<PublicTab />} />
-          <Route path="account" element={<AccountTab />} />
-          <Route path="security" element={<SecurityTab />} />
-          <Route path="about" element={<AboutMeTab />} />
-        </Route>
-        {!user?.wallet_login && (
-          <Route
-            path="confirmation"
+            path="documents"
             element={
               <PrivateRoute>
-                <AccountSecurityModal />
+                <Sanad />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Navigate to="write" replace />} />
+
+            <Route path="write" element={<WriteVodTab />} />
+
+            <Route path="list" element={<VodListTab />}>
+              <Route index element={<Navigate to="received" replace />} />
+              <Route path="received" element={<ReceivedList />} />
+              <Route path="sent" element={<SentList />} />
+            </Route>
+
+            <Route path="notes" element={<NotesListTab />} />
+          </Route>
+
+          <Route
+            path="payment/verify"
+            element={<Navigate to="/profile/transactions" replace />}
+          />
+          <Route
+            path="profile"
+            element={
+              <PrivateRoute>
+                <Profile />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Navigate to="total" replace />} />
+            <Route path="total" element={<TotalTab />} />
+            <Route path="transactions" element={<TransactionsTab />} />
+            <Route path="property" element={<PropertyTab />}>
+              <Route index element={<Navigate to="houses" replace />} />
+              <Route path="houses" element={<Houses />} />
+              <Route path="following" element={<Following />} />
+              <Route path="followers" element={<Followers />} />
+            </Route>
+
+            <Route path="dynasty" element={<DynastyTab />}>
+              <Route index element={<Navigate to="establish" replace />} />
+
+              <Route path=":tab" element={<DynastyEstablishEstate />} />
+
+              <Route path="members" element={<DynastyMembers />} />
+              <Route path="send" element={<SentListTab />} />
+              <Route path="recieved" element={<RecievedListTab />} />
+            </Route>
+            <Route path="suggestion" element={<SuggestionTab />}>
+              <Route index element={<Navigate to="recieved" replace />} />
+              <Route path="recieved" element={<RecievedSuggestion />} />
+              <Route path="sent" element={<SentSuggestion />} />
+            </Route>
+          </Route>
+          <Route
+            path="settings"
+            element={
+              <PrivateRoute>
+                <Settings />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Navigate to="public" replace />} />
+            <Route path="public" element={<PublicTab />} />
+            <Route path="account" element={<AccountTab />} />
+            <Route path="security" element={<SecurityTab />} />
+            <Route path="about" element={<AboutMeTab />} />
+          </Route>
+          {!user?.wallet_login && (
+            <Route
+              path="confirmation"
+              element={
+                <PrivateRoute>
+                  <AccountSecurityModal />
+                </PrivateRoute>
+              }
+            />
+          )}
+
+          <Route
+            path="connectWallet"
+            element={
+              <PrivateRoute>
+                <WalletSetupTab />
               </PrivateRoute>
             }
           />
-        )}
-
-        <Route
-          path="connectWallet"
-          element={
-            <PrivateRoute>
-              <WalletSetupTab />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="challenges"
-          element={
-            <PrivateRoute>
-              <Challenge />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="search"
-          element={
-            <PrivateRoute>
-              <Search />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Navigate to="citizen" replace />} />
-          <Route path="citizen" element={<CitizenTab />} />
           <Route
-            path="property"
-            element={<SearchPropertyTab />}
+            path="challenges"
+            element={
+              <PrivateRoute>
+                <Challenge />
+              </PrivateRoute>
+            }
           />
-        </Route>
-        <Route
-          path="profit"
-          element={
-            <PrivateRoute>
-              <HourMeterProfit />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<ProfitView />} />
-        </Route>
-        <Route
-          path="verification"
-          element={
-            <PrivateRoute>
-              <Verification />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Navigate to="identity" replace />} />
-          <Route path="identity" element={<IdentityTab />} />
-          <Route path="bank" element={<BankTab />} />
-        </Route>
-        <Route
-          path="store"
-          element={
-            <PrivateRoute>
-              <Store />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Navigate to="tools/600" replace />} />
-          <Route path="tools" element={<ToolTab />}>
-            <Route index element={<Navigate to="600" replace />} />
-            <Route path="600" element={<ToolsContent />} />
-            <Route path="1000" element={<ToolsContent />} />
-            <Route path="2000" element={<ToolsContent />} />
-            <Route path="5000" element={<ToolsContent />} />
-            <Route path="10000" element={<ToolsContent />} />
-            <Route path="50000" element={<ToolsContent />} />
-          </Route>
-          <Route path="currency" element={<CurrencyTab />}>
-            <Route index element={<Navigate to="packet-1" replace />} />
-            <Route path="packet-1" element={<CurrenciesContent />} />
-            <Route path="packet-2" element={<CurrenciesContent />} />
-            <Route path="packet-3" element={<CurrenciesContent />} />
-            <Route path="packet-4" element={<CurrenciesContent />} />
-            <Route path="packet-5" element={<CurrenciesContent />} />
-            <Route path="packet-6" element={<CurrenciesContent />} />
-          </Route>
-        </Route>
-        <Route
-          path="report"
-          element={
-            <PrivateRoute>
-              <Report />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Navigate to="send" replace />} />
           <Route
-            path="send"
-            element={<ErrorReportTab />}
+            path="search"
+            element={
+              <PrivateRoute>
+                <Search />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Navigate to="citizen" replace />} />
+            <Route path="citizen" element={<CitizenTab />} />
+            <Route path="property" element={<SearchPropertyTab />} />
+          </Route>
+          <Route
+            path="profit"
+            element={
+              <PrivateRoute>
+                <HourMeterProfit />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<ProfitView />} />
+          </Route>
+          <Route
+            path="verification"
+            element={
+              <PrivateRoute>
+                <Verification />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Navigate to="identity" replace />} />
+            <Route path="identity" element={<IdentityTab />} />
+            <Route path="bank" element={<BankTab />} />
+          </Route>
+          <Route
+            path="store"
+            element={
+              <PrivateRoute>
+                <Store />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Navigate to="tools/600" replace />} />
+            <Route path="tools" element={<ToolTab />}>
+              <Route index element={<Navigate to="600" replace />} />
+              <Route path="600" element={<ToolsContent />} />
+              <Route path="1000" element={<ToolsContent />} />
+              <Route path="2000" element={<ToolsContent />} />
+              <Route path="5000" element={<ToolsContent />} />
+              <Route path="10000" element={<ToolsContent />} />
+              <Route path="50000" element={<ToolsContent />} />
+            </Route>
+            <Route path="currency" element={<CurrencyTab />}>
+              <Route index element={<Navigate to="packet-1" replace />} />
+              <Route path="packet-1" element={<CurrenciesContent />} />
+              <Route path="packet-2" element={<CurrenciesContent />} />
+              <Route path="packet-3" element={<CurrenciesContent />} />
+              <Route path="packet-4" element={<CurrenciesContent />} />
+              <Route path="packet-5" element={<CurrenciesContent />} />
+              <Route path="packet-6" element={<CurrenciesContent />} />
+            </Route>
+          </Route>
+          <Route
+            path="report"
+            element={
+              <PrivateRoute>
+                <Report />
+              </PrivateRoute>
+            }
+          >
+            <Route index element={<Navigate to="send" replace />} />
+            <Route path="send" element={<ErrorReportTab />} />
+            <Route path="list" element={<ReportsListTab />} />
+          </Route>
+
+          <Route
+            path="notifications"
+            element={
+              <PrivateRoute>
+                <Notifications />
+              </PrivateRoute>
+            }
           />
-          <Route path="list" element={<ReportsListTab />} />
+
+          <Route
+            path="verification"
+            element={
+              <PrivateRoute>
+                <Verification />
+              </PrivateRoute>
+            }
+          />
+          <Route path="feature/:id/*" element={<Feature />}>
+            <Route index element={<Navigate to="info" replace />} />
+            <Route path=":tab/*" element={<ConditionalPage />} />
+          </Route>
+
+          <Route path="successful" element={<Outlet />}>
+            <Route path="commercial" element={<Commercial />} />
+
+            <Route path="residential" element={<Residential />} />
+
+            <Route path="educational" element={<Educational />} />
+
+            <Route path="signup" element={<SignupLottie />} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
-
-        <Route
-          path="notifications"
-          element={
-            <PrivateRoute>
-              <Notifications />
-            </PrivateRoute>
-          }
-        />
-
-
-      
-        <Route
-          path="verification"
-          element={
-            <PrivateRoute>
-              <Verification />
-            </PrivateRoute>
-          }
-        />
-        <Route path="feature/:id/*" element={<Feature />}>
-          <Route index element={<Navigate to="info" replace />} />
-          <Route path=":tab/*" element={<ConditionalPage />} />
-        </Route>
-
-        <Route path="successful" element={<Outlet />}>
-          <Route path="commercial" element={<Commercial />} />
-
-          <Route path="residential" element={<Residential />} />
-
-          <Route path="educational" element={<Educational />} />
-
-          <Route path="signup" element={<SignupLottie />} />
-        </Route>
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Route>
       </Routes>
     </Suspense>
   );

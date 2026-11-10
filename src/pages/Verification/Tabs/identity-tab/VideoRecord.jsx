@@ -232,9 +232,7 @@ const VideoRecord = ({
     } catch (err) {
       console.error("Error accessing media devices.", err);
       Sentry.captureException(err);
-      setError(
-        getTranslation(1932),
-      );
+      setError(getTranslation(1932));
     }
   };
 

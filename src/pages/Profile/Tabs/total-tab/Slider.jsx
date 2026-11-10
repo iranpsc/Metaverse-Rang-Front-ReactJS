@@ -7,7 +7,6 @@ import { LuImagePlus } from "react-icons/lu";
 import { HiOutlineTrash } from "react-icons/hi";
 import { Swiper, SwiperSlide } from "swiper/react";
 import DOMPurify from "dompurify";
-import shortid from "shortid";
 import styled, { css } from "styled-components";
 import { useContext, useEffect, useRef, useState } from "react";
 import { UserContextTypes } from "../../../../services/actions/UserContextAction";
@@ -204,38 +203,40 @@ export default function Slider() {
   };
 
   const uploadCroppedImage = (croppedFile) => {
-    if (!croppedFile) return;
+  if (!croppedFile) return;
 
-    setUploading(true);
+  setUploading(true);
 
-    const file = new File([croppedFile], `${shortid.generate()}.jpeg`, {
-      type: "image/jpeg",
-    });
-    const formData = new FormData();
-    formData.append("image", file);
+  const file = new File([croppedFile], `${crypto.randomUUID()}.jpeg`, {
+    type: "image/jpeg",
+  });
 
-    Request("profilePhotos", HTTP_METHOD.POST, formData, {
-      "Content-Type": "multipart/form-data",
+  const formData = new FormData();
+  formData.append("image", file);
+
+  Request("profilePhotos", HTTP_METHOD.POST, formData, {
+    "Content-Type": "multipart/form-data",
+  })
+    .then((response) => {
+      const { id, url } = normalizeImagePayload(response);
+
+      if (!id) {
+        console.error("Upload response did not contain image id.", response);
+        return;
+      }
+
+      const imageUrl = url || URL.createObjectURL(file);
+
+      setProfileImage((prev) => [
+        { id, url: imageUrl },
+        ...prev.filter((image) => image.id !== 0),
+      ]);
+
+      updateUserImage(imageUrl);
+      clearSelectedImage();
     })
-      .then((response) => {
-        const { id, url } = normalizeImagePayload(response);
-
-        if (!id) {
-          console.error("Upload response did not contain image id.", response);
-          return;
-        }
-
-        const imageUrl = url || URL.createObjectURL(file);
-
-        setProfileImage((prev) => [
-          { id, url: imageUrl },
-          ...prev.filter((image) => image.id !== 0),
-        ]);
-        updateUserImage(imageUrl);
-        clearSelectedImage();
-      })
-      .finally(() => setUploading(false));
-  };
+    .finally(() => setUploading(false));
+};
 
   if (loading) return <SliderSkeleton />;
 
