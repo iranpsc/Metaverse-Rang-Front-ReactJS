@@ -1,22 +1,14 @@
 // برای تایتل هدر کامپوننت‌ها استفاده می‌شود و جهت ریسپانسیو درست لطفاً در همه‌جای پروژه از این کامپوننت استفاده کنید؛ با پراپ noMargin بدون هیچ مارجینی نمایش داده می‌شود؛ با small کوچک‌تر و با big درشت‌تر می‌شود؛ رنگ مثل TitleBody با color، primary، gray و gray2 عوض می‌شود
 
 import styled from "styled-components";
-
+import { getTitleColor } from "../styles/getTitleColor";
 const SIZES = {
   default: { base: "16px", tablet: "13px", desktop: "18px" },
   small: { base: "13px", tablet: "13px", desktop: "14px" },
   big: { base: "20px", tablet: "17px", desktop: "24px" },
 };
 
-const getColor = ({ theme, $color, $gray, $gray2, $primary }) => {
-  if ($color) return $color;
-  if ($primary) return theme.colors.primary;
 
-  const { otherColors, shades } = theme.colors.newColors;
-  if ($gray2) return shades.matn2;
-  if ($gray) return otherColors.gray;
-  return shades.title;
-};
 
 const TitleName = styled.h3`
   margin: ${({ $noMargin, $payed }) =>
@@ -24,7 +16,7 @@ const TitleName = styled.h3`
   font-size: ${({ $size }) => SIZES[$size].base};
   font-weight: 600;
   text-align: ${({ $center }) => ($center ? "center" : "")};
-  color: ${getColor};
+  color: ${getTitleColor};
 
   @media (min-width: 500px) and (max-width: 1000px) {
     font-size: ${({ $size }) => SIZES[$size].tablet};

@@ -119,12 +119,9 @@ export function connectPublicSocket() {
   return connectSocket("");
 }
 
-export function getSocket() {
-  return socket;
-}
 
 /** Tear down the connection. Registered handlers are kept for the next connect. */
-export function disconnectSocket() {
+ function disconnectSocket() {
   if (!socket) return;
 
   socket.removeAllListeners();

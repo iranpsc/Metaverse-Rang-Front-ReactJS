@@ -7,7 +7,7 @@ import {
   useState,
 } from "react";
 import {  onSocketEvent } from "../socket"; 
-export const FollowContext = createContext({
+ const FollowContext = createContext({
   onlineMap: {},
   isOnline: () => false,
   mergeOnline: () => {},

@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 import { useTranslation } from "react-i18next";
 
-export const LanguageContext = createContext({
+ const LanguageContext = createContext({
   isPersian: false,
   isRtl: false,
 });

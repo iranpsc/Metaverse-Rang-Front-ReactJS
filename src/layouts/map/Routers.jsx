@@ -31,11 +31,8 @@ const WriteVodTab = lazy(
 const VodListTab = lazy(
   () => import("../../pages/Documents/Tabs/DocsList/VodListTab"),
 );
-const ReceivedList = lazy(
-  () => import("../../pages/Documents/Tabs/DocsList/receive/ReceivedList"),
-);
-const SentList = lazy(
-  () => import("../../pages/Documents/Tabs/DocsList/sent/SentList"),
+const TicketsList = lazy(
+  () => import("../../pages/Documents/Tabs/DocsList/TicketsList"),
 );
 const NotesListTab = lazy(
   () => import("../../pages/Documents/Tabs/notes/NotesListTab"),
@@ -56,11 +53,8 @@ const SuggestionTab = lazy(
 const TransactionsTab = lazy(
   () => import("../../pages/Profile/Tabs/transactions-tab/TransactionsTab"),
 );
-const Followers = lazy(
-  () => import("../../pages/Profile/Tabs/property-tab/follower/Followers"),
-);
-const Following = lazy(
-  () => import("../../pages/Profile/Tabs/property-tab/following/Following"),
+const FollowList = lazy(
+  () => import("../../pages/Profile/Tabs/property-tab/FollowList"),
 );
 const Houses = lazy(
   () => import("../../pages/Profile/Tabs/property-tab/houses/Houses"),
@@ -78,9 +72,7 @@ const RecievedListTab = lazy(
 const SentListTab = lazy(
   () => import("../../pages/Profile/Tabs/dynasty/sent/SentListTab"),
 );
-const SentSuggestion = lazy(
-  () => import("../../pages/Profile/Tabs/suggestion-tab/sent/SentSuggestion"),
-);
+
 const AccountTab = lazy(
   () => import("../../pages/Settings/Tabs/account-tab/AccountTab"),
 );
@@ -127,11 +119,9 @@ const WalletSetupTab = lazy(
 const SearchPropertyTab = lazy(
   () => import("../../pages/Search/Tabs/property-tab/SearchPropertyTab"),
 );
-const RecievedSuggestion = lazy(
-  () =>
-    import("../../pages/Profile/Tabs/suggestion-tab/recieved/RecievedSuggestion"),
+const SuggestionList = lazy(
+  () => import("../../pages/Profile/Tabs/suggestion-tab/SuggestionList"),
 );
-
 export default function Routers() {
   const [user] = useContext(UserContext);
   return (
@@ -152,8 +142,11 @@ export default function Routers() {
 
             <Route path="list" element={<VodListTab />}>
               <Route index element={<Navigate to="received" replace />} />
-              <Route path="received" element={<ReceivedList />} />
-              <Route path="sent" element={<SentList />} />
+              <Route
+                path="received"
+                element={<TicketsList type="received" />}
+              />
+              <Route path="sent" element={<TicketsList type="sent" />} />
             </Route>
 
             <Route path="notes" element={<NotesListTab />} />
@@ -177,8 +170,8 @@ export default function Routers() {
             <Route path="property" element={<PropertyTab />}>
               <Route index element={<Navigate to="houses" replace />} />
               <Route path="houses" element={<Houses />} />
-              <Route path="following" element={<Following />} />
-              <Route path="followers" element={<Followers />} />
+        <Route path="following" element={<FollowList key="following" type="following" />} />
+<Route path="followers" element={<FollowList key="followers" type="followers" />} />
             </Route>
 
             <Route path="dynasty" element={<DynastyTab />}>
@@ -192,8 +185,11 @@ export default function Routers() {
             </Route>
             <Route path="suggestion" element={<SuggestionTab />}>
               <Route index element={<Navigate to="recieved" replace />} />
-              <Route path="recieved" element={<RecievedSuggestion />} />
-              <Route path="sent" element={<SentSuggestion />} />
+              <Route
+                path="recieved"
+                element={<SuggestionList type="recieved" />}
+              />
+              <Route path="sent" element={<SuggestionList type="sent" />} />
             </Route>
           </Route>
           <Route

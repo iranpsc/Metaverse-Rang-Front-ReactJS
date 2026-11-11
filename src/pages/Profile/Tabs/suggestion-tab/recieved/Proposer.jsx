@@ -4,11 +4,10 @@ import { useState } from "react";
 import { MdOutlineKeyboardArrowUp } from "react-icons/md";
 import styled from "styled-components";
 import moment from "moment-jalaali";
-
+import ExpandableNote from "../ExpandableNote.jsx";
 import DefaultProfile from "../../../../../assets/images/avatars/defulte-profile.webp";
 
 import Button from "../../../../../components/Button";
-import HtmlContent from "../../../../../components/HtmlContent.jsx";
 import TitleBody from "../../../../../components/TitleBody.jsx";
 import UserCode from "../../../../../components/UserCode.jsx";
 import { useIsRtl } from "../../../../../services/reducers/LanguageContext.jsx";
@@ -25,13 +24,12 @@ import {
   Info,
   Prices,
   proposerContainer,
-  Text,Divider
+  Divider,
 } from "../suggestionStyles";
 import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
 const Container = proposerContainer;
 
-const NOTE_LIMIT = 277;
 const SUCCESS_STATUSES = [200, 204];
 const GRACE_OPTIONS = [7, 1];
 const MS_PER_DAY = 1000 * 60 * 60 * 24;
@@ -53,10 +51,6 @@ const Person = styled.div`
   img {
     border-radius: 100%;
   }
-`;
-
-const ToggleText = styled.span`
-  cursor: pointer;
 `;
 
 const Days = styled.div`
@@ -107,15 +101,12 @@ const StyledArrowUp = styled(MdOutlineKeyboardArrowUp)`
   rotate: ${({ $isPositive }) => ($isPositive ? "" : "180deg")};
 `;
 
-
-
 const getGraceRemainingDays = (gracePeriod) => {
   if (!gracePeriod) return 0;
 
   const graceDate = moment(gracePeriod, "jYYYY/jMM/jDD HH:mm:ss").toDate();
   return Math.max(0, Math.ceil((graceDate - new Date()) / MS_PER_DAY));
 };
-
 
 const calculateProfitPercent = (buyerPrice, finalPrice) => {
   if (!finalPrice) return null;
@@ -133,7 +124,6 @@ const Proposer = ({ item, finalPrice, onRemoved }) => {
   const [day, setDay] = useState(() =>
     getGraceRemainingDays(item.requested_grace_period),
   );
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isExploding, setIsExploding] = useState(false);
   const [isExplodingAccept, setIsExplodingAccept] = useState(false);
   const updateWallet = useWalletUpdate();
@@ -146,14 +136,6 @@ const Proposer = ({ item, finalPrice, onRemoved }) => {
   const buyerPrice = calculateTotalIrr(item.price_irr, item.price_psc);
   const percent = calculateProfitPercent(buyerPrice, finalPrice);
   const hasPercent = percent !== null;
-
-  const information = item.note || "";
-  const isLongNote = information.length > NOTE_LIMIT;
-
-  const noteHtml =
-    isLongNote && !isExpanded
-      ? `${information.slice(0, NOTE_LIMIT)}...`
-      : information;
 
   const performAction = async (endpoint, onSuccess) => {
     if (!checkSecurity()) return;
@@ -252,17 +234,7 @@ const Proposer = ({ item, finalPrice, onRemoved }) => {
           </Prices>
         </BasePrice>
 
-        <Text>
-          <HtmlContent html={noteHtml} />
-          {isLongNote && (
-            <ToggleText onClick={() => setIsExpanded((prev) => !prev)}>
-              <TitleBody
-                primary
-                title={getTranslation(isExpanded ? "884" : "774")}
-              />
-            </ToggleText>
-          )}
-        </Text>
+        <ExpandableNote note={item.note} />
       </Info>
 
       <div>

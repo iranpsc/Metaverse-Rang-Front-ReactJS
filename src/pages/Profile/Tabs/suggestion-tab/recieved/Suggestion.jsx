@@ -1,10 +1,7 @@
-// Suggestion.jsx
-import { useCallback, useMemo, useState } from "react";
-import { useMap } from "react-map-gl/maplibre";
-import { useNavigate } from "react-router";
+// کارت پیشنهاد خرید دریافتی؛ مناسب لیست پیشنهادهای دریافتی مالک (ملک، قیمت ثبت‌شده و Proposer با رد/قبول)
+import { useCallback, useState } from "react";
 import styled from "styled-components";
 
-import SuggestionSkeleton from "../../../../../components/Skeletons/SuggestionSkeleton";
 import TitleBody from "../../../../../components/TitleBody.jsx";
 import { useIsRtl } from "../../../../../services/reducers/LanguageContext.jsx";
 import {
@@ -13,20 +10,8 @@ import {
   calculateTotalIrr,
   calculateFallbackPriceIrr,
 } from "../../../../../services/Utility/index";
-import { calculatePolygonCentroid } from "../../../../../services/Utility/calculatePolygonCentroid";
-import { flyToMapPosition } from "../../../../../services/Utility/flyToMapPosition";
-import { getPolygonShape } from "../../../../../services/Utility/getPolygonShape";
-import LandText from "../../../../../components/LandText.jsx";
-import {
-  AreaContainer,
-  Location,
-  Polygon,
-  Property,
-  StyledSVG,
-  Suggestions,
-  SuggestionsContainer,
-  Value,
-} from "../suggestionStyles";
+import { Property, Suggestions, SuggestionsContainer, Value } from "../suggestionStyles";
+import PropertyLocation from "../PropertyLocation";
 import Proposer from "./Proposer";
 import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
@@ -35,6 +20,7 @@ const KARBARI_ICONS = {
   t: COLOR_CONFIG.red.gif,
   a: COLOR_CONFIG.blue.gif,
 };
+
 const Pricing = styled.div`
   display: flex;
   align-items: center;
@@ -59,10 +45,6 @@ const Prices = styled.div`
   }
 `;
 
-const LocationLink = styled.div`
-  cursor: pointer;
-`;
-
 const PriceItem = ({ src, value }) => (
   <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
     <img width={24} height={24} src={src} alt="" />
@@ -70,31 +52,12 @@ const PriceItem = ({ src, value }) => (
   </div>
 );
 
-const Suggestion = ({ item, isLoading }) => {
+const Suggestion = ({ item }) => {
   const [removed, setRemoved] = useState(false);
   const isPersian = useIsRtl();
-  const navigate = useNavigate();
-  const mapRef = useMap();
-
-  const coordinates = item?.feature_coordinates;
-
-  const { points, viewBox } = useMemo(
-    () => getPolygonShape(coordinates),
-    [coordinates],
-  );
-
   const handleRemoved = useCallback(() => setRemoved(true), []);
 
-  const handleLocation = useCallback(() => {
-    if (!coordinates?.length) return;
-
-    const { x, y } = calculatePolygonCentroid(coordinates);
-    flyToMapPosition({ latitude: y, longitude: x, mapRef, zoom: 17 });
-    navigate("/");
-  }, [coordinates, mapRef, navigate]);
-
-  if (isLoading) return <SuggestionSkeleton variant="received" />;
-  if (removed || !item) return null;
+  if (removed) return null;
 
   const feature = item.feature_properties || {};
   const karbariIcon = KARBARI_ICONS[feature.karbari];
@@ -111,30 +74,14 @@ const Suggestion = ({ item, isLoading }) => {
   return (
     <SuggestionsContainer>
       <Property>
-        <Location>
-          <AreaContainer>
-            <StyledSVG viewBox={viewBox}>
-              <Polygon karbari={feature.karbari} points={points} />
-            </StyledSVG>
-          </AreaContainer>
-          <div>
-            <TitleBody title={feature.address} />
-            <LandText
-              label={feature.id}
-              to={`/feature/${item?.feature_id}/info`}
-            />
-            <LocationLink onClick={handleLocation}></LocationLink>
-          </div>
-        </Location>
+        <PropertyLocation item={item} />
 
         <Pricing>
           <Value>
             <TitleBody gray title={getTranslation("767")} />
             <div>
-              {karbariIcon && (
-                <img width={24} height={24} src={karbariIcon} alt="" />
-              )}
-              <TitleBody title={convertToPersian(feature.stability || 0)} />
+              {karbariIcon && <img width={24} height={24} src={karbariIcon} alt="" />}
+              <TitleBody title={convertToPersian(stability || 0)} />
             </div>
           </Value>
 
@@ -153,11 +100,7 @@ const Suggestion = ({ item, isLoading }) => {
       </Property>
 
       <Suggestions>
-        <Proposer
-          item={item}
-          onRemoved={handleRemoved}
-          finalPrice={finalPrice}
-        />
+        <Proposer item={item} onRemoved={handleRemoved} finalPrice={finalPrice} />
       </Suggestions>
     </SuggestionsContainer>
   );

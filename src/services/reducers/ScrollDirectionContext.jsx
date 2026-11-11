@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 
-export const ScrollDirectionContext = createContext();
+ const ScrollDirectionContext = createContext();
 
 export const useScrollDirectionContext = () => {
   const context = useContext(ScrollDirectionContext);

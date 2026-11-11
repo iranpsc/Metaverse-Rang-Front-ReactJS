@@ -16,7 +16,7 @@ const scaleIn = keyframes`
   }
 `;
 
-export const Container = styled.div`
+ const Container = styled.div`
   position: relative;
   top: 0;
   bottom: 0;

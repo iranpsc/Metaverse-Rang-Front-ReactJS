@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 
-export const MenuContext = createContext();
+ const MenuContext = createContext();
 
 export const useMenuContext = () => useContext(MenuContext);
 

@@ -2,18 +2,10 @@
 
 import styled from "styled-components";
 import { getSize } from "../styles/sizes";
+import { getTitleColor } from "../styles/getTitleColor";
 
-const getColor = ({ theme, $color, $gray, $gray2, $primary }) => {
-  if ($color) return $color;
-  if ($primary) return theme.colors.primary;
-
-  const { otherColors, shades } = theme.colors.newColors;
-  if ($gray2) return shades.matn2;
-  if ($gray) return otherColors.gray;
-  return shades.title;
-};
 const TitleName = styled.h4`
-  color: ${getColor};
+  color: ${getTitleColor};
   font-size: ${({ $size }) => getSize($size, "base")};
   font-weight: ${({ $weight }) => $weight};
   margin: 0;

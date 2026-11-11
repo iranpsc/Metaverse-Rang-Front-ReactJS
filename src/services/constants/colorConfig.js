@@ -17,4 +17,3 @@ export const COLOR_CONFIG = {
   satisfaction: { gif: satisfactionGif, labelKey: "52" },
 };
 
-export const COLOR_KEYS = Object.keys(COLOR_CONFIG);

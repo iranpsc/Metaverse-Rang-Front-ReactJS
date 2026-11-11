@@ -39,7 +39,7 @@ const roundTo2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
 
 /* ---------- Styles ---------- */
 
-export const InputsWrapper = styled.div`
+ const InputsWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -51,7 +51,7 @@ export const InputsWrapper = styled.div`
   }
 `;
 
-export const ResultWrapper = styled.div`
+ const ResultWrapper = styled.div`
   display: grid;
   gap: 20px;
   width: 100%;
@@ -67,7 +67,7 @@ export const ResultWrapper = styled.div`
   }
 `;
 
-export const Sec = styled.div`
+ const Sec = styled.div`
   display: grid;
   gap: 20px;
   grid-template-columns: 2fr 1fr;

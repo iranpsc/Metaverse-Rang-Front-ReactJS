@@ -1,6 +1,6 @@
 import { createContext, useContext, useState } from "react";
 
-export const MapLandsContext = createContext(null);
+ const MapLandsContext = createContext(null);
 
 export const useMapLands = () => {
   const context = useContext(MapLandsContext);

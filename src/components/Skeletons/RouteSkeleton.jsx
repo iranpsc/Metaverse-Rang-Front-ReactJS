@@ -8,8 +8,7 @@ import NotificationsSkeleton from "./NotificationsSkeleton";
 import ToolsSkeleton from "./ToolsSkeleton";
 import NotesListSkeleton from "./NotesListSkeleton";
 import { TransactionSkeletons } from "./TransactionSkeletons";
-import { FollowingSkeletons } from "./FollowingSkeletons";
-import { FollowersSkeletons } from "./FollowersSkeletons";
+import FollowSkeletons from "./FollowSkeletons.jsx";
 import { DynastySkeleton } from "./DynastySkeleton";
 import { SettingsSkeleton } from "./SettingsSkeleton";
 import { AccountSkeleton } from "./AccountSkeleton..jsx";
@@ -124,17 +123,16 @@ const RouteSkeleton = () => {
   if (section === "profile") {
     if (!tab || tab === "total") return <TotalSkeleton />;
     if (tab === "transactions") return <TransactionSkeletons count={5} />;
-    if (tab === "property" && subtab === "following")
-      return <FollowingSkeletons />;
-    if (tab === "property" && subtab === "followers")
-      return <FollowersSkeletons />;
+    if (
+      tab === "property" &&
+      (subtab === "following" || subtab === "followers")
+    )
+      return <FollowSkeletons type={subtab} />;
     if (tab === "property") return <PropertySkeleton />;
     if (tab === "dynasty") return <DynastySkeleton />;
     if (tab === "suggestion") {
       return (
-        <SuggestionSkeleton
-          variant={subtab === "sent" ? "sent" : "received"}
-        />
+        <SuggestionSkeleton variant={subtab === "sent" ? "sent" : "received"} />
       );
     }
   }
@@ -164,8 +162,7 @@ const RouteSkeleton = () => {
     if (tab !== "currency") return <ToolsSkeleton />;
     return <CurrencySkeleton />;
   }
-  if (section === "verification" && tab === "bank")
-    return <BankCardSkeleton />;
+  if (section === "verification" && tab === "bank") return <BankCardSkeleton />;
   if (section === "verification") return <IdentitySkeleton />;
   if (section === "connectWallet") return <IdentitySkeleton />;
   if (section === "profit") return <ProfitSkeleton />;

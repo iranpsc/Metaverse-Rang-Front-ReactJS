@@ -1,6 +1,5 @@
 import { createContext, useContext, useState } from "react";
-
-export const SelectedEnvironmentContext = createContext();
+ const SelectedEnvironmentContext = createContext();
 
 export const useSelectedEnvironment = () =>
   useContext(SelectedEnvironmentContext);

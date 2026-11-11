@@ -159,18 +159,7 @@ export const Prices = styled.div`
     gap: 6px;
   }
 `;
-export const RejectButton = styled.button`
-  background-color: #c30000;
-  color: #d7fbf0;
-  border-radius: 10px;
-  font-weight: 600;
-  border: none;
-  font-size: 16px;
-  position: relative;
-  padding: 10px 22px;
-  cursor: pointer;
-  font-family: inherit;
-`;
+
 export const Text = styled.div`
   margin-top: 16px;
   padding-bottom: 20px;

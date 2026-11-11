@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import moment from "moment-jalaali";
-
-
-import HtmlContent from "../../../../../components/HtmlContent.jsx";
 import TitleBody from "../../../../../components/TitleBody.jsx";
 import Button from "../../../../../components/Button.jsx";
-
+import ExpandableNote from "../ExpandableNote.jsx";
 import { useIsRtl } from "../../../../../services/reducers/LanguageContext.jsx";
 import useRequest from "../../../../../hooks/useRequest.js";
 import useWalletUpdate from "../../../../../hooks/useWalletUpdate.js";
@@ -21,14 +18,12 @@ import {
   BasePrice,
   Info,
   Prices,
-  Text,
-  proposerContainer,Divider
+  proposerContainer,
+  Divider,
 } from "../suggestionStyles";
 import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
 const Container = proposerContainer;
-
-const NOTE_LIMIT = 277;
 
 const TIME_UNITS = [
   { key: "hours", label: "560" },
@@ -68,16 +63,11 @@ const TimeBox = styled.div`
   gap: 4px;
 `;
 
-const ToggleText = styled.span`
-  cursor: pointer;
-`;
-
 const Buttons = styled.div`
   display: grid;
   gap: 16px;
   margin-top: 16px;
 `;
-
 
 const getRemainingTime = (gracePeriod) => {
   if (!gracePeriod) {
@@ -118,13 +108,11 @@ const PriceItem = ({ src, value }) => (
   </div>
 );
 
-
 const Proposer = ({ item, onRemoved }) => {
   const [time, setTime] = useState(() =>
     getRemainingTime(item.requested_grace_period),
   );
 
-  const [isExpanded, setIsExpanded] = useState(false);
   const [isExploding, setIsExploding] = useState(false);
 
   const isPersian = useIsRtl();
@@ -144,14 +132,6 @@ const Proposer = ({ item, onRemoved }) => {
 
     return () => clearInterval(countdown);
   }, [isFinished]);
-
-  const information = item.note || "";
-  const isLongNote = information.length > NOTE_LIMIT;
-
-  const noteHtml =
-    isLongNote && !isExpanded
-      ? `${information.slice(0, NOTE_LIMIT)}...`
-      : information;
 
   const handleReject = async () => {
     if (!checkSecurity()) return;
@@ -188,23 +168,12 @@ const Proposer = ({ item, onRemoved }) => {
           <Prices>
             <PriceItem src={COLOR_CONFIG.irr.gif} value={item.price_irr} />
 
-<Divider />
+            <Divider />
             <PriceItem src={COLOR_CONFIG.psc.gif} value={item.price_psc} />
           </Prices>
         </Price>
 
-        <Text>
-          <HtmlContent html={noteHtml} />
-
-          {isLongNote && (
-            <ToggleText onClick={() => setIsExpanded((prev) => !prev)}>
-              <TitleBody
-                primary
-                title={getTranslation(isExpanded ? "884" : "774")}
-              />
-            </ToggleText>
-          )}
-        </Text>
+        <ExpandableNote note={item.note} />
       </Info>
 
       <ProposalStatus>

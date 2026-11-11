@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { lightTheme, darkTheme } from "../../theme/theme";
 
-export const ThemeContext = createContext();
+ const ThemeContext = createContext();
 
 export function useTheme() {
   const context = useContext(ThemeContext);

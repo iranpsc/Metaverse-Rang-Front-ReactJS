@@ -1,15 +1,23 @@
-// صفحه لیست تیکت‌های دریافتی؛ مناسب نمایش جدول تیکت‌ها با سرچ، فیلتر وضعیت و صفحه‌بندی
+// صفحه لیست تیکت‌ها (ارسالی/دریافتی)؛ مناسب نمایش جدول تیکت‌ها با سرچ، فیلتر وضعیت و صفحه‌بندی
 import { useEffect, useState } from "react";
-import TitleHeader from "../../../../../components/TitleHeader.jsx";
+import TitleHeader from "../../../../components/TitleHeader.jsx";
 import GenericList, {
   filterListRows,
-} from "../../../../../components/GenericList/GenericList.jsx";
-import { getTranslation,normalizeRequestPath } from "../../../../../services/Utility/index.jsx";
-import useRequest from "../../../../../hooks/useRequest.js";
-import Container from "../../../../../components/Common/Container.jsx";
+} from "../../../../components/GenericList/GenericList.jsx";
+import Container from "../../../../components/Common/Container.jsx";
+import useRequest from "../../../../hooks/useRequest.js";
+import {
+  getTranslation,
+  normalizeRequestPath,
+} from "../../../../services/Utility/index.jsx";
 
+const TYPES = {
+  sent: { endpoint: "tickets", title: "1336" },
+  received: { endpoint: "tickets?recieved=1", title: "1335" },
+};
 
-const ReceivedList = () => {
+const TicketsList = ({ type }) => {
+  const { endpoint, title } = TYPES[type];
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -20,12 +28,11 @@ const ReceivedList = () => {
     failed: false,
     read: false,
   });
-
   const { Request } = useRequest();
 
-  const fetchTickets = async (endpoint, append = false) => {
+  const fetchTickets = async (path, append = false) => {
     try {
-      const response = await Request(endpoint);
+      const response = await Request(path);
       const data = response.data.data || [];
       setNextPageUrl(response.data.next_page_url || null);
       setRows((prevRows) => (append ? [...prevRows, ...data] : data));
@@ -39,8 +46,8 @@ const ReceivedList = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetchTickets("tickets?recieved=1").finally(() => setLoading(false));
-  }, []);
+    fetchTickets(endpoint).finally(() => setLoading(false));
+  }, [endpoint]);
 
   const loadMore = async () => {
     if (!nextPageUrl) return 0;
@@ -54,14 +61,12 @@ const ReceivedList = () => {
     return loadedCount;
   };
 
-  const filteredItems = filterListRows("tickets", rows, "", status);
-
   return (
     <Container>
-      <TitleHeader title={getTranslation("1335")} />
+      <TitleHeader title={getTranslation(title)} />
       <GenericList
         type="tickets"
-        variant="received"
+        variant={type}
         searchConfig={{
           key: "title",
           placeholder: getTranslation("1337"),
@@ -72,7 +77,7 @@ const ReceivedList = () => {
         }}
         setStatus={setStatus}
         status={status}
-        rows={filteredItems}
+        rows={filterListRows("tickets", rows, "", status)}
         isLoading={loading}
         loadMore={loadMore}
         hasMore={!!nextPageUrl}
@@ -82,4 +87,4 @@ const ReceivedList = () => {
   );
 };
 
-export default ReceivedList;
+export default TicketsList;

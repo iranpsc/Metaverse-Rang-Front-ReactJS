@@ -1,26 +1,12 @@
-// Suggestion.jsx
-import { useCallback, useMemo, useState } from "react";
+// کارت پیشنهاد خرید ارسالی؛ مناسب لیست پیشنهادهای ارسالی خریدار (ملک، تاریخ، فروشنده و Proposer با شمارش معکوس و لغو)
+import { useCallback, useState } from "react";
 import styled from "styled-components";
 
-import LandText from "../../../../../components/LandText";
-import SuggestionSkeleton from "../../../../../components/Skeletons/SuggestionSkeleton";
 import TitleBody from "../../../../../components/TitleBody";
 import UserCode from "../../../../../components/UserCode";
-import {
-  convertToPersian,
-  getTranslation,
-} from "../../../../../services/Utility";
-import { getPolygonShape } from "../../../../../services/Utility/getPolygonShape";
-import {
-  AreaContainer,
-  Location,
-  Polygon,
-  Property,
-  StyledSVG,
-  SuggestionsContainer,
-  Suggestions,
-  Value,
-} from "../suggestionStyles";
+import { convertToPersian, getTranslation } from "../../../../../services/Utility";
+import { Property, Suggestions, SuggestionsContainer, Value } from "../suggestionStyles";
+import PropertyLocation from "../PropertyLocation";
 import Proposer from "./Proposer";
 import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
 
@@ -56,37 +42,20 @@ const Time = styled.div`
   }
 `;
 
-const Suggestion = ({ item, isLoading }) => {
+const Suggestion = ({ item }) => {
   const [removed, setRemoved] = useState(false);
-
-  const { points, viewBox } = useMemo(
-    () => getPolygonShape(item?.feature_coordinates),
-    [item?.feature_coordinates],
-  );
-
   const handleRemoved = useCallback(() => setRemoved(true), []);
 
-  if (isLoading) return <SuggestionSkeleton variant="sent" />;
-  if (removed || !item) return null;
+  if (removed) return null;
 
-  const { feature_id, created_at, seller } = item;
+  const { created_at, seller } = item;
   const feature = item.feature_properties || {};
   const karbariIcon = KARBARI_ICONS[feature.karbari];
 
   return (
     <SuggestionsContainer>
       <Property>
-        <Location>
-          <AreaContainer>
-            <StyledSVG viewBox={viewBox}>
-              <Polygon karbari={feature.karbari} points={points} />
-            </StyledSVG>
-          </AreaContainer>
-          <div>
-            <TitleBody title={feature.address} />
-            <LandText label={feature.id} to={`/feature/${feature_id}/info`} />
-          </div>
-        </Location>
+        <PropertyLocation item={item} />
 
         <Pricing>
           <Time>
@@ -97,9 +66,7 @@ const Suggestion = ({ item, isLoading }) => {
           <Value>
             <TitleBody gray title={getTranslation("767")} />
             <div>
-              {karbariIcon && (
-                <img width={24} height={24} src={karbariIcon} alt="" />
-              )}
+              {karbariIcon && <img width={24} height={24} src={karbariIcon} alt="" />}
               <TitleBody title={convertToPersian(feature.stability)} />
             </div>
           </Value>

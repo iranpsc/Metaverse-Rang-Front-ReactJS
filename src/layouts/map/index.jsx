@@ -27,7 +27,7 @@ import styleMapLight from "../../assets/styleMapLight.json";
 import styleMapDark from "../../assets/styleMapDark.json";
 import useMapUrlState, { showPolygons } from "../../hooks/useMapUrlState.js";
 import { flyToMapPosition } from "../../services/Utility/flyToMapPosition";
-export const TransactionContext = createContext(null);
+const TransactionContext = createContext(null);
 const MemoMapPolygons = React.memo(MapPolygons);
 const MemoMapFlag = React.memo(MapFlag);
 const Mark = React.lazy(() => import("./3dModelMap/Mark"));
