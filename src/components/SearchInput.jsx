@@ -3,7 +3,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FiSearch } from "react-icons/fi";
-import debounce from "lodash/debounce";
+import debounce from "lodash.debounce";
 import { stripInvisibleChars } from "../services/Utility";
 import LabeledInput from "./LabeledInput";
 
