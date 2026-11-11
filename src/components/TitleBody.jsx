@@ -1,5 +1,4 @@
 // عنوان (تایتل) استاندارد برای همه‌ی تایتل‌ها و لیبل اینپوت‌های داخل مدال‌ها؛ با size="small" برای متن‌های کوچک‌تر و size="big" برای عنوان‌های درشت‌تر (پراپ قدیمی small هم کار می‌کند)
-
 import styled from "styled-components";
 import { getSize } from "../styles/sizes";
 import { getTitleColor } from "../styles/getTitleColor";

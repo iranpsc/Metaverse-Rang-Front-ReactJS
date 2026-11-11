@@ -57,7 +57,7 @@ const Album = ({ feature, setFeature, isLoading }) => {
       .then(({ data }) => {
         setFeature({ ...feature, images: [...data.data] });
         ToastSuccess(getTranslation(1628));
-      })
+      });
       
 
   // اعتبارسنجی حجم و تعداد داخل FileUploader انجام می‌شود

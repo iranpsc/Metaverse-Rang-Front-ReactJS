@@ -51,11 +51,12 @@ const PropertySelect = ({ data, setData }) => {
 
     setSubmitting(true);
 
-    Request(`dynasty/create/${id}`, HTTP_METHOD.POST).then((response) => {
-      setData(response.data.data);
-      ToastSuccess(getTranslation(1821));
-      () => setSubmitting(false);
-    });
+    Request(`dynasty/create/${id}`, HTTP_METHOD.POST)
+      .then((response) => {
+        setData(response.data.data);
+        ToastSuccess(getTranslation(1821));
+      })
+      .finally(() => setSubmitting(false));
   };
 
   const filteredFeatures = useMemo(() => {

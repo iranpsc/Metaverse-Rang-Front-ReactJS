@@ -200,7 +200,7 @@ const ConversationDetails = ({ type, data, setData, setShowDetails }) => {
         ToastSuccess(getTranslation(config.closedToastId));
         setData((prev) => ({ ...prev, status: config.closedStatus }));
         setShowDetails(false);
-      })
+      });
       
 
   const handleSent = (newMessages) => {
