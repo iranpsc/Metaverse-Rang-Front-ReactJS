@@ -62,8 +62,7 @@ const ImgPosition = styled.img`
   width: 114px;
   height: 114px;
   border-radius: 12px;
-    object-fit: cover;
-
+  object-fit: cover;
 `;
 const Hr = styled.div`
   background-color: ${(props) =>
@@ -99,7 +98,7 @@ const TooltipContent = ({ imgSrc, name, lang, href, onlineUser }) => {
       }
       Chidren={
         <a href={href} target="_blank" rel="noreferrer">
-          <ImgPosition src={imgSrc} alt={name} />
+          <ImgPosition src={imgSrc} alt={name} fetchPriority="high" />
         </a>
       }
     />

@@ -8,11 +8,12 @@ import useLanguage from "../../hooks/useLanguage.js";
 import DropdownLanguageModule from "../../components/DropDownLang/DropdownLanguageModule";
 import ThemeMenuModule from "./ThemeMenuModule";
 import { getLanguagesMeta, subscribeLanguagesMeta } from "../../i18n/i18n";
-import { metarangUrl,getTranslation } from "../../services/Utility";
+import { metarangUrl, getTranslation } from "../../services/Utility";
 import { getSize } from "../../styles/sizes";
 const Logo = styled.img`
   padding-top: 2px;
   height: 42px;
+  width: 42px;
   cursor: pointer;
 `;
 

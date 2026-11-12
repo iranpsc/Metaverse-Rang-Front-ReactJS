@@ -1,14 +1,20 @@
+// Suitable for: i18n setup with a custom backend that loads translations from the admin API and caches them in localStorage.
+// Used in: app entry (imported once, e.g. in main.jsx).
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import axios from "axios";
+const isDevelopment =
+  window.location.hostname === "localhost" ||
+  window.location.hostname === "127.0.0.1" ||
+  window.location.hostname.startsWith("dev-");
+const TRANSLATIONS_API = isDevelopment
+  ? "https://dev-admin.metarang.com/api/translations?active=true"
+  : "https://admin.metarang.com/api/translations?active=true";
 
- const TRANSLATIONS_API = "https://admin.metarang.com/api/translations?active=true";
+const CACHE_PREFIX = "i18n_cache_";
+const META_KEY = `${CACHE_PREFIX}meta`;
 
- const DEV_TRANSLATIONS_API =
-  "https://dev-admin.metarang.com/api/translations?active=true";
-
- let languagesMeta = [];
-
+let languagesMeta = [];
 const languageMetaListeners = new Set();
 
 export const getLanguagesMeta = () => languagesMeta;
@@ -18,41 +24,22 @@ export const subscribeLanguagesMeta = (listener) => {
   return () => languageMetaListeners.delete(listener);
 };
 
-const CACHE_PREFIX = "i18n_cache_";
+const setLanguagesMeta = (list) => {
+  languagesMeta = list;
+  languageMetaListeners.forEach((listener) => listener());
+};
 
-const getSelectedTranslationsApi = () => {
-  // SSR
-  if (typeof window === "undefined") {
-    return DEV_TRANSLATIONS_API;
+const readJSON = (key) => {
+  try {
+    return JSON.parse(localStorage.getItem(key));
+  } catch {
+    return null;
   }
-
-  const hostname = window.location.hostname?.toLowerCase() || "";
-
-  // Production
-  if (
-    hostname === "world.metarang.com" ||
-    hostname === "www.world.metarang.com"
-  ) {
-    return TRANSLATIONS_API;
-  }
-
-  // Development / other environments
-  return DEV_TRANSLATIONS_API;
 };
 
 const normalizeTranslations = (payload) => {
-  if (!payload || typeof payload !== "object") {
-    return {};
-  }
-
-  if (Array.isArray(payload)) {
-    return payload;
-  }
-
-  if (payload.modals || payload.translation?.modals) {
-    return payload;
-  }
-
+  if (!payload || typeof payload !== "object") return {};
+  if (payload.modals || payload.translation?.modals) return payload;
   if (
     payload.data &&
     typeof payload.data === "object" &&
@@ -60,65 +47,63 @@ const normalizeTranslations = (payload) => {
   ) {
     return payload.data;
   }
-
   return payload;
 };
 
 const customBackend = {
   type: "backend",
-
-  init: () => { },
+  init: () => {},
 
   read: async (language, namespace, callback) => {
+    const cacheKey = `${CACHE_PREFIX}${language}`;
+    const versionKey = `${cacheKey}_version`;
+
+    const cachedTranslations = readJSON(cacheKey);
+    const cachedMeta = readJSON(META_KEY);
+    const hasCache = Boolean(cachedTranslations && cachedMeta);
+
+    // serve from cache immediately, no waiting for the network
+    if (hasCache) {
+      setLanguagesMeta(cachedMeta);
+      callback(null, cachedTranslations);
+    }
+
     try {
-      const selectedApi = getSelectedTranslationsApi();
-
-      const cacheKey = `${CACHE_PREFIX}${language}`;
-      const versionKey = `${CACHE_PREFIX}${language}_version`;
-
-      const cachedData = localStorage.getItem(cacheKey);
-      const cachedVersion = localStorage.getItem(versionKey);
-
-      const { data: metaResponse } = await axios.get(selectedApi);
-
-      const metaList = Array.isArray(metaResponse?.data)
-        ? metaResponse.data
-        : Array.isArray(metaResponse)
-          ? metaResponse
+      const { data } = await axios.get(TRANSLATIONS_API);
+      const metaList = Array.isArray(data?.data)
+        ? data.data
+        : Array.isArray(data)
+          ? data
           : [];
 
-      languagesMeta = metaList;
-      languageMetaListeners.forEach((listener) => listener());
+      setLanguagesMeta(metaList);
+      localStorage.setItem(META_KEY, JSON.stringify(metaList));
 
       const langInfo = metaList.find((lang) => lang.code === language);
+      if (!langInfo) throw new Error(`Language ${language} not found`);
 
-      if (!langInfo) {
-        throw new Error(`Language ${language} not found`);
-      }
-
+      // cache is up to date
       if (
-        cachedData &&
-        cachedVersion &&
-        String(cachedVersion) === String(langInfo.version)
-      ) {
-        callback(null, normalizeTranslations(JSON.parse(cachedData)));
-
+        hasCache &&
+        localStorage.getItem(versionKey) === String(langInfo.version)
+      )
         return;
-      }
 
       const response = await axios.get(langInfo.file_url);
-
       const translations = normalizeTranslations(response.data);
 
       localStorage.setItem(cacheKey, JSON.stringify(translations));
-
       localStorage.setItem(versionKey, String(langInfo.version));
 
-      callback(null, translations);
+      if (hasCache) {
+        // new version arrived: swap it in without a reload
+        i18n.addResourceBundle(language, namespace, translations, true, true);
+      } else {
+        callback(null, translations);
+      }
     } catch (error) {
       console.error("Error loading translations:", error);
-
-      callback(error, null);
+      if (!hasCache) callback(error, null);
     }
   },
 };
@@ -131,6 +116,7 @@ i18n
     fallbackLng: "fa",
     react: {
       useSuspense: true,
+      bindI18nStore: "added", // re-render when a new version is swapped in
     },
   });
 
