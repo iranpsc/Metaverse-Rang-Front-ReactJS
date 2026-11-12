@@ -170,8 +170,14 @@ export default function Routers() {
             <Route path="property" element={<PropertyTab />}>
               <Route index element={<Navigate to="houses" replace />} />
               <Route path="houses" element={<Houses />} />
-        <Route path="following" element={<FollowList key="following" type="following" />} />
-<Route path="followers" element={<FollowList key="followers" type="followers" />} />
+              <Route
+                path="following"
+                element={<FollowList key="following" type="following" />}
+              />
+              <Route
+                path="followers"
+                element={<FollowList key="followers" type="followers" />}
+              />
             </Route>
 
             <Route path="dynasty" element={<DynastyTab />}>
