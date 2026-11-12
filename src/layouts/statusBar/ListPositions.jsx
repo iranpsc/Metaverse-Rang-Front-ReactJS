@@ -62,6 +62,8 @@ const ImgPosition = styled.img`
   width: 114px;
   height: 114px;
   border-radius: 12px;
+    object-fit: cover;
+
 `;
 const Hr = styled.div`
   background-color: ${(props) =>

@@ -13,8 +13,16 @@ import TitleBody from "../TitleBody";
 
 const BORDER_COLOR = "gray";
 const FONT_FAMILY = '"AzarMehr"';
-const EDITOR_HEIGHT = { withToolbar: "212px", withoutToolbar: "162px" };
+const EDITOR_HEIGHT = {
+  base: { withToolbar: "1400px", withoutToolbar: "100px" },
+  tablet: { withToolbar: "160px", withoutToolbar: "115px" },
+  desktop: { withToolbar: "212px", withoutToolbar: "162px" },
+};
 
+const getEditorHeight =
+  (breakpoint) =>
+  ({ $showToolbar }) =>
+    EDITOR_HEIGHT[breakpoint][$showToolbar ? "withToolbar" : "withoutToolbar"];
 const FORMATS = [
   "size",
   "bold",
@@ -52,12 +60,13 @@ const EditorContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  height: ${({ $showToolbar }) =>
-    $showToolbar ? EDITOR_HEIGHT.withToolbar : EDITOR_HEIGHT.withoutToolbar};
+  height: ${getEditorHeight("base")};
+
   margin: 10px auto;
   overflow: hidden;
   border-radius: 5px;
-  border: ${({ $border }) => ($border ? `1px solid ${BORDER_COLOR}` : "none")};
+  border: ${({ $border }) =>
+    $border ? `1px solid ${BORDER_COLOR}` : "none"}!important;
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
 
@@ -73,8 +82,8 @@ const EditorContainer = styled.div`
   .ql-toolbar {
     display: ${({ $showToolbar }) => ($showToolbar ? "block" : "none")};
     flex-shrink: 0;
-    border: none;
-    border-bottom: 1px solid ${BORDER_COLOR};
+    border: none !important;
+    border-bottom: 1px solid ${BORDER_COLOR}!important;
     background-color: ${({ theme }) =>
       theme.colors.newColors.otherColors.inputBg};
 
@@ -93,6 +102,9 @@ const EditorContainer = styled.div`
     .ql-fill {
       fill: ${({ theme }) => theme.colors.newColors.shades.title};
     }
+    @media (min-width: 1000px) {
+      padding: 8px;
+    }
   }
 
   .ql-container {
@@ -100,7 +112,7 @@ const EditorContainer = styled.div`
     height: auto;
     min-height: 0;
     overflow: hidden;
-    border: none;
+    border: none !important;
     color: ${({ theme }) => theme.colors.newColors.shades.title};
     background-color: ${({ theme }) =>
       theme.colors.newColors.otherColors.inputBg};
@@ -123,6 +135,13 @@ const EditorContainer = styled.div`
     color: #888;
     opacity: 0.7;
   }
+  @media (min-width: 500px) and (max-width: 999px) {
+    height: ${getEditorHeight("tablet")};
+  }
+
+  @media (min-width: 1280px) {
+    height: ${getEditorHeight("desktop")};
+  }
 `;
 
 const Counter = styled.div`
@@ -135,8 +154,6 @@ const Counter = styled.div`
     color: ${({ $isOverLimit, theme }) =>
       $isOverLimit ? "red" : theme.colors.newColors.shades.title};
   }
-
-
 `;
 
 /* ---------- Helpers ---------- */
@@ -266,8 +283,11 @@ const CustomEditor = ({
 
       <Counter $isOverLimit={isOverLimit} $size={size}>
         {showIcon && <CiEdit size={18} />}
-        <TitleBody gray2 small title={`${convertToPersian(remainingChars)} ${getTranslation("530")}`} />
-    
+        <TitleBody
+          gray2
+          small
+          title={`${convertToPersian(remainingChars)} ${getTranslation("530")}`}
+        />
       </Counter>
     </Container>
   );

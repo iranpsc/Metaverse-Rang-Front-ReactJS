@@ -312,7 +312,8 @@ const MapPolygons = () => {
       mapInstance.off("sourcedata", handleSourceData);
     };
   }, [zoom, map]);
-
+  const showBuildings =
+    zoom >= showPolygons && isPolygonSourceLoaded && buildings.length > 0;
   return (
     <>
       {zoom >= showPolygons && (
@@ -364,40 +365,32 @@ const MapPolygons = () => {
         </Source>
       )}
 
-      {zoom >= showPolygons &&
-        isPolygonSourceLoaded &&
-        buildings.length > 0 && (
-          <Canvas
-            latitude={30.233922946967866}
-            longitude={54.20761223027057}
-            key={selectedEnvironment ? selectedEnvironment.id : "no-env"}
-          >
-            {buildings.map((model) => {
-              const endDate = new Date(model?.building?.construction_end_date);
+      <Canvas latitude={30.233922946967866} longitude={54.20761223027057}>
+        {showBuildings &&
+          buildings.map((model) => {
+            const endDate = new Date(model?.building?.construction_end_date);
+            const opacity = new Date() < endDate ? 0.3 : 1;
 
-              const opacity = new Date() < endDate ? 0.3 : 1;
+            const [latitude, longitude] = model?.building?.position
+              ?.split(",")
+              .map(Number);
 
-              const [latitude, longitude] = model?.building?.position
-                ?.split(",")
-                .map(Number);
-              return (
-                <NearCoordinates
-                  key={model.uniqueKey}
-                  latitude={latitude}
-                  longitude={longitude}
-                >
-                  <FBXModel
-                    opacity={opacity}
-                    url={model.file.url}
-                    rotation={[0, model?.building?.rotation ?? 0, 0]}
-                    setLoading={setIsLoading}
-                    uniqueKey={model.uniqueKey}
-                  />
-                </NearCoordinates>
-              );
-            })}
-          </Canvas>
-        )}
+            return (
+              <NearCoordinates
+                key={model.uniqueKey}
+                latitude={latitude}
+                longitude={longitude}
+              >
+                <FBXModel
+                  opacity={opacity}
+                  url={model.file.url}
+                  rotation={[0, model?.building?.rotation ?? 0, 0]}
+                  setLoading={setIsLoading}
+                />
+              </NearCoordinates>
+            );
+          })}
+      </Canvas>
     </>
   );
 };
