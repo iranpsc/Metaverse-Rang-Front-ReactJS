@@ -2,10 +2,55 @@ import { toast } from "react-hot-toast";
 import i18n from "../../i18n/i18n";
 import DOMPurify from "dompurify";
 import { toGregorian, isValidJalaaliDate } from "jalaali-js";
-export const SanitizeHTML = (html) => {
-  if (!html) return "";
 
-  return DOMPurify.sanitize(html, {
+const ALLOWED_STYLES = new Set([
+  "color",
+  "background-color",
+  "font-size",
+  "font-weight",
+  "font-style",
+  "font-family",
+  "text-align",
+  "text-decoration",
+  "line-height",
+  "white-space",
+  "vertical-align",
+  "margin",
+  "margin-top",
+  "margin-bottom",
+  "padding",
+  "padding-left",
+  "padding-right",
+  "border",
+  "border-color",
+  "border-width",
+  "border-style",
+  "border-radius",
+]);
+
+const sanitizeStyle = (style) => {
+  if (typeof style !== "string") return "";
+
+  const element = document.createElement("span");
+  element.style.cssText = style;
+
+  const safeStyles = [];
+
+  for (const property of ALLOWED_STYLES) {
+    const value = element.style.getPropertyValue(property);
+
+    if (value) {
+      safeStyles.push(`${property}: ${value}`);
+    }
+  }
+
+  return safeStyles.join("; ");
+};
+
+export const SanitizeHTML = (html) => {
+  if (typeof html !== "string" || !html.trim()) return "";
+
+  const cleanHTML = DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [
       "div",
       "p",
@@ -47,6 +92,7 @@ export const SanitizeHTML = (html) => {
       "h5",
       "h6",
     ],
+
     ALLOWED_ATTR: [
       "href",
       "title",
@@ -60,13 +106,33 @@ export const SanitizeHTML = (html) => {
       "style",
     ],
 
-    FORBID_TAGS: ["script", "iframe", "object", "embed"],
+    FORBID_TAGS: [
+      "script",
+      "iframe",
+      "object",
+      "embed",
+      "form",
+      "input",
+      "button",
+    ],
+
+    ALLOW_DATA_ATTR: false,
   });
 
-  const temp = document.createElement("div");
-  temp.innerHTML = cleanHTML;
+  const template = document.createElement("template");
+  template.innerHTML = cleanHTML;
 
-  return cleanHTML;
+  template.content.querySelectorAll("[style]").forEach((element) => {
+    const safeStyle = sanitizeStyle(element.getAttribute("style"));
+
+    if (safeStyle) {
+      element.setAttribute("style", safeStyle);
+    } else {
+      element.removeAttribute("style");
+    }
+  });
+
+  return template.innerHTML;
 };
 
 // تاریخ شمسی بگیره میلادی بر میگردونه و میلادی بگیره شمسی بر میگردونه

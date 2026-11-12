@@ -57,7 +57,6 @@ const FollowList = ({ type }) => {
       .then((response) => {
         if (!cancelled) setItems(response.data.data ?? []);
       })
-      .catch((error) => console.error(`Error loading ${type}:`, error))
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
