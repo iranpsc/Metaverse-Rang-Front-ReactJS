@@ -1,4 +1,4 @@
-// برای نمایش محتوای html ک با تگ از سکند دریافت میشود 
+// برای نمایش محتوای html ک با تگ از سکند دریافت میشود
 
 import styled from "styled-components";
 import { SanitizeHTML } from "../services/Utility";
@@ -29,6 +29,7 @@ const HtmlContent = ({ html, className, style, size = "default" }) => (
     className={className}
     style={style}
     $size={size}
+    //flase positive && secured by sanitizeHtml===>dompurify
     dangerouslySetInnerHTML={{
       __html: SanitizeHTML(html),
     }}

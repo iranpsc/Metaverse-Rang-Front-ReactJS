@@ -1,3 +1,4 @@
+
 services:
   react-app:
     build:
@@ -6,6 +7,6 @@ services:
     container_name: react-app
 
     ports:
-      - "5173:80"
+      - "5173:8080"
 
     restart: always
