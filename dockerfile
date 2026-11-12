@@ -10,7 +10,6 @@ COPY . .
 
 RUN npm run build
 
-
 FROM docker.arvancloud.ir/nginx:alpine
 
 COPY nginx.conf /etc/nginx/conf.d/default.conf
