@@ -214,7 +214,7 @@ const MapTreeD = () => {
                 latitude: 25.229,
                 longitude: 54.2199,
                 zoom: showPolygons,
-                pitch: 40,
+                pitch: 65.5,
               }}
               onClick={handleMapClick}
               onZoomEnd={handleZoomEnd}

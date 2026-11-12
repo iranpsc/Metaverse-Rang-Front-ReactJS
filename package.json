@@ -11,7 +11,9 @@
     "start": "vite start",
     "lint": "eslint .",
     "knip": "knip",
-    "jscpd": "jscpd src"
+    "jscpd": "jscpd src",
+    "preview": "vite preview --host 0.0.0.0",
+    "sync": "powershell -NoProfile -ExecutionPolicy Bypass -File ./git-sync-dev.ps1"
   },
   "overrides": {
     "quill": "2.0.2",
@@ -77,5 +79,9 @@
   },
   "engines": {
     "node": "26.x"
+  },
+  "allowScripts": {
+    "@reown/appkit@1.8.19": true,
+    "esbuild@0.28.2": true
   }
 }
