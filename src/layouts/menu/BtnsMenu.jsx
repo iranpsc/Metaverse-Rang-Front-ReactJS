@@ -85,7 +85,7 @@ const Text = styled.p`
     if (props.isDanger) return "#e03131";
     return props.isSelected
       ? props.theme.colors.newColors.otherColors.iconText
-      : "#868b90";
+      : props.theme.colors.newColors.otherColors.mutedText;
   }};
   font-style: normal;
   font-weight: 500;

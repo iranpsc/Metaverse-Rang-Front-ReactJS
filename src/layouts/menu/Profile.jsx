@@ -74,7 +74,7 @@ const BtnNavigator = styled.button`
     $isOpenDrop ? theme.colors.newColors.shades.menuBg : "transparent"};
   height: 40px;
   border-radius: 10px;
-  color: #868b90;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.mutedText};
   font-size: ${({ $size }) => getSize($size, "base")};
   font-style: normal;
   font-weight: 500;
@@ -116,7 +116,7 @@ const Icon = styled.img`
 `;
 
 const Text = styled.p`
-  color: #868b90;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.mutedText};
   font-size: 14px;
   font-style: normal;
   font-weight: 500;

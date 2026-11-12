@@ -27,7 +27,7 @@ const ImgAsset = styled.img`
 `;
 
 const TextAsset = styled.p`
-  color: #868b90;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.mutedText};
   font-size: 15px;
   font-style: normal;
   font-weight: 500;

@@ -10,11 +10,10 @@ const Btn = styled.div`
   justify-content: space-between;
   width: 100%;
   min-height: 30px;
-    border-radius: 0 5px 5px 0;
+  border-radius: 0 5px 5px 0;
   &.active {
     border: ${(props) => `${props.border} 3px solid`};
   }
-  
 `;
 
 const IconFilter = styled(FilterIcon)`
@@ -27,14 +26,16 @@ const IconFilter = styled(FilterIcon)`
 const IconLocation = styled(LocationIcon)`
   width: 14px;
   height: 16px;
-  fill: ${(props) => (props.$active ? props.theme.colors.primary : "#868B90")};
+  fill: ${(props) =>
+    props.$active
+      ? props.theme.colors.primary
+      : props.theme.colors.newColors.otherColors.mutedText};
 
   fill-opacity: ${(props) => (props.$active ? "1" : "0.5")};
   cursor: pointer;
-
 `;
 const TitleFlag = styled.p`
-  color: #868b90;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.mutedText};
   font-size: 11px;
   font-style: normal;
   font-weight: 400;

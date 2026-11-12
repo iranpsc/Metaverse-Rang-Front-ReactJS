@@ -62,7 +62,7 @@ const Icon = styled.img`
 `;
 
 const Text = styled.p`
-  color: #868b90;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.mutedText};
   font-style: normal;
   font-weight: 500;
   line-height: 180%;
@@ -154,7 +154,7 @@ const BtnsAfterLogin = () => {
 
         return (
           <ToolTip
-            disabled={isOpen} 
+            disabled={isOpen}
             key={item.translationId}
             TitleToltip={title}
             classNamePosstion=""

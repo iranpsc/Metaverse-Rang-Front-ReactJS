@@ -88,8 +88,12 @@ const IconWrapper = styled.div`
 
   svg {
     font-size: 20px;
-    color: ${({ $disabled, $active }) =>
-      $disabled ? "#555" : $active ? ACTIVE_ICON : "#868B90"};
+    color: ${({ $disabled, $active, theme }) =>
+      $disabled
+        ? "#555"
+        : $active
+          ? ACTIVE_ICON
+          : theme.colors.newColors.otherColors.mutedText};
   }
 
   ${({ $disabled }) =>

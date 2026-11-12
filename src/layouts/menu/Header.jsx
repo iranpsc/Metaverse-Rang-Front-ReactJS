@@ -69,7 +69,7 @@ const Title = styled.p`
 `;
 
 const Details = styled.p`
-  color: #939393;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.mutedText};
   font-size: 12px;
   font-style: normal;
   font-weight: 500;
