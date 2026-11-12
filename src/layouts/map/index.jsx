@@ -6,9 +6,10 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import Map from "react-map-gl/maplibre";
 import { setWorkerUrl } from "maplibre-gl";
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
+import Map from "react-map-gl/maplibre";
 import { useNavigate } from "react-router";
 import { Container } from "./styles";
 import MapPolygons from "./MapPolygons";
@@ -32,7 +33,7 @@ const MemoMapPolygons = React.memo(MapPolygons);
 const MemoMapFlag = React.memo(MapFlag);
 const Mark = React.lazy(() => import("./3dModelMap/Mark"));
 const MemoMark = React.memo(Mark);
-setWorkerUrl("/assets/maplibre-gl-worker.mjs");
++setWorkerUrl(workerUrl);
 const MapTreeD = () => {
   const { setMapState, getMapState } = useMapUrlState();
   const [selectedTransaction, setSelectedTransaction] = useState([]);
