@@ -21,7 +21,7 @@ const DateContainer = styled.div`
   box-sizing: border-box;
   width: 100%;
   max-width: 100%;
-  padding: 0 12px;
+  padding: 0 ;
   overflow: hidden;
   border: 1px solid
     ${({ theme, $error }) =>
@@ -48,7 +48,8 @@ const DateContainer = styled.div`
   }
 
   @media (min-width: 500px) and (max-width: 999px) {
-    font-size: ${({ $size }) => getSize($size, "tablet")};
+    font-size: 12px;
+
   }
 
   @media (min-width: 1280px) {
