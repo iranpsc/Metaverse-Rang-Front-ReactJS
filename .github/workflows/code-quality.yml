@@ -67,9 +67,8 @@ jobs:
       - uses: actions/checkout@v6
       - name: Install Semgrep
         run: |
-          python3 -m pip install --user pipx
+          python3 -m pipx install semgrep
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-          "$HOME/.local/bin/pipx" install semgrep
       - name: Run Semgrep
         run: semgrep scan --config p/react --config p/security-audit --error src
 
