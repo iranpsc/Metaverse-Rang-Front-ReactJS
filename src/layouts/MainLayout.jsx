@@ -10,6 +10,7 @@ import { getItem } from "../services/Utility/LocalStorage";
 import RouteSkeleton from "../components/Skeletons/RouteSkeleton";
 import spiner from "../assets/gif/loader.svg";
 import TitleBody from "../components/TitleBody";
+import { getTranslation } from "../services/Utility";
 const MapTreeD = lazy(() => import("./map"));
 const MapProvider = lazy(() =>
   import("react-map-gl/maplibre").then(({ MapProvider }) => ({
@@ -84,7 +85,7 @@ const MainLayout = () => {
         fallback={
           <MapFallback role="status">
             <img src={spiner} width={100} height={100} alt="" />
-            <TitleBody big color="#FFC700" title={"در حال بارگذاری نقشه"} />
+            <TitleBody big color="#FFC700" title={getTranslation(1951)} />
           </MapFallback>
         }
       >
@@ -93,7 +94,7 @@ const MainLayout = () => {
             fallback={
               <MapFallback role="status">
                 <img src={spiner} width={100} height={100} alt="" />{" "}
-                <TitleBody big color="#FFC700" title={"در حال بارگذاری نقشه"} />
+                <TitleBody big color="#FFC700" title={getTranslation(1951)} />
               </MapFallback>
             }
           >

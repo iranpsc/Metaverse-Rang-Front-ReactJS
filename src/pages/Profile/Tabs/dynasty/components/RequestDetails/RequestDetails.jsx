@@ -120,7 +120,7 @@ const RequestDetails = ({
     try {
       await Request(`dynasty/prizes/${data.prize.id}`, HTTP_METHOD.POST);
 
-      ToastSuccess(getTranslation("جایزه شما با موفقیت دریافت شد"));
+      ToastSuccess(getTranslation(1949));
 
       updateWallet("psc", Number(psc) || 0, "+");
       updateWallet("satisfaction", Number(gif) || 0, "+");
@@ -197,7 +197,7 @@ const RequestDetails = ({
                 onClick={handleGift}
                 label={
                   data.prize.collected
-                    ? "پاداش دریافت شده"
+                    ? getTranslation(1950)
                     : getTranslation(856)
                 }
                 color={!data.prize.collected ? "#18C08F" : undefined}
