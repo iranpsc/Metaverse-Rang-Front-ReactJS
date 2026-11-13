@@ -14,7 +14,7 @@ The repository is checked as a whole on every pull request to `main`. These chec
 | ESLint | Enforce existing JavaScript/JSX lint rules | Whole project |
 | Vite | Verify production compilation | Whole project |
 
-A failed required check must be resolved or explicitly reviewed before merging. CI runs ESLint, Knip, jscpd, Semgrep, and the production build in the quality job; Gitleaks and OSV-Scanner run in their dedicated jobs. The local Lefthook pre-push hook runs the full set of CLI checks. Do not automatically delete code reported by Knip: confirm that it is not loaded dynamically, referenced by deployment tooling, or used outside the detected entry-point graph.
+A failed required check must be resolved or explicitly reviewed before merging. Every CI check runs in its own independent job: ESLint, Knip, jscpd, Semgrep, production build, Gitleaks, and OSV-Scanner. A failure in one job does not stop the other jobs from running. The failed job is shown as red, and the overall workflow remains failed if any required job fails. OSV-Scanner uses `fail-on-vuln: true`, so detected vulnerabilities are reported and make its job fail while the other checks continue. The local Lefthook pre-push hook runs the full set of CLI checks. Do not automatically delete code reported by Knip: confirm that it is not loaded dynamically, referenced by deployment tooling, or used outside the detected entry-point graph.
 
 ## Local setup
 
