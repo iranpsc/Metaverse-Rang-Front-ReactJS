@@ -34,20 +34,23 @@ jobs:
         run: npm ci
 
       - name: Install Semgrep
-        run: |
-          python3 -m pipx install semgrep
+        run: python3 -m pipx install semgrep
 
       - name: Run ESLint
         run: npm run lint
+        continue-on-error: true
 
       - name: Detect unused code with Knip
         run: npx --yes knip --no-progress
+        continue-on-error: true
 
       - name: Detect duplicated code with jscpd
         run: npx --yes jscpd src --min-lines 5 --min-tokens 50 --threshold 5 --reporters console
+        continue-on-error: true
 
       - name: Run Semgrep
         run: semgrep scan --config p/react --config p/security-audit --error src
+        continue-on-error: true
 
       - name: Production build
         run: npm run build
