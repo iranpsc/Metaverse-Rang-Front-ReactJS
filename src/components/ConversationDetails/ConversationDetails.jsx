@@ -138,6 +138,10 @@ const CardHeader = styled.div`
 
 // span برای بخش‌های پررنگ زیرعنوان گزارش (page و title)
 const Texts = styled.div`
+  min-width: 0;
+  max-width: 100%;
+  word-break: normal;
+overflow-wrap: anywhere;
   h4 {
     margin: 10px 0;
   }

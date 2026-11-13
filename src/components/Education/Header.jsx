@@ -6,6 +6,7 @@ import { useLocation } from "react-router";
 import { ExitIcon } from "../Icons/IconsHeader";
 import getModalHeaderFromPrevious from "../../services/TitleManager";
 import { getTranslation } from "../../services/Utility";
+const ICON_SIZE = "35px";
 
 const Div = styled.div`
   position: relative;
@@ -49,11 +50,11 @@ const Icons = styled.div`
 
   svg {
     color: ${({ theme }) => theme.colors.newColors.otherColors.iconText};
-    width: 30px;
-    height: 30px;
+      width: ${ICON_SIZE};
+    height: ${ICON_SIZE};
     z-index: 999;
 
-    @media (min-width: 998px) {
+    @media (min-width: 1024px) {
       width: 40px;
       height: 40px;
     }

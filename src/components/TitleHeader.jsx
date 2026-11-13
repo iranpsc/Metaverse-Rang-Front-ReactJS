@@ -3,16 +3,14 @@
 import styled from "styled-components";
 import { getTitleColor } from "../styles/getTitleColor";
 const SIZES = {
-  default: { base: "16px", tablet: "13px", desktop: "18px" },
-  small: { base: "13px", tablet: "13px", desktop: "14px" },
-  big: { base: "20px", tablet: "17px", desktop: "24px" },
+  default: { base: "14px", tablet: "16px", desktop: "18px" },
+  small: { base: "16px", tablet: "15px", desktop: "16px" },
+  big: { base: "22px", tablet: "18px", desktop: "22px" },
 };
-
-
 
 const TitleName = styled.h3`
   margin: ${({ $noMargin, $payed }) =>
-    $noMargin ? "0" : `${$payed ? "30px" : "0"} 0 20px`};
+    $noMargin ? "0" : `${$payed ? "30px" : "0"} 0 10px`};
   font-size: ${({ $size }) => SIZES[$size].base};
   font-weight: 600;
   text-align: ${({ $center }) => ($center ? "center" : "")};

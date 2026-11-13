@@ -9,7 +9,8 @@ import DropdownLanguageModule from "../../components/DropDownLang/DropdownLangua
 import ThemeMenuModule from "./ThemeMenuModule";
 import { getLanguagesMeta, subscribeLanguagesMeta } from "../../i18n/i18n";
 import { metarangUrl, getTranslation } from "../../services/Utility";
-import { getSize } from "../../styles/sizes";
+import TitleBody from "../../components/TitleBody.jsx";
+
 const Logo = styled.img`
   padding-top: 2px;
   height: 42px;
@@ -49,34 +50,6 @@ const ContainerText = styled.div`
   }
 `;
 
-const Title = styled.p`
-  color: ${(props) => props.theme.colors.newColors.otherColors.headerMenu};
-  font-size: ${({ $size }) => getSize($size, "base")};
-  padding-top: 2px;
-
-  height: 25px;
-  cursor: pointer;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 180%;
-
-  @media (min-width: 500px) and (max-width: 999px) {
-    font-size: ${({ $size }) => getSize($size, "tablet")};
-  }
-
-  @media (min-width: 1024px) {
-    font-size: ${({ $size }) => getSize($size, "desktop")};
-  }
-`;
-
-const Details = styled.p`
-  color: ${({ theme }) => theme.colors.newColors.otherColors.mutedText};
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 180%;
-`;
-
 const BtnOpenCloseMenu = styled.button`
   width: ${(p) => (p.$isOpen ? "17px" : "41px")};
   height: ${(p) => (p.$isOpen ? "17px" : "41px")};
@@ -99,14 +72,10 @@ const BtnOpenCloseMenu = styled.button`
   z-index: 9;
   border: none;
 `;
-
-const ContainerMain = styled.div`
-  display: flex;
-  gap: 12px;
-`;
 const Icon = styled(ArowMenu)`
   stroke: ${(props) => props.theme.colors.newColors.otherColors.iconText};
-
+  width: 17px;
+  height: 17px;
   transform: ${({ $isOpen, $isPersian }) => {
     if ($isPersian) {
       return $isOpen ? "rotate(0deg)" : "rotate(180deg)";
@@ -116,6 +85,10 @@ const Icon = styled(ArowMenu)`
   }};
 
   transition: transform 0.3s ease;
+`;
+const ContainerMain = styled.div`
+  display: flex;
+  gap: 12px;
 `;
 
 const Header = () => {
@@ -140,15 +113,17 @@ const Header = () => {
           alt="متارنگ"
         />
         <ContainerText $isOpen={isOpen}>
-          <Title
-            $size="default"
+          <TitleBody
+            noMargin
+            weight
+            noWrap
+            title={getTranslation(148)}
             onClick={() => {
               window.open(metarangUrl(), "_blank");
             }}
-          >
-            {getTranslation(148)}
-          </Title>
-          <Details>{getTranslation(905)}</Details>
+          />
+
+          <TitleBody noMargin small gray noWrap title={getTranslation(905)} />
         </ContainerText>
         <Headerbtn $isOpen={isOpen}>
           <LangContainer isOpen={isOpen}>

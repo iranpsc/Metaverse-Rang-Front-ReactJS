@@ -4,11 +4,18 @@ import { MdKeyboardArrowDown } from "react-icons/md";
 import styled, { css } from "styled-components";
 
 import { getTranslation } from "../../services/Utility";
-import { responsiveFontSize } from "../../styles/sizes";
+import { inputFontSize, responsiveFontSize } from "../../styles/sizes";
 import TitleBody from "../TitleBody";
 
 /* ---------- Constants ---------- */
-
+const MOBILE_PADDING_BLOCK = { small: "4px", default: "7px", big: "8px" };
+// padding عمودی کمتر روی موبایل چون فونت ورودی‌ها بزرگ‌تر شده است
+const mobilePadding = css`
+  @media (max-width: 1000px) {
+    padding-block: ${({ $size }) =>
+      MOBILE_PADDING_BLOCK[$size] ?? MOBILE_PADDING_BLOCK.default};
+  }
+`;
 const TEXT_COLOR = "#84858f";
 
 const PADDING = {
@@ -41,6 +48,7 @@ const DropdownButton = styled.div`
   align-items: center;
   gap: ${({ $size }) => ($size === "small" ? "8px" : "0")};
   padding: ${getPadding};
+  ${mobilePadding}
   border-radius: 5px;
   border: 1px solid
     ${({ theme }) => theme.colors.newColors.otherColors.inputBorder};
@@ -100,7 +108,7 @@ const SearchInput = styled.input`
     theme.colors.newColors.otherColors.inputBg};
   color: ${TEXT_COLOR};
   outline: none;
-  ${responsiveFontSize}
+  ${inputFontSize}
 `;
 
 /* ---------- Helpers ---------- */

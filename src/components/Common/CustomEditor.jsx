@@ -3,10 +3,10 @@ import "react-quill-new/dist/quill.snow.css";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CiEdit } from "react-icons/ci";
 import ReactQuill from "react-quill-new";
-import styled, { css } from "styled-components";
+import styled from "styled-components";
 
 import { convertToPersian, getTranslation } from "../../services/Utility";
-import { getSize } from "../../styles/sizes";
+import { inputFontSize } from "../../styles/sizes";
 import TitleBody from "../TitleBody";
 
 /* ---------- Constants ---------- */
@@ -40,18 +40,6 @@ const FORMATS = [
 /* ---------- Styles ---------- */
 
 // فونت ریسپانسیو با همان بریک‌پوینت‌های LabeledInput (۵۰۰ تا ۹۹۹ تبلت، از ۱۲۸۰ دسکتاپ)
-const responsiveFont = css`
-  font-size: ${({ $size }) => getSize($size, "base")};
-
-  @media (min-width: 500px) and (max-width: 999px) {
-    font-size: ${({ $size }) => getSize($size, "tablet")};
-  }
-
-  @media (min-width: 1280px) {
-    font-size: ${({ $size }) => getSize($size, "desktop")};
-  }
-`;
-
 const Container = styled.div`
   margin-top: 20px;
 `;
@@ -126,7 +114,7 @@ const EditorContainer = styled.div`
     line-height: 1.6;
     font-family: ${FONT_FAMILY} !important;
     -webkit-text-size-adjust: 100%;
-    ${responsiveFont}
+    ${inputFontSize}
   }
 
   && .ql-editor::before {

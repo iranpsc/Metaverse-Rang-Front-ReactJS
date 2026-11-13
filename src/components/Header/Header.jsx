@@ -16,8 +16,9 @@ import useAdviserData from "../../hooks/useAdviserData.js";
 import { useSelectedEnvironment } from "../../services/reducers/SelectedEnvironmentContext.jsx";
 import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext.jsx";
 import { getTranslation } from "../../services/Utility";
+const ICON_SIZE = "35px";
 
-const DESKTOP = "@media (min-width: 1280px)";
+const DESKTOP = "@media (min-width: 1024pxe)";
 
 const circleIconStyles = css`
   width: 40px;
@@ -76,8 +77,8 @@ const Icons = styled.div`
   gap: 10px;
 
   svg {
-    width: 30px;
-    height: 30px;
+    width: ${ICON_SIZE};
+    height: ${ICON_SIZE};
     color: #3b3b3b;
 
     ${DESKTOP} {
@@ -88,8 +89,8 @@ const Icons = styled.div`
 `;
 
 const FullscreenButton = styled.div`
-  width: 30px;
-  height: 30px;
+   width: ${ICON_SIZE};
+  height: ${ICON_SIZE};
   border-radius: 100%;
   background-color: #3b3b3b;
   cursor: pointer;

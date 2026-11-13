@@ -2,8 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import styled from "styled-components";
-import { getSize } from "../../styles/sizes";
-
+import { inputFontSize } from "../../styles/sizes";
 const SCROLL_THRESHOLD = 40;
 
 // یکسان‌سازی ی/ک عربی و فارسی برای مقایسه
@@ -27,23 +26,18 @@ const Root = styled.div`
   padding: 10px 12px;
   padding-inline-end: 40px;
   border-radius: 5px;
-  font-size: ${({ $size }) => getSize($size, "base")};
   line-height: 1.2;
   color: ${({ theme }) => theme.colors.newColors.shades.title};
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
-
-  @media (min-width: 500px) and (max-width: 999px) {
-    font-size: ${({ $size }) => getSize($size, "tablet")};
-  }
-
-  @media (min-width: 1280px) {
-    font-size: ${({ $size }) => getSize($size, "desktop")};
-  }
+  ${inputFontSize}
 
   svg {
     flex-shrink: 0;
     font-size: 1em;
+  }
+  @media (max-width: 1000px) {
+    padding-block: 6px;
   }
 `;
 

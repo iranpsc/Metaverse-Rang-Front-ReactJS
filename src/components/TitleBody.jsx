@@ -12,7 +12,7 @@ const TitleName = styled.h4`
   padding-bottom: 2px;
   white-space: ${({ $noWrap }) => ($noWrap ? "nowrap" : "normal")};
   ${({ $align }) => $align && `text-align: ${$align};`}
-
+  ${({ $noMargin }) => $noMargin && "margin: 0; padding: 0;"}
   @media (min-width: 500px) and (max-width: 999px) {
     font-size: ${({ $size }) => getSize($size, "tablet")};
   }
@@ -33,6 +33,7 @@ const TitleBody = ({
   gray,
   gray2,
   align,
+  noMargin,
   weight = 400,
   primary,
 }) => (
@@ -46,6 +47,7 @@ const TitleBody = ({
     $gray={gray}
     $gray2={gray2}
     $align={align}
+    $noMargin={noMargin}
   >
     {title}
   </TitleName>

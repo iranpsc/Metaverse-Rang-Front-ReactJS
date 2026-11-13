@@ -366,7 +366,9 @@ const FileUploader = ({
   if (mode === "display") {
     const isFile = file instanceof File;
     const name = isFile ? file.name : getFileName(file);
-    const showAsImage = isFile ? file.type.startsWith("image/") : isImageUrl(displayUrl);
+    const showAsImage = isFile
+      ? file.type.startsWith("image/")
+      : isImageUrl(displayUrl);
     const preview = (
       <DisplayPreview $fit={fit}>
         {showAsImage && displayUrl ? (

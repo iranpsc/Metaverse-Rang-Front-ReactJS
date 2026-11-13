@@ -8,9 +8,10 @@ const DIV = styled.button`
   display: flex;
   flex-direction: column;
   border: none;
+  background-color: ${({ theme }) => theme.colors.newColors.shades.bg2};
   justify-content: space-between;
 `;
-const EDUCATION_MODAL_SIZE = { width: 550, height: 550 };
+const EDUCATION_MODAL_SIZE = { width: 550, height: 315 };
 
 const Education = ({
   setOpenEducation,

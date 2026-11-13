@@ -98,16 +98,14 @@ const BtnNavigator = styled.button`
 const SubMenu = styled.div`
   display: ${({ $isOpenDrop, $isOpen }) =>
     $isOpen && $isOpenDrop ? "block" : "none"};
-  padding-left: 20px;
   top: ${({ $isOpen }) => ($isOpen ? "0" : "10%")};
   margin-top: 5px;
-
+  white-space: nowrap;
   background-color: ${({ theme }) => theme.colors.newColors.primaryText};
   padding: ${({ isOpen }) => (isOpen ? "0" : "10px")};
   border-radius: ${({ isOpen }) => (isOpen ? "0" : "10px")};
   width: ${({ isOpen }) => (isOpen ? "100%" : "16.6%")};
-  min-width: ${({ isOpen }) => (isOpen ? "" : "210px")};
-  max-height: ${({ isOpen }) => (isOpen ? "none" : "88vh")};
+  min-width: ${({ isOpen }) => (isOpen ? "" : "190px")};
   overflow-y: ${({ isOpen }) => (isOpen ? "visible" : "auto")};
 `;
 

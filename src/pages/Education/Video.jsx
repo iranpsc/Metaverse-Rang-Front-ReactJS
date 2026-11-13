@@ -12,11 +12,11 @@ const Container = styled.div`
   margin-top: ${({ $fullscreen }) => ($fullscreen ? "0" : "20px")};
   @media (max-width: 1000px) {
     flex: ${({ $fullscreen }) =>
-      $fullscreen ? "1" : "0 0 clamp(110px, 38vw, 150px)"};
+      $fullscreen ? "1" : "0 0 clamp(110px, 38vw, 140px)"};
     min-height: ${({ $fullscreen }) =>
-      $fullscreen ? "0" : "clamp(110px, 38vw, 150px)"};
+      $fullscreen ? "0" : "clamp(110px, 38vw, 140px)"};
     height: ${({ $fullscreen }) =>
-      $fullscreen ? "100%" : "clamp(110px, 38vw, 150px)"};
+      $fullscreen ? "100%" : "clamp(110px, 38vw, 140px)"};
   }
 
   video {

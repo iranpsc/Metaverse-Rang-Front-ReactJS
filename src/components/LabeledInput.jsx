@@ -3,7 +3,7 @@
 import styled, { css } from "styled-components";
 import TitleBody from "./TitleBody";
 import { convertToPersian, convertToEnglish } from "../services/Utility";
-import { getSize } from "../styles/sizes";
+import {inputFontSize,responsiveFontSize  } from "../styles/sizes";
 
 const INVALID_BORDER = "red";
 const EDGE_GAP = 12; // فاصله‌ی آیکون و متن کناری از لبه‌ی فیلد
@@ -23,18 +23,6 @@ const autofillStyle = css`
   transition: background-color 9999s ease-in-out 0s;
 `;
 
-// اندازه‌ی فونت ریسپانسیو که هم برای فیلد و هم برای آیکون‌ها و متن‌های کناری استفاده می‌شود
-const responsiveFontSize = css`
-  font-size: ${({ $size }) => getSize($size, "base")};
-
-  @media (min-width: 500px) and (max-width: 999px) {
-    font-size: ${({ $size }) => getSize($size, "tablet")};
-  }
-
-  @media (min-width: 1280px) {
-    font-size: ${({ $size }) => getSize($size, "desktop")};
-  }
-`;
 
 const Field = styled.div`
   width: ${({ $width }) => $width};
@@ -62,7 +50,7 @@ const InputElement = styled.input`
   color: ${({ theme }) => theme.colors.newColors.shades.title};
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
-  ${responsiveFontSize}
+  ${inputFontSize}
 
   /* عرض به اندازه‌ی تعداد رقم‌ها؛ padding و border بیرون از آن اضافه می‌شوند */
   ${({ $digits }) =>
@@ -84,6 +72,9 @@ const InputElement = styled.input`
   /* Firefox و استاندارد جدید */
   &:autofill {
     ${autofillStyle}
+  }
+   @media (max-width: 1000px) {
+   padding-block: 6px;
   }
 `;
 
@@ -111,7 +102,7 @@ const Unit = styled.span`
   white-space: pre;
   color: ${({ theme }) => theme.colors.newColors.otherColors.gray};
   pointer-events: none;
-  ${responsiveFontSize}
+  ${inputFontSize}
 `;
 
 const Mirror = styled.span`
