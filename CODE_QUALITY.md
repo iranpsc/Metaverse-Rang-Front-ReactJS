@@ -37,6 +37,7 @@ The project uses Node.js 20 and npm.
    - OSV-Scanner: https://github.com/google/osv-scanner
    - Semgrep: https://semgrep.dev/docs/getting-started/
 
+   For this repository under the `iranpsc` organization, add the Gitleaks Action license as an Actions secret named `GITLEAKS_LICENSE` (Settings → Secrets and variables → Actions). The action requires this secret for organization-owned repositories.
    Knip and jscpd are invoked through `npx`, so they do not need to be added to the application's runtime dependencies.
 
 4. Run all pre-push checks manually:
