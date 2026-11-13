@@ -38,11 +38,17 @@ jobs:
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
           "$HOME/.local/bin/pipx" install semgrep
 
-      - name: Install Lefthook
-        run: npx --yes lefthook install
+      - name: Run ESLint
+        run: npm run lint
 
-      - name: Run full-project checks through Lefthook
-        run: npx --yes lefthook run pre-push
+      - name: Detect unused code with Knip
+        run: npx --yes knip --no-progress
+
+      - name: Detect duplicated code with jscpd
+        run: npx --yes jscpd src --min-lines 5 --min-tokens 50 --threshold 5 --reporters console
+
+      - name: Run Semgrep
+        run: semgrep scan --config p/react --config p/security-audit --error src
 
       - name: Production build
         run: npm run build
