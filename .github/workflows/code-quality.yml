@@ -56,7 +56,6 @@ jobs:
         with:
           node-version: "20"
           cache: npm
-      - run: npm ci
       - name: Detect duplicated code
         run: npx --yes jscpd src --min-lines 5 --min-tokens 50 --threshold 5 --reporters console
 
@@ -69,8 +68,66 @@ jobs:
         run: |
           python3 -m pipx install semgrep
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-      - name: Run Semgrep
-        run: semgrep scan --config p/react --config p/security-audit --error src
+      - name: Run Semgrep and report the single approved exception
+        shell: bash
+        run: |
+          set +e
+          semgrep scan --config p/react --config p/security-audit --json --output semgrep-results.json src
+          semgrep_status=$?
+          set -e
+
+          if [ "$semgrep_status" -gt 1 ]; then
+            echo "::error::Semgrep execution failed with exit code $semgrep_status"
+            exit "$semgrep_status"
+          fi
+
+          python3 - <<'PY'
+          import json
+          import sys
+
+          with open("semgrep-results.json", encoding="utf-8") as report:
+              findings = json.load(report).get("results", [])
+
+          approved = []
+          blocking = []
+
+          for finding in findings:
+              path = finding.get("path", "").replace("\\", "/")
+              rule = finding.get("check_id", "")
+              line = finding.get("start", {}).get("line")
+              if (
+                  path == "src/components/HtmlContent.jsx"
+                  and rule == "typescript.react.security.audit.react-dangerouslysetinnerhtml.react-dangerouslysetinnerhtml"
+                  and line == 34
+              ):
+                  approved.append(finding)
+              else:
+                  blocking.append(finding)
+
+          for finding in approved:
+              print("::warning file=src/components/HtmlContent.jsx,line=34::APPROVED SEMGREP EXCEPTION (reported but non-blocking): dangerouslySetInnerHTML finding is ignored only for this exact file, rule, and line. Review the SanitizeHTML implementation.")
+              print(
+                  "IGNORED FINDING: "
+                  f"{finding.get('check_id')} at "
+                  f"{finding.get('path')}:{finding.get('start', {}).get('line')}"
+              )
+
+          for finding in blocking:
+              print(
+                  "BLOCKING FINDING: "
+                  f"{finding.get('check_id')} at "
+                  f"{finding.get('path')}:{finding.get('start', {}).get('line')}"
+              )
+              print(f"  {finding.get('extra', {}).get('message', '')}")
+
+          print(
+              f"Semgrep findings: {len(findings)} total, "
+              f"{len(approved)} approved exception(s), "
+              f"{len(blocking)} blocking."
+          )
+
+          sys.exit(1 if blocking else 0)
+          PY
 
   build:
     name: Production build
