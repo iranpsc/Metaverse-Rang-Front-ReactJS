@@ -1,4 +1,3 @@
-
 # MetaRang Frontend Project
 
 ## Table of Contents
@@ -8,17 +7,18 @@
 - [Running the Project](#running-the-project)
 - [Contribution](#contribution)
 - [Development Rules](#development-rules)
+- [Code Quality and Security Checks](#code-quality-and-security-checks)
 - [FAQ](#faq)
 
 ## Introduction
 
-This project is designed as part of the national Iranian metaverse known as **MetaRang**. The goal of this project is to develop a frontend platform that provides users with access to the features of the Iranian national metaverse through an optimized and user-friendly interface. This project is a part of the Behesht Supply Chain and aims to create a unique and innovative user experience for users in virtual and parallel worlds.
+This project is designed as part of the national Iranian metaverse known as **MetaRang**. The goal is to develop a frontend platform that provides users with access to the features of the Iranian national metaverse through an optimized and user-friendly interface. This project is part of the Behesht Supply Chain and aims to create a unique and innovative user experience in virtual and parallel worlds.
 
 ## Installation
 
 ### 1. Clone the Repository
 
-First, you need to clone the repository to your system. Run the following command in your terminal:
+First, clone the repository to your system:
 
 ```bash
 git clone https://github.com/iranpsc/Metaverse-Rang-Front-React.git
@@ -26,15 +26,11 @@ git clone https://github.com/iranpsc/Metaverse-Rang-Front-React.git
 
 ### 2. Navigate to the Project Directory
 
-Once you have cloned the repository, navigate to the project directory:
-
 ```bash
 cd Metaverse-Rang-Front-React
 ```
 
 ### 3. Install Dependencies
-
-To install the required dependencies, use the following commands:
 
 ```bash
 npm install
@@ -44,9 +40,7 @@ npm install
 
 ### 4. Run the Project
 
-To start the project, use the following command based on your development environment:
-
-- **Development mode:**
+To start the project in development mode:
 
 ```bash
 npm run dev
@@ -54,33 +48,39 @@ npm run dev
 
 ## Contribution
 
-We welcome your contributions to improve the project. To contribute to the project, follow these steps:
+We welcome contributions that improve the project. Please follow these steps:
 
 1. **Fork the Project:** Fork the repository and work on your own copy.
-2. **Create a New Branch:** For each feature or change, create a separate branch:
+2. **Create a New Branch:** Create a separate branch for each feature or bug fix:
 
    ```bash
    git checkout -b feature-name
    ```
 
-3. **Regular Commits:** Save your changes with detailed and meaningful commit messages:
+3. **Regular Commits:** Use clear, descriptive commit messages:
 
    ```bash
    git commit -m "Complete explanation of the change"
    ```
 
-4. **Submit a Pull Request:** After making changes and ensuring everything works properly, submit a pull request for review.
+4. **Submit a Pull Request:** Submit a pull request for review after checking your changes and following the project quality requirements.
 
 ## Development Rules
 
-For project developers, the following guidelines must be followed:
+All contributors are expected to follow these guidelines:
 
-1. **Use Separate Branches:** Each new feature or bug fix must be implemented in a separate branch. The branch name should correspond to the change (e.g., `feature-branch`).
-2. **Regular and Clear Commits:** Changes should be saved as regular commits with clear, descriptive messages.
-3. **Review and Approval:** Before merging any pull request, it must be reviewed by the development team.
-4. **Adherence to Coding Standards:** Use linting tools like ESLint to maintain code quality and follow project standards.
-5. **Code Cleanup:** Before submitting a pull request, ensure that no unnecessary or test code remains in the project.
+1. **Use Separate Branches:** Implement each feature or bug fix in a separate branch. The branch name should describe the change (for example, `feature-branch`).
+2. **Regular and Clear Commits:** Keep commits focused and use descriptive messages.
+3. **Review and Approval:** Pull requests must be reviewed by the development team before merging.
+4. **Adherence to Coding Standards:** Follow the project's configured linting and code-quality rules.
+5. **Code Cleanup:** Do not leave unnecessary, temporary, or test-only code in the project.
+
+## Code Quality and Security Checks
+
+Every pull request targeting `main` is checked by the automated **Code Quality** GitHub Actions workflow. It runs seven independent jobs: ESLint, Knip, jscpd, Semgrep, production build, Gitleaks, and OSV-Scanner. A failure in one job does not stop the others, but **all required jobs must pass for the workflow to pass**.
+
+See **[CODE_QUALITY.md](./CODE_QUALITY.md)** for the complete contributor guide, including each scanner's scope, exact CI command and thresholds, pass/fail criteria, how to interpret findings, local execution instructions, and remediation guidance.
 
 ## FAQ
 
-If you encounter any problems or have any questions, feel free to contact us through the Issues section on GitHub and submit bug reports or requests.
+If you encounter any problems or have questions, open an issue in the repository's GitHub Issues section and include the relevant error details.

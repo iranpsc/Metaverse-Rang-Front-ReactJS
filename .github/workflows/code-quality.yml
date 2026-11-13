@@ -1,0 +1,112 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+concurrency:
+  group: code-quality-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+# Each check is an independent job. A failure in one check does not cancel
+# or prevent the remaining checks from running. Any failed job keeps the
+# overall workflow red.
+
+jobs:
+  eslint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Run ESLint
+        run: npm run lint
+
+  knip:
+    name: Knip - unused code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Detect unused code
+        run: npx --yes knip --no-progress
+
+  jscpd:
+    name: jscpd - duplicate code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Detect duplicated code
+        run: npx --yes jscpd src --min-lines 5 --min-tokens 50 --threshold 5 --reporters console
+
+  semgrep:
+    name: Semgrep - security analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install Semgrep
+        run: |
+          python3 -m pipx install semgrep
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+      - name: Run Semgrep
+        run: semgrep scan --config p/react --config p/security-audit --error src
+
+  build:
+    name: Production build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Build production bundle
+        run: npm run build
+
+  secrets:
+    name: Secret scanning - Gitleaks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout full Git history
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - name: Scan repository with Gitleaks
+        uses: gitleaks/gitleaks-action@v3
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+          GITLEAKS_ENABLE_COMMENTS: "false"
+
+  dependencies:
+    name: Dependency vulnerability scan - OSV
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.7.1
+    with:
+      scan-args: |-
+        --lockfile=./package-lock.json
+      # Keep this true: vulnerabilities must make this job fail while other
+      # independent jobs continue and upload their scan results.
+      fail-on-vuln: true
+      upload-sarif: true
