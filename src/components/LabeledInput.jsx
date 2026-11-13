@@ -3,7 +3,7 @@
 import styled, { css } from "styled-components";
 import TitleBody from "./TitleBody";
 import { convertToPersian, convertToEnglish } from "../services/Utility";
-import {inputFontSize,responsiveFontSize  } from "../styles/sizes";
+import { inputFontSize, responsiveFontSize } from "../styles/sizes";
 
 const INVALID_BORDER = "red";
 const EDGE_GAP = 12; // فاصله‌ی آیکون و متن کناری از لبه‌ی فیلد
@@ -22,7 +22,6 @@ const autofillStyle = css`
     ${({ theme }) => theme.colors.newColors.otherColors.inputBg} inset;
   transition: background-color 9999s ease-in-out 0s;
 `;
-
 
 const Field = styled.div`
   width: ${({ $width }) => $width};
@@ -73,8 +72,8 @@ const InputElement = styled.input`
   &:autofill {
     ${autofillStyle}
   }
-   @media (max-width: 1000px) {
-   padding-block: 6px;
+  @media (max-width: 1000px) {
+    padding-block: 6px;
   }
 `;
 
