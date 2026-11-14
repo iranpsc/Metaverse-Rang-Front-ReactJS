@@ -12,7 +12,7 @@ import { metarangUrl, getTranslation } from "../../services/Utility";
 import TitleBody from "../../components/TitleBody.jsx";
 
 const Logo = styled.img`
-  padding-top: 2px;
+  margin-top: 5px;
   height: 42px;
   width: 42px;
   cursor: pointer;
@@ -53,7 +53,7 @@ const ContainerText = styled.div`
 const BtnOpenCloseMenu = styled.button`
   width: ${(p) => (p.$isOpen ? "17px" : "41px")};
   height: ${(p) => (p.$isOpen ? "17px" : "41px")};
-  margin-top: ${(p) => (p.$isOpen ? "13px" : "")};
+  margin-top: ${(p) => (p.$isOpen ? "10px" : "")};
   border-radius: 100%;
   display: flex;
   align-items: center;
@@ -123,7 +123,13 @@ const Header = () => {
             }}
           />
 
-          <TitleBody noMargin small gray noWrap title={getTranslation(905)} />
+          <TitleBody
+            noMargin
+            small
+            mutedText
+            noWrap
+            title={getTranslation(905)}
+          />
         </ContainerText>
         <Headerbtn $isOpen={isOpen}>
           <LangContainer isOpen={isOpen}>
