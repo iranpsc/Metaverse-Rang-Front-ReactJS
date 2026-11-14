@@ -1,44 +1,45 @@
-import Question from "./Question";
-import Title from "../../../../components/Title";
 import styled from "styled-components";
+import TitleHeader from "../../../../components/TitleHeader";
+import Question from "./Question";
 
 const Container = styled.div`
-display: flex;
-flex-direction: column;
-width: 100%;
-
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 `;
 
-const Wrapper = styled.div`
-  margin-top: 15px;
+const Options = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
+  margin-top: 15px;
 `;
 
 const Content = ({
-  question,
+  question: { title, questionID, options },
   showAnswer,
   selectedAnswerId,
   onSelectAnswer,
-}) => {
-  return (
-    <Container>
-      <Title small right title={question.title} />
-      <Wrapper>
-        {question.options.map((item) => (
-          <Question
-            key={item.id}
-            {...item}
-            questionID={question.questionID}
-            showAnswer={showAnswer}
-            selectedAnswerId={selectedAnswerId}
-            onSelectAnswer={onSelectAnswer}
-          />
-        ))}
-      </Wrapper>
-    </Container>
-  );
-};
+}) => (
+  <Container>
+    <TitleHeader small right title={title} />
+
+    <Options>
+      {options.map(({ id, title, status, percent }) => (
+        <Question
+          key={id}
+          id={id}
+          title={title}
+          status={status}
+          percent={percent}
+          questionID={questionID}
+          showAnswer={showAnswer}
+          selectedAnswerId={selectedAnswerId}
+          onSelectAnswer={onSelectAnswer}
+        />
+      ))}
+    </Options>
+  </Container>
+);
 
 export default Content;

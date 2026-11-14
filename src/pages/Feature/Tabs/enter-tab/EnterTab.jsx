@@ -1,32 +1,42 @@
-import EnterEdit from "./EnterEdit";
-import EnterInfo from "./EnterInfo";
+// تب «ورود» (مجوز ورود) در صفحه‌ی ملک که بین نمایش اطلاعات (EnterInfo) و ویرایش آن (EnterEdit) جابه‌جا می‌شود و وضعیت پرداخت را نگه می‌دارد؛ مالک ملک از ابتدا پرداخت‌شده حساب می‌شود؛ فعلاً با داده‌ی نمونه کار می‌کند
+
+import { useState } from "react";
 import { HiOutlineBuildingOffice } from "react-icons/hi2";
 import { MdOutlineHome } from "react-icons/md";
-import psc from "../../../../assets/gif/psc.gif";
-import rial from "../../../../assets/gif/rial.gif";
-import { useEffect, useState } from "react";
-import video1 from "../../../../assets/gif/rial.gif";
-import video2 from "../../../../assets/gif/rial.gif";
+import EnterEdit from "./EnterEdit";
+import EnterInfo from "./EnterInfo";
+import { COLOR_CONFIG } from "../../../../services/constants/colorConfig";
+import WalletAsset from "../../../../components/WalletAsset.jsx";
+// داده‌ی نمونه؛ ویدیوها فعلاً همان گیف ریال هستند
+const PLACEHOLDER_VIDEO = COLOR_CONFIG.irr.gif;
 
-const enterData = [
+const ENTER_DATA = [
   {
     id: 1,
     inputs: [
       {
         id: 1,
         title: "253",
+        label: "47",
+
         value: "20",
+
         slug: "psc",
         type: "number",
-        icon: psc,
+        icon: COLOR_CONFIG.psc.gif,
+        suffix:<WalletAsset asset="psc" showLabel/>
       },
       {
         id: 2,
         title: "253",
+        label: "48",
+
         value: "300000",
         slug: "rial",
         type: "number",
-        icon: rial,
+        icon: COLOR_CONFIG.irr.gif,
+                suffix:<WalletAsset asset="irr" showLabel/>
+
       },
       {
         id: 3,
@@ -68,49 +78,35 @@ const enterData = [
           "لورم ایپسوم متن ساختگی با تولید سادگی نامفهوم از صنعت چاپ و با استفاده از طراحان گرافیک است چاپگرها و متون بلکه روزنامه و مجله در ستون و سطرآنچنان که لازم است و برای شرایط فعلی تکنولوژی مورد نیاز و کاربردهای متنوع با هدف بهبود ابزارهای کاربردی می باشد کتابهای زیادی در شصت و سه درصد گذشته حال و آینده شناخت فراوان جامعه و متخصصان را می طلبد",
       },
     ],
-    videos: [
-      { id: 1, video: video2 },
-      { id: 2, video: video1 },
-      { id: 3, video: video1 },
-      { id: 4, video: video1 },
-      { id: 5, video: video1 },
-      { id: 6, video: video1 },
-    ],
+    videos: Array.from({ length: 6 }, (_, index) => ({
+      id: index + 1,
+      video: PLACEHOLDER_VIDEO,
+    })),
   },
 ];
 
 const EnterTab = ({ owner }) => {
-  const [data, setData] = useState(enterData);
+  const [data, setData] = useState(ENTER_DATA);
   const [edit, setEdit] = useState(false);
-  const [payed, setPayed] = useState(false);
-  useEffect(() => {
-    if (owner) {
-      setPayed(true);
-    }
-  }, []);
-  if (!edit) {
-    return (
-      <EnterInfo
-        edit={edit}
-        setEdit={setEdit}
-        data={data}
-        payed={payed}
-        setPayed={setPayed}
-        isOwner={owner}
-      />
-    );
-  }
+  const [payed, setPayed] = useState(Boolean(owner));
 
-  return (
+  return edit ? (
     <EnterEdit
-      setEdit={setEdit}
       data={data}
       setData={setData}
+      setEdit={setEdit}
       payed={payed}
       setPayed={setPayed}
     />
+  ) : (
+    <EnterInfo
+      data={data}
+      setEdit={setEdit}
+      payed={payed}
+      setPayed={setPayed}
+      isOwner={owner}
+    />
   );
-  
 };
 
 export default EnterTab;

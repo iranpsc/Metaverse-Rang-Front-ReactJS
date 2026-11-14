@@ -1,248 +1,183 @@
-import Dropdown from "../../../../components/Common/Dropdown";
+// کارت تنظیمات حساب بانکی و امنیتی (انتخاب شماره شبا، تعداد روز تسویه و زمان خروج خودکار) با اعتبارسنجی بازه‌ی هر فیلد و دکمه‌ی ذخیره؛ مناسب تب حساب کاربری که تنظیمات را با پراپ settings می‌گیرد
+
 import styled from "styled-components";
-import { useState, useEffect } from "react";
-import Title from "../../../../components/Title";
+import { useEffect, useState } from "react";
+import Dropdown from "../../../../components/Common/Dropdown";
+import TitleHeader from "../../../../components/TitleHeader";
 import Button from "../../../../components/Button";
+import useRequest from "../../../../hooks/useRequest.js";
 import {
   getTranslation,
   ToastError,
   ToastSuccess,
 } from "../../../../services/Utility";
-import useRequest from "../../../../services/Hooks/useRequest";
+import TitleBody from "../../../../components/TitleBody.jsx";
+import LabeledInput from "../../../../components/LabeledInput.jsx";
+// name = کلید تنظیم در بک‌اند، label = کلید ترجمه‌ی عنوان
+// minError و maxError = کلید ترجمه‌ی پیام خطا وقتی مقدار از بازه بیرون باشد
+const FIELDS = [
+  {
+    name: "checkout_days_count",
+    label: "637",
+    min: 3,
+    max: 1000,
+    minError: 1771,
+    maxError: 1772,
+  },
+  {
+    name: "automatic_logout",
+    label: "638",
+    min: 1,
+    max: 55,
+    minError: 1769,
+    maxError: 1770,
+  },
+];
+
+const getInitialValues = (settings) =>
+  Object.fromEntries(FIELDS.map(({ name }) => [name, settings?.[name] ?? ""]));
 
 const Container = styled.div`
+  display: flex;
+  flex-direction: column;
   padding: 20px;
   border-radius: 5px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
 `;
 
-const Wrapper = styled.div`
+const Fields = styled.div`
   display: flex;
   flex-direction: column;
   gap: 20px;
+
   margin-bottom: 20px;
 `;
 
-const Div = styled.div`
+const Field = styled.div`
   display: flex;
-  padding-bottom: ${(props) => (props.id === 1 ? "20px" : "0")};
-  border-bottom: ${(props) => (props.id === 1 ? "1px solid #454545" : "none")};
   align-items: center;
   justify-content: space-between;
 
-  span {
-    font-size: 16px;
-    font-weight: 500;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-  }
-
-  input {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    outline: none;
-    width: 70px;
-    font-size: 16px;
-    height: 50px;
-    border: 1px solid ${(props) => (props.error ? "red" : "#454545")};
-    border-radius: 5px;
-    background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-
-    &::-webkit-inner-spin-button,
-    &::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-  }
-
-  @media (min-width: 1024px) {
-    span {
-      font-size: 16px;
-    }
+  &:not(:last-child) {
+    padding: 20px 0;
+    border-bottom: 1px solid #454545;
   }
 `;
 
-const Bank = (settings) => {
-  const [selectedValue, setSelectedValue] = useState("");
-  const [isSending, setIsSending] = useState(false);
-  const [cards, setCards] = useState([]);
-
+const Bank = ({ settings }) => {
   const { Request, HTTP_METHOD } = useRequest();
 
+  const [cards, setCards] = useState([]);
+  const [selectedValue, setSelectedValue] = useState("");
+  const [values, setValues] = useState(() => getInitialValues(settings));
+  const [errors, setErrors] = useState({});
+  const [isSending, setIsSending] = useState(false);
+
   useEffect(() => {
+    let cancelled = false;
+
     Request("bank-accounts")
       .then((response) => {
-
-        setCards(response.data.data || []);
+        if (!cancelled) setCards(response.data.data || []);
       })
       .catch((error) => {
         console.error("Error fetching bank accounts:", error);
-        setCards([]);
       });
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const data = settings.settings;
+  const handleInputChange = (name, e) => {
+    const { value } = e.target;
 
-  const items_info = [
-    {
-      id: 1,
-      translationId: "637",
-      value: data?.checkout_days_count,
-      name: "checkout_days_count",
-    },
-    {
-      id: 2,
-      translationId: "638",
-      value: data?.automatic_logout,
-      name: "automatic_logout",
-    },
-  ];
-
-  const [items, setItems] = useState(items_info);
-
-  const handleSelectChange = (value) => {
-    setSelectedValue(value);
+    setValues((prev) => ({
+      ...prev,
+      [name]: value === "" ? "" : Number(value),
+    }));
+    setErrors((prev) => ({ ...prev, [name]: false }));
   };
 
-  const handleInputChange = (e, itemId) => {
-    const value = e.target.value === "" ? "" : Number(e.target.value);
+  // مقدار خالی فقط ایراد قرمز می‌گیرد، مقدار خارج از بازه ایراد و پیام
+  const validate = () => {
+    const nextErrors = {};
 
-    const updatedItems = items.map((item) =>
-      item.id === itemId
-        ? { ...item, value, error: false }
-        : item
-    );
+    FIELDS.forEach(({ name, min, max, minError, maxError }) => {
+      const value = values[name];
 
-    setItems(updatedItems);
-  };
-
-  const handleSaveButtonClick = () => {
-    let hasError = false;
-
-    const updatedItems = items.map((item) => {
-      let error = false;
-
-      if (item.value === "") {
-        hasError = true;
-        error = true;
-      } else if (
-        item.name === "automatic_logout" &&
-        item.value < 1
-      ) {
-        hasError = true;
-        error = true;
-        ToastError(getTranslation(1769));
-      } else if (
-        item.name === "automatic_logout" &&
-        item.value > 55
-      ) {
-        hasError = true;
-        error = true;
-        ToastError(getTranslation(1770));
-      } else if (
-        item.name === "checkout_days_count" &&
-        item.value < 3
-      ) {
-        hasError = true;
-        error = true;
-        ToastError(getTranslation(1771));
-      } else if (
-        item.name === "checkout_days_count" &&
-        item.value > 1000
-      ) {
-        hasError = true;
-        error = true;
-        ToastError(getTranslation(1772));
+      if (value === "") {
+        nextErrors[name] = true;
+      } else if (value < min) {
+        nextErrors[name] = true;
+        ToastError(getTranslation(minError));
+      } else if (value > max) {
+        nextErrors[name] = true;
+        ToastError(getTranslation(maxError));
       }
-
-      return {
-        ...item,
-        error,
-      };
     });
 
-    setItems(updatedItems);
-
-    if (!hasError) {
-      setIsSending(true);
-
-      const formData = updatedItems.reduce((acc, item) => {
-        acc[item.name] = item.value;
-        return acc;
-      }, {});
-
-      Request("settings", HTTP_METHOD.POST, formData)
-        .then(() => {
-          ToastSuccess(getTranslation(1773));
-        })
-        .catch((error) => {
-          ToastError(
-            error.response?.data?.message || getTranslation(1774)
-          );
-        })
-        .finally(() => {
-          setIsSending(false);
-        });
-    }
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
   };
 
-  const isDisabled = items.some((item) => item.value === "");
+  const handleSave = () => {
+    if (!validate()) return;
 
-  // ساخت گزینه‌های Dropdown از cards
-  const options = cards.map((card) => ({
-    value: card.id,
-    label: card.shaba_num,
+    setIsSending(true);
+
+    Request("settings", HTTP_METHOD.POST, values)
+      .then(() => ToastSuccess(getTranslation(1773)))
+      .catch(() => {
+        // useRequest already displays request errors.
+      })
+      .finally(() => setIsSending(false));
+  };
+
+  const options = cards.map(({ id, shaba_num }) => ({
+    value: id,
+    label: shaba_num,
   }));
+
+  const isDisabled = FIELDS.some(({ name }) => values[name] === "");
   return (
     <Container>
-      <Title title={getTranslation("635")} />
+      <TitleHeader title={getTranslation("635")} />
+
       {options.length > 0 && (
         <Dropdown
           options={options}
           selected={selectedValue}
-          onSelect={handleSelectChange}
+          onSelect={setSelectedValue}
           placeholder={getTranslation("636")}
         />
       )}
-      <Wrapper>
-        {items.map((item) => (
-          <Div
-            error={item.error}
-            id={item.id}
-            key={item.id}
-          >
-            <span>{getTranslation(item.translationId)}</span>
 
-            <input
-              onChange={(e) =>
-                handleInputChange(e, item.id)
-              }
-              value={item.value}
-              placeholder="0"
-              type="number"
-            />
-          </Div>
+      <Fields>
+        {FIELDS.map(({ name, label }) => (
+          <Field key={name}>
+            <TitleBody title={getTranslation(label)} />
+            <div>
+              {" "}
+              <LabeledInput
+                digits={2}
+                type="number"
+                placeholder="0"
+                value={values[name]}
+                $error={errors[name]}
+                onChange={(e) => handleInputChange(name, e)}
+              />
+            </div>
+          </Field>
         ))}
-      </Wrapper>
+      </Fields>
 
       <Button
         full
         label={getTranslation("629")}
-        onclick={handleSaveButtonClick}
-        disabled={
-          isDisabled
-            ? true
-            : isSending
-              ? "pending"
-              : false
-        }
+        onClick={handleSave}
+        disabled={isDisabled ? true : isSending ? "pending" : false}
       />
     </Container>
   );

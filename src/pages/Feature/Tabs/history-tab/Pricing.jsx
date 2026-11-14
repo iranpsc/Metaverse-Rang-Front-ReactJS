@@ -1,64 +1,43 @@
-import psc from "../../../../assets/gif/psc.gif";
-import rial from "../../../../assets/gif/rial.gif";
-import blue from "../../../../assets/gif/blue-color.gif";
-import red from "../../../../assets/gif/red-color.gif";
-import yellow from "../../../../assets/gif/yellow-color.gif";
-
+import TitleBody from "../../../../components/TitleBody";
 import styled from "styled-components";
 import { convertToPersian, getTranslation } from "../../../../services/Utility";
+import { COLOR_CONFIG } from "../../../../services/constants/colorConfig.js";
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
-  span {
-    color: ${({ theme }) => theme.colors.newColors.shades.title};
-    font-size: 14px;
-  }
-  @media (max-width: 998px) {
-    font-size: 14px;
-    span {
-      font-size: 12px;
-    }
+  div {
+    display: flex;
+    align-items: center;
+    gap: 3px;
   }
 `;
-const Title = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  h3 {
-    color: #a0a0ab;
-    font-size: 14px;
 
-    font-weight: 500;
-  }
-  @media (max-width: 998px) {
-    h3 {
-      font-size: 12px;
-    }
-  }
-`;
-const Pricing = ({ type, amount, color, index }) => {
+const Pricing = ({ type, amount, color, index, gift }) => {
   const colorImages = {
-    red,
-    blue,
-    yellow,
+    red: COLOR_CONFIG.red.gif,
+    blue: COLOR_CONFIG.blue.gif,
+    yellow: COLOR_CONFIG.yellow.gif,
   };
   const icons = {
-    rial,
-    psc,
+    rial: COLOR_CONFIG.irr.gif,
+    psc: COLOR_CONFIG.psc.gif,
     color: colorImages[color],
   };
   return (
     <Container>
-      <Title>
-        <h3>{getTranslation(770)} </h3>
+      <div>
+        <TitleBody gray small title={getTranslation(770)} />
         {!(index === 2 && amount === 0) && (
           <img src={icons[type]} alt={type} width={18} height={18} />
         )}
-      </Title>
-      <span>
-        {amount === 0 && index === 2 ? "هدیه" : convertToPersian(amount)}
-      </span>
+      </div>
+
+      <TitleBody
+        title={
+          gift && index === 2 ? getTranslation(157) : convertToPersian(amount)
+        }
+      />
     </Container>
   );
 };

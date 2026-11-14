@@ -6,31 +6,34 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import Map from "react-map-gl/maplibre";
 import { setWorkerUrl } from "maplibre-gl";
-import "maplibre-gl/dist/maplibre-gl.css"
+import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
+import "maplibre-gl/dist/maplibre-gl.css";
+import Map from "react-map-gl/maplibre";
 import { useNavigate } from "react-router";
 import { Container } from "./styles";
 import MapPolygons from "./MapPolygons";
 import MapFlag from "./MapFlag";
-import Mark from "./3dModelMap/Mark";
-import { useSelectedEnvironment } from "../../services/reducers/SelectedEnvironmentContext";
-import { useLanguage } from "../../services/reducers/LanguageContext";
+import { useSelectedEnvironment } from "../../services/reducers/SelectedEnvironmentContext.jsx";
+import { useIsRtl } from "../../services/reducers/LanguageContext.jsx";
 import * as turf from "@turf/turf";
 import AuthMiddleware from "../../middleware/AuthMiddleware";
 import ZoomControls from "../../components/ZoomControls";
 import FullscreenControls from "../../components/FullscreenControls";
-import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext";
-import { useTheme } from "../../services/reducers/ThemeContext";
+import { Marker } from "react-map-gl/maplibre";
+import { Skeleton } from "../../components/Skeletons/Skeleton";
+import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext.jsx";
+import { useTheme } from "../../services/reducers/ThemeContext.jsx";
 import styleMapLight from "../../assets/styleMapLight.json";
 import styleMapDark from "../../assets/styleMapDark.json";
-import useMapUrlState, { showPolygons } from "../../services/Hooks/useMapUrlState";
+import useMapUrlState, { showPolygons } from "../../hooks/useMapUrlState.js";
 import { flyToMapPosition } from "../../services/Utility/flyToMapPosition";
-export const TransactionContext = createContext(null);
+const TransactionContext = createContext(null);
 const MemoMapPolygons = React.memo(MapPolygons);
 const MemoMapFlag = React.memo(MapFlag);
+const Mark = React.lazy(() => import("./3dModelMap/Mark"));
 const MemoMark = React.memo(Mark);
-setWorkerUrl("/assets/maplibre-gl-worker.mjs");
++setWorkerUrl(workerUrl);
 const MapTreeD = () => {
   const { setMapState, getMapState } = useMapUrlState();
   const [selectedTransaction, setSelectedTransaction] = useState([]);
@@ -42,7 +45,9 @@ const MapTreeD = () => {
   const [mapLoaded, setMapLoaded] = useState(false);
   const { confirmation, selectedEnvironment, hiddenModel } =
     useSelectedEnvironment();
-  const isPersian = useLanguage();
+  const isPlacementActive =
+    confirmation && Boolean(selectedEnvironment?.id) && !hiddenModel;
+  const isPersian = useIsRtl();
   const navigate = useNavigate();
   const handleZoomChange = useCallback((delta) => {
     if (!mapRef.current) return;
@@ -50,7 +55,7 @@ const MapTreeD = () => {
     map.zoomTo(map.getZoom() + delta, { duration: 200 });
   }, []);
 
-  const handleZoomEnd = useCallback(() => { }, []);
+  const handleZoomEnd = useCallback(() => {}, []);
 
   const handleFullscreenToggle = useCallback(() => {
     updateFullScreenMap(!isFullScreenMap);
@@ -75,6 +80,8 @@ const MapTreeD = () => {
 
   const handleMapClick = useCallback(
     (event) => {
+      if (isPlacementActive) return;
+
       const feature = event.features?.[0];
       if (feature?.properties?.id) {
         navigate(`/feature/${feature.properties.id}`);
@@ -92,13 +99,13 @@ const MapTreeD = () => {
         easing: (t) => t,
       });
     },
-    [navigate],
+    [isPlacementActive, navigate],
   );
   const { theme } = useTheme();
 
   useEffect(() => {
     if (isFullScreen && screen.orientation) {
-      screen.orientation.lock("landscape-primary").catch(() => { });
+      screen.orientation.lock("landscape-primary").catch(() => {});
     }
   }, [isFullScreen]);
   useEffect(() => {
@@ -116,30 +123,30 @@ const MapTreeD = () => {
     [theme],
   );
 
- useEffect(() => {
-  if (!mapLoaded) return;
+  useEffect(() => {
+    if (!mapLoaded) return;
 
-  const map = mapRef.current?.getMap();
-  if (!map) return;
+    const map = mapRef.current?.getMap();
+    if (!map) return;
 
-  try {
-    themeStyle.layers.forEach((layer) => {
-      if (!layer.paint || !map.getLayer(layer.id)) return;
+    try {
+      themeStyle.layers.forEach((layer) => {
+        if (!layer.paint || !map.getLayer(layer.id)) return;
 
-      Object.entries(layer.paint).forEach(([paintProperty, paintValue]) => {
-        if (!paintProperty.toLowerCase().includes("color")) return;
-        map.setPaintProperty(layer.id, paintProperty, paintValue);
+        Object.entries(layer.paint).forEach(([paintProperty, paintValue]) => {
+          if (!paintProperty.toLowerCase().includes("color")) return;
+          map.setPaintProperty(layer.id, paintProperty, paintValue);
+        });
       });
-    });
 
-    // آسمان هم با تم عوض شود
-    if (themeStyle.sky) {
-      map.setSky(themeStyle.sky);
+      // آسمان هم با تم عوض شود
+      if (themeStyle.sky) {
+        map.setSky(themeStyle.sky);
+      }
+    } catch (e) {
+      console.error(e);
     }
-  } catch (e) {
-    console.error(e);
-  }
-}, [mapLoaded, themeStyle]);
+  }, [mapLoaded, themeStyle]);
 
   const [initialStyle] = useState(() =>
     theme === "dark" ? styleMapDark : styleMapLight,
@@ -199,22 +206,35 @@ const MapTreeD = () => {
                 antialias: true,
               }}
               mapStyle={initialStyle}
-              RTLTextPlugin="https://map.irpsc.com/rtl.js"
-              interactiveLayerIds={["polygon-fill-layer"]}
+              interactiveLayerIds={
+                isPlacementActive ? [] : ["polygon-fill-layer"]
+              }
               maxPitch={89}
               style={{ borderRadius: "10px" }}
               initialViewState={{
                 latitude: 25.229,
                 longitude: 54.2199,
                 zoom: showPolygons,
-                pitch: 40,
+                pitch: 65.5,
               }}
               onClick={handleMapClick}
               onZoomEnd={handleZoomEnd}
               onLoad={() => setMapLoaded(true)}
             >
               {confirmation && selectedEnvironment && !hiddenModel && (
-                <MemoMark />
+                <React.Suspense
+                  fallback={
+                    <Marker
+                      latitude={mapRef.current?.getCenter().lat ?? 25.229}
+                      longitude={mapRef.current?.getCenter().lng ?? 54.2199}
+                      anchor="center"
+                    >
+                      <Skeleton width="48px" height="48px" radius="50%" />
+                    </Marker>
+                  }
+                >
+                  <MemoMark />
+                </React.Suspense>
               )}
 
               <MemoMapPolygons />

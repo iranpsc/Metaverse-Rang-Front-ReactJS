@@ -4,7 +4,8 @@ import Button from "../../../../../components/Button";
 import Container from "../../../../../components/Common/Container";
 import { UserContext } from "../../../../../services/reducers/UserContext";
 import { FeatureContext } from "../../../Context/FeatureProvider";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
+import LabeledInput from "../../../../../components/LabeledInput.jsx";
 import {
   getTranslation,
   TimeAgo,
@@ -13,7 +14,7 @@ import {
   formatNumber,
 } from "../../../../../services/Utility";
 import ResultInfo from "../../../components/ResultInfo";
-
+import TitleBody from "../../../../../components/TitleBody.jsx";
 const ADULT_AGE = 18;
 const MIN_PERCENTAGE_ADULT = 80;
 const MIN_PERCENTAGE_DEFAULT = 110;
@@ -22,50 +23,6 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 30px;
-`;
-
-const Text = styled.p`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  line-height: 1.8rem;
-`;
-
-const InputWrapper = styled.div`
-  height: 50px;
-  position: relative;
-  border-radius: 5px;
-  border: 1px solid
-    ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  overflow: hidden;
-  width: 276px;
-`;
-
-const Input = styled.input`
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 80%;
-  height: 50px;
-  border: none;
-  outline: none;
-  padding-right: 10px;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-
-  &::-webkit-inner-spin-button,
-  &::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-  }
-`;
-
-const Span = styled.span`
-  position: absolute;
-  color: gray;
-  left: 10px;
-  top: 24%;
 `;
 
 const getPercentageRule = (birthdate) => {
@@ -87,7 +44,7 @@ const Lowest = () => {
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
 
   const [percentage, setPercentage] = useState(
-    feature?.properties?.minimum_price_percentage || ""
+    feature?.properties?.minimum_price_percentage || "",
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -112,7 +69,7 @@ const Lowest = () => {
       const res = await Request(
         `my-features/${user.id}/features/${feature?.id}`,
         HTTP_METHOD.POST,
-        { minimum_price_percentage: +percentage }
+        { minimum_price_percentage: +percentage },
       );
 
       const { price_irr, price_psc } = res.data.data;
@@ -128,8 +85,8 @@ const Lowest = () => {
       }));
 
       ToastSuccess(getTranslation(1634));
-    } catch (error) {
-      ToastError(error.response?.data?.message ?? error.message);
+    } catch {
+      // useRequest already displays request errors.
     } finally {
       setIsSubmitting(false);
     }
@@ -138,19 +95,17 @@ const Lowest = () => {
   return (
     <Container>
       <Wrapper>
-        <Text>{getTranslation("518")}</Text>
+        <TitleBody title={getTranslation(518)} />
 
-        <InputWrapper>
-          <Input
-            value={percentage}
-            onChange={(e) => setPercentage(e.target.value)}
-            type="number"
-            min={0}
-            max={100}
-            placeholder="100"
-          />
-          <Span>%</Span>
-        </InputWrapper>
+        <LabeledInput
+          value={percentage}
+          onChange={(e) => setPercentage(e.target.value)}
+          type="number"
+          maxLength={3}
+          placeholder="100"
+          suffix="%"
+          width="276px"
+        />
 
         <Button
           label={getTranslation("519")}

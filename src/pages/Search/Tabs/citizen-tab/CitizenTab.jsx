@@ -1,12 +1,14 @@
-import ResultCard from "./ResultCard";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
-import { useState, useEffect, useRef } from "react";
-import SearchInput from "../../../../components/SearchInput";
-import useRequest from "../../../../services/Hooks/useRequest";
-import { getTranslation } from "../../../../services/Utility";
-import { Skeleton } from "../../../../components/Skeleton";
 import Container from "../../../../components/Common/Container";
-const Wrapper = styled.div`
+import SearchInput from "../../../../components/SearchInput";
+import CitizenSkeleton from "../../../../components/Skeletons/CitizenSkeleton.jsx";
+import useRequest from "../../../../hooks/useRequest.js";
+import { UserContext } from "../../../../services/reducers/UserContext.jsx";
+import { cleanSearchText, getTranslation } from "../../../../services/Utility";
+import ResultCard from "./ResultCard";
+import TitleHeader from "../../../../components/TitleHeader.jsx";
+const Results = styled.div`
   display: flex;
   flex-direction: column;
   gap: 15px;
@@ -17,132 +19,83 @@ const Wrapper = styled.div`
   }
 `;
 
-
-const P = styled.p`
-  color: ${(props) => props.theme.colors.newColors.shades[30]};
-  font-weight: 500;
-  text-align: center;
+const EmptyText = styled.p`
   margin-top: 20px;
-  font-size: 18px;
+  text-align: center;
 `;
 
-// اسکلتون برای کارت
-const SkeletonCard = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.bgContainer};
-  border-radius: 5px;
-  padding: 20px;
-  display: grid;
-  grid-template-columns: 10fr 1fr;
-  gap: 20px;
-`;
+
 
 const CitizenTab = () => {
-  const debounceRef = useRef(null);
+  const { Request, HTTP_METHOD } = useRequest();
+  const [currentUser] = useContext(UserContext);
 
   const [searched, setSearched] = useState("");
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { Request, HTTP_METHOD } = useRequest();
 
-  const searchHandler = () => {
-    if (!searched.trim()) return;
-    setIsLoading(true);
-    searchAPI(Request, HTTP_METHOD, searched)
-      .then((response) => setData(response.data.data))
-      .finally(() => setIsLoading(false));
-  };
+  // کاراکترهای نامرئی (مثلاً از paste) پاک میشن
+  const query = cleanSearchText(searched);
+  const currentUserId = currentUser?.id;
 
+  // debounce داخل SearchInput انجام میشه؛ paste و Enter هم مقدار رو فوری میفرستن
   useEffect(() => {
-    if (!searched.trim()) {
+    if (!query) {
       setData([]);
+      setIsLoading(false);
       return;
     }
 
-    if (debounceRef.current) {
-      clearTimeout(debounceRef.current);
-    }
+    let cancelled = false;
+    setIsLoading(true);
 
-    debounceRef.current = setTimeout(() => {
-      setIsLoading(true);
-      searchAPI(Request, HTTP_METHOD, searched)
-        .then((response) => {
-          setData(response.data.data);
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }, 500);
+    Request("search/users", HTTP_METHOD.POST, { searchTerm: query })
+      .then((response) => {
+        if (cancelled) return;
+        // کاربر فعلی از نتایج حذف میشه
+        setData(
+          response.data.data.filter(
+            (user) => String(user.id) !== String(currentUserId),
+          ),
+        );
+      })
+      .catch((error) => {
+        console.error("Error searching users:", error);
+        if (!cancelled) setData([]);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
 
-    return () => clearTimeout(debounceRef.current);
-  }, [searched]);
+    return () => {
+      cancelled = true;
+    };
+  }, [query, currentUserId]);
 
-  const handleInputChange = (e) => {
-    setSearched(e.target.value);
+  const renderResults = () => {
+    if (isLoading) return <CitizenSkeleton />;
+    if (data.length === 0) return <EmptyText> <TitleHeader noMargin title={getTranslation("37")} /></EmptyText>;
+
+    return (
+      <Results>
+        {data.map((user) => (
+          <ResultCard key={user.id} user={user} />
+        ))}
+      </Results>
+    );
   };
 
   return (
     <Container>
       <SearchInput
-        onchange={handleInputChange}
         value={searched}
         placeholder={getTranslation("36")}
-        onSearch={searchHandler}
+        onchange={(e) => setSearched(e.target.value)}
       />
 
-      {isLoading ? (
-        // اسکلتون برای 3 کارت
-        <Wrapper>
-          {Array.from({ length: 3 }).map((_, index) => (
-            <SkeletonCard key={index}>
-              <div style={{ display: "flex", flexDirection: "column", gap: "15px"}}>
-                <div style={{ display: "flex", gap: "15px", alignItems: "center" }}>
-                  <Skeleton width="50px" height="50px" radius="50%" />
-                  <div>
-                    <Skeleton width="120px" height="18px" radius="4px" style={{ marginBottom: "8px" }} />
-                    <Skeleton width="80px" height="14px" radius="4px" />
-                  </div>
-                </div>
-                <div style={{ display: "flex", gap: "15px", alignItems: "center", justifyContent:"space-between" ,marginTop:"16px"}}>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems:"center"}}>
-                    <Skeleton width="50px" height="16px" radius="4px"  />
-                    <Skeleton width="60px" height="16px" radius="4px" />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems:"center"}}>
-                    <Skeleton width="50px" height="16px" radius="4px"  />
-                    <Skeleton width="60px" height="16px" radius="4px" />
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", gap: "10px", alignItems:"center"}}>
-                    <Skeleton width="50px" height="16px" radius="4px"  />
-                    <Skeleton width="60px" height="16px" radius="4px" />
-                  </div>
-                </div>
-              </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: "18px" }}>
-                <Skeleton width="36px" height="36px" radius="1111px" />
-                <Skeleton width="36px" height="36px" radius="1111px" />
-                <Skeleton width="36px" height="36px" radius="1111px" />
-              </div>
-            </SkeletonCard>
-          ))}
-        </Wrapper>
-      ) : data.length === 0 ? (
-        <P>{getTranslation("37")}</P>
-      ) : (
-        <Wrapper>
-          {data.map((item, i) => (
-            <ResultCard key={i} user={item} isLoading={false} />
-          ))}
-        </Wrapper>
-      )}
+      {renderResults()}
     </Container>
   );
 };
-
-function searchAPI(request, method, query) {
-  const url = "search/users";
-  const body = { searchTerm: query };
-  return request(url, method.POST, body);
-}
 
 export default CitizenTab;

@@ -1,0 +1,42 @@
+// styles/sizes.js
+import { css } from "styled-components";
+const BREAKPOINTS = { tablet: 500, laptop: 1000, desktop: 1280 };
+
+const SIZES = {
+  default: { base: "15px", tablet: "14px", desktop: "16px" },
+  small: { base: "13px", tablet: "12px", desktop: "14px" },
+  big: { base: "17px", tablet: "16px", desktop: "18px" },
+};
+export const getSize = ($size, key) => (SIZES[$size] ?? SIZES.default)[key];
+// فونت ریسپانسیو بر اساس $size
+export const responsiveFontSize = css`
+  font-size: ${({ $size = "default" }) => getSize($size, "base")};
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size = "default" }) => getSize($size, "tablet")};
+  }
+
+  @media (min-width: 1280px) {
+    font-size: ${({ $size = "default" }) => getSize($size, "desktop")};
+  }
+`;
+export const inputFontSize = css`
+  ${responsiveFontSize}
+
+  @media (pointer: coarse) {
+    font-size: max(16px, ${({ $size }) => getSize($size, "base")});
+  }
+`;
+export const scale = (property, values) => css`
+  ${property}: ${values.base};
+
+  ${Object.entries(BREAKPOINTS).map(([key, min]) =>
+    values[key]
+      ? css`
+          @media (min-width: ${min}px) {
+            ${property}: ${values[key]};
+          }
+        `
+      : null,
+  )}
+`;

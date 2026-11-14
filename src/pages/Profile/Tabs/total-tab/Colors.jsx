@@ -1,17 +1,19 @@
-import ColorCard from "./ColorCard";
-import gif1 from "../../../../assets/gif/limit-of-influence.gif";
-import gif2 from "../../../../assets/gif/yellow-color.gif";
-import gif3 from "../../../../assets/gif/red-color.gif";
-import gif4 from "../../../../assets/gif/blue-color.gif";
-import gif5 from "../../../../assets/gif/rial.gif";
-import gif6 from "../../../../assets/gif/psc.gif";
 import styled from "styled-components";
-import { useContext, useEffect, useState } from "react";
-import useRequest from "../../../../services/Hooks/useRequest";
+import { useContext } from "react";
+import ColorCard from "./ColorCard";
 import { getTranslation } from "../../../../services/Utility";
-import { useParams } from "react-router";
-import { UserContext } from "../../../../services/reducers/UserContext";
-import { Skeleton } from "../../../../components/Skeleton"; // مسیرش رو با پروژه خودت تنظیم کن
+import { Skeleton } from "../../../../components/Skeletons/Skeleton.jsx";
+import { WalletContext } from "../../../../services/reducers/WalletContext.jsx";
+import { COLOR_CONFIG } from "../../../../services/constants/colorConfig.js";
+
+const COLOR_ITEMS = [
+  { key: "effect", ...COLOR_CONFIG.effect },
+  { key: "yellow", ...COLOR_CONFIG.yellow },
+  { key: "red", ...COLOR_CONFIG.red },
+  { key: "blue", ...COLOR_CONFIG.blue },
+  { key: "irr", ...COLOR_CONFIG.irr },
+  { key: "psc", ...COLOR_CONFIG.psc },
+];
 
 const Container = styled.div`
   display: grid;
@@ -24,91 +26,24 @@ const Container = styled.div`
 `;
 
 const Colors = () => {
-  const [walletData, setWalletData] = useState({
-    effect: 0,
-    yellow: 0,
-    red: 0,
-    blue: 0,
-    irr: 0,
-    psc: 0,
-  });
-
-  const [loading, setLoading] = useState(true);
-
-  const { Request } = useRequest();
-  const { id } = useParams();
-  const [userId] = useContext(UserContext);
-
-  useEffect(() => {
-    const requestId = id || userId.id;
-
-    setLoading(true);
-
-    Request(`users/${requestId}/wallet`)
-      .then((response) => {
-        setWalletData(response.data.data);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [id, userId.id]);
-
-  const colors = [
-    {
-      id: 1,
-      gif: gif1,
-      label: getTranslation("723"),
-      value: walletData?.effect,
-    },
-    {
-      id: 2,
-      gif: gif2,
-      label: getTranslation("51"),
-      value: walletData?.yellow,
-    },
-    {
-      id: 3,
-      gif: gif3,
-      label: getTranslation("50"),
-      value: walletData?.red,
-    },
-    {
-      id: 4,
-      gif: gif4,
-      label: getTranslation("49"),
-      value: walletData?.blue,
-    },
-    {
-      id: 5,
-      gif: gif5,
-      label: getTranslation("48"),
-      value: walletData?.irr,
-    },
-    {
-      id: 6,
-      gif: gif6,
-      label: getTranslation("47"),
-      value: walletData?.psc,
-    },
-  ];
-
-  if (loading) {
-    return (
-      <Container>
-        {Array.from({ length: 6 }).map((_, index) => (
-          <Skeleton key={index} height="150px" />
-        ))}
-      </Container>
-    );
-  }
+  const [walletData] = useContext(WalletContext);
 
   return (
     <Container>
-      {colors.map((color) => (
-        <ColorCard key={color.id} {...color} />
-      ))}
+      {COLOR_ITEMS.map(({ key, gif, labelKey }) =>
+        walletData ? (
+          <ColorCard
+            key={key}
+            gif={gif}
+            label={getTranslation(labelKey)}
+            value={walletData[key]}
+          />
+        ) : (
+          <Skeleton key={key} height="150px" />
+        ),
+      )}
     </Container>
   );
 };
 
-export default Colors; 
+export default Colors;

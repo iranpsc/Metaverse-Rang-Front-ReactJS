@@ -1,122 +1,29 @@
+// کاستوم ادیتور متن؛ در هر جایی که کاربر متن طولانی وارد می‌کند (مثل درباره ما)؛ فونت با پراپ size ریسپانسیو است (مثل LabeledInput)
 import "react-quill-new/dist/quill.snow.css";
-import { useState, useEffect, useMemo, useRef } from "react";
-import ReactQuill from "react-quill-new";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { CiEdit } from "react-icons/ci";
-import { convertToPersian, getTranslation } from "../../services/Utility";
+import ReactQuill from "react-quill-new";
 import styled from "styled-components";
 
-const EditorContainer = styled.div`
-  width: 100%;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  border-radius: 5px;
-  overflow: hidden;
-  color: white;
-  margin: 10px auto;
-  height: ${({ showToolbar }) => (showToolbar ? "212px" : "162px")};
-  border: ${({ border }) => (border ? "1px solid gray" : "none")};
-  display: flex;
-  flex-direction: column;
+import { convertToPersian, getTranslation } from "../../services/Utility";
+import { inputFontSize } from "../../styles/sizes";
+import TitleBody from "../TitleBody";
 
-  .quill {
-    display: flex;
-    flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    width: 100%;
-    height: 100%;
-  }
+/* ---------- Constants ---------- */
 
-  .ql-toolbar {
-    display: ${({ showToolbar }) => (showToolbar ? "block" : "none")};
-    flex-shrink: 0;
-    background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-    border: none;
-    border-bottom: 1px solid gray;
-  }
+const BORDER_COLOR = "gray";
+const FONT_FAMILY = '"AzarMehr"';
+const EDITOR_HEIGHT = {
+  base: { withToolbar: "1400px", withoutToolbar: "100px" },
+  tablet: { withToolbar: "160px", withoutToolbar: "115px" },
+  desktop: { withToolbar: "212px", withoutToolbar: "162px" },
+};
 
-  .ql-container {
-    flex: 1;
-    min-height: 0;
-    height: auto;
-    overflow: hidden;
-    background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    border: none;
-  }
-
-  && .ql-editor {
-    height: 100%;
-    min-height: 0;
-    overflow-y: auto;
-    text-align: unset;
-    font-size: 18px !important;
-    line-height: 1.6;
-    -webkit-text-size-adjust: 100%;
-    font-family: "AzarMehr" !important;
-  }
-
-  && .ql-editor::before {
-    font-size: inherit !important;
-    color: #888;
-    opacity: 0.7;
-    font-family: "AzarMehr" !important;
-  }
-
-  .ql-toolbar .ql-picker {
-    color: white;
-  }
-
-  .ql-toolbar .ql-stroke {
-    stroke: ${(props) => props.theme.colors.newColors.shades.title};
-  }
-
-  .ql-toolbar .ql-fill {
-    fill: ${(props) => props.theme.colors.newColors.shades.title};
-  }
-
-  .ql-toolbar .ql-picker-options {
-    border: 1px solid #555;
-  }
-
-  @media (max-width: 700px) {
-    && .ql-editor {
-      font-size: 15px !important;
-      -webkit-text-size-adjust: 100%;
-    }
-  }
-`;
-
-const Label = styled.h2`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  display: block;
-  margin-bottom: 10px;
-  font-weight: 500;
-  font-size: 16px;
-  margin-top: 20px;
-`;
-
-const Char = styled.div`
-  display: flex;
-  justify-content: end;
-  align-items: center;
-  gap: 5px;
-
-  svg {
-    color: ${({ isOverLimit, theme }) =>
-    isOverLimit ? "red" : theme.colors.newColors.shades.title};
-  }
-
-  span {
-    color: ${({ isOverLimit }) => (isOverLimit ? "red" : "#a0a0ab")};
-    font-size: 13px;
-    font-weight: 400;
-  }
-`;
-
-const formats = [
+const getEditorHeight =
+  (breakpoint) =>
+  ({ $showToolbar }) =>
+    EDITOR_HEIGHT[breakpoint][$showToolbar ? "withToolbar" : "withoutToolbar"];
+const FORMATS = [
   "size",
   "bold",
   "italic",
@@ -130,47 +37,138 @@ const formats = [
   "align",
 ];
 
-const getModules = (img = false, showToolbar = true) => {
-  if (!showToolbar) {
-    return {
-      toolbar: false,
-    };
+/* ---------- Styles ---------- */
+
+// فونت ریسپانسیو با همان بریک‌پوینت‌های LabeledInput (۵۰۰ تا ۹۹۹ تبلت، از ۱۲۸۰ دسکتاپ)
+const Container = styled.div`
+  margin-top: 20px;
+`;
+
+const EditorContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: ${getEditorHeight("base")};
+
+  margin: 10px auto;
+  overflow: hidden;
+  border-radius: 5px;
+  border: ${({ $border }) =>
+    $border ? `1px solid ${BORDER_COLOR}` : "none"}!important;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
+
+  .quill {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
   }
 
-  const toolbar = [
-    ["bold", "italic", "underline", "strike", "blockquote"],
-    [
-      { list: "ordered" },
-      { list: "bullet" },
-      { indent: "-1" },
-      { indent: "+1" },
-    ],
-    ["link", "code-block"],
-    [{ align: [] }],
-  ];
+  .ql-toolbar {
+    display: ${({ $showToolbar }) => ($showToolbar ? "block" : "none")};
+    flex-shrink: 0;
+    border: none !important;
+    border-bottom: 1px solid ${BORDER_COLOR}!important;
+    background-color: ${({ theme }) =>
+      theme.colors.newColors.otherColors.inputBg};
 
-  if (img) {
-    toolbar[2].splice(1, 0, "image");
+    .ql-picker {
+      color: ${({ theme }) => theme.colors.newColors.shades.title};
+    }
+
+    .ql-picker-options {
+      border: 1px solid #555;
+    }
+
+    .ql-stroke {
+      stroke: ${({ theme }) => theme.colors.newColors.shades.title};
+    }
+
+    .ql-fill {
+      fill: ${({ theme }) => theme.colors.newColors.shades.title};
+    }
+    @media (min-width: 1000px) {
+      padding: 8px;
+    }
   }
+
+  .ql-container {
+    flex: 1;
+    height: auto;
+    min-height: 0;
+    overflow: hidden;
+    border: none !important;
+    color: ${({ theme }) => theme.colors.newColors.shades.title};
+    background-color: ${({ theme }) =>
+      theme.colors.newColors.otherColors.inputBg};
+  }
+
+  && .ql-editor {
+    height: 100%;
+    min-height: 0;
+    overflow-y: auto;
+    text-align: unset;
+    line-height: 1.6;
+    font-family: ${FONT_FAMILY} !important;
+    -webkit-text-size-adjust: 100%;
+    ${inputFontSize}
+  }
+
+  && .ql-editor::before {
+    font-size: inherit;
+    font-family: ${FONT_FAMILY} !important;
+    color: #888;
+    opacity: 0.7;
+  }
+  @media (min-width: 500px) and (max-width: 999px) {
+    height: ${getEditorHeight("tablet")};
+  }
+
+  @media (min-width: 1280px) {
+    height: ${getEditorHeight("desktop")};
+  }
+`;
+
+const Counter = styled.div`
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 5px;
+
+  svg {
+    color: ${({ $isOverLimit, theme }) =>
+      $isOverLimit ? "red" : theme.colors.newColors.shades.title};
+  }
+`;
+
+/* ---------- Helpers ---------- */
+
+const getModules = (img, showToolbar) => {
+  if (!showToolbar) return { toolbar: false };
 
   return {
-    toolbar,
+    toolbar: [
+      ["bold", "italic", "underline", "strike", "blockquote"],
+      [
+        { list: "ordered" },
+        { list: "bullet" },
+        { indent: "-1" },
+        { indent: "+1" },
+      ],
+      ["link", ...(img ? ["image"] : []), "code-block"],
+      [{ align: [] }],
+    ],
   };
 };
 
-/**
- * طول کل رشته HTML (شامل تگ‌ها، اسپیس‌ها، &nbsp; و ...)
- * ادیتور خالی Quill مقدار <p><br></p> دارد که صفر حساب می‌شود
- */
-const getHtmlLength = (html) => {
-  if (!html || html === "<p><br></p>") return 0;
-  return html.length;
-};
+const getHtmlLength = (html) =>
+  !html || html === "<p><br></p>" ? 0 : html.length;
 
-/**
- * Reusable RichTextEditor with strict character limit
- * (طول HTML شامل تگ‌ها و اسپیس‌ها حساب می‌شود)
- */
+/* ---------- Component ---------- */
+
 const CustomEditor = ({
   value = "",
   onChange,
@@ -181,11 +179,10 @@ const CustomEditor = ({
   border = false,
   img = false,
   showToolbar = true,
+  size = "default",
 }) => {
   const [charCount, setCharCount] = useState(() => getHtmlLength(value));
   const quillRef = useRef(null);
-
-  // آخرین حالت معتبر ادیتور
   const lastValidRef = useRef({ delta: null, html: value });
 
   const modules = useMemo(
@@ -193,7 +190,7 @@ const CustomEditor = ({
     [img, showToolbar],
   );
 
-  // همگام‌سازی با value که از بیرون عوض می‌شود
+  // همگام‌سازی با مقدار کنترل‌شده‌ی بیرونی
   useEffect(() => {
     setCharCount(getHtmlLength(value));
 
@@ -203,41 +200,38 @@ const CustomEditor = ({
     }
   }, [value]);
 
-  // جلوگیری زودهنگام از paste وقتی ظرفیت پر است
-  // (فقط برای UX، ضمانت اصلی در handleChange است)
+  // جلوگیری از paste وقتی به سقف کاراکتر رسیده‌ایم
   useEffect(() => {
-    const quill = quillRef.current?.getEditor();
-    if (!quill) return;
-
-    const root = quill.root;
+    const root = quillRef.current?.getEditor()?.root;
+    if (!root) return;
 
     const onPaste = (event) => {
-      const current = getHtmlLength(lastValidRef.current.html);
-      if (current >= charLimit) {
+      if (getHtmlLength(lastValidRef.current.html) >= charLimit) {
         event.preventDefault();
         event.stopPropagation();
       }
     };
 
-    // capture تا قبل از clipboard خود Quill اجرا شود
     root.addEventListener("paste", onPaste, true);
     return () => root.removeEventListener("paste", onPaste, true);
   }, [charLimit]);
 
-  const handleChange = (val, delta, source, editor) => {
+  const handleChange = (val, _delta, _source, editor) => {
     const quill = quillRef.current?.getEditor();
     if (!quill) return;
 
     const newLength = getHtmlLength(val);
     const lastLength = getHtmlLength(lastValidRef.current.html);
 
-    // اگر از محدودیت بیشتر شد (و کاهشی نبود) تغییر را برگردان
+    // بیشتر از سقف و در حال افزایش: برگرداندن به آخرین حالت معتبر
     if (newLength > charLimit && newLength >= lastLength) {
-      const selection = quill.getSelection();
-      const lengthBefore = quill.getLength();
+      const { delta } = lastValidRef.current;
 
-      if (lastValidRef.current.delta) {
-        quill.setContents(lastValidRef.current.delta, "silent");
+      if (delta) {
+        const selection = quill.getSelection();
+        const lengthBefore = quill.getLength();
+
+        quill.setContents(delta, "silent");
 
         const diff = lengthBefore - quill.getLength();
         const index = Math.max(
@@ -260,28 +254,30 @@ const CustomEditor = ({
   const isOverLimit = charCount >= charLimit;
 
   return (
-    <>
-      {label && <Label>{label}</Label>}
+    <Container>
+      {label && <TitleBody title={label} size={size} />}
 
-      <EditorContainer showToolbar={showToolbar} border={border}>
+      <EditorContainer $showToolbar={showToolbar} $border={border}>
         <ReactQuill
           ref={quillRef}
           theme="snow"
           value={value}
           onChange={handleChange}
           modules={modules}
-          formats={formats}
+          formats={FORMATS}
           placeholder={placeholder}
         />
       </EditorContainer>
 
-      <Char isOverLimit={isOverLimit}>
+      <Counter $isOverLimit={isOverLimit} $size={size}>
         {showIcon && <CiEdit size={18} />}
-        <span>
-          {convertToPersian(remainingChars)} {getTranslation("530")}
-        </span>
-      </Char>
-    </>
+        <TitleBody
+          gray2
+          small
+          title={`${convertToPersian(remainingChars)} ${getTranslation("530")}`}
+        />
+      </Counter>
+    </Container>
   );
 };
 

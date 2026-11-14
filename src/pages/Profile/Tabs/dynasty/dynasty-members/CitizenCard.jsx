@@ -1,24 +1,20 @@
-import { useEffect, useRef, useState } from "react";
-import styled, { css, keyframes } from "styled-components";
-import down from "../../../../../assets/images/downcitizen.png";
-import avatar from "../../../../../assets/images/defulte-profile.png";
-import lockGem from "../../../../../assets/images/Frame1000003193.png";
+import styled, { css } from "styled-components";
+import down from "../../../../../assets/images/dynasty/downcitizen.png";
+import avatar from "../../../../../assets/images/avatars/defulte-profile.webp";
+import lockGem from "../../../../../assets/images/dynasty/Frame1000003193.png";
 import {
   getTranslation,
+  metarangLevelUrlById,
   metarangUrlCitizen,
 } from "../../../../../services/Utility";
 import { slugLabels } from "../../../../../services/constants/UserType";
-import ToolTip from "../../../../../components/Tooltip";
-
+import ToolTip from "../../../../../components/Tooltip/Tooltip";
+import UserCode from "../../../../../components/UserCode";
 const TOTAL_GEMS = 13;
 const FOUNDER_CODES = ["hm-2000001", "hm-2000002"];
-
+import TitleBody from "../../../../../components/TitleBody";
+import TitleHeader from "../../../../../components/TitleHeader";
 /* ------------------------------ Styles ------------------------------ */
-
-const marquee = keyframes`
-  0%, 15% { text-indent: 0; }
-  85%, 100% { text-indent: calc(-1 * var(--shift)); }
-`;
 
 const Card = styled.div`
   position: relative;
@@ -35,9 +31,9 @@ const Card = styled.div`
   cursor: pointer;
   border-radius: 20px;
   border: 1px solid
-    ${({ $selected, theme }) => ($selected ? theme.colors.primary : "transparent")};
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.menuBg};
+    ${({ $selected, theme }) =>
+      $selected ? theme.colors.primary : "transparent"};
+  background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
   box-shadow: ${({ $selected }) =>
     $selected
       ? "0 0 35px -12px rgba(255, 199, 0, 0.9)"
@@ -62,7 +58,6 @@ const Card = styled.div`
       border-color: ${({ theme }) => theme.colors.primary};
     }
   }
-
 
   @media (max-width: 1000px) {
     max-width: 250px;
@@ -94,7 +89,6 @@ const Avatar = styled.figure`
     display: block;
   }
 
-
   @media (max-width: 1000px) {
     width: 80px;
     height: 80px;
@@ -105,53 +99,6 @@ const Avatar = styled.figure`
     width: 72px;
     height: 72px;
     margin-top: 24px;
-  }
-`;
-
-const NameWrap = styled.div`
-  width: 100%;
-  overflow: hidden;
-`;
-
-const Name = styled.p`
-  width: 100%;
-  margin: 8px 0 0;
-  padding: 0 12px;
-  box-sizing: border-box;
-  text-align: center;
-  font-size: 20px;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: ${({ theme }) => theme.colors.newColors.shades.title};
-
-
-  @media (max-width: 1000px) {
-    margin-top: 4px;
-    font-size: 15px;
-    padding: 0 6px;
-  }
-
-  @media (max-width: 800px) {
-    font-size: 14px;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    ${({ $truncated }) =>
-    $truncated &&
-    css`
-        &:hover {
-          text-overflow: clip;
-          animation: ${marquee} 4s linear infinite alternate;
-        }
-      `}
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    &:hover {
-      animation: none;
-    }
   }
 `;
 
@@ -168,34 +115,6 @@ const FounderBadge = styled.span`
     margin: -2px 3px 0;
     padding: 1px 8px;
     font-size: 10px;
-  }
-`;
-
-const Code = styled.a`
-  min-height: 30px;
-  max-width: 100%;
-  display: inline-block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-transform: uppercase;
-  text-decoration: none;
-  font-size: 16px;
-  font-weight: 500;
-  color: ${({ theme }) => theme.colors.primary};
-
-  &:hover {
-    text-decoration: underline;
-  }
-
-
-  @media (max-width: 1000px) {
-    font-size: 13px;
-    line-height: 32px;
-  }
-
-  @media (max-width: 800px) {
-    font-size: 12px;
   }
 `;
 
@@ -232,6 +151,30 @@ const Gems = styled.div`
   }
 `;
 
+const GemLink = styled.a`
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 25px;
+  height: 33px;
+  cursor: pointer;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  @media (max-width: 1000px) {
+    width: 20px;
+    height: 27px;
+  }
+
+  @media (max-width: 800px) {
+    width: 18px;
+    height: 24px;
+  }
+`;
+
 const ActionButton = styled.button`
   width: 80%;
   height: 55px;
@@ -261,7 +204,6 @@ const ActionButton = styled.button`
   img {
     flex-shrink: 0;
   }
-
 
   @media (max-width: 1000px) {
     width: 92%;
@@ -298,7 +240,7 @@ const RibbonWrap = styled.div`
     width: 6px;
     height: 6px;
     background: ${({ $active, theme }) =>
-    $active ? theme.colors.primary : "#111"};
+      $active ? theme.colors.primary : "#111"};
     clip-path: polygon(0 0, 100% 0, 100% 100%);
     transition: background 0.3s ease;
   }
@@ -367,11 +309,9 @@ const Ribbon = styled.div`
     }
   }
 
-
-
   @media (max-width: 1000px) {
-    padding: 0 12px;
-    font-size: 11px;
+    padding: 0 10px;
+    font-size: 10px;
     clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 50%, 100% 100%, 0 100%);
   }
 `;
@@ -379,23 +319,6 @@ const Ribbon = styled.div`
 /* ----------------------------- Component ----------------------------- */
 
 const CitizenCard = ({ name, code, image, onClick, isSelected, levels }) => {
-  const nameRef = useRef(null);
-  const [shift, setShift] = useState(0);
-
-  // اگر اسم از کادر بیشتر بود، هنگام hover مثل کارت نکست حرکت می‌کند
-  useEffect(() => {
-    const el = nameRef.current;
-    if (!el) return;
-
-    const measure = () =>
-      setShift(Math.max(0, el.scrollWidth - el.clientWidth));
-    measure();
-
-    const observer = new ResizeObserver(measure);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [name]);
-
   const gems = (levels || []).filter((level) => level?.gem?.image);
   const lockedCount = Math.max(0, TOTAL_GEMS - gems.length);
   const isFounder = FOUNDER_CODES.includes((code || "").trim().toLowerCase());
@@ -419,21 +342,10 @@ const CitizenCard = ({ name, code, image, onClick, isSelected, levels }) => {
         />
       </Avatar>
 
-      <NameWrap>
-        <Name
-          ref={nameRef}
-          $truncated={shift > 0}
-          style={{ "--shift": `${shift}px` }}
-          title={name}
-        >
-          {name || "\u00A0"}
-          {isFounder && <FounderBadge>{getTranslation(1593)}</FounderBadge>}
-        </Name>
-      </NameWrap>
+      <TitleHeader noMargin title={name} />
+      {isFounder && <FounderBadge> {getTranslation(1593)}</FounderBadge>}
 
-      <Code href={metarangUrlCitizen(code)} target="_blank" rel="noreferrer">
-        {code}
-      </Code>
+      <UserCode code={code} />
 
       <Gems>
         {gems.map((level) => {
@@ -446,22 +358,36 @@ const CitizenCard = ({ name, code, image, onClick, isSelected, levels }) => {
               content={label}
               width={130}
               height={40}
-              Chidren={<img src={level.gem.image} alt={label} loading="lazy" />}
+              Chidren={
+                <GemLink
+                  href={metarangLevelUrlById(level.slug)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={label}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <img src={level.gem.image} alt={label} loading="lazy" />
+                </GemLink>
+              }
             />
           );
         })}
 
         {Array.from({ length: lockedCount }).map((_, index) => (
-          <img key={`lock-${index}`} src={lockGem} alt="locked" loading="lazy" />
+          <img
+            key={`lock-${index}`}
+            src={lockGem}
+            alt="locked"
+            loading="lazy"
+          />
         ))}
       </Gems>
 
       <ActionButton
         type="button"
-        aria-label="citizen information"
         onClick={() => window.open(metarangUrlCitizen(code), "_blank")}
       >
-        <span>{getTranslation(1398)}</span>
+        <TitleBody primary noWrap small title={getTranslation(1398)} />
         <img alt="down" src={down} width={17} height={19} loading="lazy" />
       </ActionButton>
     </Card>

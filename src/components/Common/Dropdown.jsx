@@ -1,35 +1,69 @@
-import { useState, useEffect, useRef } from "react";
-import styled, { css } from "styled-components";
+// کاستوم دراپ‌دان برای استفاده در تمام دراپ‌دان‌های پروژه
+import { useEffect, useRef, useState } from "react";
 import { MdKeyboardArrowDown } from "react-icons/md";
+import styled, { css } from "styled-components";
+
 import { getTranslation } from "../../services/Utility";
+import { inputFontSize, responsiveFontSize } from "../../styles/sizes";
+import TitleBody from "../TitleBody";
+
+/* ---------- Constants ---------- */
+const MOBILE_PADDING_BLOCK = { small: "4px", default: "7px", big: "8px" };
+// padding عمودی کمتر روی موبایل چون فونت ورودی‌ها بزرگ‌تر شده است
+const mobilePadding = css`
+  @media (max-width: 1000px) {
+    padding-block: ${({ $size }) =>
+      MOBILE_PADDING_BLOCK[$size] ?? MOBILE_PADDING_BLOCK.default};
+  }
+`;
+const TEXT_COLOR = "#84858f";
+
+const PADDING = {
+  small: "6px 10px",
+  default: "10px 12px",
+  big: "12px 14px",
+};
+
+const ICON_SIZE = {
+  small: "16px",
+  default: "20px",
+  big: "22px",
+};
+
+const getPadding = ({ $size }) => PADDING[$size] ?? PADDING.default;
+
+/* ---------- Styles ---------- */
 
 const DropdownContainer = styled.div`
   position: relative;
   width: ${({ $size }) => ($size === "small" ? "fit-content" : "100%")};
   min-width: ${({ $size }) => ($size === "small" ? "90px" : "0")};
-  font-size: ${({ $size }) => ($size === "small" ? "14px" : "16px")};
   white-space: nowrap;
+  ${responsiveFontSize}
 `;
 
 const DropdownButton = styled.div`
-  padding: ${({ $size }) => ($size === "small" ? "6px 10px" : "10px 12px")};
-  border-radius: 5px;
-  border: 1px solid #454545;
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.inputBg};
-  color: #84858f;
-  cursor: pointer;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: ${({ $size }) => ($size === "small" ? "8px" : "0")};
+  padding: ${getPadding};
+  ${mobilePadding}
+  border-radius: 5px;
+  border: 1px solid
+    ${({ theme }) => theme.colors.newColors.otherColors.inputBorder};
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
+  color: ${TEXT_COLOR};
+  cursor: pointer;
 `;
 
 const ArrowIcon = styled(MdKeyboardArrowDown)`
-  font-size: ${({ $size }) => ($size === "small" ? "16px" : "20px")};
   flex-shrink: 0;
-  color: #84858f;
+  font-size: ${({ $size }) => ICON_SIZE[$size] ?? ICON_SIZE.default};
+  color: ${TEXT_COLOR};
   transition: transform 0.25s ease;
+
   ${({ $isOpen }) =>
     $isOpen &&
     css`
@@ -39,22 +73,23 @@ const ArrowIcon = styled(MdKeyboardArrowDown)`
 
 const DropdownList = styled.div`
   position: absolute;
-  top: ${({ top }) => top || "110%"};
+  top: ${({ $top }) => $top || "110%"};
   left: 0;
+  z-index: 10;
   width: ${({ $size }) => ($size === "small" ? "max-content" : "100%")};
   min-width: 100%;
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.inputBg};
-  border-radius: 5px;
-  border: 1px solid #454545;
   max-height: 200px;
   overflow-y: auto;
-  z-index: 10;
+  border-radius: 5px;
+  border: 1px solid
+    ${({ theme }) => theme.colors.newColors.otherColors.inputBorder};
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
 `;
 
 const DropdownItem = styled.div`
-  padding: ${({ $size }) => ($size === "small" ? "6px 10px" : "10px 12px")};
-  color: #84858f;
+  padding: ${getPadding};
+  color: ${TEXT_COLOR};
   cursor: pointer;
 
   &:hover {
@@ -65,17 +100,29 @@ const DropdownItem = styled.div`
 
 const SearchInput = styled.input`
   width: 92%;
-  font-size: ${({ $size }) => ($size === "small" ? "14px" : "16px")};
-  padding: ${({ $size }) => ($size === "small" ? "6px 10px" : "10px 12px")};
+  padding: ${getPadding};
   border: none;
-  border-bottom: 1px solid #454545;
+  border-bottom: 1px solid
+    ${({ theme }) => theme.colors.newColors.otherColors.inputBorder};
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
-  color: #84858f;
+  color: ${TEXT_COLOR};
   outline: none;
+  ${inputFontSize}
 `;
 
+/* ---------- Helpers ---------- */
+
+const getOptionLabel = (option) =>
+  typeof option === "string" ? option : option.label;
+
+const getOptionValue = (option) =>
+  typeof option === "string" ? option : option.value;
+
+/* ---------- Component ---------- */
+
 const Dropdown = ({
+  label,
   options = [],
   selected,
   top,
@@ -86,94 +133,98 @@ const Dropdown = ({
   hideTrigger = false,
   isOpen: controlledIsOpen,
   onOpenChange,
-  size = "normal", // "normal" | "small"
+  size = "default", // "small" | "default" | "big" (مقدار قدیمی "normal" هم کار می‌کند)
 }) => {
-  const [internalIsOpen, setInternalIsOpen] = useState(false);
-  const isControlled = controlledIsOpen !== undefined;
-  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
-  const setIsOpen = (value) => {
-    if (isControlled) {
-      onOpenChange && onOpenChange(value);
-    } else {
-      setInternalIsOpen(value);
-    }
-  };
+  const resolvedSize = size === "normal" ? "default" : size;
 
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const dropdownRef = useRef(null);
-  const optionsWithPlaceholder = selectPlaceHolder
-    ? [placeholder, ...options]
-    : options;
+
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
+
+  const setIsOpen = (value) => {
+    if (isControlled) onOpenChange?.(value);
+    else setInternalIsOpen(value);
+  };
+
+  const allOptions = selectPlaceHolder ? [placeholder, ...options] : options;
 
   const filteredOptions = searchable
-    ? optionsWithPlaceholder.filter((option) =>
-      (typeof option === "string" ? option : option.label)
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase())
-    )
-    : optionsWithPlaceholder;
+    ? allOptions.filter((option) =>
+        getOptionLabel(option).toLowerCase().includes(searchTerm.toLowerCase()),
+      )
+    : allOptions;
+
+  const selectedOption = options.find(
+    (o) => typeof o === "object" && o.value === selected,
+  );
+  const triggerLabel = selected
+    ? (selectedOption?.label ?? selected)
+    : placeholder;
 
   const handleOptionClick = (option) => {
-    const value = typeof option === "string" ? option : option.value;
-    if (selectPlaceHolder && option === placeholder) {
-      onSelect(null);
-    } else {
-      onSelect(value);
-    }
+    const isPlaceholder = selectPlaceHolder && option === placeholder;
+    onSelect(isPlaceholder ? null : getOptionValue(option));
     setIsOpen(false);
     setSearchTerm("");
   };
 
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
       }
     };
+
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [isOpen, isControlled, onOpenChange]);
 
   return (
-    <DropdownContainer ref={dropdownRef} $size={size}>
-      {!hideTrigger && (
-        <DropdownButton $size={size} onClick={() => setIsOpen(!isOpen)}>
-          {(() => {
-            if (!selected) return placeholder;
-            const obj = options.find(
-              (o) => typeof o === "object" && o.value === selected
-            );
-            return obj ? obj.label : selected;
-          })()}
-          <ArrowIcon $isOpen={isOpen} $size={size} />
-        </DropdownButton>
-      )}
+    <div>
+      {label && <TitleBody title={label} size={resolvedSize} />}
 
-      {isOpen && (
-        <DropdownList top={top} $size={size}>
-          {searchable && (
-            <SearchInput
-              $size={size}
-              type="text"
-              placeholder={getTranslation("57")}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              autoFocus
-            />
-          )}
+      <DropdownContainer ref={dropdownRef} $size={resolvedSize}>
+        {!hideTrigger && (
+          <DropdownButton
+            $size={resolvedSize}
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {triggerLabel}
+            <ArrowIcon $isOpen={isOpen} $size={resolvedSize} />
+          </DropdownButton>
+        )}
 
-          {filteredOptions.map((option, index) => (
-            <DropdownItem
-              key={index}
-              $size={size}
-              onClick={() => handleOptionClick(option)}
-            >
-              {typeof option === "string" ? option : option.label}
-            </DropdownItem>
-          ))}
-        </DropdownList>
-      )}
-    </DropdownContainer>
+        {isOpen && (
+          <DropdownList $top={top} $size={resolvedSize}>
+            {searchable && (
+              <SearchInput
+                $size={resolvedSize}
+                type="text"
+                placeholder={getTranslation("57")}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                autoFocus
+              />
+            )}
+
+            {filteredOptions.map((option, index) => (
+              <DropdownItem
+                key={index}
+                $size={resolvedSize}
+                onClick={() => handleOptionClick(option)}
+              >
+                {getOptionLabel(option)}
+              </DropdownItem>
+            ))}
+          </DropdownList>
+        )}
+      </DropdownContainer>
+    </div>
   );
 };
 

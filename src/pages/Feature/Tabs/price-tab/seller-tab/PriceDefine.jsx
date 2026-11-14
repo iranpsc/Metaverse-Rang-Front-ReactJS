@@ -7,39 +7,17 @@ import {
   ToastError,
   ToastSuccess,
   formatNumber,
-  sanitizePriceInputValue,
 } from "../../../../../services/Utility";
-import useRequest from "../../../../../services/Hooks/useRequest";
+import useRequest from "../../../../../hooks/useRequest.js";
 import { FeatureContext } from "../../../Context/FeatureProvider";
 import Container from "../../../../../components/Common/Container";
-
+import TitleBody from "../../../../../components/TitleBody.jsx";
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 30px;
   width: 100%;
 `;
-
-const Text = styled.p`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  line-height: 1.6rem;
-  font-size: 16px;
-`;
-
-const sanitizePriceSubmitValue = (value) => {
-  const sanitized = sanitizePriceInputValue(value);
-
-  if (sanitized === "") {
-    return null;
-  }
-
-  const number = Number(sanitized);
-  if (!Number.isFinite(number) || number <= 0) {
-    return null;
-  }
-
-  return number;
-};
 
 const PriceDefine = () => {
   const [feature, setFeature] = useContext(FeatureContext);
@@ -49,20 +27,14 @@ const PriceDefine = () => {
   const [data, setData] = useState(null);
   const [assign, setAssign] = useState(false);
 
-  const [rial, setRial] = useState(
-    data?.price_irr||0
-  );
+  const [rial, setRial] = useState(data?.price_irr || 0);
 
-  const [psc, setPsc] = useState(
-    data?.price_psc||0
-  );
+  const [psc, setPsc] = useState(data?.price_psc || 0);
 
   const [errors, setErrors] = useState({
     rial: "",
     psc: "",
   });
-
-
 
   useEffect(() => {
     Request("sell-requests")
@@ -70,7 +42,7 @@ const PriceDefine = () => {
         const sellRequests = res?.data?.data || [];
 
         const currentSellRequest = sellRequests.find(
-          (item) => Number(item.feature_id) === Number(feature?.id)
+          (item) => Number(item.feature_id) === Number(feature?.id),
         );
 
         setData(currentSellRequest || null);
@@ -92,8 +64,8 @@ const PriceDefine = () => {
       psc: "",
     });
 
-    const normalizedRial = sanitizePriceSubmitValue(rial);
-    const normalizedPsc = sanitizePriceSubmitValue(psc);
+    const normalizedRial = rial;
+    const normalizedPsc = psc;
 
     if (normalizedRial === null || normalizedPsc === null) {
       ToastError("مقدار وارد شده معتبر نیست.");
@@ -105,36 +77,30 @@ const PriceDefine = () => {
       price_psc: normalizedPsc,
     };
 
-    if (!checkSecurity()) return;
-
     Request(
       `sell-requests/store/${feature?.id}`,
       HTTP_METHOD.POST,
-      formData
-    )
-      .then(() => {
-        ToastSuccess(getTranslation(1650));
+      formData,
+    ).then(() => {
+      ToastSuccess(getTranslation(1650));
 
-        setAssign(true);
+      setAssign(true);
 
-        setFeature((feature) => ({
-          ...feature,
-          properties: {
-            ...feature.properties,
-            price_irr: formData.price_irr,
-            price_psc: formData.price_psc,
-          },
-        }));
-      })
-      .catch((error) => {
-           ToastError(error.response.data.message);
-      });
+      setFeature((feature) => ({
+        ...feature,
+        properties: {
+          ...feature.properties,
+          price_irr: formData.price_irr,
+          price_psc: formData.price_psc,
+        },
+      }));
+    });
   };
 
   return (
     <Container>
       <Wrapper>
-        <Text>{getTranslation("520")}</Text>
+        <TitleBody title={getTranslation(520)} />
 
         {!assign && (
           <FillInputs
@@ -142,6 +108,7 @@ const PriceDefine = () => {
             setRial={setRial}
             psc={psc}
             setPsc={setPsc}
+            checkSecurity={checkSecurity}
             validateAndSubmit={validateAndSubmit}
             errors={errors}
             setAssign={setAssign}

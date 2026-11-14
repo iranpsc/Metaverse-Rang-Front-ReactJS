@@ -1,18 +1,20 @@
 import styled from "styled-components";
-import LogoIcon from "../../assets/images/metarang-newLogo.png";
-import { getTranslation } from "../../services/Utility";
-import { useMenuContext } from "../../services/reducers/MenuContext";
+import LogoIcon from "../../assets/images/brand/metarang-newLogo.webp";
+import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import ArowMenu from "../../assets/svg/arowMenu.svg?react";
 import { LangContainer, LangButton, LangMenu } from "./LangSelector.styles";
 import { useState, useEffect } from "react";
-import useLanguage from "../../services/Hooks/useLanguage";
+import useLanguage from "../../hooks/useLanguage.js";
 import DropdownLanguageModule from "../../components/DropDownLang/DropdownLanguageModule";
 import ThemeMenuModule from "./ThemeMenuModule";
-import { languagesMeta } from "../../i18n/i18n";
-import { metarangUrl } from "../../services/Utility";
+import { getLanguagesMeta, subscribeLanguagesMeta } from "../../i18n/i18n";
+import { metarangUrl, getTranslation } from "../../services/Utility";
+import TitleBody from "../../components/TitleBody.jsx";
+
 const Logo = styled.img`
-padding-top: 2px;
+  padding-top: 2px;
   height: 42px;
+  width: 42px;
   cursor: pointer;
 `;
 
@@ -48,44 +50,19 @@ const ContainerText = styled.div`
   }
 `;
 
-const Title = styled.p`
-  color: ${(props) => props.theme.colors.newColors.otherColors.headerMenu};
-  font-size: 16px;
-      padding-top: 2px;
-
-  height: 25px;
-  cursor: pointer;
-  font-style: normal;
-  font-weight: 700;
-  line-height: 180%;
-`;
-
-const Details = styled.p`
-  color: #939393;
-  font-size: 12px;
-  font-style: normal;
-  font-weight: 500;
-  line-height: 180%;
-`;
-
 const BtnOpenCloseMenu = styled.button`
-  width: ${(p) =>
-    p.$isOpen ? "17px" : "41px"}; 
-      height: ${(p) =>
-    p.$isOpen ? "17px" : "41px"}; 
-      margin-top: ${(p) =>
-    p.$isOpen ? "13px" : ""};
-    border-radius: 100%;
+  width: ${(p) => (p.$isOpen ? "17px" : "41px")};
+  height: ${(p) => (p.$isOpen ? "17px" : "41px")};
+  margin-top: ${(p) => (p.$isOpen ? "13px" : "")};
+  border-radius: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: ${(p) =>
-    p.$isOpen ? "0px" : "13px"};
-background-color: ${(p) =>
+  padding: ${(p) => (p.$isOpen ? "0px" : "13px")};
+  background-color: ${(p) =>
     p.$isOpen ? "transparent" : p.theme.colors.newColors.otherColors.themeBtn};
-    
-    
-    position: ${(props) => (props.$isOpen ? "relative" : "absolute")};
+
+  position: ${(props) => (props.$isOpen ? "relative" : "absolute")};
   ${(props) => {
     const direction = document.body.dir || "ltr";
     return direction === "ltr"
@@ -95,14 +72,10 @@ background-color: ${(p) =>
   z-index: 9;
   border: none;
 `;
-
-const ContainerMain = styled.div`
-  display: flex;
-  gap: 12px;
-`;
 const Icon = styled(ArowMenu)`
   stroke: ${(props) => props.theme.colors.newColors.otherColors.iconText};
-
+  width: 17px;
+  height: 17px;
   transform: ${({ $isOpen, $isPersian }) => {
     if ($isPersian) {
       return $isOpen ? "rotate(0deg)" : "rotate(180deg)";
@@ -112,22 +85,23 @@ const Icon = styled(ArowMenu)`
   }};
 
   transition: transform 0.3s ease;
-
-
+`;
+const ContainerMain = styled.div`
+  display: flex;
+  gap: 12px;
 `;
 
 const Header = () => {
-  const { currentLang, changeLanguage, isPersian } = useLanguage();
-  const [langArray, setLangArray] = useState([]);
-  const [currentLangObject, setCurrentLangObject] = useState(null);
+  const { currentLang, changeLanguage, isRtl } = useLanguage();
+  const [langArray, setLangArray] = useState(getLanguagesMeta);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const { isOpen, toggleMenu } = useMenuContext();
+  const currentLangObject =
+    langArray.find((item) => item.code === currentLang) || langArray[0];
 
   useEffect(() => {
-    setLangArray(languagesMeta);
-    const found = languagesMeta.find((item) => item.code === currentLang);
-    setCurrentLangObject(found || languagesMeta[0]);
-  }, [currentLang]);
+    return subscribeLanguagesMeta(() => setLangArray(getLanguagesMeta()));
+  }, []);
   return (
     <Container $isOpen={isOpen}>
       <ContainerMain>
@@ -136,16 +110,20 @@ const Header = () => {
             window.open(metarangUrl(), "_blank");
           }}
           src={LogoIcon}
+          alt="متارنگ"
         />
         <ContainerText $isOpen={isOpen}>
-          <Title
+          <TitleBody
+            noMargin
+            weight
+            noWrap
+            title={getTranslation(148)}
             onClick={() => {
               window.open(metarangUrl(), "_blank");
             }}
-          >
-            {getTranslation(148)}
-          </Title>
-          <Details>{getTranslation(905)}</Details>
+          />
+
+          <TitleBody noMargin small gray noWrap title={getTranslation(905)} />
         </ContainerText>
         <Headerbtn $isOpen={isOpen}>
           <LangContainer isOpen={isOpen}>
@@ -180,8 +158,13 @@ const Header = () => {
           <ThemeMenuModule />
         </Headerbtn>
       </ContainerMain>
-      <BtnOpenCloseMenu onClick={toggleMenu} $isOpen={isOpen}>
-        <Icon $isOpen={isOpen} $isPersian={isPersian} />
+      <BtnOpenCloseMenu
+        onClick={toggleMenu}
+        $isOpen={isOpen}
+        aria-label={isOpen ? "open menu" : "close menu"}
+        aria-expanded={isOpen}
+      >
+        <Icon $isOpen={isOpen} $isPersian={isRtl} aria-hidden="true" />
       </BtnOpenCloseMenu>
     </Container>
   );

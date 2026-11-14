@@ -1,6 +1,5 @@
-
-import ModalPosition from "../../components/ModalPosition";
-import Tabs from "../../services/Hooks/useTabs";
+import ModalPosition from "../../components/Modal/ModalPosition";
+import Tabs from "../../components/RouteTabs.jsx";
 import { getTranslation } from "../../services/Utility";
 
 const HourMeterProfit = () => {
@@ -8,7 +7,6 @@ const HourMeterProfit = () => {
     {
       path: "profit",
       title: getTranslation("27"),
-
     },
   ];
   return (

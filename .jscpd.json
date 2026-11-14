@@ -1,0 +1,6 @@
+{
+  "path": ["src"],
+  "ignore": ["**/assets/**/*.json"],
+  "minLines": 10,
+  "minTokens": 70
+}

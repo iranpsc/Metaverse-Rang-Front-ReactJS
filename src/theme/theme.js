@@ -69,6 +69,7 @@ export const lightTheme = {
         containerPrimary: "#F5F9FF",
         offerbg: "#D7FBF0",
         offerbg2: "#FF00001F",
+        mutedText: "#6A6B74",
       },
     },
   },
@@ -156,6 +157,7 @@ export const darkTheme = {
         containerPrimary: "#2C2C2C",
         offerbg: "#1A352B",
         offerbg2: "#3F1614",
+        mutedText: "#989a9c", // روی #000 حدود 7.5:1 و روی #1A1A18 و #2C2C2C هم بالای 4.5
       },
     },
   },

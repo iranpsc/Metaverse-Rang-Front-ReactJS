@@ -1,8 +1,8 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import { lightTheme, darkTheme } from "../../theme/theme";
 
-const ThemeContext = createContext();
+ const ThemeContext = createContext();
 
 export function useTheme() {
   const context = useContext(ThemeContext);
@@ -11,6 +11,7 @@ export function useTheme() {
   }
   return context;
 }
+
 export function ThemeProviderContext({ children }) {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem("app_theme") || "light";

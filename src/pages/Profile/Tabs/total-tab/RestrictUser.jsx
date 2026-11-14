@@ -1,3 +1,5 @@
+import styled, { css } from "styled-components";
+import { useContext, useEffect, useState } from "react";
 import {
   BiMessageDetail,
   BiMessageSquareDetail,
@@ -7,85 +9,57 @@ import { FaCircle, FaEarDeaf } from "react-icons/fa6";
 import { CiImageOn } from "react-icons/ci";
 import { FiShare2 } from "react-icons/fi";
 import { MdOutlineMailOutline } from "react-icons/md";
-import { Tooltip as ReactTooltip } from "react-tooltip";
 import { RiUserForbidLine } from "react-icons/ri";
-import styled from "styled-components";
-import { useContext, useEffect, useState } from "react";
-import useRequest from "../../../../services/Hooks/useRequest";
+import TitleBody from "../../../../components/TitleBody.jsx";
+import useRequest from "../../../../hooks/useRequest.js";
 import { UserContext } from "../../../../services/reducers/UserContext";
 import { getTranslation } from "../../../../services/Utility";
+import ToolTip from "../../../../components/Tooltip/Tooltip.jsx";
 
-const icons = [
-  {
-    id: 1,
-    slug: "share",
-    label: 734,
-    icon: <FiShare2 />,
-  },
-  {
-    id: 2,
-    slug: "follow",
-    label: 733,
-    icon: <RiUserForbidLine />,
-  },
-  {
-    id: 3,
-    slug: "send_message",
-    label: 469,
-    icon: <BiMessageDetail />,
-  },
-  {
-    id: 4,
-    slug: "view_profile_images",
-    label: 732,
-    icon: <CiImageOn />,
-  },
-  {
-    id: 5,
-    slug: "view_features_locations",
-    label: 731,
-    icon: <FaEarDeaf />,
-  },
-  {
-    id: 6,
-    slug: "email",
-    label: 730,
-    icon: <MdOutlineMailOutline />,
-  },
-  {
-    id: 7,
-    slug: "sound",
-    label: 729,
-    icon: <BiVolumeMute />,
-  },
-  {
-    id: 8,
-    slug: "send_ticket",
-    label: 728,
-    icon: <BiMessageSquareDetail />,
-  },
-  {
-    id: 9,
-    slug: "record",
-    label: 727,
-    icon: <FaCircle />,
-  },
+// آیتم‌های disabled فعلاً قابل تغییر نیستند و به بک‌اند ارسال نمی‌شوند
+const ICONS = [
+  { slug: "share", label: 734, icon: <FiShare2 /> },
+  { slug: "follow", label: 733, icon: <RiUserForbidLine /> },
+  { slug: "send_message", label: 469, icon: <BiMessageDetail /> },
+  { slug: "view_profile_images", label: 732, icon: <CiImageOn /> },
+  { slug: "view_features_locations", label: 731, icon: <FaEarDeaf /> },
+  { slug: "email", label: 730, icon: <MdOutlineMailOutline />, disabled: true },
+  { slug: "sound", label: 729, icon: <BiVolumeMute />, disabled: true },
+  { slug: "send_ticket", label: 728, icon: <BiMessageSquareDetail /> },
+  { slug: "record", label: 727, icon: <FaCircle />, disabled: true },
 ];
+
+const OPTION_KEYS = ICONS.filter(({ disabled }) => !disabled).map(
+  ({ slug }) => slug,
+);
+
+const INITIAL_OPTIONS = Object.fromEntries(
+  ICONS.map(({ slug }) => [slug, false]),
+);
 
 const JSON_HEADERS = {
   "Content-Type": "application/json",
   Accept: "application/json",
 };
 
+const ACTIVE_BG = "#ff000029";
+const ACTIVE_ICON = "#f44545ab";
+
+const extractData = (response) => response?.data?.data ?? response?.data;
+
+// فقط کلیدهای قابل ارسال را برمی‌گرداند و مقدارشان را به بولین تبدیل می‌کند
+const pickOptions = (source = {}) =>
+  Object.fromEntries(OPTION_KEYS.map((key) => [key, source[key] === true]));
+
 const Container = styled.div`
-  border: 1px solid #454545;
-  padding: 20px;
-  border-radius: 10px;
   display: flex;
-  gap: 20px;
   align-items: center;
   justify-content: space-between;
+  gap: 20px;
   margin-top: 20px;
+  padding: 20px;
+  border: 1px solid #454545;
+  border-radius: 10px;
 
   @media (min-width: 1024px) {
     flex-direction: row;
@@ -93,64 +67,46 @@ const Container = styled.div`
   }
 `;
 
-const Title = styled.h2`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  font-weight: 600;
-  font-size: 14px;
-
-  @media (min-width: 1024px) {
-    font-size: 18px;
-  }
-`;
-
 const Icons = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-wrap: wrap;
   align-items: center;
   gap: 13px;
-flex-wrap: wrap;
-  svg {
-    color: ${(props) => props.theme.colors.newColors.otherColors.iconText};
-  }
 `;
+
 const IconWrapper = styled.div`
   width: 42px;
   height: 42px;
-  border-radius: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  background-color: ${(props) =>
-    props.isDisabled
-      ? props.theme.colors.newColors.otherColors.menuBg
-      : props.isActive
-        ? "#ff000029"
-        : props.theme.colors.newColors.otherColors.menuBg};
+  border-radius: 50%;
+  cursor: ${({ $disabled }) => ($disabled ? "not-allowed" : "pointer")};
+  opacity: ${({ $disabled }) => ($disabled ? 0.5 : 1)};
+  background-color: ${({ $active, theme }) =>
+    $active ? ACTIVE_BG : theme.colors.newColors.otherColors.menuBg};
 
   svg {
     font-size: 20px;
-    color: ${(props) =>
-    props.isDisabled
-      ? "#555"
-      : props.isActive
-        ? "#f44545ab"
-        : "#868B90"};
+    color: ${({ $disabled, $active, theme }) =>
+      $disabled
+        ? "#555"
+        : $active
+          ? ACTIVE_ICON
+          : theme.colors.newColors.otherColors.mutedText};
   }
 
-  cursor: ${(props) => (props.isDisabled ? "not-allowed" : "pointer")};
+  ${({ $disabled }) =>
+    !$disabled &&
+    css`
+      &:hover {
+        background-color: ${ACTIVE_BG};
 
-  opacity: ${(props) => (props.isDisabled ? 0.5 : 1)};
-
-  &:hover {
-    background-color: ${(props) =>
-    props.isDisabled ? props.theme.colors.newColors.otherColors.menuBg : "#ff000029"};
-
-    svg {
-      color: ${(props) =>
-    props.isDisabled ? "#555" : "#f44545ab"};
-    }
-  }
+        svg {
+          color: ${ACTIVE_ICON};
+        }
+      }
+    `}
 `;
 
 const RestrictUser = () => {
@@ -158,151 +114,97 @@ const RestrictUser = () => {
   const [user] = useContext(UserContext);
 
   const [limitationId, setLimitationId] = useState(null);
-  const [hasExistingLimitation, setHasExistingLimitation] = useState(false);
+  const [options, setOptions] = useState(INITIAL_OPTIONS);
 
-  const [options, setOptions] = useState({
-    record: false,
-    send_message: false,
-    sound: false,
-    email: false,
-    view_features_locations: false,
-    view_profile_images: false,
-    send_ticket: false,
-    follow: false,
-    share: false,
-  });
+  const hasExistingLimitation = limitationId !== null;
 
   useEffect(() => {
-    const requestId = user?.id;
-
-    if (!requestId) return;
+    if (!user?.id) return;
 
     Request(
-      `users/${requestId}/profile-limitations`,
+      `users/${user.id}/profile-limitations`,
       HTTP_METHOD.GET,
       {},
       JSON_HEADERS,
     )
       .then((response) => {
-        const limitation = response?.data?.data ?? response?.data;
+        const limitation = extractData(response);
 
         if (!limitation?.id) {
-          setHasExistingLimitation(false);
           setLimitationId(null);
           return;
         }
 
         setLimitationId(limitation.id);
-
-        setOptions((prevOptions) => ({
-          ...prevOptions,
-          follow: limitation.options?.follow === true,
-          send_message: limitation.options?.send_message === true,
-          send_ticket: limitation.options?.send_ticket === true,
-          share: limitation.options?.share === true,
-          view_features_locations:
-            limitation.options?.view_features_locations === true,
-          view_profile_images: limitation.options?.view_profile_images === true,
-        }));
-
-        setHasExistingLimitation(true);
+        setOptions((prev) => ({ ...prev, ...pickOptions(limitation.options) }));
       })
       .catch((error) => {
         console.error("Error getting profile limitations:", error);
       });
   }, [user?.id]);
 
-  const handleIconClick = (slug) => {
-    const optionsToSend = [
-      "follow",
-      "send_message",
-      "send_ticket",
-      "share",
-      "view_features_locations",
-      "view_profile_images",
-    ];
-
-    if (!optionsToSend.includes(slug)) {
-      return;
-    }
-
+  const handleToggle = (slug) => {
+    const previousOptions = options;
     const updatedOptions = {
-      ...options,
-      [slug]: !options[slug],
+      ...previousOptions,
+      [slug]: !previousOptions[slug],
     };
 
     setOptions(updatedOptions);
 
+    // ساخت اولیه: POST به‌همراه limited_user_id | ویرایش: PUT
     const payload = {
-      options: optionsToSend.reduce(
-        (result, key) => {
-          result[key] = updatedOptions[key];
-          return result;
-        },
-        {},
-      ),
-      ...(hasExistingLimitation ? { _method: "put" } : {}),
+      options: pickOptions(updatedOptions),
+      ...(hasExistingLimitation
+        ? { _method: "put" }
+        : { limited_user_id: user.id }),
     };
 
     Request(
       hasExistingLimitation
         ? `profile-limitations/${limitationId}`
         : "profile-limitations",
-      HTTP_METHOD.PUT,
+      hasExistingLimitation ? HTTP_METHOD.PUT : HTTP_METHOD.POST,
       payload,
       JSON_HEADERS,
     )
       .then((response) => {
-
-        const limitation = response?.data?.data ?? response?.data;
+        const limitation = extractData(response);
 
         if (!hasExistingLimitation && limitation?.id) {
           setLimitationId(limitation.id);
-          setHasExistingLimitation(true);
         }
       })
       .catch((error) => {
         console.error("Error updating restrictions:", error);
-
-        setOptions(options);
+        setOptions(previousOptions);
       });
   };
-  const disabledSlugs = ["record", "sound", "email"];
+
   return (
     <Container>
-      <Title>{getTranslation("726")}</Title>
+      <TitleBody weight title={getTranslation("726")} />
 
       <Icons>
-        {icons.map((icon) => {
-          const isDisabled = disabledSlugs.includes(icon.slug);
-
-          return (
-            <div key={icon.id}>
+        {ICONS.map(({ slug, label, icon, disabled }) => (
+          <ToolTip
+            key={slug}
+            width="auto"
+            ContentToltip={disabled ? undefined : getTranslation(String(label))}
+            lang={user?.lang || "fa"}
+            place="top"
+            disabled={disabled}
+            Chidren={
               <IconWrapper
-                isDisabled={isDisabled}
-                isActive={!isDisabled && options[icon.slug]}
-                data-tooltip-id={icon.slug}
-                onClick={() => {
-                  if (isDisabled) return;
-
-                  handleIconClick(icon.slug);
-                }}
+                $disabled={disabled}
+                $active={!disabled && options[slug]}
+                onClick={disabled ? undefined : () => handleToggle(slug)}
               >
-                {icon.icon}
+                {icon}
               </IconWrapper>
-
-              <ReactTooltip
-                id={icon.slug}
-                place="top"
-                content={
-                  isDisabled
-                    ? null
-                    : getTranslation(icon.label)
-                }
-              />
-            </div>
-          );
-        })}
+            }
+          />
+        ))}
       </Icons>
     </Container>
   );

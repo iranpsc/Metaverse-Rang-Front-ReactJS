@@ -1,54 +1,40 @@
 import styled from "styled-components";
-import { getTranslation } from "../../../../services/Utility";
-import { convertToPersian } from "../../../../services/Utility";
+import TitleBody from "../../../../components/TitleBody";
+import { getTranslation, convertToPersian } from "../../../../services/Utility";
+
 const Container = styled.div`
   display: flex;
   align-items: center;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  border-radius: 10px;
-  padding: 20px;
   gap: 15px;
-  div {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    span {
-      color: ${(props) => props.theme.colors.newColors.shades.title};
-      white-space: nowrap;
-      font-size: 11px;
-    }
-    h3 {
-      color: ${(props) => props.theme.colors.newColors.shades.title};
-      font-size: 12px;
-      font-weight: 600;
-    }
-  }
+  padding: 20px;
+  border-radius: 10px;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
+`;
+
+const Info = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
   @media (min-width: 1024px) {
-    span {
-      font-size: 13px;
-    }
-    h3 {
-      font-size: 18px;
-    }
-  }
-  @media (min-width: 1024px) {
-    div {
-      align-items: flex-start;
-    }
+    align-items: flex-start;
   }
 `;
-const PropertyCard = ({ image, label, value, id }) => {
+
+const PropertyCard = ({ image, label, value, showUnit = true }) => {
+  const displayValue = convertToPersian(value) || convertToPersian(0);
+  const valueText = showUnit
+    ? `${displayValue} ${getTranslation("150")}`
+    : displayValue;
+
   return (
     <Container>
       <img width={40} height={40} loading="lazy" alt={label} src={image} />
-      <div>
-        <span>{label}</span>
-        <h3>
-          {convertToPersian(value) || convertToPersian(0)}{" "}
-          {id !== 1 && getTranslation("150")}
-        </h3>
-      </div>
+      <Info>
+        <TitleBody small title={label} />
+        <TitleBody title={valueText} />
+      </Info>
     </Container>
   );
 };

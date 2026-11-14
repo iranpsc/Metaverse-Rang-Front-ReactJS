@@ -3,7 +3,7 @@ import {
   convertToPersian,
   getTranslation,
 } from "../../../../../services/Utility";
-
+import TitleBody from "../../../../../components/TitleBody";
 const RELATIONS = {
   125: ["پدر", "father"],
   126: ["مادر", "mother"],
@@ -21,7 +21,12 @@ const RELATION_MAP = Object.fromEntries(
 );
 
 const translateRelation = (name) => {
-  const id = RELATION_MAP[String(name ?? "").trim().toLowerCase()];
+  const id =
+    RELATION_MAP[
+      String(name ?? "")
+        .trim()
+        .toLowerCase()
+    ];
   return id ? getTranslation(id) : name;
 };
 
@@ -38,16 +43,6 @@ const TableCell = styled.td`
 
   @media (max-height: 768px) {
     padding: 10px 10px 10px 8px;
-  }
-`;
-
-const Code = styled.h2`
-  font-size: 16px;
-  font-weight: 500;
-  margin: 0;
-
-  @media (max-height: 768px) {
-    font-size: 13px;
   }
 `;
 
@@ -72,7 +67,7 @@ const Row = ({
     <TableRow>
       {cells.map((value, index) => (
         <TableCell key={index}>
-          <Code>{value}</Code>
+          <TitleBody title={value} />
         </TableCell>
       ))}
     </TableRow>

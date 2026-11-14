@@ -1,141 +1,142 @@
 import { useContext, useState } from "react";
-import styled from "styled-components";
-
-import { useSelectedEnvironment } from "../../../../../../services/reducers/SelectedEnvironmentContext";
 import { useNavigate } from "react-router";
-import {
-  getTranslation,
-  ToastError,
-} from "../../../../../../services/Utility";
-import { FeatureContext } from "../../../../Context/FeatureProvider";
-import Input from "../../../../../../components/Input";
+import styled from "styled-components";
 import Button from "../../../../../../components/Button";
+import IsicSelect from "../../../../../../components/IsicCode/IsicSelect.jsx";
+import LabeledInput from "../../../../../../components/LabeledInput.jsx";
+import { useSelectedEnvironment } from "../../../../../../services/reducers/SelectedEnvironmentContext.jsx";
+import { getTranslation, ToastError } from "../../../../../../services/Utility";
+import { FeatureContext } from "../../../../Context/FeatureProvider";
+const POSTAL_CODE_LENGTH = 10;
+
+const INITIAL_INPUTS = {
+  activity_line: "",
+  name: "",
+  address: "",
+  postal_code: "",
+  website: "",
+  description: "",
+};
+
+const parseActivities = (value) =>
+  (value || "")
+    .split(",")
+    .map((item) => item.trim())
+    .filter(Boolean);
 
 const Container = styled.div`
   display: flex;
-  width: 100%;
-  align-items: center;
-  gap: 17px;
   flex-direction: column;
+  align-items: stretch;
+  gap: 17px;
+  width: 100%;
 `;
-const DivHeader = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+
+// ستون‌ها از بیرون تعیین میشن؛ پیش‌فرض دو ستون مساوی
+const Row = styled.div`
+  display: grid;
+  grid-template-columns: ${({ $columns }) => $columns || "1fr 1fr"};
+  align-items: start;
   gap: 10px;
   width: 100%;
+
+  & > * {
+    min-width: 0;
+  }
+
+  @media (max-width: 900px) {
+    grid-template-columns: 1fr;
+  }
 `;
-const InputSize = styled.div`
-  width: 139%;
-`;
-const P = styled.p`
-  color: ${(props) => props.theme.colors.newColors.otherColors.text};
+
+const Note = styled.p`
+  color: ${({ theme }) => theme.colors.newColors.otherColors.text};
   font-size: 16px;
   font-weight: 400;
 `;
 
 const InputsGeneralDefault = () => {
-  const {
-    updateFormState,
-    toggleConfirmation,
-    toggleIsSelectable,
-    isSelectable,
-  } = useSelectedEnvironment() || {}; // Ensure default values are provided to avoid undefined context
-  const [feature] = useContext(FeatureContext) || [{}]; // Add a default empty object to avoid undefined issues
+  const { updateFormState, toggleConfirmation, isSelectable } =
+    useSelectedEnvironment() || {};
+  const [feature] = useContext(FeatureContext) || [{}];
   const navigate = useNavigate();
 
-  const [inputs, setInputs] = useState({
-    activity_line: "",
-    name: "",
-    address: "",
-    postal_code: "",
-    website: "",
-    description: "",
-    featureId: feature?.id || "", // Handle potential undefined feature.id
-  });
+  const [inputs, setInputs] = useState(INITIAL_INPUTS);
+  const isNameValid = inputs.name.trim().length >= 4;
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const updateField = (field, value) =>
+    setInputs((prev) => ({ ...prev, [field]: value }));
 
-    setInputs((prev) => ({
-      ...prev,
-      [name]: value,
-      ...(name === "featureId" && { featureId: value }),
-    }));
-  };
+  const handleChange = (field) => (e) => updateField(field, e.target.value);
 
   const handleButtonClick = () => {
-    if (inputs.postal_code.length < 10) {
+    if (!isNameValid) return;
+
+    if (inputs.postal_code && inputs.postal_code.length < POSTAL_CODE_LENGTH) {
       ToastError(getTranslation("1602"));
       return;
     }
+
     if (!isSelectable) {
       ToastError(getTranslation("1611"));
-    } else {
-      updateFormState(inputs); // Ensure inputs are passed correctly
-      toggleConfirmation && toggleConfirmation();
-      toggleIsSelectable && toggleIsSelectable(); // Ensure toggle functions exist
-      navigate("/");
+      return;
     }
+
+    updateFormState?.({ ...inputs, featureId: feature?.id ?? "" });
+    toggleConfirmation?.();
+    navigate("/", { replace: true });
   };
   return (
     <Container>
-      <DivHeader>
-        <InputSize>
-          <Input
-            name="activity_line"
-            placeholder={getTranslation("360")}
-            value={inputs.activity_line}
-            onChange={handleChange}
-          />
-        </InputSize>
-
-        <Input
-          name="name"
-          placeholder={getTranslation("361")}
+      <Row $columns="2fr 1fr">
+        <IsicSelect
+          value={parseActivities(inputs.activity_line)}
+          onChange={(activities) =>
+            updateField("activity_line", activities.join(","))
+          }
+        />
+        <LabeledInput
           value={inputs.name}
-          onChange={handleChange}
+          onChange={handleChange("name")}
+          placeholder={getTranslation("361")}
         />
-      </DivHeader>
+      </Row>
 
-      <Input
-        name="address"
-        placeholder={getTranslation("362")}
+      <LabeledInput
         value={inputs.address}
-        onChange={handleChange}
+        onChange={handleChange("address")}
+        placeholder={getTranslation("362")}
+        maxLength={100}
       />
 
-      <DivHeader>
-        <Input
-          name="postal_code"
-          placeholder={getTranslation("363")}
+      <Row>
+        <LabeledInput
           type="number"
-          maxLength={10}
           value={inputs.postal_code}
-          onChange={handleChange}
+          onChange={handleChange("postal_code")}
+          placeholder={getTranslation("363")}
+          maxLength={POSTAL_CODE_LENGTH}
         />
-
-        <Input
-          name="website"
-          placeholder={getTranslation("364")}
+        <LabeledInput
           value={inputs.website}
-          onChange={handleChange}
+          onChange={handleChange("website")}
+          placeholder={getTranslation("364")}
+          maxLength={100}
         />
-      </DivHeader>
+      </Row>
 
-      <Input
-        name="description"
-        placeholder={getTranslation("365")}
+      <LabeledInput
         value={inputs.description}
-        onChange={handleChange}
-        style={{ height: "220px" }}
+        placeholder={getTranslation("365")}
+        onChange={handleChange("description")}
       />
 
-      <P>{getTranslation("366")}</P>
+      <Note>{getTranslation("366")}</Note>
 
       <Button
         label={getTranslation("367")}
-        onclick={handleButtonClick}
+        onClick={handleButtonClick}
+        disabled={!isNameValid}
       />
     </Container>
   );

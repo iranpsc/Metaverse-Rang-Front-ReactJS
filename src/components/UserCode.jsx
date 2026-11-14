@@ -1,44 +1,37 @@
-import { HiOutlineUser } from "react-icons/hi";
+// لینک کد شهروند که در تب جدید صفحه‌ی پروفایل متارنگ را باز می‌کند؛ مناسب هر جایی که کد شهروند قابل‌کلیک نمایش داده می‌شود؛ آدرس و متن هر دو از پراپ code ساخته می‌شوند؛ فونت با پراپ size ریسپانسیو است (مثل LabeledInput)
 import styled from "styled-components";
 import { metarangUrlCitizen } from "../services/Utility";
-const User = styled.div`
-  a {
-    color: #0066ff;
-    text-decoration: none;
-    font-size: 12px;
+import { getSize } from "../styles/sizes";
+
+const Link = styled.a`
+  font-size: ${({ $size }) => getSize($size, "base")};
+  font-weight: 500;
+  color: #0066ff;
+  text-decoration: none;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
   }
-  @media (min-width: 998px) {
-    a {
-      font-size: 16px;
-    }
-  }
-`;
-const Div = styled.div`
-  display: flex;
-  margin-bottom: 4px;
-  align-items: center;
-  gap: 4px;
-  color: #a0a0ab;
-  span {
-    font-size: 12px;
-  }
-  @media (min-width: 998px) {
-    span {
-      font-size: 14px;
-    }
+
+  @media (min-width: 1280px) {
+    font-size: ${({ $size }) => getSize($size, "desktop")};
   }
 `;
-const UserCode = ({ title, code }) => {
+
+const UserCode = ({ code, size = "default" }) => {
+  if (!code) return null;
+
   return (
-    <User>
-      <Div>
-        <HiOutlineUser size={20} />
-        <span>{title}</span>
-      </Div>
-      <a href={metarangUrlCitizen(code)} target="_blank" rel="noreferrer">
-        {code}
-      </a>
-    </User>
+    <Link
+      href={metarangUrlCitizen(code)}
+      target="_blank"
+      rel="noopener noreferrer"
+      $size={size}
+    >
+      {code}
+    </Link>
   );
 };
 

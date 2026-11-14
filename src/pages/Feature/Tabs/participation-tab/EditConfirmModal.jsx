@@ -5,7 +5,7 @@ import { MdAccessTime } from "react-icons/md";
 import { ParticipantsContext } from "./ParticipationTab";
 
 import styled from "styled-components";
-import TextValueIcon from "../../../../components/TextValueIcon";
+import TitleValue from "../../../../components/TitleValue";
 
 const BackGround = styled.div`
   z-index: 999;
@@ -120,11 +120,10 @@ const EditConfirmModal = ({ id, setEdit }) => {
             onchange={(e) => setEdited(e.target.value)}
             step={0.0001}
           />
-          <TextValueIcon
+          <TitleValue
             icon={<MdAccessTime />}
             title="زمان کسر شده"
             value="۳۴ روز | ۱۸ ساعت ۲۹ دقیقه ۴۵ ثانیه"
-            very_long
           />
         </Inputs>
         <Button onClick={editHandler}>ویرایش تعداد رضایت</Button>

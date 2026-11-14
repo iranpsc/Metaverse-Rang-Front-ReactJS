@@ -12,8 +12,8 @@ export const LangButton = styled.div`
   height: 26px;
 
   @media (max-width: 767px) {
-    width: 25px;
-    height: 24px;
+    width: 23px;
+    height: 23px;
   }
 
   @media (min-width: 1280px) {

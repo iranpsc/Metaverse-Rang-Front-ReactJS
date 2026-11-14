@@ -1,39 +1,27 @@
-// Suggestion.jsx
-import Proposer from "./Proposer";
-import red from "../../../../../assets/images/profile/red-color.gif";
-import yellow from "../../../../../assets/images/profile/yellow-color.gif";
-import blue from "../../../../../assets/images/profile/blue-color.gif";
+// کارت پیشنهاد خرید ارسالی؛ مناسب لیست پیشنهادهای ارسالی خریدار (ملک، تاریخ، فروشنده و Proposer با شمارش معکوس و لغو)
+import { useCallback, useState } from "react";
 import styled from "styled-components";
-import { useMemo, useState } from "react";
-import {
-  SuggestionsContainer,
-  Location,
-  Property,
-  Value,
-  Suggestions,
-  AreaContainer,
-  StyledSVG,
-  Polygon,
-} from "../suggestionStyles";
-import {
-  getTranslation,
-  convertToPersian,
-  metarangUrlCitizen,
-} from "../../../../../services/Utility";
-import { useNavigate } from "react-router";
-import { useMap } from "react-map-gl/maplibre";
-import { calculatePolygonCentroid } from "../../../../../services/Utility/calculatePolygonCentroid";
-import { flyToMapPosition } from "../../../../../services/Utility/flyToMapPosition";
-import { getPolygonShape } from "../../../../../services/Utility/getPolygonShape";
-import { Skeleton } from "../../../../../components/Skeleton";
 
-const Container = SuggestionsContainer;
+import TitleBody from "../../../../../components/TitleBody";
+import UserCode from "../../../../../components/UserCode";
+import { convertToPersian, getTranslation } from "../../../../../services/Utility";
+import { Property, Suggestions, SuggestionsContainer, Value } from "../suggestionStyles";
+import PropertyLocation from "../PropertyLocation";
+import Proposer from "./Proposer";
+import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
+
+const KARBARI_ICONS = {
+  m: COLOR_CONFIG.yellow.gif,
+  t: COLOR_CONFIG.red.gif,
+  a: COLOR_CONFIG.blue.gif,
+};
 
 const Pricing = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   @media (min-width: 1366px) {
     gap: 120px;
     width: auto;
@@ -41,180 +29,59 @@ const Pricing = styled.div`
   }
 `;
 
-const Owner = styled.div`
-  p {
-    color: #a0a0ab;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  a {
-    text-decoration: none;
-    color: #0066ff;
-    font-size: 16px;
-    font-weight: 500;
-    margin-top: 4px;
-  }
-`;
-
 const Time = styled.div`
-  p {
-    color: #a0a0ab;
-    font-size: 14px;
-    font-weight: 600;
-  }
   h3 {
-    color: ${(props) => props.theme.colors.newColors.shades[30]};
+    color: ${({ theme }) => theme.colors.newColors.shades[30]};
     font-size: 18px;
     font-weight: 500;
     margin-top: 4px;
   }
+
   @media (min-width: 1366px) {
     margin-left: 70px;
   }
 `;
 
-const SkeletonSuggestion = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.menuBg};
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-`;
-
-const KARBARI_ICONS = { m: yellow, t: red, a: blue };
-
-const Suggestion = ({ item, isLoading }) => {
+const Suggestion = ({ item }) => {
   const [removed, setRemoved] = useState(false);
-  const navigate = useNavigate();
-  const mapRef = useMap();
+  const handleRemoved = useCallback(() => setRemoved(true), []);
 
-  const coordinates = item?.feature_coordinates;
-  const { points, viewBox } = useMemo(
-    () => getPolygonShape(coordinates),
-    [coordinates],
-  );
+  if (removed) return null;
 
-  if (isLoading) {
-    return (
-      <SkeletonSuggestion>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "20px",
-            marginBottom: "20px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              justifyContent: "center",
-              alignContent: "center",
-            }}
-          >
-            <Skeleton width="100px" height="100px" radius="10px" />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "start",
-                gap: "18px",
-              }}
-            >
-              <Skeleton width="70px" height="20px" radius="4px" />
-              <Skeleton width="60px" height="16px" radius="4px" />
-            </div>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: "40px",
-              marginBottom: "20px",
-              marginInlineEnd: "35px",
-            }}
-          >
-            <Skeleton width="80px" height="40px" radius="8px" />
-            <Skeleton width="120px" height="40px" radius="8px" />
-          </div>
-        </div>
-        <Skeleton width="100%" height="300px" radius="10px" />
-      </SkeletonSuggestion>
-    );
-  }
-
-  if (removed || !item) return null;
-
+  const { created_at, seller } = item;
   const feature = item.feature_properties || {};
-
-  const handleLocation = () => {
-    if (!coordinates?.length) return;
-    const center = calculatePolygonCentroid(coordinates);
-    flyToMapPosition({
-      latitude: center.y,
-      longitude: center.x,
-      mapRef,
-      zoom: 17,
-    });
-    navigate("/");
-  };
+  const karbariIcon = KARBARI_ICONS[feature.karbari];
 
   return (
-    <Container>
+    <SuggestionsContainer>
       <Property>
-        <Location>
-          <AreaContainer>
-            <StyledSVG viewBox={viewBox}>
-              <Polygon
-                karbari={feature.karbari}
-                points={points}
-              />
-            </StyledSVG>
-          </AreaContainer>
-          <div>
-            <p>{feature.address}</p>
-            <h3 onClick={handleLocation}>
-              {feature.id?.toString?.().toUpperCase?.()}
-            </h3>
-          </div>
-        </Location>
+        <PropertyLocation item={item} />
+
         <Pricing>
           <Time>
-            <p>{getTranslation("769")}</p>
-            <h3>{convertToPersian(item.created_at)}</h3>
+            <TitleBody gray title={getTranslation("769")} />
+            <TitleBody title={convertToPersian(created_at)} />
           </Time>
+
           <Value>
-            <h2>{getTranslation("767")}</h2>
+            <TitleBody gray title={getTranslation("767")} />
             <div>
-              {feature.karbari && (
-                <img
-                  width={24}
-                  height={24}
-                  src={KARBARI_ICONS[feature.karbari]}
-                  alt=""
-                />
-              )}
-              <span>{convertToPersian(feature.stability)}</span>
+              {karbariIcon && <img width={24} height={24} src={karbariIcon} alt="" />}
+              <TitleBody title={convertToPersian(feature.stability)} />
             </div>
           </Value>
-          <Owner>
-            <p>{getTranslation("346")}</p>
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              href={metarangUrlCitizen(item.seller?.code)}
-            >
-              {item.seller?.code?.toUpperCase?.()}
-            </a>
-          </Owner>
+
+          <div>
+            <TitleBody gray title={getTranslation("346")} />
+            <UserCode code={seller?.code} />
+          </div>
         </Pricing>
       </Property>
+
       <Suggestions>
-        <Proposer item={item} onRemoved={() => setRemoved(true)} />
+        <Proposer item={item} onRemoved={handleRemoved} />
       </Suggestions>
-    </Container>
+    </SuggestionsContainer>
   );
 };
 

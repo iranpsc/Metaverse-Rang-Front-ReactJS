@@ -2,7 +2,7 @@ import ParticipantItem from "./ParticipantItem";
 
 import styled from "styled-components";
 import { useContext } from "react";
-import Title from "../../../../components/Title";
+import TitleHeader from "../../../../components/TitleHeader";
 import { ParticipantsContext } from "./ParticipationTab";
 import { getTranslation } from "../../../../services/Utility";
 
@@ -30,7 +30,7 @@ const ParticipantList = () => {
   const { participantsList } = useContext(ParticipantsContext);
   return (
     <Container>
-      <Title
+      <TitleHeader
         title={getTranslation("562")}
       />
 

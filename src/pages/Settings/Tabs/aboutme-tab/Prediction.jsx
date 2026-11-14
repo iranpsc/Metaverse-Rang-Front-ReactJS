@@ -1,16 +1,29 @@
+import { useMemo } from "react";
+import moment from "moment-jalaali";
+import CustomEditor from "../../../../components/Common/CustomEditor";
+import { useLanguage } from "../../../../services/reducers/LanguageContext.jsx";
+import { convertToPersian, getTranslation } from "../../../../services/Utility";
 import CurrentYears from "./CurrentYears";
-import NextYear from "./NextYear";
-import styled from "styled-components";
 
-const Container = styled.div`
+const Prediction = ({ value, onChange }) => {
+  const isPersian = useLanguage();
 
-`;
-const Prediction = () => {
+  const nextYear = useMemo(() => {
+    const now = moment();
+    return isPersian ? now.jYear() + 1 : now.year() + 1;
+  }, [isPersian]);
+
   return (
-    <Container>
+    <>
       <CurrentYears />
-      <NextYear />
-    </Container>
+      <CustomEditor
+        label={`${getTranslation("656")} ${convertToPersian(nextYear)}`}
+        value={value}
+        onChange={onChange}
+        charLimit={10000}
+        img
+      />
+    </>
   );
 };
 

@@ -1,35 +1,32 @@
-import vector from "../../../../../assets/images/profile/Vector.png";
+// نمایش شکل دوبعدی (چندضلعی SVG) زمین یک ملک از روی مختصات؛ مناسب کارت‌ها و صفحات اطلاعات ملک که پیش‌نمایش شکل زمین لازم دارند
 import styled from "styled-components";
 import { useMemo } from "react";
+import vector from "../../../../../assets/images/profile/Vector.png";
 import { getPolygonShape } from "../../../../../services/Utility/getPolygonShape";
-export const AreaContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
 
-  min-width: 100px;
-  background-color: #2c2c2c;
+const AreaContainer = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border-radius: 6px;
-  position: relative;
+  background-color: #2c2c2c;
   background-image: url(${vector});
-  background-size: cover;
+  background-size: auto;
+  height: 35vh;
 `;
-export const StyledSVG = styled.svg`
+
+const Svg = styled.svg`
   width: 100%;
   height: 100%;
 `;
-export const Polygon = styled.polygon`
-    //color: ${({ percent }) => (percent > 0 ? "#18C08F" : "#FF0000")};
- fill: ${({ karbari }) =>
-    karbari === "m" ? "#fae52b" :
-      karbari === "t" ? "#FF0000" :
-        karbari === "a" ? "#2f00ff" : "#ffff"
-  };  stroke-width: 1;
-    
 
+const Polygon = styled.polygon`
+  fill: #fae52b;
+  stroke-width: 1;
 `;
-const Model3D = (data) => {
-  const coordinates = data.data?.["dynasty-feature"]?.coordinates;
+
+const Model3D = ({ data }) => {
+  const coordinates = data?.["dynasty-feature"]?.coordinates;
   const { points, viewBox } = useMemo(
     () => getPolygonShape(coordinates),
     [coordinates],
@@ -37,13 +34,11 @@ const Model3D = (data) => {
 
   return (
     <AreaContainer>
-      <StyledSVG viewBox={viewBox}>
-        <Polygon
-          karbari={"m"}
-          points={points}
-        />
-      </StyledSVG>
-    </AreaContainer>);
+      <Svg viewBox={viewBox}>
+        <Polygon points={points} />
+      </Svg>
+    </AreaContainer>
+  );
 };
 
 export default Model3D;

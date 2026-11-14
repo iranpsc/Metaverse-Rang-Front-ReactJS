@@ -1,16 +1,19 @@
-import CitizenMessage from "./CitizenMessage";
-import { EditContext } from "./NoteDetails";
-import EditNote from "./EditNote";
+import NoteContent from "./NoteContent";
+import EditNote from "./edit-note/EditNote";
 import styled from "styled-components";
-import { useContext } from "react";
 
 const Container = styled.div``;
-const NoteMessages = ({ data }) => {
-  const { isEditing, setIsEditing } = useContext(EditContext);
+const NoteMessages = ({ data, isEditing, setIsEditing, onNoteUpdated }) => {
   return (
     <Container>
-      {!isEditing && <CitizenMessage data={data} />}
-      {isEditing && <EditNote setIsEditing={setIsEditing} data={data} />}
+      {!isEditing && <NoteContent data={data} />}
+      {isEditing && (
+        <EditNote
+          setIsEditing={setIsEditing}
+          data={data}
+          onNoteUpdated={onNoteUpdated}
+        />
+      )}
     </Container>
   );
 };

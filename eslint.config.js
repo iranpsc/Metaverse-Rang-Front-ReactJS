@@ -30,6 +30,7 @@ export default defineConfig([
     plugins: {
       react,
       "unused-imports": unusedImports,
+      
     },
 
     rules: {

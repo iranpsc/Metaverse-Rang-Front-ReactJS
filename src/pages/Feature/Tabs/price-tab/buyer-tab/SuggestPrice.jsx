@@ -1,110 +1,153 @@
-import { useState, useContext, useMemo, useEffect } from "react";
+// صفحه‌ی ارسال پیشنهاد قیمت برای خرید ملک (ریال، PSC و توضیحات) با اعتبارسنجی حداقل ارزش معامله و موجودی کیف پول؛ مبلغ نهایی با کارمزد و باقی‌مانده تا حداقل ارزش را نشان می‌دهد و بعد از ثبت موفق کارمزد از کیف پول کم می‌شود؛ مناسب مسیر buy/suggest در صفحه‌ی ملک
+
 import styled from "styled-components";
-import FillInputs from "./FillInputs";
+import { useContext, useEffect, useState } from "react";
 import ResultInfo from "../../../components/ResultInfo";
 import { FeatureContext } from "../../../Context/FeatureProvider";
 import { FeaturePrice } from "../../../../../services/constants/FeatureType";
-import {
-  ToastSuccess,
-  ToastError,
-  getTranslation,
-  calculateFee,
-} from "../../../../../services/Utility";
-import useRequest from "../../../../../services/Hooks/useRequest";
 import BaseContainer from "../../../../../components/Common/Container";
+import Button from "../../../../../components/Button";
+import CustomEditor from "../../../../../components/Common/CustomEditor";
+import WalletAsset from "../../../../../components/WalletAsset.jsx";
+import TitleValue from "../../../../../components/TitleValue";
+import TitleBody from "../../../../../components/TitleBody.jsx";
+import LabeledInput from "../../../../../components/LabeledInput.jsx";
+import useRequest from "../../../../../hooks/useRequest.js";
+import { WalletContext } from "../../../../../services/reducers/WalletContext";
+import useWalletUpdate from "../../../../../hooks/useWalletUpdate.js";
 import {
-  WalletContext,
-  WalletContextTypes,
-} from "../../../../../services/reducers/WalletContext";
+  calculateFee,
+  convertToPersian,
+  formatNumber,
+  getTranslation,
+  pscToIrr,
+  ToastError,
+  ToastSuccess,
+} from "../../../../../services/Utility";
 
-const Wrapper = styled(BaseContainer)`
+/* ---------- Constants & helpers ---------- */
+
+const FEE_PERCENT = 5;
+const NOTE_CHAR_LIMIT = 1000;
+const PSC_DECIMALS = 2;
+
+// ارزش یک PSC به ریال (از همان نرخ Utility گرفته می‌شود تا عدد ۹۰۰ دو جا نباشد)
+const PSC_RATE = pscToIrr(1);
+
+// گرد کردن به ۲ رقم؛ EPSILON خطای ممیز شناور (مثل 1.005) را جبران می‌کند
+const roundTo2 = (n) => Math.round((n + Number.EPSILON) * 100) / 100;
+
+/* ---------- Styles ---------- */
+
+ const InputsWrapper = styled.div`
   display: flex;
-  width: 100%;
   flex-direction: column;
-  gap: 30px;
-  padding-top: 20px;
+  gap: 20px;
+  padding-left: 20px;
 
-  p {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    line-height: 1.5rem;
+  @media (min-width: 600px) {
+    flex-direction: row;
+    padding-left: 0;
   }
 `;
 
-const PSC_RATE = 900;
+ const ResultWrapper = styled.div`
+  display: grid;
+  gap: 20px;
+  width: 100%;
+
+  @media (min-width: 670px) {
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 1023px) {
+    grid-template-columns: 2fr 1fr;
+  }
+  @media (min-width: 1300px) {
+    grid-template-columns: 3fr 2fr;
+  }
+`;
+
+ const Sec = styled.div`
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 2fr 1fr;
+`;
+
+const Page = styled(BaseContainer)`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  padding-top: 20px;
+  p {
+    line-height: 1.5rem;
+    color: ${({ theme }) => theme.colors.newColors.shades.title};
+  }
+`;
+
+/* ---------- Component ---------- */
 
 const SuggestPrice = () => {
-  const [wallet, dispatch] = useContext(WalletContext);
+  const [wallet] = useContext(WalletContext);
+  const updateWallet = useWalletUpdate();
   const [feature] = useContext(FeatureContext);
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
-  const walletState = wallet ?? {};
 
-  const totalIrr = useMemo(() => {
-    if (!feature?.properties) return 0;
-
-    const {
-      stability = 0,
-      rgb,
-      minimum_price_percentage = 0,
-    } = feature.properties;
-
-    return (
-      Number(stability || 0) *
-      Number(FeaturePrice(rgb) || 0) *
-      (Number(minimum_price_percentage || 0) / 100)
-    );
-  }, [feature]);
-
-  const [assign, setAssign] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [rial, setRial] = useState(0);
-  const [psc, setPsc] = useState(0);
+  const [psc, setPsc] = useState("");
   const [suggestText, setSuggestText] = useState("");
-  const [errors, setErrors] = useState({});
 
+  const properties = feature?.properties;
+
+  // حداقل ارزش پیشنهاد به ریال
+  const totalIrr = properties
+    ? Number(properties.stability || 0) *
+      Number(FeaturePrice(properties.rgb) || 0) *
+      (Number(properties.minimum_price_percentage || 0) / 100)
+    : 0;
+
+  // مقدار پیش‌فرض پیشنهاد: نصف حداقل ارزش به ریال و نصف دیگر به PSC (گرد به بالا تا مجموع زیر حداقل نیاید)
   useEffect(() => {
-    if (!totalIrr) {
-      setRial(0);
-      setPsc("");
-      return;
-    }
-
-    const initialRial = totalIrr / 2;
-    setRial(initialRial);
-    setPsc(String(initialRial / PSC_RATE));
+    const half = totalIrr / 2;
+    setRial(half);
+    setPsc(half ? String(roundTo2(half / PSC_RATE)) : "");
   }, [totalIrr]);
 
   const rialValue = Number(rial) || 0;
-  const pscValue = Number(psc || 0) || 0;
+  const pscValue = Number(psc) || 0;
+  const totalPrice = rialValue + pscToIrr(pscValue);
 
-  const totalPrice = useMemo(
-    () => rialValue + pscValue * PSC_RATE,
-    [rialValue, pscValue],
-  );
+  // باقی‌مانده تا حداقل ارزش به PSC (گرد شده)؛ || 0 جلوی -0 را می‌گیرد
+  const remainingPsc = roundTo2((totalIrr - totalPrice) / PSC_RATE) || 0;
+  const disabled = remainingPsc > 0;
+
+  const walletIrr = wallet?.irr ?? 0;
+  const walletPsc = wallet?.psc ?? 0;
+
+  const handleRialChange = (e) => {
+    const { value } = e.target;
+    const next = value === "" ? "" : Number(value);
+
+    setRial(Number.isFinite(next) ? next : "");
+  };
+
+  const handlePscChange = (e) =>
+    setPsc(e.target.value, PSC_DECIMALS);
 
   const validate = () => {
-    if (totalPrice < totalIrr) {
-      return `حداقل ارزش معامله ${feature?.properties?.minimum_price_percentage}% قیمت اولیه میباشد`;
+    if (remainingPsc > 0) {
+      return `حداقل ارزش معامله ${properties?.minimum_price_percentage}% قیمت اولیه میباشد`;
     }
-
-    if (rialValue > (walletState?.irr ?? 0)) {
-      return getTranslation("1604");
-    }
-
-    if (pscValue > (walletState?.psc ?? 0)) {
-      return getTranslation("1605");
-    }
+    if (rialValue > walletIrr) return getTranslation("1604");
+    if (pscValue > walletPsc) return getTranslation("1605");
 
     return null;
   };
 
   const handleSubmit = () => {
-    setErrors({});
-
     const errorMessage = validate();
-    if (errorMessage) {
-      ToastError(errorMessage);
-      return;
-    }
-
+    if (errorMessage) return ToastError(errorMessage);
     if (!checkSecurity()) return;
 
     Request(`buy-requests/store/${feature?.id}`, HTTP_METHOD.POST, {
@@ -114,45 +157,73 @@ const SuggestPrice = () => {
     })
       .then(() => {
         ToastSuccess(getTranslation("1607"));
+        setSubmitted(true);
 
-        dispatch({
-          type: WalletContextTypes.ADD_WALLET,
-          payload: {
-            ...walletState,
-            irr: (walletState?.irr ?? 0) - calculateFee(rialValue),
-            psc: (walletState?.psc ?? 0) - calculateFee(pscValue),
-          },
-        });
+        updateWallet("irr", calculateFee(rialValue, FEE_PERCENT), "-");
+        updateWallet("psc", calculateFee(pscValue, FEE_PERCENT), "-");
 
-        setAssign(true);
       })
-      .catch((error) => {
-        ToastError(error?.response?.data?.message || "خطای غیرمنتظره");
-      });
+      
   };
 
   return (
-    <Wrapper>
-      <p>{getTranslation("527")}</p>
+    <Page>
+      <TitleBody title={getTranslation(527)} />
 
-      {!assign && (
-        <FillInputs
-          rial={rial}
-          psc={psc}
-          setRial={setRial}
-          setPsc={setPsc}
-          suggestText={suggestText}
-          setSuggestText={setSuggestText}
-          onSubmit={handleSubmit}
-          errors={errors}
-          totalIrr={totalIrr}
-        />
-      )}
+      {submitted ? (
+        <ResultInfo rial={formatNumber(rialValue)} psc={pscValue} setAssign={setSubmitted} notEdit/>
+      ) : (
+        <>
+          <InputsWrapper>
+            <LabeledInput
+              type="number"
+              value={rial === "" ? "" : formatNumber(rial)}
+              onChange={handleRialChange}
+              suffix={<WalletAsset asset="irr" showLabel />}
+            />
+            <LabeledInput
+              type="text"
+              inputMode="decimal"
+              value={convertToPersian(psc)}
+              onChange={handlePscChange}
+              suffix={<WalletAsset asset="psc" showLabel />}
+            />
+          </InputsWrapper>
 
-      {assign && (
-        <ResultInfo rial={rialValue} psc={pscValue} setAssign={setAssign} />
+          <CustomEditor
+            value={suggestText}
+            onChange={setSuggestText}
+            charLimit={NOTE_CHAR_LIMIT}
+            placeholder={getTranslation("529")}
+          />
+
+          <ResultWrapper>
+            <TitleValue
+              title={getTranslation("522")}
+              value={`${calculateFee(rialValue, FEE_PERCENT)} ${getTranslation("48")} / ${calculateFee(pscValue, FEE_PERCENT)} ${getTranslation("47")}`}
+            />
+
+            <Sec>
+              <TitleValue
+                title={getTranslation("531")}
+                value={convertToPersian(remainingPsc)}
+              />
+              <TitleValue
+                title={getTranslation("523")}
+                value={`${convertToPersian(FEE_PERCENT)}%`}
+              />
+            </Sec>
+          </ResultWrapper>
+          <div style={{ paddingTop: "30px" }}>
+            <Button
+              label={getTranslation("532")}
+              onClick={handleSubmit}
+              disabled={disabled}
+            />
+          </div>
+        </>
       )}
-    </Wrapper>
+    </Page>
   );
 };
 

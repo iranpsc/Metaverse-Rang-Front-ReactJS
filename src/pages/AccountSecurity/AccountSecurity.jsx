@@ -1,31 +1,38 @@
+import { useState } from "react";
 import { getItem, removeItem } from "../../services/Utility/LocalStorage";
 import FirstStep from "./FirstStep";
 import SecondStep from "./SecondStep";
 import ThirdStep from "./ThirdStep";
-import { useEffect, useState } from "react";
+
+const STEPS = {
+  1: FirstStep,
+  2: SecondStep,
+  3: ThirdStep,
+};
+
+const getInitialState = () => {
+  const stored = getItem("account_security");
+  const endTime = Number(stored?.account_security);
+
+  removeItem("security_end_time");
+
+  if (Number.isFinite(endTime) && endTime > Date.now()) {
+    return { step: 3, time: stored.time ?? "" };
+  }
+
+  removeItem("account_security");
+
+  return { step: 1, time: "" };
+};
 
 const AccountSecurity = () => {
-  const [step, setStep] = useState(1);
-  const [time, setTime] = useState("");
+  const [initial] = useState(getInitialState);
+  const [step, setStep] = useState(initial.step);
+  const [time, setTime] = useState(initial.time);
 
-  useEffect(() => {
-    const storedSecurity = getItem("account_security");
+  const Step = STEPS[step] ?? FirstStep;
 
-    if (storedSecurity && storedSecurity.account_security > Date.now()) {
-      setStep(3);
-      setTime(storedSecurity.time);
-    } else {
-      removeItem("account_security");
-      removeItem("security_end_time");
-      setStep(1);
-    }
-  }, []);
-
-  if (step === 1)
-    return <FirstStep setStep={setStep} time={time} setTime={setTime} />;
-  if (step === 2) return <SecondStep setStep={setStep} time={time} />;
-  if (step === 3)
-    return <ThirdStep setStep={setStep} time={time} setTime={setTime} />;
+  return <Step setStep={setStep} time={time} setTime={setTime} />;
 };
 
 export default AccountSecurity;

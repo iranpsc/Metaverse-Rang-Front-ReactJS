@@ -1,36 +1,95 @@
-import styled from "styled-components";
-import Header from "../Header/Header";
+// مدال کوچک عمومی برای مدال‌هایی مثل قفل امنیت حساب؛ با compact نسخه‌ی باریک‌تر (مثل رسید تراکنش)، با hideTitle بدون هدر و عنوان، و با global نسبت به کل صفحه (نه کانتینر والد) نمایش داده می‌شود
 
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 100%;
-  height: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  background-color: rgba(0, 0, 0, 0.713);
-  z-index: 9999;
+import { createPortal } from "react-dom";
+import styled, { css } from "styled-components";
+import Header from "../Header/Header";
+import { Overlay } from "./styles";
+import { getTranslation } from "../../services/Utility";
+// استایل قبلی کانتینر مدال رسید
+const compactStyles = css`
+  width: min(415px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  max-height: calc(100dvh - 24px);
+  padding: 10px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar-track {
+    margin: 5px 0;
+  }
+
+  @media (max-width: 1000px) {
+    width: min(380px, calc(100vw - 24px));
+    padding: 8px;
+  }
 `;
-const Modal = styled.div`
-  background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
+
+const globalStyles = css`
+  position: fixed;
+  inset: 0;
+  z-index: 2147483645;
+`;
+
+const GlobalAwareOverlay = styled(Overlay)`
+  ${({ $global }) => $global && globalStyles}
+`;
+
+const Dialog = styled.div`
+  position: relative;
   width: 550px;
   margin: 0 auto;
+  padding: 15px 20px;
+
   overflow: hidden;
   border-radius: 10px;
-  padding: 15px 20px;
+  background-color: ${({ theme }) => theme.colors.newColors.shades.bg2};
+
+  ${({ $compact }) => $compact && compactStyles}
 `;
 
-const ModalXs = ({ children, title, handleExitClick, onClose }) => {
-  return (
-    <Container onClick={onClose}>
-      <Modal>
-        <Header title={title} handleExit={handleExitClick} />
+const ModalXs = ({
+  noIcon,
+  children,
+  title,
+  handleExitClick,
+  onClose,
+  onlyExit = false,
+  compact = false,
+  hideTitle = false,
+  global = false,
+  onReportClick,
+  onHelpClick,
+  locationPage,
+  reportFrom,
+}) => {
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) onClose?.();
+  };
+
+  const modal = (
+    <GlobalAwareOverlay $global={global} onClick={handleOverlayClick}>
+      <Dialog $compact={compact}>
+        {!noIcon&&(
+            <Header
+              hideTitle={hideTitle}
+              title={title}
+              handleExit={handleExitClick}
+              onlyExit={onlyExit}
+              onClose={onClose}
+              onReportClick={onReportClick}
+              onHelpClick={onHelpClick}
+              educationTitle={getTranslation(title)}
+              locationPage={locationPage}
+              reportFrom={reportFrom}
+            />
+          )
+        }
+
         {children}
-      </Modal>
-    </Container>
+      </Dialog>
+    </GlobalAwareOverlay>
   );
+
+  return global ? createPortal(modal, document.body) : modal;
 };
 
 export default ModalXs;

@@ -1,25 +1,18 @@
-import Title from "../../../../components/Title";
+import TitleHeader from "../../../../components/TitleHeader";
+import { getTranslation } from "../../../../services/Utility";
 import EditInputs from "./EditInputs";
+import Container from "../../../../components/Common/Container";
 
-import styled from "styled-components";
-
-const Container = styled.div`
-  padding-top: 20px 0;
-  padding-right: 15px;
-  overflow-y: auto;
-`;
-const EnterEdit = ({ setEdit, data, setData, setPayed }) => {
-  return (
-    <Container>
-      <Title title="entering-the-property" />
-      <EditInputs
-        data={data}
-        setData={setData}
-        setEdit={setEdit}
-        setPayed={setPayed}
-      />
-    </Container>
-  );
-};
+const EnterEdit = ({ setEdit, data, setData, setPayed }) => (
+  <Container>
+    <TitleHeader title={getTranslation(537)} />
+    <EditInputs
+      data={data}
+      setData={setData}
+      setEdit={setEdit}
+      setPayed={setPayed}
+    />
+  </Container>
+);
 
 export default EnterEdit;

@@ -1,6 +1,5 @@
 import styled from "styled-components";
-import Psc from "../../../../components/Psc";
-import Rial from "../../../../components/Rial";
+import WalletAsset from "../../../../components/WalletAsset.jsx";
 
 const InputContainer = styled.div`
   border-radius: 5px;
@@ -10,8 +9,6 @@ const InputContainer = styled.div`
   align-items: center;
   justify-content: space-between;
   overflow: hidden;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
   height: 48px;
   padding: 0 10px;
 
@@ -72,9 +69,11 @@ const EditInput = ({
         name={name}
       />
       {slug === "psc" ? (
-        <Psc color="#DEDEE9" />
+        <WalletAsset asset="psc" showLabel color="#DEDEE9" />
       ) : (
-        slug === "rial" && <Rial color="#DEDEE9" />
+        slug === "rial" && (
+          <WalletAsset asset="irr" showLabel color="#DEDEE9" />
+        )
       )}
       {(id === 1) | (id === 2) ? (
         <img width={28} height={28} src={icon} alt={title} />

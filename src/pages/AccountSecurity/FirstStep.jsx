@@ -1,340 +1,206 @@
-
 import { useState } from "react";
 import { MdKeyboardArrowDown, MdKeyboardArrowUp } from "react-icons/md";
 import styled from "styled-components";
-import useRequest from "../../services/Hooks/useRequest";
-import { getTranslation } from "../../services/Utility";
-import { useLanguage } from "../../services/reducers/LanguageContext";
 import Button from "../../components/Button";
+import useRequest from "../../hooks/useRequest.js";
+import { convertToEnglish, getTranslation } from "../../services/Utility";
+import TitleHeader from "../../components/TitleHeader.jsx";
+import TitleBody from "../../components/TitleBody.jsx";
+import LabeledInput from "../../components/LabeledInput.jsx";
+const MIN_TIME = 5;
+const MAX_TIME = 60;
+const PHONE_LENGTH = 11;
+const VALIDATION_ERROR_STATUS = 422;
 
-const Container = styled.div`
-  margin-top: 20px;
+const toDigits = (value) => convertToEnglish(value).replace(/\D/g, "");
 
-  h3 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 16px;
-    font-weight: 400;
+const normalizeTime = (value) => {
+  const digits = toDigits(value);
+  if (!digits) return "";
+
+  const number = parseInt(digits, 10);
+
+  if (number < MIN_TIME) {
+    if (digits.length >= 2) return MIN_TIME;
+    return number === 0 ? "" : number;
   }
 
-  p {
-    color: ${(props) => props.theme.colors.newColors.otherColors.gray};
-    font-size: 16px;
-    font-weight: 400;
-  }
+  return Math.min(number, MAX_TIME);
+};
 
-  input {
-    font-size: 16px;
-    border-radius: 5px;
-    background-color: ${(props) =>
-      props.theme.colors.newColors.otherColors.inputBg};
-    border: 1px solid
-      ${(props) => props.theme.colors.newColors.otherColors.inputBg};
-    padding: 14px 18px 14px 18px;
-    outline: none;
+const Container = styled.form`
+  button {
+    margin-top: 30px;
+    margin-bottom: 10px;
+
     width: 100%;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
+    border-color: transparent;
+    cursor: pointer;
+    color: ${({ theme }) =>
+      theme.colors.newColors.otherColors.secondaryBtnText};
+    background-color: ${({ theme }) =>
+      theme.colors.newColors.otherColors.secondaryBtn};
+    @media (max-width: 1024px) {
+      margin-top: 10px;
+      margin-bottom: 0px;
+    }
+  }
+`;
+
+const Field = styled.div`
+  position: relative;
+  height: fit-content;
+
+  > div {
     margin-top: 20px;
   }
 
-  button {
-    font-size: 16px;
-    border-radius: 5px;
-    height: 50px;
-    width: 100%;
-    background-color: ${(props) =>
-      props.theme.colors.newColors.otherColors.secondaryBtn};
-    border-color: transparent;
-    margin-top: 30px;
-    margin-bottom: 15px;
-    color: ${(props) =>
-      props.theme.colors.newColors.otherColors.secondaryBtnText};
-    cursor: pointer;
-  }
-
   @media (max-width: 768px) {
-    margin-top: 0px;
-
-    h3 {
-      font-size: 14px;
-    }
-
-    p {
-      font-size: 14px;
-    }
-
-    input {
-      padding: 10px 14px;
-      margin-top: 10px;
-    }
-
-    button {
-      font-size: 14px;
-      height: 44px;
+    > div {
       margin-top: 10px;
     }
   }
 `;
 
-const ButtonContainer = styled.div`
+const Arrows = styled.div`
   display: flex;
+  flex-direction: column;
   gap: 3px;
+  cursor: pointer;
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
+  pointer-events: auto;
 `;
 
-const Div = styled.div`
-  height: fit-content;
-  position: relative;
+const Arrow = styled.span`
+  display: inline-flex;
+  user-select: none;
 
-  div {
-    position: absolute;
-    ${(props) => (props.isPersian ? "left" : "right")}: 8px;
-    top: 28px;
-    display: flex;
-    flex-direction: column;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    cursor: pointer;
+  svg {
+    width: 20px;
+    height: 20px;
+  }
 
-    @media (max-width: 768px) {
-      top: 15px;
+  @media (max-width: 1024px) {
+    svg {
+      width: 17px;
+      height: 17px;
     }
   }
 `;
 
-const Up = styled.span`
-  user-select: none;
-  display: inline-flex;
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-`;
-
-const Down = styled.span`
-  user-select: none;
-  display: inline-flex;
-
-  svg {
-    width: 20px;
-    height: 20px;
-  }
-`;
-
-const Min = styled.span`
-  position: absolute;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  ${(props) => (props.isPersian ? "right" : "left")}: 40px;
-  top: 37px;
+const MinHint = styled.span`
   font-size: 14px;
+  margin-top: 1.5px;
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
+  white-space: nowrap;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     font-size: 12px;
-    top: 24px;
+    margin-top: 0px;
   }
 `;
 
 const FirstStep = ({ setStep, time, setTime }) => {
-  const [phone, setPhone] = useState(true);
-  const [loading, setLoading] = useState(false);
-
-  const [formData, setFormData] = useState({
-    phone: "",
-    time: time,
-  });
-
   const { Request, HTTP_METHOD } = useRequest();
-  const isPersian = useLanguage();
 
-  const onSendHandler = () => {
-    if (loading) return;
+  const [loading, setLoading] = useState(false);
+  const [needsPhone, setNeedsPhone] = useState(false);
+  const [phone, setPhone] = useState("");
 
-    let sendTime = time;
+  const numericTime = Number(time);
+  const isTimeValid =
+    Number.isInteger(numericTime) &&
+    numericTime >= MIN_TIME &&
+    numericTime <= MAX_TIME;
+  const isPhoneValid = !needsPhone || phone.length === PHONE_LENGTH;
+  const isSubmitDisabled = !isTimeValid || !isPhoneValid;
 
-    if (Number(sendTime) < 5) {
-      sendTime = 5;
-      setTime(5);
-    }
+  const increaseTime = () => {
+    setTime((previousTime) =>
+      previousTime === "" || previousTime == null
+        ? MIN_TIME
+        : Math.min(MAX_TIME, Math.max(MIN_TIME, Number(previousTime) + 1)),
+    );
+  };
+
+  const decreaseTime = () => {
+    setTime((previousTime) =>
+      Number(previousTime) > MIN_TIME ? Number(previousTime) - 1 : previousTime,
+    );
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    if (loading || !isTimeValid || !isPhoneValid) return;
+
+    const sendTime = Math.min(MAX_TIME, Math.max(MIN_TIME, numericTime));
+    if (sendTime !== numericTime) setTime(sendTime);
 
     setLoading(true);
 
-    const requestData = phone
-      ? { time: sendTime }
-      : {
-          ...formData,
-          time: sendTime,
-        };
+    try {
+      await Request(
+        "account/security",
+        HTTP_METHOD.POST,
+        needsPhone ? { phone, time: sendTime } : { time: sendTime },
+      );
 
-    Request(
-      "account/security",
-      HTTP_METHOD.POST,
-      requestData
-    )
-      .then(() => {
-        setStep(2);
-      })
-      .catch((error) => {
-        if (error?.response?.status === 422) {
-          setPhone(false);
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      setStep(2);
+    } catch (error) {
+      if (error?.response?.status === VALIDATION_ERROR_STATUS) {
+        setNeedsPhone(true);
+      }
+    } finally {
+      setLoading(false);
+    }
   };
-
-  const handleInputChange = (e) => {
-    setFormData({
-      [e.target.name]: e.target.value,
-      time: time,
-    });
-  };
-
-  const isTimeValid =
-    time !== "" &&
-    time !== null &&
-    Number(time) >= 5;
-
-  const isPhoneValid =
-    phone ||
-    (formData.phone && formData.phone.length === 11);
-
-  const isSubmitDisabled = !isTimeValid || !isPhoneValid;
 
   return (
-    <Container
-      as="form"
-      onSubmit={(e) => {
-        e.preventDefault();
+    <Container onSubmit={handleSubmit}>
+      <TitleHeader noMargin title={getTranslation("858")} />
+      <TitleBody gray title={getTranslation(32)} />
 
-        if (loading) return;
-
-        if (time === "" || time == null) {
-          return;
-        }
-
-        if (Number(time) < 5) {
-          setTime(5);
-
-          setTimeout(() => {
-            onSendHandler();
-          }, 0);
-        } else {
-          onSendHandler();
-        }
-      }}
-    >
-      <h3>{getTranslation("858")}</h3>
-
-      <p>{getTranslation("32")}</p>
-
-      <Div isPersian={isPersian}>
-        <ButtonContainer>
-          <Up
-            onClick={() =>
-              setTime((prev) => {
-                if (prev === "" || prev == null) return 5;
-
-                const next = +prev + 1;
-
-                if (next > 60) return 60;
-
-                return Math.max(5, next);
-              })
-            }
-          >
-            <MdKeyboardArrowUp />
-          </Up>
-
-          <Down
-            onClick={() => {
-              if (time > 5) {
-                setTime((prev) => +prev - 1);
-              }
-            }}
-          >
-            <MdKeyboardArrowDown />
-          </Down>
-        </ButtonContainer>
-
-        <input
-          value={time}
-          onChange={(e) => {
-            let value = e.target.value;
-
-            value = value.replace(/[^\d]/g, "");
-
-            if (value === "") {
-              setTime("");
-              return;
-            }
-
-            let numericValue = parseInt(value, 10);
-
-            if (numericValue < 5) {
-              if (value.length >= 2) {
-                numericValue = 5;
-              } else if (numericValue === 0) {
-                setTime("");
-                return;
-              }
-            }
-
-            if (numericValue > 60) {
-              numericValue = 60;
-            }
-
-            setTime(numericValue);
-          }}
-          type="text"
-          inputMode="numeric"
+      <Field>
+        <LabeledInput
+          type="number"
           name="time"
-          placeholder={getTranslation("858")}
           maxLength={2}
+          value={time}
+          placeholder={getTranslation("858")}
+          onChange={(e) => setTime(normalizeTime(e.target.value))}
+          unit={time !== "" && <MinHint>{getTranslation("33")}</MinHint>}
+          prefixWidth={24}
+          prefixSide="end"
+          prefix={
+            <Arrows>
+              <Arrow onClick={increaseTime}>
+                <MdKeyboardArrowUp />
+              </Arrow>
+              <Arrow onClick={decreaseTime}>
+                <MdKeyboardArrowDown />
+              </Arrow>
+            </Arrows>
+          }
         />
 
-        {!phone && (
-          <input
-            type="text"
-            inputMode="numeric"
+        {needsPhone && (
+          <LabeledInput
+            type="number"
             name="phone"
-            placeholder="09XXXXXXXX"
-            value={formData.phone}
-            onChange={(e) => {
-              let value = e.target.value;
-
-              value = value.replace(/[^0-9]/g, "");
-
-              if (value.length > 11) {
-                value = value.slice(0, 11);
-              }
-
-              handleInputChange({
-                target: {
-                  name: "phone",
-                  value: value,
-                },
-              });
-            }}
-            onKeyDown={(e) => {
-              const invalidKeys = [".", "٫", "e", "E", "-", "+", " "];
-
-              if (invalidKeys.includes(e.key)) {
-                e.preventDefault();
-              }
-            }}
-            maxLength={11}
+            maxLength={PHONE_LENGTH}
+            value={phone}
+            placeholder="09XXXXXXXXX"
+            onChange={(e) =>
+              setPhone(toDigits(e.target.value).slice(0, PHONE_LENGTH))
+            }
           />
         )}
-
-        {time !== "" && (
-          <Min isPersian={isPersian}>
-            {getTranslation("33")}
-          </Min>
-        )}
-      </Div>
+      </Field>
 
       <Button
-        label={getTranslation("859")}
         type="submit"
+        label={getTranslation("859")}
         disabled={loading ? "pending" : isSubmitDisabled}
       />
     </Container>
@@ -342,4 +208,3 @@ const FirstStep = ({ setStep, time, setTime }) => {
 };
 
 export default FirstStep;
-

@@ -9,10 +9,11 @@ import AboutIcon from "../../assets/svg/about.svg";
 import ContactIcon from "../../assets/svg/contact.svg";
 import CitizenIcon from "../../assets/svg/profileMember.svg";
 import CalendarIcon from "../../assets/svg/calendar.svg";
-import { useMenuContext } from "../../services/reducers/MenuContext";
-import ToolTip from "../../components/Tooltip";
+import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
+import ToolTip from "../../components/Tooltip/Tooltip";
 
 import i18n from "../../i18n/i18n";
+import { getSize } from "../../styles/sizes";
 
 const Container = styled.div`
   display: flex;
@@ -61,14 +62,18 @@ const Icon = styled.img`
 `;
 
 const Text = styled.p`
-  color: #868b90;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.mutedText};
   font-style: normal;
   font-weight: 500;
   line-height: 180%;
-  font-size: 14px;
+  font-size: ${({ $size }) => getSize($size, "base")};
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
 
   @media (min-width: 1024px) {
-    font-size: 16px;
+    font-size: ${({ $size }) => getSize($size, "desktop")};
   }
 
   display: ${(props) => (props.$isOpen ? "block" : "none")};
@@ -140,14 +145,16 @@ const BtnsAfterLogin = () => {
             target="_blank"
             rel="noreferrer"
           >
-            <Icon src={item.icon} />
-            <Text $isOpen={isOpen}>{title}</Text>
+            <Icon src={item.icon} alt="" />
+            <Text $isOpen={isOpen} $size="default">
+              {title}
+            </Text>
           </Btn>
         );
 
         return (
           <ToolTip
-            disabled={isOpen} 
+            disabled={isOpen}
             key={item.translationId}
             TitleToltip={title}
             classNamePosstion=""

@@ -2,8 +2,8 @@ import React from "react";
 import styled from "styled-components";
 import { getTranslation } from "../../services/Utility";
 import { useTranslation } from "react-i18next";
-import mataphoto from "../../assets/images/3ddevelop.jpg";
-import ToolTip from "../../components/Tooltip";
+import mataphoto from "../../assets/images/showcase/3ddevelop.webp";
+import ToolTip from "../../components/Tooltip/Tooltip";
 
 const Container = styled.div`
   display: flex;
@@ -62,6 +62,7 @@ const ImgPosition = styled.img`
   width: 114px;
   height: 114px;
   border-radius: 12px;
+  object-fit: cover;
 `;
 const Hr = styled.div`
   background-color: ${(props) =>
@@ -97,7 +98,7 @@ const TooltipContent = ({ imgSrc, name, lang, href, onlineUser }) => {
       }
       Chidren={
         <a href={href} target="_blank" rel="noreferrer">
-          <ImgPosition src={imgSrc} />
+          <ImgPosition src={imgSrc} alt={name} fetchPriority="high" />
         </a>
       }
     />

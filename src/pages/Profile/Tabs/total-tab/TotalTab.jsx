@@ -3,7 +3,7 @@ import Bio from "./Bio";
 import Details from "./Details";
 import styled from "styled-components";
 import { useScrollDirection } from "../../../../hooks/useScrollDirection";
-import { useScrollDirectionContext } from "../../../../services/reducers/ScrollDirectionContext";
+import { useScrollDirectionContext } from "../../../../services/reducers/ScrollDirectionContext.jsx";
 
 const Container = styled.div`
   width: 100%;
@@ -11,14 +11,13 @@ const Container = styled.div`
   box-sizing: border-box;
   padding: 15px;
   overflow-y: auto;
-    overflow-x: hidden;
-
+  overflow-x: hidden;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   gap: 30px;
   padding-bottom: 60px;
 
-  @media (min-width: 1400px) {
+  @media (min-width: 1280px) {
     grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
   }
 `;

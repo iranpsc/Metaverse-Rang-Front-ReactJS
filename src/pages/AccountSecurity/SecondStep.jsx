@@ -1,227 +1,262 @@
-
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-
-import useRequest from "../../services/Hooks/useRequest";
-import { setItem } from "../../services/Utility/LocalStorage";
+import Button from "../../components/Button";
+import useRequest from "../../hooks/useRequest.js";
 import {
-  getTranslation,
   ToastError,
-  formatTime,
   convertToPersian,
   convertToEnglish,
+  formatTime,
+  getTranslation,
 } from "../../services/Utility";
-import Button from "../../components/Button";
-
+import {
+  getItem,
+  removeItem,
+  setItem,
+} from "../../services/Utility/LocalStorage";
+import LabeledInput from "../../components/LabeledInput.jsx";
+import TitleBody from "../../components/TitleBody.jsx";
+import TitleHeader from "../../components/TitleHeader.jsx";
 const CODE_LENGTH = 6;
 const INITIAL_TIMER = 2 * 60;
-const EMPTY_CODE = () => Array(CODE_LENGTH).fill("");
+const MS_PER_MINUTE = 60 * 1000;
+const MIN_TIME = 5;
+const MAX_TIME = 60;
 
-const normalizeDigits = (value) =>
-  convertToEnglish(String(value ?? ""))
-    .replace(/[٠-٩]/g, (digit) =>
-      String("٠١٢٣٤٥٦٧٨٩".indexOf(digit))
-    )
-    .replace(/\D/g, "");
+const createEmptyCode = () => Array(CODE_LENGTH).fill("");
 
+const toDigits = (value) =>
+  String(convertToEnglish(String(value ?? ""))).replace(/\D/g, "");
+
+const isFilled = (values) => values.every((value) => value !== "");
 const Codes = styled.div`
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(${CODE_LENGTH}, 1fr);
   gap: 10px;
-  margin: 0 auto;
+  width: 100%;
+  margin: 10px 0;
   direction: ltr;
-  margin-bottom: 30px !important;
 
   input {
-    width: 30px;
     height: 50px;
+    padding: 8px;
     font-size: 16px;
-    padding: 12px;
     text-align: center;
-    border-radius: 5px;
-    border: 1px solid
-      ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-weight: 400;
-    outline: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
   }
 
   @media (min-width: 1024px) {
     input {
-      width: 60px;
       height: 60px;
-      font-size: 16px;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    gap: 6px;
+    margin-bottom: 20px;
+
+    input {
+      height: 42px;
+      padding: 4px;
+      font-size: 14px;
     }
   }
 `;
 
 const Container = styled.div`
-  margin-top: 20px;
-
-  h3 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 16px;
-    font-weight: 400;
-  }
-
-  p {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 16px;
-    font-weight: 400;
-  }
-
-  input {
-    border-radius: 5px;
-    background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-    border: 1px solid
-      ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
-    padding: 14px 18px 14px 18px;
-    outline: none;
-    width: 93%;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    margin-top: 20px;
-
-    &::-webkit-inner-spin-button,
-    &::-webkit-outer-spin-button {
-      -webkit-appearance: none;
-      margin: 0;
-    }
-  }
-
   button {
     border-radius: 5px;
     height: 50px;
     width: 100%;
     background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.secondaryBtn};
+      props.theme.colors.newColors.otherColors.secondaryBtn};
     border: 1px solid
       ${(props) => props.theme.colors.newColors.otherColors.secondaryBtnBorder};
     margin-top: 30px;
     margin-bottom: 15px;
     color: ${(props) =>
-    props.theme.colors.newColors.otherColors.secondaryBtnText};
+      props.theme.colors.newColors.otherColors.secondaryBtnText};
     cursor: pointer;
   }
 
-  div {
-    display: flex;
-    align-items: center;
-    font-size: 15px;
-    text-align: center;
-    width: fit-content;
-    margin: 0 auto;
+  @media (max-width: 1024px) {
+    margin-top: 0;
 
-    h4 {
-      color: #008bf8;
-      margin-left: 5px;
-    }
-
-    span {
-      color: #969696;
-    }
-
-    h2 {
-      font-size: 12px;
-      color: #dc920a;
-      cursor: pointer;
-
-      &:hover {
-        color: #ad740a;
-      }
+    button {
+      height: 42px;
+      margin-top: 18px;
+      margin-bottom: 10px;
+      font-size: 14px;
     }
   }
 `;
 
+// ردیف تایمر و ارسال مجدد؛ قانون‌هایش قبلاً روی همه‌ی divهای داخل Container اعمال می‌شد
+const ResendRow = styled.div`
+  display: flex;
+  align-items: center;
+  width: fit-content;
+  margin: 0 auto;
+  font-size: 15px;
+  text-align: center;
+
+  h4 {
+    margin-left: 5px;
+    color: #008bf8;
+  }
+
+  span {
+    color: #969696;
+  }
+
+  h2 {
+    font-size: 12px;
+    color: #dc920a;
+    cursor: pointer;
+
+    &:hover {
+      color: #ad740a;
+    }
+  }
+
+  @media (max-width: 1024px) {
+    font-size: 13px;
+
+    h4 {
+      margin-left: 4px;
+    }
+  }
+`;
 const SecondStep = ({ setStep, time }) => {
+  const { Request, HTTP_METHOD } = useRequest();
   const inputRefs = useRef([]);
+  const requestInProgress = useRef(false);
+
+  const [codeValues, setCodeValues] = useState(createEmptyCode);
   const [timer, setTimer] = useState(INITIAL_TIMER);
-  const [errors, setErrors] = useState(false);
+  const [resendAt, setResendAt] = useState(
+    () => Date.now() + INITIAL_TIMER * 1000,
+  );
+  const [hasError, setHasError] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-  const [codeValues, setCodeValues] = useState(EMPTY_CODE);
 
-  const { Request, HTTP_METHOD } = useRequest();
-
-  const isCodeComplete = codeValues.every((value) => value !== "");
+  const isComplete = isFilled(codeValues);
   const isBusy = loading || resending;
 
   useEffect(() => {
     if (timer <= 0) return;
 
-    const timeoutId = setTimeout(() => {
-      setTimer((previous) => Math.max(0, previous - 1));
+    const timeout = setTimeout(() => {
+      setTimer(Math.max(0, Math.ceil((resendAt - Date.now()) / 1000)));
     }, 1000);
 
-    return () => clearTimeout(timeoutId);
-  }, [timer]);
+    return () => clearTimeout(timeout);
+  }, [resendAt, timer]);
 
-  const focusInput = (index) => {
-    inputRefs.current[index]?.focus();
-  };
+  const focusInput = (index) => inputRefs.current[index]?.focus();
 
   const updateCode = (values) => {
     setCodeValues(values);
-    setErrors(false);
+    setHasError(false);
   };
 
-  const nextStep = async (values = codeValues) => {
-    if (isBusy) return;
+  const submit = async (values = codeValues) => {
+    if (requestInProgress.current) return;
 
-    if (!values.every((value) => value !== "")) {
-      setErrors(true);
+    if (!isFilled(values)) {
+      setHasError(true);
       return;
     }
 
+    const duration = Number(time);
+    if (
+      !Number.isInteger(duration) ||
+      duration < MIN_TIME ||
+      duration > MAX_TIME
+    ) {
+      setHasError(true);
+      setStep(1);
+      return;
+    }
+
+    requestInProgress.current = true;
     setLoading(true);
 
     try {
       await Request(
         "account/security/verify",
         HTTP_METHOD.POST,
-        { code: values.join("") }
+        { code: values.join("") },
+        {},
+        { showError: false },
       );
 
-      const duration = Number.parseInt(time, 10) * 60 * 1000;
+      const currentEndTime = Number(
+        getItem("account_security")?.account_security,
+      );
+      const now = Date.now();
+      const extensionBase =
+        Number.isFinite(currentEndTime) && currentEndTime > now
+          ? currentEndTime
+          : now;
 
       setItem("account_security", {
-        account_security: Date.now() + duration,
-        time,
+        account_security: extensionBase + duration * MS_PER_MINUTE,
+        time: duration,
       });
+      removeItem("security_end_time");
 
       setStep(3);
     } catch {
-      setErrors(true);
+      setHasError(true);
       ToastError(getTranslation("1639"));
     } finally {
+      requestInProgress.current = false;
       setLoading(false);
     }
   };
 
-  const handleInputChange = (index, event) => {
-    const digits = normalizeDigits(event.target.value);
-    const value = digits.slice(-1);
-    const newValues = [...codeValues];
+  const handleResend = async () => {
+    if (requestInProgress.current) return;
 
-    newValues[index] = value;
+    requestInProgress.current = true;
+    setResending(true);
 
-    updateCode(newValues);
+    try {
+      await Request(
+        "account/security",
+        HTTP_METHOD.POST,
+        { time },
+        {},
+        { showError: false },
+      );
 
-    if (value && index < CODE_LENGTH - 1) {
-      focusInput(index + 1);
+      setCodeValues(createEmptyCode());
+      setHasError(false);
+      setResendAt(Date.now() + INITIAL_TIMER * 1000);
+      setTimer(INITIAL_TIMER);
+      focusInput(0);
+    } catch {
+      ToastError(getTranslation("1639"));
+    } finally {
+      requestInProgress.current = false;
+      setResending(false);
     }
+  };
+  const handleChange = (index, event) => {
+    const value = toDigits(event.target.value).slice(-1);
+    const values = [...codeValues];
+
+    values[index] = value;
+    updateCode(values);
+
+    if (value && index < CODE_LENGTH - 1) focusInput(index + 1);
   };
 
   const handleKeyDown = (index, event) => {
     if (event.key === "Enter") {
       event.preventDefault();
-
-      if (isCodeComplete) {
-        nextStep();
-      }
-
+      if (isComplete) submit();
       return;
     }
 
@@ -229,18 +264,14 @@ const SecondStep = ({ setStep, time }) => {
 
     event.preventDefault();
 
-    const newValues = [...codeValues];
+    const values = [...codeValues];
 
-    if (newValues[index] !== "") {
-      newValues[index] = "";
-      updateCode(newValues);
-      return;
-    }
-
-    if (index > 0) {
-      newValues[index - 1] = "";
-
-      updateCode(newValues);
+    if (values[index] !== "") {
+      values[index] = "";
+      updateCode(values);
+    } else if (index > 0) {
+      values[index - 1] = "";
+      updateCode(values);
       focusInput(index - 1);
     }
   };
@@ -248,104 +279,73 @@ const SecondStep = ({ setStep, time }) => {
   const handlePaste = (event) => {
     event.preventDefault();
 
-    const pastedCode = normalizeDigits(
-      event.clipboardData.getData("text/plain")
-    ).slice(0, CODE_LENGTH);
+    const pasted = toDigits(event.clipboardData.getData("text/plain")).slice(
+      0,
+      CODE_LENGTH,
+    );
 
-    if (!pastedCode) return;
+    if (!pasted) return;
 
-    const newValues = EMPTY_CODE();
-
-    [...pastedCode].forEach((digit, index) => {
-      newValues[index] = digit;
+    const values = createEmptyCode();
+    [...pasted].forEach((digit, index) => {
+      values[index] = digit;
     });
 
-    updateCode(newValues);
+    updateCode(values);
 
-    if (pastedCode.length === CODE_LENGTH) {
+    if (pasted.length === CODE_LENGTH) {
       focusInput(CODE_LENGTH - 1);
-      nextStep(newValues);
-      return;
-    }
-
-    focusInput(pastedCode.length);
-  };
-
-  const resetHandler = async () => {
-    if (isBusy) return;
-
-    setResending(true);
-
-    try {
-      await Request(
-        "account/security",
-        HTTP_METHOD.POST,
-        { time }
-      );
-
-      setCodeValues(EMPTY_CODE());
-      setErrors(false);
-      setTimer(INITIAL_TIMER);
-      focusInput(0);
-    } catch {
-      ToastError(getTranslation("1639"));
-    } finally {
-      setResending(false);
+      submit(values);
+    } else {
+      focusInput(pasted.length);
     }
   };
 
   return (
     <Container>
-      <h3>{getTranslation("860")}</h3>
-
-      <p>{getTranslation("861")}</p>
+      <TitleHeader title={getTranslation("860")} />
+      <TitleBody title={getTranslation("861")} />
 
       <Codes>
         {codeValues.map((value, index) => (
-          <input
+          <LabeledInput
             key={index}
-            placeholder="-"
-            type="text"
-            inputMode="numeric"
-            autoComplete={index === 0 ? "one-time-code" : "off"}
-            maxLength={1}
             ref={(element) => {
               inputRefs.current[index] = element;
             }}
+            type="number"
+            maxLength={1}
+            placeholder="-"
+            autoComplete={index === 0 ? "one-time-code" : "off"}
             value={value}
-            onChange={(event) => handleInputChange(index, event)}
+            onChange={(event) => handleChange(index, event)}
             onKeyDown={(event) => handleKeyDown(index, event)}
             onPaste={handlePaste}
-            className={errors ? "invalid-input" : ""}
+            error={hasError}
+            size="big"
           />
         ))}
       </Codes>
 
-      <div>
-        <h4>
-          {convertToPersian(formatTime(timer))}
-        </h4>
+      <ResendRow>
+        <TitleBody title={convertToPersian(formatTime(timer))} />
 
-        {timer !== 0 ? (
+        {timer > 0 ? (
           <span>{getTranslation("863")}</span>
         ) : (
           <h2
-            onClick={resetHandler}
+            onClick={handleResend}
             style={{ pointerEvents: isBusy ? "none" : "auto" }}
           >
-            {getTranslation(1642)}
+            {getTranslation("1642")}
           </h2>
         )}
-      </div>
+      </ResendRow>
 
       <Button
         label={getTranslation("859")}
-        disabled={
-          loading
-            ? "pending"
-            : !isCodeComplete || resending
-        }
-        onClick={() => nextStep()}
+        disabled={loading ? "pending" : !isComplete || resending}
+        onClick={() => submit()}
       />
     </Container>
   );

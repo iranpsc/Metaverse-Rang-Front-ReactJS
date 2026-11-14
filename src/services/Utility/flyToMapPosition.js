@@ -7,6 +7,9 @@ export const flyToMapPosition = ({
   pitch = 50,
   rotate = true,
   marker = true,
+  bounds,
+  padding = 80,
+  maxZoom = 19,
 }) => {
   const mapInstance = mapRef?.current ?? mapRef?.default;
   if (!mapInstance) return;
@@ -60,11 +63,12 @@ export const flyToMapPosition = ({
 
   map.stop();
 
+  const camera = bounds
+    ? map.cameraForBounds(bounds, { padding, maxZoom })
+    : { center: [longitude, latitude], zoom, bearing, pitch };
+
   map.flyTo({
-    center: [longitude, latitude],
-    zoom,
-    bearing,
-    pitch,
+    ...camera,
     essential: true,
     speed: 1.2,
     curve: 1.42,

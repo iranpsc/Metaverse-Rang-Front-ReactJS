@@ -5,42 +5,21 @@ import {
   TwitterShare,
   WhatsappShare,
 } from "react-share-kit";
-import { getTranslation } from "../../../../services/Utility";
 import styled from "styled-components";
 import { useState } from "react";
-import { ExitIcon } from "../../../../components/Icons/IconsHeader";
-const BackGround = styled.div`
-  z-index: 999;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(5px);
-  background-color: rgba(0, 0, 0, 0.713);
-`;
-const Modal = styled.div`
-  border-radius: 10px;
-  background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
-  border: 1px solid gray;
+import {
+  getTranslation,
+  metarangUrlCitizen,
+} from "../../../../services/Utility";
+import ModalXs from "../../../../components/Modal/ModalXs";
 
-  overflow-y: auto;
-  padding: 20px;
-  width: 500px;
-  max-height: 577px;
-  
-`;
-const Header = styled.div`
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  margin-bottom: 20px;
-`;
+const SOCIALS = [
+  { name: "Whatsapp", Component: WhatsappShare },
+  { name: "Telegram", Component: TelegramShare },
+  { name: "Facebook", Component: FacebookShare },
+  { name: "Twitter", Component: TwitterShare },
+  { name: "Linkedin", Component: LinkedinShare },
+];
 
 const Socials = styled.div`
   display: flex;
@@ -48,35 +27,6 @@ const Socials = styled.div`
   justify-content: center;
   overflow-x: auto;
   gap: 30px;
-  span {
-    color: ${(props) => props.color};
-    svg {
-      font-size: 40px;
-      border-radius: 100%;
-    }
-  }
-`;
-
-const Copy = styled.div`
-  background-color: ${(props) => props.theme.colors.newColors.shades.bg2};
-  border-radius: 10px;
-  margin-top: 40px;
-  gap: 5px;
-  white-space: nowrap;
-  padding: 5px 5px 5px 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  span {
-    border-radius: 20px;
-    background-color: ${(props) => props.theme.colors.primary};
-    padding: 0 20px;
-    cursor: pointer;
-    color: ${(props) => props.theme.colors.newColors.primaryText};
-  }
-  p {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-  }
 `;
 
 const Social = styled.div`
@@ -85,85 +35,63 @@ const Social = styled.div`
   gap: 10px;
   align-items: center;
   justify-content: center;
+
   span {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
+    color: ${({ theme }) => theme.colors.newColors.shades.title};
+  }
+`;
+
+const Copy = styled.div`
+  background-color: ${({ theme }) => theme.colors.newColors.shades.bg2};
+  border-radius: 10px;
+  margin-top: 40px;
+  gap: 5px;
+  white-space: nowrap;
+  padding: 5px 5px 5px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  span {
+    border-radius: 20px;
+    background-color: ${({ theme }) => theme.colors.primary};
+    padding: 0 20px;
+    cursor: pointer;
+    color: ${({ theme }) => theme.colors.newColors.primaryText};
+  }
+
+  p {
+    color: ${({ theme }) => theme.colors.newColors.shades.title};
   }
 `;
 
 const ShareModal = ({ setOpenShare, data }) => {
   const [copied, setCopied] = useState(false);
-  const handleCopy = () => {
-    const textToCopy = `https://metarang.com/fa/citizens/${data?.code}`;
+  const shareUrl = metarangUrlCitizen(data?.code);
 
-    navigator.clipboard
-      .writeText(textToCopy)
-      .then(() => {
-        setCopied(true);
-      })
-      .catch((error) => {
-        console.error("کپی نشد: ", error);
-      });
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(shareUrl);
+    setCopied(true);
   };
+
   return (
-    <BackGround>
-      <Modal>
-        <Header>
-          <ExitIcon onClick={() => setOpenShare(false)}>X</ExitIcon>
-          <span> {getTranslation("324")} </span>
-          <div />
-        </Header>
-        <Socials>
-          <Social>
-            <WhatsappShare
-              size={52}
-              borderRadius={100}
-              url={`https://metarang.com/fa/citizens/${data?.code}`}
-            />
-            <span>Whatsapp</span>
+    <ModalXs global title={324} onClose={() => setOpenShare(false)} onlyExit>
+      <Socials>
+        {SOCIALS.map(({ name, Component }) => (
+          <Social key={name}>
+            <Component size={52} borderRadius={100} url={shareUrl} />
+            <span>{name}</span>
           </Social>
-          <Social>
-            <TelegramShare
-              size={52}
-              borderRadius={100}
-              url={`https://metarang.com/fa/citizens/${data?.code}`}
-            />
-            <span>Telegram</span>{" "}
-          </Social>
-          <Social>
-            <FacebookShare
-              size={52}
-              borderRadius={100}
-              url={`https://metarang.com/fa/citizens/${data?.code}`}
-            />
-            <span>Facebook</span>{" "}
-          </Social>
-          <Social>
-            <TwitterShare
-              size={52}
-              borderRadius={100}
-              url={`https://metarang.com/fa/citizens/${data?.code}`}
-            />
-            <span>Twitter</span>{" "}
-          </Social>
-          <Social>
-            <LinkedinShare
-              size={52}
-              borderRadius={100}
-              url={`https://metarang.com/fa/citizens/${data?.code}`}
-            />
-            <span>Linkedin</span>{" "}
-          </Social>
-        </Socials>
-        <Copy>
-          <span onClick={handleCopy}>
-            {copied
-              ? getTranslation("1476")
-              : getTranslation("323")}
-          </span>
-          <p> {`https://metarang.com/fa/citizens/${data?.code}`}</p>
-        </Copy>
-      </Modal>
-    </BackGround>
+        ))}
+      </Socials>
+
+      <Copy>
+        <span onClick={handleCopy}>
+          {getTranslation(copied ? "1476" : "323")}
+        </span>
+        <p>{shareUrl}</p>
+      </Copy>
+    </ModalXs>
   );
 };
 

@@ -1,13 +1,13 @@
 import styled from "styled-components";
 import Header from "./Header";
 import Profile from "./Profile";
-import { useMenuContext } from "../../services/reducers/MenuContext";
+import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import PrivateComponent from "../../middleware/PrivateComponent";
 import PublicComponent from "../../middleware/PublicComponent";
 import BtnsAfterLogin from "./BtnsAfterLogin";
 import BtnLogin from "./BtnAction/BtnLogin";
-import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext";
-import { useLanguage } from "../../services/reducers/LanguageContext";
+import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext.jsx";
+import { useIsRtl } from "../../services/reducers/LanguageContext.jsx";
 
 const BlurOverlay = styled.div`
   position: fixed;
@@ -26,7 +26,7 @@ const BlurOverlay = styled.div`
   }
 `;
 const Container = styled.div`
-position: relative;
+  position: relative;
   display: ${({ show }) => (show ? "none" : "flex")};
   flex-direction: column;
   align-items: start;
@@ -34,7 +34,7 @@ position: relative;
   justify-content: start;
   width: ${({ isPersian, isOpen }) =>
     isPersian ? (isOpen ? "35%" : "9%") : isOpen ? "38%" : "9%"};
-
+  max-width: 250px;
   height: 100%;
   border-radius: 10px;
 
@@ -74,7 +74,7 @@ position: relative;
 const Menu = () => {
   const { isOpen } = useMenuContext();
   const { isModalOpen, isGlobalFullScreenMap } = useScrollDirectionContext();
-  const isPersian = useLanguage();
+  const isPersian = useIsRtl();
   return (
     <>
       <BlurOverlay show={isModalOpen && isOpen} />
@@ -96,7 +96,6 @@ const Menu = () => {
         <PublicComponent>
           <BtnLogin />
         </PublicComponent>
-       
       </Container>
     </>
   );

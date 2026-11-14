@@ -1,5 +1,5 @@
 import Modal from "../../components/Modal";
-import Tabs from "../../services/Hooks/useTabs";
+import Tabs from "../../components/RouteTabs.jsx";
 import { getTranslation } from "../../services/Utility";
 
 export default function Report() {
@@ -16,7 +16,7 @@ export default function Report() {
   ];
 
   return (
-    <Modal type="modal-section-xl" title={23}>
+    <Modal title={23}>
       <Tabs items={tabs} />
     </Modal>
   );

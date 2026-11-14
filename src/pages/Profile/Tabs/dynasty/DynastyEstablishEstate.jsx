@@ -1,62 +1,46 @@
-import { useMemo } from "react";
-import { useParams, Navigate, useOutletContext } from "react-router";
+// صفحه‌ی ایجاد سلسله یا املاک سلسله: داده‌ی سلسله را از سرور می‌گیرد، بر اساس tab و اینکه کاربر سلسله دارد یا نه یکی را نمایش می‌دهد (در حین لود اسکلتون) و در صورت ناهماهنگی ریدایرکت می‌کند
+import { DynastySkeleton } from "../../../../components/Skeletons/DynastySkeleton.jsx";
+import { useEffect, useMemo, useState } from "react";
+import { Navigate } from "react-router";
 import DynastyEstablish from "./dynasty-establish/DynastyEstablish";
 import DynastyEstate from "./dynasty-estate/DynastyEstate";
-import { Skeleton } from "../../../../components/Skeleton";
-import styled from "styled-components";
+import useRequest from "../../../../hooks/useRequest.js";
 
-const SkeletonContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  width: 100%;
-  padding: 20px;
-`;
+// مسیر ریدایرکت هر تب
+const TAB_PATHS = {
+  establish: "/dynasty/establish",
+  estate: "/profile/dynasty/estate",
+};
 
-// اسکلتون هدر
-const SkeletonHeader = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  border-radius: 10px;
-  padding: 20px;
-  margin-bottom: 20px;
-`;
+const DynastyEstablishEstate = ({ tab }) => {
+  const { Request } = useRequest();
 
-// اسکلتون کارت اصلی
-const SkeletonCard = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  border-radius: 10px;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-`;
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-// اسکلتون ردیف جدول
-const SkeletonTableRow = styled.div`
-  display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 10px;
-  align-items: center;
-  padding: 15px 0;
-  border-bottom: 1px solid
-    ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
-`;
+  useEffect(() => {
+    const fetchDynasty = async () => {
+      try {
+        const response = await Request("dynasty");
+        const resData = response.data.data;
+        const status = resData["user-has-dynasty"] ? "has" : "no";
 
-const SkeletonTitle = styled.div`
-  margin-bottom: 20px;
-`;
+        // سایدبار از همین event برای عوض کردن عنوان اولین آیتم استفاده می‌کند
+        localStorage.setItem("dynastyStatus", status);
+        window.dispatchEvent(
+          new CustomEvent("dynastyStatusUpdated", { detail: status }),
+        );
 
-const SkeletonBadge = styled.div`
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-`;
+        setData(resData);
+      } catch (error) {
+        console.error("Failed to fetch dynasty:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-const DynastyEstablishEstate = () => {
-  const { tab } = useParams();
-  const { data, setData, loading } = useOutletContext();
+    fetchDynasty();
+  }, []);
 
   const establishMembers = useMemo(
     () =>
@@ -72,59 +56,15 @@ const DynastyEstablishEstate = () => {
     [data],
   );
 
-  // اسکلتون در حین لودینگ
-  if (loading) {
-    return (
-      <SkeletonContainer>
-        {/* هدر اسکلتون */}
-        <SkeletonHeader>
-          <SkeletonTitle>
-            <Skeleton width="100px" height="25px" radius="8px" />
-          </SkeletonTitle>
-          <SkeletonBadge>
-            <Skeleton width="150px" height="25px" radius="20px" />
-          </SkeletonBadge>
-          <Skeleton width="100%" height="60px" radius="8px" />
-        </SkeletonHeader>
+  if (loading) return <DynastySkeleton />;
 
-        {/* کارت اسکلتون */}
-        <SkeletonCard>
-          {/* هدر جدول */}
-          <SkeletonTableRow>
-            <Skeleton width="40px" height="40px" radius="10px" />
-            <Skeleton width="40px" height="40px" radius="10px" />
-            <Skeleton width="40px" height="40px" radius="10px" />
-            <Skeleton width="40px" height="40px" radius="10px" />
-            <Skeleton width="40px" height="40px" radius="10px" />
-            <Skeleton width="40px" height="40px" radius="10px" />
-          </SkeletonTableRow>
+  // کاربر با سلسله فقط estate و بدون سلسله فقط establish را می‌بیند
+  if (data) {
+    const expectedTab = data["user-has-dynasty"] ? "estate" : "establish";
 
-          {/* ردیف‌های اسکلتون */}
-          {Array.from({ length: 4 }).map((_, index) => (
-            <SkeletonTableRow key={index}>
-              <Skeleton width="50px" height="14px" radius="4px" />
-              <Skeleton width="100px" height="14px" radius="4px" />
-              <Skeleton width="60px" height="14px" radius="4px" />
-              <Skeleton width="60px" height="14px" radius="4px" />
-              <Skeleton width="80px" height="14px" radius="4px" />
-              <Skeleton width="60px" height="14px" radius="4px" />
-            </SkeletonTableRow>
-          ))}
-        </SkeletonCard>
-      </SkeletonContainer>
-    );
-  }
-
-  if (tab !== "establish" && tab !== "estate") {
-    return <Navigate to="/dynasty/establish" replace />;
-  }
-
-  if (data && data["user-has-dynasty"] && tab !== "estate") {
-    return <Navigate to="/profile/dynasty/estate" replace />;
-  }
-
-  if (data && !data["user-has-dynasty"] && tab !== "establish") {
-    return <Navigate to="/dynasty/establish" replace />;
+    if (tab !== expectedTab) {
+      return <Navigate to={TAB_PATHS[expectedTab]} replace />;
+    }
   }
 
   return tab === "establish" ? (

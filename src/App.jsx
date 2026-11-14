@@ -12,27 +12,23 @@ import WalletProvider from "./services/reducers/WalletContext";
 import FollowProvider from "./services/reducers/FollowContext";
 import { MapContextProvider } from "./services/reducers/mapContext";
 import { ThemeProviderContext } from "./services/reducers/ThemeContext";
-import { MapProvider } from "react-map-gl/maplibre";
 import { SelectedEnvironmentProvider } from "./services/reducers/SelectedEnvironmentContext.jsx";
 import { AlertProvider } from "./services/reducers/AlertContext.jsx";
 import Routers from "./layouts/map/Routers.jsx";
 import { LanguageProvider } from "./services/reducers/LanguageContext.jsx";
-import { LoaderProvider } from "./services/reducers/LoaderProvider.jsx";
 import RotateDevice from "./components/RotateDevice";
 import { useAppHeight } from "./hooks/useAppHeight.js";
 import { ScrollDirectionProvider } from "./services/reducers/ScrollDirectionContext.jsx";
 import { MapLandsProvider } from "./services/reducers/MapLandsContext.jsx";
+import { AccountSecurityProvider } from "./services/reducers/accountSecurityContext.jsx";
 
 function App() {
   useAppHeight();
 
   useLayoutEffect(() => {
-    // قبل از لاگین توکن نیست => اتصال public؛ بعد از لاگین => authenticated
     const token = getItem("user")?.token;
     connectSocket(token || "");
 
-    // هماهنگ شدن بین تب‌ها (این رویداد فقط در تب‌های دیگر فایر می‌شود).
-    // در همین تب، useAuth بعد از لاگین/لاگ‌اوت connectSocket صدا می‌زند.
     const onStorage = (event) => {
       if (event.key !== "user") return;
 
@@ -44,7 +40,6 @@ function App() {
 
     return () => {
       window.removeEventListener("storage", onStorage);
-      // عمداً disconnect نمی‌کنیم تا با StrictMode سوکت قطع و وصل نشود.
     };
   }, []);
 
@@ -52,37 +47,35 @@ function App() {
     <LanguageProvider>
       <BrowserRouter>
         <ScrollDirectionProvider>
-          <LoaderProvider>
-            <MapLandsProvider>
-              <MapProvider>
-                <ThemeProviderContext>
-                  <UserProvider>
-                    <WalletProvider>
-                      <FollowProvider>
-                        <SelectedEnvironmentProvider>
-                          <MapContextProvider>
-                            <AlertProvider>
-                              <RotateDevice />
+          <MapLandsProvider>
+            <ThemeProviderContext>
+              <UserProvider>
+                <WalletProvider>
+                  <FollowProvider>
+                    <SelectedEnvironmentProvider>
+                      <MapContextProvider>
+                        <AlertProvider>
+                          <AccountSecurityProvider>
+                            <RotateDevice />
 
-                              <Routers />
+                            <Routers />
 
-                              <Toaster
-                                containerStyle={{
-                                  zIndex: 100000,
-                                  marginBottom: 48,
-                                }}
-                                position="bottom-right"
-                              />
-                            </AlertProvider>
-                          </MapContextProvider>
-                        </SelectedEnvironmentProvider>
-                      </FollowProvider>
-                    </WalletProvider>
-                  </UserProvider>
-                </ThemeProviderContext>
-              </MapProvider>
-            </MapLandsProvider>
-          </LoaderProvider>
+                            <Toaster
+                              containerStyle={{
+                                zIndex: 2147483647,
+                                marginBottom: 48,
+                              }}
+                              position="bottom-right"
+                            />
+                          </AccountSecurityProvider>
+                        </AlertProvider>
+                      </MapContextProvider>
+                    </SelectedEnvironmentProvider>
+                  </FollowProvider>
+                </WalletProvider>
+              </UserProvider>
+            </ThemeProviderContext>
+          </MapLandsProvider>
         </ScrollDirectionProvider>
       </BrowserRouter>
     </LanguageProvider>

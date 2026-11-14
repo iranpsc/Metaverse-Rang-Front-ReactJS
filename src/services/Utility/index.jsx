@@ -2,8 +2,53 @@ import { toast } from "react-hot-toast";
 import i18n from "../../i18n/i18n";
 import DOMPurify from "dompurify";
 import { toGregorian, isValidJalaaliDate } from "jalaali-js";
+
+const ALLOWED_STYLES = new Set([
+  "color",
+  "background-color",
+  "font-size",
+  "font-weight",
+  "font-style",
+  "font-family",
+  "text-align",
+  "text-decoration",
+  "line-height",
+  "white-space",
+  "vertical-align",
+  "margin",
+  "margin-top",
+  "margin-bottom",
+  "padding",
+  "padding-left",
+  "padding-right",
+  "border",
+  "border-color",
+  "border-width",
+  "border-style",
+  "border-radius",
+]);
+
+const sanitizeStyle = (style) => {
+  if (typeof style !== "string") return "";
+
+  const element = document.createElement("span");
+  element.style.cssText = style;
+
+  const safeStyles = [];
+
+  for (const property of ALLOWED_STYLES) {
+    const value = element.style.getPropertyValue(property);
+
+    if (value) {
+      safeStyles.push(`${property}: ${value}`);
+    }
+  }
+
+  return safeStyles.join("; ");
+};
+
 export const SanitizeHTML = (html) => {
-  if (!html) return "";
+  if (typeof html !== "string" || !html.trim()) return "";
 
   const cleanHTML = DOMPurify.sanitize(html, {
     ALLOWED_TAGS: [
@@ -47,6 +92,7 @@ export const SanitizeHTML = (html) => {
       "h5",
       "h6",
     ],
+
     ALLOWED_ATTR: [
       "href",
       "title",
@@ -59,28 +105,37 @@ export const SanitizeHTML = (html) => {
       "height",
       "style",
     ],
-    FORBID_TAGS: ["script", "iframe", "object", "embed"],
+
+    FORBID_TAGS: [
+      "script",
+      "iframe",
+      "object",
+      "embed",
+      "form",
+      "input",
+      "button",
+    ],
+
+    ALLOW_DATA_ATTR: false,
   });
 
-  const temp = document.createElement("div");
-  temp.innerHTML = cleanHTML;
+  const template = document.createElement("template");
+  template.innerHTML = cleanHTML;
 
-  return temp.textContent || "";
+  template.content.querySelectorAll("[style]").forEach((element) => {
+    const safeStyle = sanitizeStyle(element.getAttribute("style"));
+
+    if (safeStyle) {
+      element.setAttribute("style", safeStyle);
+    } else {
+      element.removeAttribute("style");
+    }
+  });
+
+  return template.innerHTML;
 };
-export const getPlainText = (htmlString) => {
-  if (!htmlString) return "";
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(htmlString, "text/html");
-  return doc.body.textContent || "";
-};
 
-export function TextShorter(content, endStr = 20) {
-  if (content?.length > endStr) {
-    return `${SanitizeHTML(content).substring(0, endStr)}...`;
-  }
-
-  return SanitizeHTML(content);
-}
+// تاریخ شمسی بگیره میلادی بر میگردونه و میلادی بگیره شمسی بر میگردونه
 export function ConvertJalali(date) {
   const isPersian = i18n.language === "fa";
 
@@ -98,7 +153,9 @@ export function ConvertJalali(date) {
     parsedDate = new Date(date);
   }
 
-  return parsedDate.toLocaleDateString(isPersian ? "fa-IR" : "en-US");
+  return parsedDate.toLocaleDateString(
+    isPersian ? "fa-IR" : i18n.language || "en-US",
+  );
 }
 
 const BIRTHDATE_REGEX = /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})/;
@@ -110,7 +167,7 @@ const JALALI_MAX_YEAR = 1700;
 export function TimeAgo(time) {
   if (typeof time !== "string") return 0;
 
-  const match = fixNumbers(time.trim()).match(BIRTHDATE_REGEX);
+  const match = convertToEnglish(time.trim()).match(BIRTHDATE_REGEX);
   if (!match) return 0;
 
   const [year, month, day] = match.slice(1).map(Number);
@@ -144,7 +201,27 @@ export function TimeAgo(time) {
 }
 
 //تابع محاسبه  زمان باقیمانده
+export const parseServerDate = (value) => {
+  const text = convertToEnglish(String(value ?? "").trim());
+  const match = text.match(
+    /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?/,
+  );
 
+  // میلادی و ISO را خود Date درست می‌خواند
+  if (!match || Number(match[1]) >= JALALI_MAX_YEAR) {
+    return new Date(text).getTime();
+  }
+
+  const [year, month, day, hours, minutes, seconds] = match
+    .slice(1)
+    .map((part) => Number(part ?? 0));
+
+  if (!isValidJalaaliDate(year, month, day)) return NaN;
+
+  const { gy, gm, gd } = toGregorian(year, month, day);
+
+  return new Date(gy, gm - 1, gd, hours, minutes, seconds).getTime();
+};
 export function GetTimeElapsed(date) {
   if (!date) return null;
 
@@ -161,7 +238,7 @@ export function GetTimeElapsed(date) {
     gregorian.gd,
     hours,
     minutes,
-    seconds
+    seconds,
   );
 
   const now = new Date();
@@ -186,51 +263,6 @@ export function GetTimeElapsed(date) {
     seconds: secondsDiff,
   };
 }
-export function EmailValidator(email) {
-  return /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-    email,
-  );
-}
-// این تابع برای فرمت اعداد اعشاری هست و فقط در صورتی که اعداد اعشار داشته باشد باشند
-// اعشار ان نمایش داده میشود در غیر این صورت اعداد بدون اعشار نمایش داده میشوند
-export const normalizeDecimalInput = (value) => {
-  if (value === "") return "";
-
-  const normalized = value
-    .replace(/[٫]/g, ".")
-    .replace(/[۰-۹]/g, (digit) => {
-      const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
-      return String(persianDigits.indexOf(digit));
-    })
-    .replace(/[^0-9.]/g, "");
-
-  if (!normalized.includes(".")) return normalized;
-
-  const [wholePart, ...decimalParts] = normalized.split(".");
-  const cleanDecimal = decimalParts.join("").replace(/\./g, "");
-  return `${wholePart || "0"}.${cleanDecimal}`;
-};
-
-export const sanitizePriceInputValue = (value) => {
-  if (value === "" || value === null || value === undefined) return "";
-
-  const raw = String(value).trim().replace(/,/g, "");
-  if (!/\d/.test(raw)) return "";
-
-  if (!/^\d*\.?\d*$/.test(raw)) return "";
-
-  if (raw.startsWith("0") && raw.length > 1 && !raw.startsWith("0.")) {
-    return "";
-  }
-
-  const [wholePart = "", decimalPart = ""] = raw.split(".");
-  const normalizedWhole = wholePart.replace(/^0+(?=\d)/, "") || "0";
-  const normalizedDecimal = decimalPart.replace(/0+$/, "");
-
-  if (!normalizedDecimal) return normalizedWhole;
-
-  return `${normalizedWhole}.${normalizedDecimal}`;
-};
 
 export const formatNumber = (value, decimals = 2) => {
   const num = Number(value);
@@ -245,27 +277,6 @@ export const calculateFee = (number = 100, percent = 5) => {
   return (parseNumber * percent) / 100 + parseNumber;
 };
 
-export const persianNumbers = [
-  /۰/g,
-  /۱/g,
-  /۲/g,
-  /۳/g,
-  /۴/g,
-  /۵/g,
-  /۶/g,
-  /۷/g,
-  /۸/g,
-  /۹/g,
-],
-  arabicNumbers = [/٠/g, /١/g, /٢/g, /٣/g, /٤/g, /٥/g, /٦/g, /٧/g, /٨/g, /٩/g],
-  fixNumbers = function (str) {
-    if (typeof str === "string") {
-      for (var i = 0; i < 10; i++) {
-        str = str.replace(persianNumbers[i], i).replace(arabicNumbers[i], i);
-      }
-    }
-    return str;
-  };
 export const convertToPersian = (value) => {
   if (value == null) return "";
 
@@ -279,19 +290,23 @@ export const convertToPersian = (value) => {
   return isPersian
     ? str.replace(/\d/g, (d) => persianDigits[d])
     : str.replace(/[۰-۹]/g, (d) => englishDigits[persianDigits.indexOf(d)]);
-}; export const convertToEnglish = (value) => {
+};
+export const convertToEnglish = (value) => {
   if (value == null) return "";
 
   const persianDigits = "۰۱۲۳۴۵۶۷۸۹";
+  const arabicDigits = "٠١٢٣٤٥٦٧٨٩";
   const englishDigits = "0123456789";
 
-  return String(value).replace(/[۰-۹]/g, (d) => {
-    return englishDigits[persianDigits.indexOf(d)];
+  return String(value).replace(/[۰-۹٠-٩]/g, (digit) => {
+    const index = persianDigits.indexOf(digit);
+    return englishDigits[index !== -1 ? index : arabicDigits.indexOf(digit)];
   });
 };
 export const ToastError = (message) => {
   return toast.error(message, {
     style: {
+      zIndex: 2147483647,
       direction: "rtl",
       textAlign: "right",
       borderRadius: "10px",
@@ -354,12 +369,21 @@ export const truncateText = (text, maxLength = 20) => {
   return `${text.slice(0, maxLength)}...`;
 };
 
-
 const PSC_TO_IRR = 900;
 
 export const pscToIrr = (psc) => {
   return (+psc || 0) * PSC_TO_IRR;
 };
+export const calculateTotalIrr = (irr, psc) => (+irr || 0) + pscToIrr(psc);
+
+const KARBARI_UNIT_PRICE_IRR = {
+  m: 10000, // مسکونی (زرد)
+  t: 30000, // تجاری (قرمز)
+  a: 60000, // آموزشی (آبی)
+};
+
+export const calculateFallbackPriceIrr = (karbari, stability) =>
+  (+stability || 0) * (KARBARI_UNIT_PRICE_IRR[karbari] || 0);
 
 export const getTranslation = (fieldId) => {
   const resources = i18n.store.data;
@@ -397,7 +421,10 @@ export const getTranslation = (fieldId) => {
     return String(directValue);
   }
 
-  if (translationData.translation && typeof translationData.translation === "object") {
+  if (
+    translationData.translation &&
+    typeof translationData.translation === "object"
+  ) {
     const nestedDirectValue =
       translationData.translation[normalizedId] ??
       translationData.translation[fieldId];
@@ -439,11 +466,7 @@ export const getFieldsByTabName = (firstParam, secondParam) => {
     .filter(([key]) => {
       const id = Number(key);
 
-      return (
-        !Number.isNaN(id) &&
-        id >= minId &&
-        id <= maxId
-      );
+      return !Number.isNaN(id) && id >= minId && id <= maxId;
     })
     .map(([key, value]) => ({
       unique_id: Number(key),
@@ -451,9 +474,21 @@ export const getFieldsByTabName = (firstParam, secondParam) => {
     }));
 };
 
+const MOBILE_UA = /Android|iPhone|iPad|iPod|Mobile|Opera Mini|IEMobile/i;
 
-export const isMobile =
-  "ontouchstart" in window || navigator.maxTouchPoints > 0;
+const detectMobile = () => {
+  if (typeof navigator === "undefined") return false;
+
+  const { userAgentData, userAgent, platform, maxTouchPoints } = navigator;
+
+  const isIPadOS = platform === "MacIntel" && maxTouchPoints > 1;
+
+  return (
+    Boolean(userAgentData?.mobile) || MOBILE_UA.test(userAgent) || isIPadOS
+  );
+};
+
+export const isMobile = detectMobile();
 export const getBrowser = async () => {
   const ua = navigator.userAgent;
 
@@ -488,4 +523,88 @@ export const formatTime = (time) => {
   const formattedSeconds = String(seconds).padStart(2, "۰");
 
   return `${formattedMinutes}:${formattedSeconds}`;
+};
+
+export const levelIds = {
+  شهروند: 382,
+  "روزنامه نگار": 383,
+  "مشارکت کننده": 589,
+  "توسعه دهنده": 68,
+  بازرس: 69,
+  بازرگان: 590,
+  دادخواه: 71,
+  "اعضای شورای شهر": 591,
+  شهردار: 592,
+  فرماندار: 74,
+  وزیر: 75,
+  داور: 76,
+  دادگذار: 77,
+};
+const LEVEL_SLUGS = {
+  شهروند: "citizen-baguette",
+  "روزنامه نگار": "reporter-baguette",
+  "مشارکت کننده": "participation-baguette",
+  "توسعه دهنده": "developer-baguette",
+  بازرس: "inspector-baguette",
+  بازرگان: "businessman-baguette",
+  دادخواه: "lawyer-baguette",
+  "اعضای شورای شهر": "city-council-baguette",
+  شهردار: "the-mayor-baguette",
+  فرماندار: "governor-baguette",
+  وزیر: "minister-baguette",
+  داور: "judge-baguette",
+  دادگذار: "legislator-baguette",
+};
+const LEVEL_SLUGS_BY_ID = {
+  1: "citizen-baguette",
+  2: "reporter-baguette",
+  3: "participation-baguette",
+  4: "developer-baguette",
+  5: "inspector-baguette",
+  6: "businessman-baguette",
+  7: "lawyer-baguette",
+  8: "city-council-baguette",
+  9: "the-mayor-baguette",
+  10: "governor-baguette",
+  11: "minister-baguette",
+  12: "judge-baguette",
+  13: "legislator-baguette",
+};
+
+// آدرس صفحه‌ی لول با زبان فعلی اپ؛ برای لولی که اسلاگ ندارد undefined برمی‌گرداند
+export const metarangLevelUrl = (levelName) =>
+  Object.hasOwn(LEVEL_SLUGS, levelName)
+    ? metarangUrl(`levels/citizen/${LEVEL_SLUGS[levelName]}/general-info`)
+    : undefined;
+
+export const metarangLevelUrlById = (levelId) =>
+  Object.hasOwn(LEVEL_SLUGS_BY_ID, levelId)
+    ? metarangUrl(`levels/citizen/${LEVEL_SLUGS_BY_ID[levelId]}/general-info`)
+    : undefined;
+
+export const DATE_PATTERN = /^\d{4}[/-]\d{1,2}[/-]\d{1,2}/;
+
+const INVISIBLE_CHARS =
+  /[\u200B\u200D-\u200F\u202A-\u202E\u2060-\u2069\uFEFF]/g;
+
+// بدون trim؛ برای وقتی که کاربر داره تایپ می‌کنه و ممکنه آخر متن فاصله بذاره
+export const stripInvisibleChars = (text) =>
+  (text || "").replace(INVISIBLE_CHARS, "");
+
+// با trim؛ برای ارسال به سرور و جستجو
+export const cleanSearchText = (text) => stripInvisibleChars(text).trim();
+
+// فقط مسیر نسبی (بدون /api/) به Request داده می‌شود
+export const normalizeRequestPath = (url) => {
+  if (!url) return "";
+  if (url.startsWith("/api/")) return url.substring(5);
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    try {
+      const parsed = new URL(url);
+      return parsed.pathname.replace(/^\/api\//, "") + parsed.search;
+    } catch {
+      return url;
+    }
+  }
+  return url;
 };

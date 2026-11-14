@@ -1,84 +1,79 @@
-//import Other from "./Other";
-import { Tooltip as ReactTooltip } from "react-tooltip";
-import styled from "styled-components";
-import { useTheme } from "../../../../services/reducers/ThemeContext";
+import styled, { css } from "styled-components";
+import useLanguage from "../../../../hooks/useLanguage.js";
 import {
-  getTranslation,
-  convertToPersian,
   ConvertJalali,
+  convertToPersian,
+  getTranslation,
 } from "../../../../services/Utility";
-import { metarangUrlCitizen } from "../../../../services/Utility";
-import red from "../../../../assets/gif/red-color.gif";
-import blue from "../../../../assets/gif/blue-color.gif";
-import yellow from "../../../../assets/gif/yellow-color.gif";
-import useLanguage from "../../../../services/Hooks/useLanguage";
+import TitleBody from "../../../../components/TitleBody.jsx";
+import ToolTip from "../../../../components/Tooltip/Tooltip.jsx";
+import UserCode from "../../../../components/UserCode.jsx";
+import { COLOR_CONFIG } from "../../../../services/constants/colorConfig.js";
+const ASSET_GIFS = {
+  red: COLOR_CONFIG.red.gif,
+  blue: COLOR_CONFIG.blue.gif,
+  yellow: COLOR_CONFIG.yellow.gif,
+};
+const LIGHT_TEXT = "#fcfcfc";
+
+// اندازه‌ی فونت پایه + مقدار آن در breakpointهای کوچک‌تر
+const fontSize = (base, { lg, md, sm } = {}) => css`
+  font-size: ${base}px;
+
+  ${lg &&
+  css`
+    @media (max-width: 992px) {
+      font-size: ${lg}px;
+    }
+  `}
+  ${md &&
+  css`
+    @media (max-width: 768px) {
+      font-size: ${md}px;
+    }
+  `}
+  ${sm &&
+  css`
+    @media (max-width: 480px) {
+      font-size: ${sm}px;
+    }
+  `}
+`;
+
 const Container = styled.div`
-  padding: 15px;
   width: 100%;
   height: 100%;
+  padding: 15px;
   overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 
   @media (max-height: 500px) and (max-width: 1000px) {
-  padding: 5px;
+    padding: 5px;
   }
 `;
-const MainPhoto = styled.div`
-  position: relative;
-  width: 100%;
-  border-radius: 5px;
-  overflow: hidden;
-  &:hover #hover {
-    opacity: 100%;
-  }
 
-  order: 1;
-`;
-
-const Count = styled.div`
-  position: absolute;
-  top: 10px;
-  ${(props) => (props.isPersian ? "left: 10px;" : "right: 10px;")}
+const Timer = styled.div`
   display: flex;
   align-items: center;
-  gap: 6px;
-  border-radius: 4px;
-  padding: 4px 8px;
-  z-index: 50;
-
-  background-color: #ffffff;
-  span {
-    font-size: 14px;
-    font-weight: 600;
-    color: #949494;
-  }
-
-  @media (max-width: 768px) {
-    span {
-      font-size: 12px;
-    }
-
-    img {
-      width: 18px;
-      height: 18px;
-    }
-  }
+  justify-content: space-between;
+  padding: 5px 20px;
+  border-radius: 5px;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.headerMenu};
+  background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
 `;
 
-const Hover = styled.div`
-  transition: all 0.1s linear;
-  opacity: 0;
+const Overlay = styled.div`
   position: absolute;
-  top: 0;
-  padding: 15px;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   display: flex;
   flex-direction: column;
+  padding: 15px;
+  opacity: 0;
+  transition: opacity 0.1s linear;
   backdrop-filter: blur(5px);
   background-color: rgba(0, 0, 0, 0.713);
+
   @media (max-width: 768px) {
     padding: 12px;
   }
@@ -88,314 +83,197 @@ const Hover = styled.div`
   }
 `;
 
-const Contents = styled.div`
-  margin-top: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-const Top = styled.div`
-  h2 {
-    font-size: 16px;
-    font-weight: 500;
-    color: #fcfcfc;
-  }
+const MainPhoto = styled.div`
+  position: relative;
+  width: 100%;
+  margin-top: 20px;
+  border-radius: 5px;
+  overflow: hidden;
 
-  h3 {
-    font-size: 13px;
-    font-weight: 400;
-    color: #fcfcfc;
+  &:hover ${Overlay} {
+    opacity: 1;
+  }
+`;
+
+const PrizeBadge = styled.div`
+  position: absolute;
+  top: 10px;
+  ${({ $isPersian }) => ($isPersian ? "left: 10px;" : "right: 10px;")}
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: #ffffff;
+
+  span {
+    font-weight: 600;
+    color: #949494;
+    ${fontSize(14, { md: 12 })}
   }
 
   @media (max-width: 768px) {
-    h2 {
-      font-size: 14px;
-    }
-
-    h3 {
-      font-size: 11px;
+    img {
+      width: 18px;
+      height: 18px;
     }
   }
 `;
 
-const Bottom = styled.div`
+const Details = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+`;
+
+const Description = styled.div`
+  color: ${LIGHT_TEXT};
+
+  h2 {
+    font-weight: 500;
+    ${fontSize(16, { md: 14 })}
+  }
+
+  h3 {
+    font-weight: 400;
+    ${fontSize(13, { md: 11 })}
+  }
+`;
+
+const Stats = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
 `;
-const Right = styled.div`
+
+const Stat = styled.div`
   display: flex;
   flex-direction: column;
-
-  a {
-    text-decoration: none;
-    color: ${(props) => props.theme.colors.primary};
-    font-size: 13px;
-  }
-
-  @media (max-width: 768px) {
-    a {
-      font-size: 13px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    a {
-      font-size: 12px;
-    }
-  }
 `;
-const Center = styled.div`
-  div {
-    display: flex;
-    align-items: center;
-    gap: 6px;
 
-    span {
-      font-size: 13px;
-      font-weight: 400;
-      color: #fcfcfc;
-    }
-  }
-
-  @media (max-width: 768px) {
-    div span {
-      font-size: 12px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    div span {
-      font-size: 11px;
-    }
-  }
-`;
-const Left = styled.div`
+const StatValue = styled.span`
   display: flex;
-  flex-direction: column;
   align-items: center;
-
-  span {
-    font-size: 13px;
-    font-weight: 400;
-    color: #fcfcfc;
-  }
-
-  @media (max-width: 768px) {
-    span {
-      font-size: 12px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    span {
-      font-size: 11px;
-    }
-  }
+  gap: 6px;
+  font-weight: 400;
+  color: ${LIGHT_TEXT};
+  ${fontSize(13, { md: 12, sm: 11 })}
 `;
-const Titlee = styled.h2`
-  font-size: 13px;
 
-  font-weight: 500;
-  color: #fcfcfc;
-
-  @media (max-width: 768px) {
-    font-size: 12px;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 11px;
-  }
-`;
-/**const Others = styled.div`
-  display: grid;
-  align-items: start;
-  margin-top: 10px;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  @media (min-width: 1400px) {
-    order: 2;
-  }
-`;
- */
-
-const Div = styled.div`
-  display: grid;
-  margin-top: 20px;
-  @media (min-width: 1400px) {
-    grid-template-columns: 1fr;
-  }
-`;
 const Video = styled.video`
+  display: block;
   width: 100%;
   height: auto;
-  display: block;
 `;
+
 const Image = styled.img`
-  object-fit: fill;
   height: 100%;
+  object-fit: fill;
 `;
-const Time = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border-radius: 5px;
-  background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
-  padding: 5px 20px;
-  color: ${({ theme }) => theme.colors.newColors.otherColors.headerMenu};
 
-  h3 {
-    font-size: 18px;
-    font-weight: 500;
-  }
-
-  span {
-    color: ${({ theme }) => theme.colors.primary};
-    font-weight: 700;
-    font-size: 24px;
-    display: block;
-    width: 50px;
-    text-align: left;
-  }
-
-  @media (max-width: 992px) {
-    h3 {
-      font-size: 16px;
-    }
-
-    span {
-      font-size: 20px;
-    }
-  }
-
-  @media (max-width: 768px) {
-    h3 {
-      font-size: 15px;
-    }
-
-    span {
-      font-size: 18px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    h3 {
-      font-size: 14px;
-    }
-
-    span {
-      font-size: 16px;
-    }
-  }
-`;
 const Content = ({ organizers, time }) => {
+  const { currentLang, isRtl } = useLanguage();
+
   const main = organizers?.[0];
-  const { theme } = useTheme();
-  const colors = {
-    red,
-    blue,
-    yellow,
-  };
-  const { isPersian } = useLanguage();
-  const color = colors[main?.investment_asset] ?? null;
+  const assetGif = ASSET_GIFS[main?.investment_asset] ?? null;
+
   return (
     <Container>
-      <Time>
-        <h3>{getTranslation(1469)}</h3>
-        <div data-tooltip-id="time">
-          <span>{time}</span>
-          <ReactTooltip
-            style={{
-              backgroundColor: "#1a1a18",
-              borderRadius: "10px",
-              width: "150px",
-              paddingBottom: "9.5px",
-              textAlign: "center",
-              zIndex: "999",
-            }}
-            id="time"
-            place="top"
-            content={getTranslation(1468)}
-          />
-        </div>
-      </Time>{" "}
-      <Div>
-        {/**   <Others>
-          {organizers?.[8] &&
-            organizers.slice(1, 7).map((other) => {
-              return <Other key={other.id} {...other} />;
-            })}
-        </Others>*/}
+      <Timer>
+        <TitleBody weight title={getTranslation(1469)} />
+        <TitleBody big weight primary title={time} />
+      </Timer>
 
-        <MainPhoto>
-          <Count data-tooltip-id="main" isPersian={isPersian}>
-            <span>{convertToPersian(organizers[0]?.prize_per_question)}</span>
-            <img src={color} alt={main?.count} width={20} height={20} />
-            <ReactTooltip
-              style={{
-                backgroundColor: theme === "light" ? "#FCFCFC" : "#1A1A18",
-                borderRadius: "10px",
-                width: "100px",
-                textAlign: "center",
-                zIndex: "999",
-                color: theme === "light" ? "#1A1A18" : "#FCFCFC",
-              }}
-              id="main"
-              place="bottom"
-              content={getTranslation(1323)}
-            />
-          </Count>
-          <Hover id="hover">
-            <div />
-            <Contents>
-              <Top>
-                <h2>{main?.title}</h2>
-                <h3>{main?.description}</h3>
-              </Top>
-              <Bottom>
-                <Right>
-                  <Titlee>{getTranslation(1470)}</Titlee>
-                  <a
-                    target={"_blank"}
-                    rel="noreferrer"
-                    href={metarangUrlCitizen(main?.code)}
-                  >
-                    {main?.code.toUpperCase()}
-                  </a>
-                </Right>
-                <Center>
-                  <Titlee>{getTranslation(1471)}</Titlee>
-                  <div>
-                    <span>{convertToPersian(main?.investment_value)}</span>
-                    <img
-                      loading="lazy"
-                      src={color}
-                      alt={main?.color}
-                      width={24}
-                      height={24}
-                    />
-                  </div>
-                </Center>
-                <Left>
-                  <Titlee>{getTranslation(1472)}</Titlee>
-                  <span>{convertToPersian(ConvertJalali(main?.ends_at))}</span>
-                </Left>
-              </Bottom>
-            </Contents>
-          </Hover>
-          {main?.video_url ? (
-            <Video src={main.video_url} autoPlay muted loop playsInline />
-          ) : (
-            <Image
-              loading="lazy"
-              src={main?.image_url}
-              alt={main?.company}
-              width={70}
-              height={70}
-            />
-          )}
-        </MainPhoto>
-      </Div>
+      <MainPhoto>
+        <ToolTip
+          place="bottom"
+          lang={currentLang}
+          content={getTranslation("1323")}
+          Chidren={
+            <PrizeBadge $isPersian={isRtl}>
+              <TitleBody title={convertToPersian(main?.prize_per_question)} />
+
+              <img
+                src={assetGif}
+                alt={main?.investment_asset}
+                width={20}
+                height={20}
+              />
+            </PrizeBadge>
+          }
+        />
+
+        <Overlay>
+          <Details>
+            <Description>
+              <TitleBody color="#fcfcfc" weight title={main?.title} />
+              <TitleBody color="#fcfcfc" title={main?.description} />
+            </Description>
+
+            <Stats>
+              <Stat>
+                <TitleBody
+                  small
+                  color="#fcfcfc"
+                  title={getTranslation("1470")}
+                />
+                <UserCode code={main?.code} />
+              </Stat>
+
+              <Stat>
+                <TitleBody
+                  small
+                  color="#fcfcfc"
+                  title={getTranslation("1471")}
+                />
+                <StatValue>
+                  <TitleBody
+                    small
+                    color="#fcfcfc"
+                    title={convertToPersian(main?.investment_value)}
+                  />
+                  <img
+                    loading="lazy"
+                    src={assetGif}
+                    alt={main?.investment_asset}
+                    width={24}
+                    height={24}
+                  />
+                </StatValue>
+              </Stat>
+
+              <Stat>
+                <TitleBody
+                  small
+                  color="#fcfcfc"
+                  title={getTranslation("1472")}
+                />
+                <StatValue>
+                  <TitleBody
+                    small
+                    color="#fcfcfc"
+                    title={convertToPersian(ConvertJalali(main?.ends_at))}
+                  />
+                </StatValue>
+              </Stat>
+            </Stats>
+          </Details>
+        </Overlay>
+
+        {main?.video_url ? (
+          <Video src={main.video_url} autoPlay muted loop playsInline />
+        ) : (
+          <Image
+            loading="lazy"
+            src={main?.image_url}
+            alt={main?.company}
+            width={70}
+            height={70}
+          />
+        )}
+      </MainPhoto>
     </Container>
   );
 };

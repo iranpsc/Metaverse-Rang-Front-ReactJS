@@ -4,21 +4,26 @@ import vector from "../../../../assets/images/profile/Vector.png";
 export const Info = styled.div`
   @media (min-width: 1366px) {
     ${({ isPersian, theme }) => `
-  ${isPersian
+  ${
+    isPersian
       ? `border-left: 1px solid ${theme.colors.newColors.otherColors.themeBtn};`
       : `border-right: 1px solid ${theme.colors.newColors.otherColors.themeBtn};`
-    }
+  }
   ${isPersian ? "padding-left: 15px;" : "padding-right: 15px;"}
 `}
   }
 `;
 export const SuggestionsContainer = styled.div`
-
-  background-color: ${(props) => props.theme.colors.newColors.otherColors.menuBg};
+  background-color: ${(props) =>
+    props.theme.colors.newColors.otherColors.menuBg};
   padding: 10px;
   border-radius: 5px;
 `;
-
+export const Divider = styled.span`
+  width: 0.1px;
+  height: 24px;
+  background-color: ${({ theme }) => theme.colors.newColors.shades.title};
+`;
 export const Wrapper = styled.div`
   display: grid;
   align-items: start;
@@ -99,9 +104,13 @@ export const StyledSVG = styled.svg`
 `;
 export const Polygon = styled.polygon`
   fill: ${({ karbari }) =>
-    karbari === "m" ? "#fae52b" :
-    karbari === "t" ? "#FF0000" :
-    karbari === "a" ? "#2f00ff" : "#ffffff"};
+    karbari === "m"
+      ? "#fae52b"
+      : karbari === "t"
+        ? "#FF0000"
+        : karbari === "a"
+          ? "#2f00ff"
+          : "#ffffff"};
   stroke-width: 1;
 `;
 export const proposerContainer = styled.div`
@@ -121,15 +130,13 @@ export const BasePrice = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background-color: ${({ percent, theme }) => percent > 0 ? theme.colors.newColors.otherColors.offerbg : theme.colors.newColors.otherColors.offerbg2};
+  background-color: ${({ percent, theme }) =>
+    percent > 0
+      ? theme.colors.newColors.otherColors.offerbg
+      : theme.colors.newColors.otherColors.offerbg2};
 
   border-radius: 6px;
   padding: 12px;
-  h3 {
-    color: ${(props) => props.theme.colors.newColors.shades[30]};
-    font-size: 14px;
-    font-weight: 500;
-  }
 `;
 export const Prices = styled.div`
   display: flex;
@@ -152,18 +159,7 @@ export const Prices = styled.div`
     gap: 6px;
   }
 `;
-export const RejectButton = styled.button`
-  background-color: #c30000;
-  color: #d7fbf0;
-  border-radius: 10px;
-  font-weight: 600;
-  border: none;
-  font-size: 16px;
-  position: relative;
-  padding: 10px 22px;
-  cursor: pointer;
-  font-family: inherit;
-`;
+
 export const Text = styled.div`
   margin-top: 16px;
   padding-bottom: 20px;

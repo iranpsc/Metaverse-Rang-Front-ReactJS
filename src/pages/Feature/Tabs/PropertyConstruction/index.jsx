@@ -1,7 +1,5 @@
-import { useState } from "react";
 import GeneralDefault from "./Tabs/GeneralDefault";
-import SpecialOrder from "./Tabs/SpecialOrder";
-import SidebarOptions from "./Tabs/components/SidebarOptions";
+import Sidebar from "../../../../components/Sidebar";
 import styled from "styled-components";
 const Wrapper = styled.div`
   display: flex;
@@ -9,12 +7,15 @@ const Wrapper = styled.div`
   width: 100%;
   overflow: hidden;
 `;
+const SIDEBAR_ITEMS = [
+  { to: "", title: "358" },
+  { to: "following", title: "359", disabled: true },
+];
 const PropertyConstruction = () => {
-  const [option, setOption] = useState(true);
   return (
     <Wrapper>
-      <SidebarOptions option={option} setOption={setOption} />
-      {option ? <GeneralDefault /> : <SpecialOrder />}
+      <Sidebar items={SIDEBAR_ITEMS} />
+      <GeneralDefault />
     </Wrapper>
   );
 };

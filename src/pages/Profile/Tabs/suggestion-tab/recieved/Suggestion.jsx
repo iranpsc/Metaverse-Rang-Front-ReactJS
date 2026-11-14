@@ -1,50 +1,33 @@
-// Suggestion.jsx
-import Proposer from "./Proposer";
-import { useMap } from "react-map-gl/maplibre";
-import { useNavigate } from "react-router";
+// کارت پیشنهاد خرید دریافتی؛ مناسب لیست پیشنهادهای دریافتی مالک (ملک، قیمت ثبت‌شده و Proposer با رد/قبول)
+import { useCallback, useState } from "react";
 import styled from "styled-components";
-import { useMemo, useState } from "react";
-import {
-  SuggestionsContainer,
-  Location,
-  Property,
-  Value,
-  Suggestions,
-  AreaContainer,
-  StyledSVG,
-  Polygon,
-} from "../suggestionStyles";
-import {
-  getTranslation,
-  convertToPersian,
-} from "../../../../../services/Utility/index";
-import { useLanguage } from "../../../../../services/reducers/LanguageContext";
-import { calculatePolygonCentroid } from "../../../../../services/Utility/calculatePolygonCentroid";
-import { flyToMapPosition } from "../../../../../services/Utility/flyToMapPosition";
-import { getPolygonShape } from "../../../../../services/Utility/getPolygonShape";
-import { Skeleton } from "../../../../../components/Skeleton";
-import yellow from "../../../../../assets/images/profile/yellow-color.gif";
-import red from "../../../../../assets/images/profile/red-color.gif";
-import blue from "../../../../../assets/images/profile/blue-color.gif";
-import rial from "../../../../../assets/images/profile/rial.gif";
-import psc from "../../../../../assets/images/profile/psc.gif";
 
-const Container = SuggestionsContainer;
+import TitleBody from "../../../../../components/TitleBody.jsx";
+import { useIsRtl } from "../../../../../services/reducers/LanguageContext.jsx";
+import {
+  convertToPersian,
+  getTranslation,
+  calculateTotalIrr,
+  calculateFallbackPriceIrr,
+} from "../../../../../services/Utility/index";
+import { Property, Suggestions, SuggestionsContainer, Value } from "../suggestionStyles";
+import PropertyLocation from "../PropertyLocation";
+import Proposer from "./Proposer";
+import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
+
+const KARBARI_ICONS = {
+  m: COLOR_CONFIG.yellow.gif,
+  t: COLOR_CONFIG.red.gif,
+  a: COLOR_CONFIG.blue.gif,
+};
 
 const Pricing = styled.div`
   display: flex;
   align-items: center;
   gap: 60px;
+
   @media (min-width: 840px) {
     gap: 120px;
-  }
-`;
-
-const Price = styled.div`
-  h2 {
-    color: #a0a0ab;
-    font-size: 14px;
-    font-weight: 600;
   }
 `;
 
@@ -52,162 +35,74 @@ const Prices = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
-  ${({ isPersian }) =>
-    isPersian ? "margin-left: 70px;" : "margin-right: 70px;"};
+  ${({ $isPersian }) =>
+    $isPersian ? "margin-left: 70px;" : "margin-right: 70px;"}
+
   div {
     display: flex;
     align-items: center;
     gap: 6px;
   }
-  span {
-    color: ${(props) => props.theme.colors.newColors.shades[30]};
-    font-size: 18px;
-    font-weight: 500;
-  }
 `;
 
-const SkeletonSuggestion = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.menuBg};
-  padding: 10px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-`;
+const PriceItem = ({ src, value }) => (
+  <div style={{ display: "flex", alignItems: "center", gap: "2px" }}>
+    <img width={24} height={24} src={src} alt="" />
+    <TitleBody title={convertToPersian(value)} />
+  </div>
+);
 
-const KARBARI_ICONS = { m: yellow, t: red, a: blue };
-
-const Suggestion = ({ item, isLoading }) => {
+const Suggestion = ({ item }) => {
   const [removed, setRemoved] = useState(false);
-  const isPersian = useLanguage();
-  const navigate = useNavigate();
-  const mapRef = useMap();
+  const isPersian = useIsRtl();
+  const handleRemoved = useCallback(() => setRemoved(true), []);
 
-  const coordinates = item?.feature_coordinates;
-  const { points, viewBox } = useMemo(
-    () => getPolygonShape(coordinates),
-    [coordinates],
-  );
-
-  if (isLoading) {
-    return (
-      <SkeletonSuggestion>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            gap: "20px",
-            marginBottom: "20px",
-          }}
-        >
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              justifyContent: "center",
-              alignContent: "center",
-            }}
-          >
-            <Skeleton width="100px" height="100px" radius="10px" />
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "start",
-                gap: "18px",
-              }}
-            >
-              <Skeleton width="70px" height="20px" radius="4px" />
-              <Skeleton width="60px" height="16px" radius="4px" />
-            </div>
-          </div>
-          <div
-            style={{
-              display: "flex",
-              gap: "40px",
-              marginBottom: "20px",
-              marginInlineEnd: "35px",
-            }}
-          >
-            <Skeleton width="80px" height="40px" radius="8px" />
-            <Skeleton width="120px" height="40px" radius="8px" />
-          </div>
-        </div>
-        <Skeleton width="100%" height="300px" radius="10px" />
-      </SkeletonSuggestion>
-    );
-  }
-
-  if (removed || !item) return null;
+  if (removed) return null;
 
   const feature = item.feature_properties || {};
+  const karbariIcon = KARBARI_ICONS[feature.karbari];
+  const { price_irr, price_psc, stability, karbari } = feature;
 
-  const handleLocation = () => {
-    if (!coordinates?.length) return;
-    const center = calculatePolygonCentroid(coordinates);
-    flyToMapPosition({
-      latitude: center.y,
-      longitude: center.x,
-      mapRef,
-      zoom: 17,
-    });
-    navigate("/");
-  };
+  const registeredPrice = calculateTotalIrr(price_irr, price_psc);
+  const hasPrice = registeredPrice > 0;
+
+  // قیمت نهایی (ریال) برای مقایسه با پیشنهاد خریدار
+  const finalPrice = hasPrice
+    ? registeredPrice
+    : calculateFallbackPriceIrr(karbari, stability);
 
   return (
-    <Container>
+    <SuggestionsContainer>
       <Property>
-        <Location>
-          <AreaContainer>
-            <StyledSVG viewBox={viewBox}>
-              <Polygon
-                karbari={feature.karbari}
-                points={points}
-              />
-            </StyledSVG>
-          </AreaContainer>
-          <div>
-            <p>{feature.address}</p>
-            <h3 onClick={handleLocation}>
-              {feature.id?.toString?.().toUpperCase?.()}
-            </h3>
-          </div>
-        </Location>
+        <PropertyLocation item={item} />
+
         <Pricing>
           <Value>
-            <h2>{getTranslation("767")}</h2>
+            <TitleBody gray title={getTranslation("767")} />
             <div>
-              {feature.karbari && (
-                <img
-                  width={24}
-                  height={24}
-                  src={KARBARI_ICONS[feature.karbari]}
-                  alt=""
-                />
-              )}
-              <span>{convertToPersian(feature.stability || 0)}</span>
+              {karbariIcon && <img width={24} height={24} src={karbariIcon} alt="" />}
+              <TitleBody title={convertToPersian(stability || 0)} />
             </div>
           </Value>
-          <Price>
-            <h2>{getTranslation("770")}</h2>
-            <Prices isPersian={isPersian}>
-              <div>
-                <img width={24} height={24} src={rial} alt="" />
-                <span>{convertToPersian(item.price_irr)}</span>
-              </div>
-              <div>
-                <img width={24} height={24} src={psc} alt="" />
-                <span>{convertToPersian(item.price_psc)}</span>
-              </div>
-            </Prices>
-          </Price>
+
+          <div>
+            <TitleBody gray title={getTranslation("770")} />
+            {hasPrice ? (
+              <Prices $isPersian={isPersian}>
+                <PriceItem src={COLOR_CONFIG.irr.gif} value={price_irr} />
+                <PriceItem src={COLOR_CONFIG.psc.gif} value={price_psc} />
+              </Prices>
+            ) : (
+              <PriceItem src={COLOR_CONFIG.irr.gif} value={finalPrice} />
+            )}
+          </div>
         </Pricing>
       </Property>
+
       <Suggestions>
-        <Proposer item={item} onRemoved={() => setRemoved(true)} />
+        <Proposer item={item} onRemoved={handleRemoved} finalPrice={finalPrice} />
       </Suggestions>
-    </Container>
+    </SuggestionsContainer>
   );
 };
 

@@ -1,8 +1,10 @@
-import { useEffect, useState } from "react";
-import Sidebar from "./Sidebar";
+// تب سلسله (Dynasty): چیدمان سایدبار + محتوای تب؛ صفحه‌ی ایجاد/املاک سلسله داده‌ی خودش را می‌گیرد
+
 import styled from "styled-components";
-import { Outlet } from "react-router";
-import useRequest from "../../../../services/Hooks/useRequest";
+import { Outlet, useParams } from "react-router";
+import Sidebar from "../../../../components/Sidebar.jsx";
+import DynastyEstablishEstate from "./DynastyEstablishEstate";
+import { useDynastySidebarItems } from "./useDynastySidebarItems";
 
 const Container = styled.div`
   display: flex;
@@ -10,45 +12,22 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   overflow-y: hidden;
+
   @media (min-width: 1366px) {
     gap: 20px;
   }
 `;
 
 const DynastyTab = () => {
-  const { Request } = useRequest();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { tab } = useParams();
+  const items = useDynastySidebarItems();
 
-  useEffect(() => {
-    const fetchDynasty = async () => {
-      try {
-        const response = await Request("dynasty");
-        const resData = response.data.data;
-        const hasDynasty = resData["user-has-dynasty"];
-
-        localStorage.setItem("dynastyStatus", hasDynasty ? "has" : "no");
-        window.dispatchEvent(
-          new CustomEvent("dynastyStatusUpdated", {
-            detail: hasDynasty ? "has" : "no",
-          }),
-        );
-
-        setData(resData);
-      } catch (error) {
-        console.error("Failed to fetch dynasty:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchDynasty();
-  }, []);
+  const isEstablishEstate = tab === "establish" || tab === "estate";
 
   return (
     <Container>
-      <Sidebar data={data}/>
-      <Outlet context={{ data, setData, loading }} />
+      <Sidebar items={items} />
+      {isEstablishEstate ? <DynastyEstablishEstate tab={tab} /> : <Outlet />}
     </Container>
   );
 };

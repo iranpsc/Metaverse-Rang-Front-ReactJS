@@ -1,99 +1,76 @@
-import { AiOutlineExclamationCircle } from "react-icons/ai";
-import styled from "styled-components";
-import { getTranslation } from "../../../../../services/Utility";
-import { useNavigate } from "react-router";
+// کارت جزئیات ملک سلسله (کد ملک، مساحت، تراکم، افزایش سود، تعداد اعضا و آخرین بروزرسانی)؛ مناسب صفحه‌ی املاک سلسله (estate) برای نمایش اطلاعات ملک انتخاب‌شده
 
+import styled from "styled-components";
+import { AiOutlineExclamationCircle } from "react-icons/ai";
+import { getTranslation } from "../../../../../services/Utility";
+import TitleBody from "../../../../../components/TitleBody";
+import LandText from "../../../../../components/LandText";
 const Container = styled.div`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  border-radius: 5px;
-  padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 20px;
+  padding: 20px;
+  border-radius: 5px;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
 `;
 
 const Header = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  h3 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 20px;
-    font-weight: 600;
-  }
-  span {
-    color: ${(props) => props.theme.colors.newColors.otherColors.orange};
-    font-size: 16px;
-    font-weight: 600;
-    text-transform: uppercase;
-    cursor: pointer;
-  }
+  justify-content: space-between;
 `;
 
-const KeyValue = styled.div`
+const Row = styled.div`
   display: flex;
   justify-content: space-between;
-  h3 {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-weight: 500;
-    font-size: 18px;
-    white-space: nowrap;
-  }
-  span {
-    text-align: end;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-size: 16px;
-    font-weight: 500;
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
+  div {
+    display: flex;
+    align-items: center;
+    gap: 2px;
   }
 `;
 
 const Details = ({ data }) => {
-  const navigation = useNavigate();
-  if (!data?.["dynasty-feature"]) {
-    return null;
-  }
+  const feature = data?.["dynasty-feature"];
+  if (!feature) return null;
 
   const {
+    id,
     properties_id: propertyId,
     area,
     density,
     "feature-profit-increase": profitIncrease,
     "family-members-count": membersCount,
     "last-updated": lastUpdated,
-    id,
-  } = data["dynasty-feature"];
+  } = feature;
 
-  const renderKeyValue = (labelId, value, icon = false) => (
-    <KeyValue>
-      <h3 style={{ display: "flex", alignItems: "center", gap: "4px" }}>
-        {getTranslation(labelId)}
-        {icon && <AiOutlineExclamationCircle />}
-      </h3>
-      <span>{value}</span>
-    </KeyValue>
-  );
+  // icon: نمایش آیکون اطلاعات کنار عنوان
+  const rows = [
+    { label: 373, value: area },
+    { label: 117, value: density },
+    { label: 814, value: `${profitIncrease}٪`, icon: true },
+    { label: 815, value: membersCount },
+    { label: 1368, value: lastUpdated, icon: true },
+  ];
+
   return (
     <Container>
       <Header>
-        <h3>{getTranslation(813)}</h3>
-        <span
-          onClick={() =>
-            navigation(`/feature/${id}/info`, {
-              state: {
-                from: location.pathname,
-              },
-            })
-          }
-        >
-          {propertyId}
-        </span>
+        <TitleBody weight title={getTranslation(813)} />
+        <LandText label={propertyId} to={`/feature/${id}/info} `} />
       </Header>
-      {renderKeyValue(373, area)}
-      {renderKeyValue(117, density)}
-      {renderKeyValue(814, `${profitIncrease}٪`, true)}
-      {renderKeyValue(815, membersCount)}
-      {renderKeyValue(1368, lastUpdated, true)}
+
+      {rows.map(({ label, value, icon }) => (
+        <Row key={label}>
+          <div>
+            <TitleBody noWrap title={getTranslation(label)} />
+            {icon && <AiOutlineExclamationCircle />}
+          </div>
+          <TitleBody align="end" title={value} />
+        </Row>
+      ))}
     </Container>
   );
 };

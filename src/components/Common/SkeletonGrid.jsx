@@ -1,3 +1,4 @@
+// سلکتون برات تب حریم خصوصی
 import styled, { keyframes } from "styled-components";
 import Container from "./Container";
 
@@ -9,7 +10,6 @@ const shimmer = keyframes`
 const LoadingContainer = styled(Container)`
   display: flex;
   gap: 20px;
-  
 `;
 
 const SkeletonCard = styled.div`
@@ -18,7 +18,7 @@ const SkeletonCard = styled.div`
   border-radius: 4px;
   background: linear-gradient(
     90deg,
-     ${(props) => props.theme.colors.newColors.shades.bg02},
+    ${(props) => props.theme.colors.newColors.shades.bg02},
     ${(props) => props.theme.colors.newColors.shades.bg002},
     ${(props) => props.theme.colors.newColors.shades.bg0002}
   );

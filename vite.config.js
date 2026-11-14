@@ -3,23 +3,28 @@ import react from "@vitejs/plugin-react";
 import svgr from "vite-plugin-svgr";
 
 // https://vitejs.dev/config/
-export default defineConfig({  
+export default defineConfig({
   base: "/",
   plugins: [react(), svgr()],
   resolve: {
-    alias: {
-      "swiper/react": "swiper/react",
-      swiper: "swiper",
-    },
     extensions: [".js", ".jsx", ".ts", ".tsx", ".json"],
   },
   build: {
-    sourcemap: true,
+    emptyOutDir: true,
+    sourcemap: "hidden",
     rollupOptions: {
+      onwarn(warning, warn) {
+        // هشدار کامنت /*#__PURE__*/ در کتابخانه‌های node_modules (مثل ox) بی‌خطر است
+        if (
+          warning.code === "INVALID_ANNOTATION" &&
+          warning.id?.includes("node_modules")
+        ) {
+          return;
+        }
+        warn(warning);
+      },
       output: {
-        sourcemapPathTransform: (relativeSourcePath) => {
-          return `~/${relativeSourcePath}`;
-        },
+        sourcemapPathTransform: (relativeSourcePath) => `~/${relativeSourcePath}`,
       },
     },
   },

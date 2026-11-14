@@ -1,6 +1,14 @@
 import { createContext, useContext, useState } from "react";
 
-const MapLandsContext = createContext(null);
+ const MapLandsContext = createContext(null);
+
+export const useMapLands = () => {
+  const context = useContext(MapLandsContext);
+  if (!context) {
+    throw new Error("useMapLands must be used inside MapLandsProvider");
+  }
+  return context;
+};
 
 export const MapLandsProvider = ({ children }) => {
   const [mapLands, setMapLands] = useState([]);
@@ -15,16 +23,4 @@ export const MapLandsProvider = ({ children }) => {
       {children}
     </MapLandsContext.Provider>
   );
-};
-
-export const useMapLands = () => {
-  const context = useContext(MapLandsContext);
-
-  if (!context) {
-    throw new Error(
-      "useMapLands must be used inside MapLandsProvider"
-    );
-  }
-
-  return context;
 };

@@ -1,7 +1,6 @@
 import Info from "./Info";
-import SliderContainer from "./SliderContainer";
 import styled from "styled-components";
-
+import Slider from "./Slider";
 const Container = styled.div`
   width: 100%;
   min-width: 0;
@@ -10,25 +9,19 @@ const Container = styled.div`
   position: relative;
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  height: 280px;
-  @media (min-width: 740px) {
-    height: 300px;
-  }
-  @media (min-width: 840px) {
-    height: 290px;
-  }
-  @media (min-width: 1400px) {
-    height: 612px;
+  height: 270px;
+
+  @media (min-width: 1280px) {
+    height: 600px;
     grid-template-columns: 1fr;
-  }
-  @media (min-width: 1920px) {
-    height: 622px;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
   }
 `;
+
 const Bio = () => {
   return (
     <Container>
-      <SliderContainer />
+      <Slider />
       <Info />
     </Container>
   );

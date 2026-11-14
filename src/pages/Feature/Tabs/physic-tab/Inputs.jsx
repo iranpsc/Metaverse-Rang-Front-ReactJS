@@ -1,7 +1,6 @@
 import styled from "styled-components";
-import TextValueIcon from "../../../../components/TextValueIcon";
 import { getTranslation } from "../../../../services/Utility";
-
+import TitleValue from "../../../../components/TitleValue";
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -29,7 +28,7 @@ const renderRows = (rows, options = {}) =>
   rows
     .filter(hasValue)
     .map((row) => (
-      <TextValueIcon
+      <TitleValue
         key={row.id}
         long
         smallValue
@@ -52,7 +51,7 @@ const Inputs = ({ inputs }) => {
       )}
 
       {secondRow.some(hasValue) && (
-        <TextValueIcon
+        <TitleValue
           long
           smallValue
           title={getTranslation(secondRow[0].title)}

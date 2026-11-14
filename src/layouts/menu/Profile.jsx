@@ -1,11 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import useAuth from "../../services/Hooks/useAuth";
-import { useMenuContext } from "../../services/reducers/MenuContext";
-import Union from "./Union/Union";
+import useAuth from "../../hooks/useAuth.js";
+import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import BtnsMenu from "./BtnsMenu";
 import { FaChevronDown } from "react-icons/fa";
-import DefaultProfile from "../../assets/images/defulte-profile.png";
+import DefaultProfile from "../../assets/images/avatars/defulte-profile.webp";
 import Message from "../../assets/svg/message.svg?react";
 import ProfileMember from "../../assets/svg/profileMember.svg";
 import Ticket from "../../assets/svg/ticket.svg";
@@ -14,7 +13,8 @@ import userEdit from "../../assets/svg/user-edit.svg";
 
 import { useNavigate } from "react-router";
 import { getTranslation, metarangUrlCitizen } from "../../services/Utility";
-import { useLanguage } from "../../services/reducers/LanguageContext";
+import { useIsRtl } from "../../services/reducers/LanguageContext.jsx";
+import { getSize } from "../../styles/sizes";
 const MessageIcon = styled(Message)`
   fill: #868b907c;
 `;
@@ -74,13 +74,21 @@ const BtnNavigator = styled.button`
     $isOpenDrop ? theme.colors.newColors.shades.menuBg : "transparent"};
   height: 40px;
   border-radius: 10px;
-  color: #868b90;
-  font-size: 16px;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.mutedText};
+  font-size: ${({ $size }) => getSize($size, "base")};
   font-style: normal;
   font-weight: 500;
   line-height: 180%;
   text-transform: capitalize;
   cursor: pointer;
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
+
+  @media (min-width: 1024px) {
+    font-size: ${({ $size }) => getSize($size, "desktop")};
+  }
 
   @media (max-height: 500px) and (max-width: 1000px) {
     font-size: 14px;
@@ -89,17 +97,15 @@ const BtnNavigator = styled.button`
 
 const SubMenu = styled.div`
   display: ${({ $isOpenDrop, $isOpen }) =>
-    $isOpen && $isOpenDrop ? "block" : "none"};  padding-left: 20px;
+    $isOpen && $isOpenDrop ? "block" : "none"};
   top: ${({ $isOpen }) => ($isOpen ? "0" : "10%")};
-margin-top: 5px;
-
-
+  margin-top: 5px;
+  white-space: nowrap;
   background-color: ${({ theme }) => theme.colors.newColors.primaryText};
   padding: ${({ isOpen }) => (isOpen ? "0" : "10px")};
   border-radius: ${({ isOpen }) => (isOpen ? "0" : "10px")};
   width: ${({ isOpen }) => (isOpen ? "100%" : "16.6%")};
-  min-width: ${({ isOpen }) => (isOpen ? "" : "210px")};
-  max-height: ${({ isOpen }) => (isOpen ? "none" : "88vh")};
+  min-width: ${({ isOpen }) => (isOpen ? "" : "190px")};
   overflow-y: ${({ isOpen }) => (isOpen ? "visible" : "auto")};
 `;
 
@@ -108,7 +114,7 @@ const Icon = styled.img`
 `;
 
 const Text = styled.p`
-  color: #868b90;
+  color: ${({ theme }) => theme.colors.newColors.otherColors.mutedText};
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
@@ -132,7 +138,7 @@ const ContainerMain = styled.div`
   gap: 4px;
   width: 100%;
   overflow-y: auto;
-    overflow-x: hidden;
+  overflow-x: hidden;
   border-top: 2px solid
     ${({ theme }) => theme.colors.newColors.otherColors.iconBg};
   background-color: ${(props) => props.theme.colors.newColors.shades.bgOne};
@@ -178,7 +184,7 @@ const Profile = () => {
   const { getUser } = useAuth();
   const [user, setUser] = useState(null);
   const navigate = useNavigate();
-  const isPersian = useLanguage();
+  const isPersian = useIsRtl();
   const containerMainRef = useRef(null);
 
   useEffect(() => {
@@ -201,6 +207,7 @@ const Profile = () => {
         <BtbContainer isOpen={isOpen}>
           <ImgUser
             src={user?.image || DefaultProfile}
+            alt={user?.code ? `تصویر پروفایل ${user.code}` : "تصویر پروفایل"}
             onError={(e) => {
               e.target.src = DefaultProfile;
             }}
@@ -222,6 +229,9 @@ const Profile = () => {
               <BtbContainer2>
                 <ImgUser
                   src={user?.image || DefaultProfile}
+                  alt={
+                    user?.code ? `تصویر پروفایل ${user.code}` : "تصویر پروفایل"
+                  }
                   onError={(e) => {
                     e.target.src = DefaultProfile;
                   }}
@@ -232,35 +242,48 @@ const Profile = () => {
               <ChevronIcon2 $isOpenDrop={isOpenDrop} />
             </Btn>
 
-            <BtnNavigator onClick={() => navigate("/documents")}>
-              <Icon src={Ticket} />
+            <BtnNavigator
+              $size="default"
+              onClick={() => navigate("/documents")}
+            >
+              <Icon src={Ticket} alt="" />
               {getTranslation("241")}
             </BtnNavigator>
 
-            <BtnNavigator style={{ color: "#868b907c", cursor: "default" }}>
+            <BtnNavigator
+              $size="default"
+              style={{ color: "#868b907c", cursor: "default" }}
+            >
               <MessageIcon />
               {getTranslation("242")}
             </BtnNavigator>
 
-            <BtnNavigator onClick={() => navigate("/profile")}>
-              <Icon src={ProfileMember} />
+            <BtnNavigator $size="default" onClick={() => navigate("/profile")}>
+              <Icon src={ProfileMember} alt="" />
               {getTranslation("243")}
             </BtnNavigator>
 
-            <BtnNavigator onClick={() => navigate("/settings")}>
-              <Icon src={Setting} />
+            <BtnNavigator $size="default" onClick={() => navigate("/settings")}>
+              <Icon src={Setting} alt="" />
               {getTranslation("642")}
             </BtnNavigator>
             <BtnNavigator
+              $size="default"
               onClick={() => {
-                if (user?.code) window.location.href = metarangUrlCitizen(user.code);
+                if (user?.code)
+                  window.location.href = metarangUrlCitizen(user.code);
               }}
             >
-              <Icon src={userEdit} />
+              <Icon src={userEdit} alt="" />
 
               {getTranslation("162")}
             </BtnNavigator>
-            <Union />
+            <BtnNavigator
+              $size="default"
+              style={{ color: "#868b907c", cursor: "default" }}
+            >
+              {getTranslation("39")}
+            </BtnNavigator>
           </SubMenu>
         </Container>
         <BtnsMenu />

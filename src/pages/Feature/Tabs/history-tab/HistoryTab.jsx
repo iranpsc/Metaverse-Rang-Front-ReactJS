@@ -3,8 +3,7 @@ import styled from "styled-components";
 import BaseContainer from "../../../../components/Common/Container";
 import { useParams } from "react-router";
 import { useEffect, useState } from "react";
-import useRequest from "../../../../services/Hooks/useRequest";
-import { metarangUrlCitizen } from "../../../../services/Utility";
+import useRequest from "../../../../hooks/useRequest.js";
 const StyledContainer = styled(BaseContainer)`
   display: flex;
   flex-direction: column;
@@ -30,7 +29,6 @@ const HistoryTab = () => {
 
     fetchData();
   }, []);
-
   return (
     <StyledContainer>
       {data.map((item, index) => {
@@ -48,12 +46,8 @@ const HistoryTab = () => {
             key={id ?? index}
             index={data.length - index}
             user={participant_code || participant_label}
-            link={
-              participant_code
-                ? metarangUrlCitizen(participant_code)
-                : undefined
-            }
             owner={type === "genesis"}
+            gift={type === "gift"}
             time={date_time.time}
             date={date_time.date}
             rial={price.price_irr}

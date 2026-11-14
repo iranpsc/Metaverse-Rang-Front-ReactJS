@@ -3,12 +3,12 @@ import { useContext, useEffect, useState } from "react";
 import Alert from "../../../../components/Alert/Alert";
 import { AlertContext } from "../../../../services/reducers/AlertContext";
 import InfoRow from "../InfoRow";
-import Title from "../../../../components/Title";
-import useRequest from "../../../../services/Hooks/useRequest";
+import TitleHeader from "../../../../components/TitleHeader";
+import useRequest from "../../../../hooks/useRequest.js";
 import Container from "../../../../components/Common/Container";
 import { useLocation } from "react-router";
 import { currencies } from "../data";
-import { Skeleton } from "../../../../components/Skeleton";
+import { Skeleton } from "../../../../components/Skeletons/Skeleton.jsx";
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -64,7 +64,7 @@ const CurrenciesContent = () => {
   return (
     <Container>
       {alert && <Alert type="success" text="خرید شما با موفقیت انجام شد!" />}
-      <Title title="ارزها" />
+      <TitleHeader title="ارزها" />
       <Wrapper>
         {loading
           ? Array.from({ length: 2 }).map((_, index) => (

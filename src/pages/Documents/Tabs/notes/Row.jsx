@@ -1,113 +1,123 @@
-import { useContext, useState } from "react";
+// ردیف جدول یادداشت‌ها (شماره، عنوان، حذف و مشاهده جزئیات)؛ مناسب فقط داخل NotesList، و جزئیات یادداشت را در NoteDetails باز می‌کند
+import { useState } from "react";
 import { FiTrash2 } from "react-icons/fi";
-import { GlobalNoteStateContext } from "../GlobalNoteStateProvider";
-import NoteDetails from "./NoteDetails";
 import styled from "styled-components";
+import NoteDetails from "./NoteDetails";
 import Button from "../../../../components/Button";
-import useRequest from "../../../../services/Hooks/useRequest";
+import useRequest from "../../../../hooks/useRequest.js";
 import { getTranslation } from "../../../../services/Utility";
 
-const TableRow = styled.tr`
-  background-color: transparent;
-`;
-
 const TableCell = styled.td`
-  padding: 15px 7px;
+  padding: 15px 10px;
   border-bottom: 1px solid #454545;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  padding-right: 30px;
-  div {
-    width: fit-content;
-  }
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
+text-align: start;
+
   @media (min-width: 845px) {
     padding: 15px 20px;
   }
 `;
 
-const Code = styled.h2`
+// عنوان طولانی شکسته می‌شود تا ستون را پهن نکند
+const Text = styled.h2`
   font-size: 16px;
   font-weight: 500;
+  overflow-wrap: anywhere;
 `;
 
 const Buttons = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  div {
-    padding: 13px 22px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 10px;
-    background-color: ${(props) =>
-      props.theme.colors.newColors.otherColors.garyBtn};
-    color: ${(props) => props.theme.colors.newColors.otherColors.grayBtnText};
-    transition: all 0.2s linear;
-    cursor: pointer;
-    &:hover {
-      background-color: #c30000;
-    }
+`;
+
+const DeleteButton = styled.button`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 13px 14px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s linear;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.garyBtn};
+  color: ${({ theme }) => theme.colors.newColors.otherColors.grayBtnText};
+
+  &:hover {
+    background-color: #c30000;
   }
+
+  @media (min-width: 845px) {
+    padding: 13px 22px;
+  }
+
   @media (min-width: 1366px) {
-    div {
-      padding: 15px 22px;
-    }
+    padding: 15px 22px;
   }
 `;
 
-const Row = ({ id, title }) => {
-  const [showDetails, setShowDetails] = useState(false);
-  const { state, dispatch } = useContext(GlobalNoteStateContext); // Access both state and dispatch
-  const { Request } = useRequest();
+const Row = ({ note, onNoteDeleted, onNoteCached, onNoteUpdated }) => {
+  const { id, title } = note;
+  const [noteDetails, setNoteDetails] = useState(null);
+  const { Request, HTTP_METHOD } = useRequest();
 
-  const onClickHandler = async () => {
-    try {
-      await Request(`notes/${id}`);
-      setShowDetails(true); // Show the details modal
-    } catch (error) {
-      console.error("Error fetching note:", error);
+  const handleOpenDetails = async () => {
+    if ("content" in note && "attachments" in note) {
+      setNoteDetails(note);
+      return;
     }
+
+    const { data } = await Request(`notes/${id}`);
+    setNoteDetails(data.data);
+    onNoteCached(data.data);
   };
 
-  const removeNoteHandler = async () => {
-    try {
-      await Request(`notes/${id}`, "DELETE"); // Use the request hook to delete the note
-      dispatch({ type: "REMOVE_NOTE", payload: id }); // Dispatch action after successful deletion
-    } catch (error) {
-      console.error("Error deleting note:", error);
-    }
+  const handleDelete = async () => {
+    await Request(`notes/${id}`, HTTP_METHOD.DELETE);
+    onNoteDeleted(id);
   };
+
+  const handleCloseDetails = (show) => {
+    if (!show) setNoteDetails(null);
+  };
+
+  const handleNoteUpdated = (updatedNote) => {
+    setNoteDetails(updatedNote);
+    onNoteUpdated(updatedNote);
+  };
+
   return (
     <>
-      <TableRow>
+      <tr>
         <TableCell>
-          <div>
-            <Code>{id}#</Code>
-          </div>
+          <Text>{id}#</Text>
         </TableCell>
+
         <TableCell>
-          <div style={{ paddingRight: "25px" }}>
-            <Code>{title}</Code>
-          </div>
+          <Text>{title}</Text>
         </TableCell>
+
         <TableCell>
           <Buttons>
-            <div onClick={removeNoteHandler}>
+            <DeleteButton type="button" onClick={handleDelete}>
               <FiTrash2 size={20} />
-            </div>
+            </DeleteButton>
             <Button
               label={getTranslation("147")}
               grayTheme
-              onclick={onClickHandler}
+              onclick={handleOpenDetails}
             />
           </Buttons>
         </TableCell>
-      </TableRow>
+      </tr>
 
-      {showDetails && (
+      {noteDetails && (
         <NoteDetails
-          data={state.notes.find((item) => item.id === id)}
-          setShowDetails={setShowDetails}
+          data={noteDetails}
+          setShowDetails={handleCloseDetails}
+          onNoteDeleted={onNoteDeleted}
+          onNoteUpdated={handleNoteUpdated}
         />
       )}
     </>

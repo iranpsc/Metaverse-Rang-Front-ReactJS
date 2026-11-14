@@ -1,17 +1,15 @@
 import styled from "styled-components";
 import { useState } from "react";
-import Rial from "../../../../../components/Rial";
-import Psc from "../../../../../components/Psc";
-import Input from "../../../../../components/Input";
+import WalletAsset from "../../../../../components/WalletAsset.jsx";
 import {
   calculateFee,
   getTranslation,
-  sanitizePriceInputValue,
   convertToPersian,
+  formatNumber,
 } from "../../../../../services/Utility";
 import TitleValue from "../../../../../components/TitleValue";
 import Button from "../../../../../components/Button";
-
+import LabeledInput from "../../../../../components/LabeledInput.jsx";
 const Div = styled.div`
   display: flex;
   flex-direction: column;
@@ -39,61 +37,17 @@ const ResultWrapper = styled.div`
   display: grid;
   gap: 20px;
   width: 100%;
-
-  @media (min-width: 741px) {
-    grid-template-columns: 2fr 1fr;
-  }
-
-  @media (min-width: 840px) {
-    grid-template-columns: 5fr 2fr;
-  }
+  grid-template-columns: 3fr 1fr;
 
   @media (min-width: 1200px) {
-    grid-template-columns: 4fr 1fr;
-  }
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  border-radius: 5px;
-  height: 40px;
-  border: 1px solid
-    ${(props) => props.theme.colors.newColors.otherColors.inputBorder};
-  font-weight: 400;
-  overflow: hidden;
-
-  @media (min-width: 998px) {
-    height: 48px;
-  }
-`;
-
-const Title = styled.h3`
-  font-size: 16px;
-  font-weight: 400;
-  height: fit-content;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  padding: 5px 20px;
-
-  @media (min-width: 998px) {
-    padding: 8px 20px;
-  }
-`;
-
-const Value = styled.p`
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  font-size: 18px;
-  padding: 5px 20px;
-
-  @media (min-width: 998px) {
-    padding: 8px 20px;
+    grid-template-columns: 5fr 1fr;
   }
 `;
 
 const FillInputs = ({
   setAssign,
   validateAndSubmit,
+  checkSecurity,
   rial,
   setRial,
   psc,
@@ -105,15 +59,16 @@ const FillInputs = ({
   const cancel = rial !== 0 || psc !== 0;
 
   const handleRialChange = (e) => {
-    setRial(sanitizePriceInputValue(e.target.value));
+    setRial(e.target.value);
   };
 
   const handlePscChange = (e) => {
-    setPsc(sanitizePriceInputValue(e.target.value));
+    setPsc(e.target.value);
   };
 
   const handleSubmit = () => {
     if (isSubmitLoading || isCancelLoading) return;
+    if (!checkSecurity()) return;
 
     setIsSubmitLoading(true);
 
@@ -140,34 +95,30 @@ const FillInputs = ({
   return (
     <Div>
       <InputsWrapper>
-        <Input
-          value={rialValue}
+        <LabeledInput
+          value={rialValue === "" ? "" : formatNumber(rialValue)}
           maxLength={14}
           onChange={handleRialChange}
           type="number"
           placeholder={`${getTranslation("521")} (${getTranslation("48")})`}
-          insideText={<Rial />}
+          suffix={<WalletAsset asset="irr" showLabel />}
         />
-
-        <Input
+        <LabeledInput
           maxLength={14}
-          value={pscValue}
+          value={pscValue === "" ? "" : formatNumber(pscValue)}
           onChange={handlePscChange}
           type="number"
           placeholder={`${getTranslation("521")} (${getTranslation("47")})`}
-          insideText={<Psc />}
+          suffix={<WalletAsset asset="psc" showLabel />}
         />
       </InputsWrapper>
 
       <ResultWrapper>
-        <Wrapper>
-          <Title>{getTranslation("522")}</Title>
-
-          <Value>
-            {convertToPersian(calculateFee(rial) || 0)} IRR /{" "}
-            {convertToPersian(calculateFee(psc) || 0)} PSC
-          </Value>
-        </Wrapper>
+        <TitleValue
+          title={getTranslation("522")}
+          value={`${convertToPersian(calculateFee(rial) || 0)} IRR /
+            ${convertToPersian(calculateFee(psc) || 0)} PSC`}
+        />
 
         <TitleValue title={getTranslation("523")} value="5%" />
       </ResultWrapper>

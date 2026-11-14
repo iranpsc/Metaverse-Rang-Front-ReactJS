@@ -1,18 +1,10 @@
-import React, { useEffect, useState } from 'react'
-import useAuth from '../services/Hooks/useAuth'
+// گارد بخش‌های خصوصی؛ فقط وقتی کاربر لاگین کرده باشد children را نشان می‌دهد، وگرنه چیزی رندر نمی‌کند.
+import useAuth from "../hooks/useAuth.js";
 
-export default function PrivateComponent({ children }) {
-  const { getUser } = useAuth();
-  const [user, setUser] = useState();
+const PrivateComponent = ({ children }) => {
+  const { getUser, isLoggedIn } = useAuth();
 
-  useEffect(() => {
-    setUser(getUser());
-  }, [getUser])
+  return isLoggedIn() && getUser()?.id ? children : null;
+};
 
-
-  return (
-    <>
-        {user?.id ? children : <React.Fragment></React.Fragment> }
-    </>
-  )
-}
+export default PrivateComponent;

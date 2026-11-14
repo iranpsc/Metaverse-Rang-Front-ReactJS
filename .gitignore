@@ -6,7 +6,7 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
-
+public/assets/maplibre-gl-*.mjs
 node_modules
 dist
 dist-ssr

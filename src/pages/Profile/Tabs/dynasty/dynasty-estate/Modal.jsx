@@ -1,51 +1,35 @@
-import Button from "../../../../../components/Button";
+// مدال تایید یک عملیات که به زمان سپری‌شده وابسته است: اگر هنوز ۳۰ روز نگذشته باشد زمان باقی‌مانده را نشان می‌دهد و در غیر این صورت پیام عادی تایید را؛ elapsed را از GetTimeElapsed می‌گیرد؛ مناسب هر جایی که کاربر قبل از انجام کار باید تایید بدهد
+
 import styled from "styled-components";
-import { getTranslation } from "../../../../../services/Utility";
-import { ExitIcon } from "../../../../../components/Icons/IconsHeader";
-const BackGround = styled.div`
-  z-index: 999;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(5px);
-  background-color: rgba(0, 0, 0, 0.713);
-`;
+import Button from "../../../../../components/Button";
+import ModalXs from "../../../../../components/Modal/ModalXs";
+import {
+  convertToPersian,
+  getTranslation,
+} from "../../../../../services/Utility";
+import TitleBody from "../../../../../components/TitleBody";
+const WAIT_DAYS = 30;
+const SECONDS_IN_DAY = 24 * 60 * 60;
 
-const ModalBody = styled.div`
-  border-radius: 10px;
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  overflow-y: auto;
-  padding: 20px;
-  width: 700px;
-  max-height: 577px;
+// زمان باقی‌مانده تا ۳۰ روز؛ اگر داده‌ی زمان نیست یا ۳۰ روز گذشته باشد null برمی‌گرداند
+const getRemainingTime = (elapsed) => {
+  if (!elapsed || Number.isNaN(elapsed.days)) return null;
 
-  p {
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-    font-weight: 400;
-    font-size: 14px;
-    line-height: 28px;
-  }
-`;
+  const elapsedSeconds =
+    elapsed.days * SECONDS_IN_DAY +
+    elapsed.hours * 3600 +
+    elapsed.minutes * 60 +
+    (elapsed.seconds || 0);
+  const remaining = WAIT_DAYS * SECONDS_IN_DAY - elapsedSeconds;
 
-const Header = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: white;
-  margin-bottom: 20px;
+  if (remaining <= 0) return null;
 
-  span {
-    font-size: 24px;
-    font-weight: 600;
-    color: ${(props) => props.theme.colors.newColors.shades.title};
-  }
-`;
+  return {
+    days: Math.floor(remaining / SECONDS_IN_DAY),
+    hours: Math.floor((remaining % SECONDS_IN_DAY) / 3600),
+    minutes: Math.floor((remaining % 3600) / 60),
+  };
+};
 
 const Buttons = styled.div`
   display: flex;
@@ -53,85 +37,34 @@ const Buttons = styled.div`
   gap: 15px;
   margin-top: 30px;
 `;
+
 const Modal = ({ setModal, onConfirm, elapsed }) => {
-
-  const getDisplayTime = () => {
-    if (!elapsed || isNaN(elapsed.days)) return null;
-
-    // اگر 30 روز یا بیشتر گذشته، همان مقدار اصلی
-    if (elapsed.days >= 30) {
-      return elapsed;
-    }
-
-    // تبدیل زمان سپری‌شده به ثانیه
-    const elapsedSeconds =
-      elapsed.days * 24 * 60 * 60 +
-      elapsed.hours * 60 * 60 +
-      elapsed.minutes * 60 +
-      (elapsed.seconds || 0);
-
-    // 30 روز بر حسب ثانیه
-    const thirtyDaysSeconds = 30 * 24 * 60 * 60;
-
-    // زمان باقی‌مانده
-    const remainingSeconds = Math.max(
-      0,
-      thirtyDaysSeconds - elapsedSeconds
-    );
-
-    return {
-      days: Math.floor(remainingSeconds / (24 * 60 * 60)),
-      hours: Math.floor(
-        (remainingSeconds % (24 * 60 * 60)) / (60 * 60)
-      ),
-      minutes: Math.floor(
-        (remainingSeconds % (60 * 60)) / 60
-      ),
-      seconds: remainingSeconds % 60,
-    };
-  };
-
-  const displayTime = getDisplayTime();
-
+  const close = () => setModal(false);
+  const remaining = getRemainingTime(elapsed);
+  const mssg = remaining
+    ? `${getTranslation(821)} ${convertToPersian(remaining.days)} ${getTranslation(380)}, ${convertToPersian(remaining.hours)} ${getTranslation(560)}, ${convertToPersian(remaining.minutes)} ${getTranslation(33)} ${getTranslation(1409)}`
+    : getTranslation(1439);
   return (
-    <BackGround>
-      <ModalBody>
-        <Header>
-          <span>{getTranslation("122")}</span>
-          <ExitIcon onClick={() => setModal(false)}>X</ExitIcon>
-        </Header>
-
-        {displayTime ? (
-          <p>{getTranslation(1439)}</p>
-        ) : (
-          <p>
-            {getTranslation(821)}
-            {displayTime.days} {getTranslation(380)},
-            {displayTime.hours} {getTranslation(560)},
-            {displayTime.minutes} {getTranslation(33)}
-            {getTranslation(1409)}
-          </p>
-        )}
-
-        <Buttons>
-          <Button
-            label={getTranslation("823")}
-            color="#18C08F"
-            onclick={onConfirm}
-            fit
-            textColor="#D7FBF0"
-          />
-
-          <Button
-            label={getTranslation("824")}
-            color="#C30000"
-            onClick={() => setModal(false)}
-            fit
-            textColor="#FFFFFF"
-          />
-        </Buttons>
-      </ModalBody>
-    </BackGround>
+    <ModalXs global title={122} handleExitClick={close} onClose={close}>
+      <TitleBody title={mssg} />
+      <Buttons>
+        <Button
+          fit
+          color="#18C08F"
+          textColor="#D7FBF0"
+          label={getTranslation("823")}
+          onClick={onConfirm}
+        />
+        <Button
+          fit
+          color="#C30000"
+          textColor="#FFFFFF"
+          label={getTranslation("824")}
+          onClick={close}
+        />
+      </Buttons>
+    </ModalXs>
   );
 };
+
 export default Modal;

@@ -4,18 +4,28 @@ import styled from "styled-components";
 import  LightSvg  from "../../assets/svg/light.svg?react";
 import  DarkSvg  from "../../assets/svg/dark.svg?react";
 import { useState } from "react";
-import { useTheme } from "../../services/reducers/ThemeContext";
+import { useTheme } from "../../services/reducers/ThemeContext.jsx";
 
 const Light = styled(LightSvg)`
   width: 18.364px;
   height: 18.364px;
   fill: ${(props) => props.theme.colors.newColors.shades.title};
+
+  @media (max-width: 767px) {
+    width: 16px;
+    height: 16px;
+  }
 `;
 
 const Dark = styled(DarkSvg)`
   width: 18.364px;
   height: 18.364px;
   stroke: ${(props) => props.theme.colors.newColors.shades.title};
+
+  @media (max-width: 767px) {
+    width: 16px;
+    height: 16px;
+  }
 `;
 
 const Wrapper = styled.div`
@@ -36,8 +46,8 @@ const ThemeButton = styled.div`
     props.themeMode === "dark" ? "#000" : "#e9eef8"};
 
   @media (max-width: 767px) {
-    width: 25px;
-    height: 25px;
+    width: 23px;
+    height: 23px;
   }
 
   @media (min-width: 1280px) {

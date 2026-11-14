@@ -7,6 +7,8 @@ import {
   getTranslation,
   ConvertJalali,
 } from "../../../../services/Utility";
+import UserCode from "../../../../components/UserCode";
+import TitleBody from "../../../../components/TitleBody";
 const UserTime = styled.div`
   display: flex;
   align-items: center;
@@ -50,7 +52,6 @@ const Time = styled.div`
   }
 `;
 const User = styled.div`
-
   h4 {
     color: ${({ theme }) => theme.colors.newColors.shades.title};
 
@@ -72,19 +73,10 @@ const Div = styled.div`
   align-items: center;
   gap: 4px;
   color: #a0a0ab;
-  span {
-    font-size: 12px;
-  }
-  @media (min-width: 998px) {
-    span {
-      font-size: 14px;
-    }
-  }
 `;
 const HistoryItem = ({
   index,
   user,
-  link,
   owner,
   time,
   date,
@@ -92,6 +84,7 @@ const HistoryItem = ({
   psc,
   color,
   colorAmount,
+  gift,
 }) => {
   const showTime = `${convertToPersian(time)} | ${ConvertJalali(date)}`;
   const isColorTrade = Boolean(color);
@@ -102,22 +95,18 @@ const HistoryItem = ({
         <User owner={owner}>
           <Div>
             {owner ? (
-              <span>{getTranslation(1782)} </span>
+              <TitleBody title={getTranslation(1782)} />
             ) : (
               <>
                 <HiOutlineUser size={20} />
-                <span>{getTranslation(572)}</span>
+                <TitleBody title={getTranslation(572)} />
               </>
             )}
           </Div>
           {owner ? (
-            <h4>{user}</h4>
+            <TitleBody weight title={getTranslation(1947)} />
           ) : (
-            <h4>
-              <a target="_blank" rel="noreferrer" href={link}>
-                {user}
-              </a>
-            </h4>
+            <UserCode small code={user} />
           )}
         </User>
       </UserTime>
@@ -132,6 +121,7 @@ const HistoryItem = ({
           amount={colorAmount}
           color={color}
           index={index}
+          gift={gift}
         />
       )}
     </Container>

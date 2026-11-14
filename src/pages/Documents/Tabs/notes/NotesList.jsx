@@ -1,130 +1,143 @@
+// جدول یادداشت‌ها (شماره، عنوان و عملیات)؛ مناسب صفحه‌ی یادداشت‌ها؛ شماره و عنوان کنار هم، ستون عملیات با فاصله در انتها؛ در حالت لودینگ هدر ثابت می‌ماند و فقط ردیف‌ها اسکلتون می‌شوند؛ فونت و فاصله‌ها با پراپ size ریسپانسیو است
+import styled, { css } from "styled-components";
 import Row from "./Row";
-import styled from "styled-components";
+import NotesListSkeleton from "../../../../components/Skeletons/NotesListSkeleton";
 import { getTranslation } from "../../../../services/Utility";
-import { Skeleton } from "../../../../components/Skeleton";
+import { getSize } from "../../../../styles/sizes";
 
-const Container = styled.div`
-  border-radius: 0.25rem;
+const responsiveFont = css`
+  font-size: ${({ $size }) => getSize($size, "base")};
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    font-size: ${({ $size }) => getSize($size, "tablet")};
+  }
+
+  @media (min-width: 1280px) {
+    font-size: ${({ $size }) => getSize($size, "desktop")};
+  }
+`;
+
+// ستون‌های جدول: عنوان (کلید ترجمه) و عرض
+// ستون اول فقط به اندازه‌ی محتوا، ستون دوم باقی فضا را می‌گیرد، ستون سوم به انتها می‌رود
+const COLUMNS = [
+  { title: "1357", width: "1%", align: "start" },
+  { title: "1358", width: "100%", align: "start" },
+  { title: "1359", width: "1%", align: "center" },
+];
+
+const TableScroller = styled.div`
+  width: 100%;
+  margin-top: 20px;
   overflow-x: auto;
+  border-radius: 0.25rem;
+
   &::-webkit-scrollbar {
     display: none;
   }
-  margin-top: 20px;
+
+  th,
+  td {
+    padding: 8px 10px;
+    white-space: nowrap;
+  }
+
+  th,
+  td h2,
+  td button {
+    ${responsiveFont}
+  }
+
+  td button {
+    padding: 8px 12px;
+  }
+
+  /* عنوان طولانی با سه‌نقطه کوتاه می‌شود تا جدول عریض نشود */
+  td:nth-child(2) {
+    max-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  @media (min-width: 500px) and (max-width: 999px) {
+    th,
+    td {
+      padding: 12px 14px;
+    }
+
+    td button {
+      padding: 10px 16px;
+    }
+  }
+
+  @media (min-width: 1000px) {
+    th,
+    td {
+      padding: 16px 18px;
+    }
+
+    td button {
+      padding: 13px 20px;
+    }
+  }
 `;
 
 const Table = styled.table`
   width: 100%;
   margin-top: 5px;
   border-collapse: collapse;
-  border-top-right-radius: 10px;
-  border-top-left-radius: 10px;
+  border-radius: 10px 10px 0 0;
 `;
 
 const TableHead = styled.thead`
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.inputBg};
-  border-radius: 10px !important;
-  overflow: hidden !important;
+  border-radius: 10px;
+  background-color: ${({ theme }) =>
+    theme.colors.newColors.otherColors.inputBg};
 `;
-
-const TableRow = styled.tr``;
 
 const TableHeader = styled.th`
-  padding: 20px 10px;
-  font-size: 16px;
+  width: ${({ $width }) => $width};
   font-weight: 500;
-  color: ${(props) => props.theme.colors.newColors.shades.title};
-  position: relative;
-  padding-bottom: 10px;
-  text-align: center;
-  &:nth-of-type(1) {
-    width: 80px;
-  }
-  &:nth-of-type(2) {
-    width: 350px;
-  }
-  &:nth-of-type(3) {
-    width: 210px;
-  }
-  div {
-    width: fit-content;
-  }
+  text-align: ${({ $align }) => $align};
+  color: ${({ theme }) => theme.colors.newColors.shades.title};
 `;
 
-// اسکلتون برای ردیف جدول (شبیه تصویر)
-const SkeletonRow = styled.tr`
-  td {
-    padding: 15px 20px;
-    border-bottom: 1px solid #454545;
-  }
-`;
-
-const NotesList = ({ notes, isLoading }) => {
-  // اسکلتون لودینگ - فقط ردیف‌ها اسکلتون میشن، هدر ثابت
-  if (isLoading) {
-    return (
-      <Container>
-        <Table>
-          <TableHead>
-            <TableRow>
-              <TableHeader style={{ width: "100px" }}>
-                <div>{getTranslation("1357")}</div>
-              </TableHeader>
-              <TableHeader style={{ width: "350px" }}>
-                <div>{getTranslation("1358")}</div>
-              </TableHeader>
-              <TableHeader style={{ width: "210px" }}>
-                <div>{getTranslation("1359")}</div>
-              </TableHeader>
-            </TableRow>
-          </TableHead>
-          <tbody>
-            {Array.from({ length: 4 }).map((_, index) => (
-              <SkeletonRow key={index}>
-                <td style={{ textAlign: "center" }}>
-                  <Skeleton width="50px" height="18px" radius="4px" />
-                </td>
-                <td>
-                  <Skeleton width="230px" height="18px" radius="4px" />
-                </td>
-                <td>
-                  <div style={{ display: "flex", gap: "10px", alignItems: "center", justifyContent: "center" }}>
-                    <Skeleton width="64px" height="50px" radius="8px" />
-                    <Skeleton width="97.3px" height="50px" radius="8px" />
-                  </div>
-                </td>
-              </SkeletonRow>
-            ))}
-          </tbody>
-        </Table>
-      </Container>
-    );
-  }
-
-  return (
-    <Container>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableHeader style={{ width: "100px" }}>
-              <div>{getTranslation("1357")}</div>
+const NotesList = ({
+  notes,
+  isLoading,
+  onNoteDeleted,
+  onNoteCached,
+  onNoteUpdated,
+  size = "default",
+}) => (
+  <TableScroller $size={size}>
+    <Table>
+      <TableHead>
+        <tr>
+          {COLUMNS.map(({ title, width, align }) => (
+            <TableHeader key={title} $width={width} $align={align}>
+              {getTranslation(title)}
             </TableHeader>
-            <TableHeader style={{ width: "350px" }}>
-              <div>{getTranslation("1358")}</div>
-            </TableHeader>
-            <TableHeader style={{ width: "210px" }}>
-              <div>{getTranslation("1359")}</div>
-            </TableHeader>
-          </TableRow>
-        </TableHead>
-        <tbody>
-          {notes.map((note) => (
-            <Row key={note.id} {...note} />
           ))}
-        </tbody>
-      </Table>
-    </Container>
-  );
-};
+        </tr>
+      </TableHead>
+
+      <tbody>
+        {isLoading ? (
+          <NotesListSkeleton />
+        ) : (
+          notes.map((note) => (
+            <Row
+              key={note.id}
+              note={note}
+              onNoteDeleted={onNoteDeleted}
+              onNoteCached={onNoteCached}
+              onNoteUpdated={onNoteUpdated}
+            />
+          ))
+        )}
+      </tbody>
+    </Table>
+  </TableScroller>
+);
 
 export default NotesList;
