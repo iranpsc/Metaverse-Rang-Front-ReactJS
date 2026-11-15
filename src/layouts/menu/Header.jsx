@@ -12,7 +12,7 @@ import { metarangUrl, getTranslation } from "../../services/Utility";
 import TitleBody from "../../components/TitleBody.jsx";
 
 const Logo = styled.img`
-  padding-top: 2px;
+  margin-top: 5px;
   height: 42px;
   width: 42px;
   cursor: pointer;
@@ -44,16 +44,12 @@ const ContainerText = styled.div`
   white-space: nowrap;
   justify-content: center;
   flex-direction: column;
-
-  @media (max-width: 767px) {
-    padding-top: 2px;
-  }
 `;
 
 const BtnOpenCloseMenu = styled.button`
   width: ${(p) => (p.$isOpen ? "17px" : "41px")};
   height: ${(p) => (p.$isOpen ? "17px" : "41px")};
-  margin-top: ${(p) => (p.$isOpen ? "13px" : "")};
+  margin-top: ${(p) => (p.$isOpen ? "10px" : "")};
   border-radius: 100%;
   display: flex;
   align-items: center;
@@ -61,17 +57,17 @@ const BtnOpenCloseMenu = styled.button`
   padding: ${(p) => (p.$isOpen ? "0px" : "13px")};
   background-color: ${(p) =>
     p.$isOpen ? "transparent" : p.theme.colors.newColors.otherColors.themeBtn};
-
-  position: ${(props) => (props.$isOpen ? "relative" : "absolute")};
-  ${(props) => {
+  position: ${(p) => (p.$isOpen ? "relative" : "absolute")};
+  ${(p) => {
     const direction = document.body.dir || "ltr";
     return direction === "ltr"
-      ? `right: ${!props.$isOpen ? "-75px" : "0"}`
-      : `left: ${!props.$isOpen ? "-75px" : "0"}`;
-  }};
+      ? `right: ${!p.$isOpen ? "-75px" : "0"};`
+      : `left: ${!p.$isOpen ? "-75px" : "0"};`;
+  }}
   z-index: 9;
   border: none;
 `;
+
 const Icon = styled(ArowMenu)`
   stroke: ${(props) => props.theme.colors.newColors.otherColors.iconText};
   width: 17px;
@@ -79,13 +75,12 @@ const Icon = styled(ArowMenu)`
   transform: ${({ $isOpen, $isPersian }) => {
     if ($isPersian) {
       return $isOpen ? "rotate(0deg)" : "rotate(180deg)";
-    } else {
-      return $isOpen ? "rotate(180deg)" : "rotate(0deg)";
     }
+    return $isOpen ? "rotate(180deg)" : "rotate(0deg)";
   }};
-
   transition: transform 0.3s ease;
 `;
+
 const ContainerMain = styled.div`
   display: flex;
   gap: 12px;
@@ -102,6 +97,7 @@ const Header = () => {
   useEffect(() => {
     return subscribeLanguagesMeta(() => setLangArray(getLanguagesMeta()));
   }, []);
+
   return (
     <Container $isOpen={isOpen}>
       <ContainerMain>
@@ -122,8 +118,13 @@ const Header = () => {
               window.open(metarangUrl(), "_blank");
             }}
           />
-
-          <TitleBody noMargin small gray noWrap title={getTranslation(905)} />
+          <TitleBody
+            noMargin
+            small
+            mutedText
+            noWrap
+            title={getTranslation(905)}
+          />
         </ContainerText>
         <Headerbtn $isOpen={isOpen}>
           <LangContainer isOpen={isOpen}>
@@ -158,6 +159,7 @@ const Header = () => {
           <ThemeMenuModule />
         </Headerbtn>
       </ContainerMain>
+
       <BtnOpenCloseMenu
         onClick={toggleMenu}
         $isOpen={isOpen}

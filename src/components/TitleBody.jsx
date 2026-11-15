@@ -31,7 +31,7 @@ const TitleBody = ({
   size,
   color,
   gray,
-  gray2,
+  mutedText,
   align,
   noMargin,
   weight = 400,
@@ -45,7 +45,7 @@ const TitleBody = ({
     $noWrap={noWrap}
     $color={color}
     $gray={gray}
-    $gray2={gray2}
+    $mutedText={mutedText}
     $align={align}
     $noMargin={noMargin}
   >
