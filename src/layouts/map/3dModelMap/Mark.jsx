@@ -3,7 +3,6 @@ import { useMap, Source, Layer } from "react-map-gl/maplibre";
 import { useLoader } from "@react-three/fiber";
 import { Canvas } from "react-three-map/maplibre";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
-<<<<<<< HEAD
 import { useNavigate } from "react-router";
 import { useSelectedEnvironment } from "../../../services/reducers/SelectedEnvironmentContext.jsx";
 import {
@@ -11,12 +10,6 @@ import {
   ToastError,
   ToastSuccess,
 } from "../../../services/Utility";
-=======
-import { HemisphereLight } from "three";
-import { useNavigate } from "react-router";
-import { useSelectedEnvironment } from "../../../services/reducers/SelectedEnvironmentContext.jsx";
-import { getTranslation, ToastError, ToastSuccess } from "../../../services/Utility";
->>>>>>> e1d8d9c4424483b861365e40d645cd213ed9263e
 import { flyToMapPosition } from "../../../services/Utility/flyToMapPosition.js";
 import AngleControl from "../../../pages/Feature/Tabs/PropertyConstruction/Tabs/components/AngleControl.jsx";
 

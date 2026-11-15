@@ -1,12 +1,9 @@
 import styled from "styled-components";
 import LogoIcon from "../../assets/images/brand/metarang-newLogo.webp";
 import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
-import LogoIcon from "../../assets/images/brand/metarang-newLogo.webp";
-import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import ArowMenu from "../../assets/svg/arowMenu.svg?react";
 import { LangContainer, LangButton, LangMenu } from "./LangSelector.styles";
 import { useState, useEffect } from "react";
-import useLanguage from "../../hooks/useLanguage.js";
 import useLanguage from "../../hooks/useLanguage.js";
 import DropdownLanguageModule from "../../components/DropDownLang/DropdownLanguageModule";
 import ThemeMenuModule from "./ThemeMenuModule";
@@ -14,14 +11,9 @@ import { getLanguagesMeta, subscribeLanguagesMeta } from "../../i18n/i18n";
 import { metarangUrl, getTranslation } from "../../services/Utility";
 import TitleBody from "../../components/TitleBody.jsx";
 
-import { getLanguagesMeta, subscribeLanguagesMeta } from "../../i18n/i18n";
-import { metarangUrl, getTranslation } from "../../services/Utility";
-import TitleBody from "../../components/TitleBody.jsx";
-
 const Logo = styled.img`
   margin-top: 5px;
   height: 42px;
-  width: 42px;
   width: 42px;
   cursor: pointer;
 `;
@@ -64,42 +56,31 @@ const BtnOpenCloseMenu = styled.button`
   justify-content: center;
   padding: ${(p) => (p.$isOpen ? "0px" : "13px")};
   background-color: ${(p) =>
-  padding: ${(p) => (p.$isOpen ? "0px" : "13px")};
-  background-color: ${(p) =>
     p.$isOpen ? "transparent" : p.theme.colors.newColors.otherColors.themeBtn};
-
-  position: ${(props) => (props.$isOpen ? "relative" : "absolute")};
-
-  position: ${(props) => (props.$isOpen ? "relative" : "absolute")};
-  ${(props) => {
+  position: ${(p) => (p.$isOpen ? "relative" : "absolute")};
+  ${(p) => {
     const direction = document.body.dir || "ltr";
     return direction === "ltr"
-      ? `right: ${!props.$isOpen ? "-75px" : "0"}`
-      : `left: ${!props.$isOpen ? "-75px" : "0"}`;
-  }};
+      ? `right: ${!p.$isOpen ? "-75px" : "0"};`
+      : `left: ${!p.$isOpen ? "-75px" : "0"};`;
+  }}
   z-index: 9;
   border: none;
 `;
+
 const Icon = styled(ArowMenu)`
   stroke: ${(props) => props.theme.colors.newColors.otherColors.iconText};
-  width: 17px;
-  height: 17px;
   width: 17px;
   height: 17px;
   transform: ${({ $isOpen, $isPersian }) => {
     if ($isPersian) {
       return $isOpen ? "rotate(0deg)" : "rotate(180deg)";
-    } else {
-      return $isOpen ? "rotate(180deg)" : "rotate(0deg)";
     }
+    return $isOpen ? "rotate(180deg)" : "rotate(0deg)";
   }};
-
   transition: transform 0.3s ease;
 `;
-const ContainerMain = styled.div`
-  display: flex;
-  gap: 12px;
-`;
+
 const ContainerMain = styled.div`
   display: flex;
   gap: 12px;
@@ -108,20 +89,15 @@ const ContainerMain = styled.div`
 const Header = () => {
   const { currentLang, changeLanguage, isRtl } = useLanguage();
   const [langArray, setLangArray] = useState(getLanguagesMeta);
-  const { currentLang, changeLanguage, isRtl } = useLanguage();
-  const [langArray, setLangArray] = useState(getLanguagesMeta);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const { isOpen, toggleMenu } = useMenuContext();
-  const currentLangObject =
-    langArray.find((item) => item.code === currentLang) || langArray[0];
   const currentLangObject =
     langArray.find((item) => item.code === currentLang) || langArray[0];
 
   useEffect(() => {
     return subscribeLanguagesMeta(() => setLangArray(getLanguagesMeta()));
   }, []);
-    return subscribeLanguagesMeta(() => setLangArray(getLanguagesMeta()));
-  }, []);
+
   return (
     <Container $isOpen={isOpen}>
       <ContainerMain>
@@ -131,14 +107,8 @@ const Header = () => {
           }}
           src={LogoIcon}
           alt="متارنگ"
-          alt="متارنگ"
         />
         <ContainerText $isOpen={isOpen}>
-          <TitleBody
-            noMargin
-            weight
-            noWrap
-            title={getTranslation(148)}
           <TitleBody
             noMargin
             weight
@@ -148,7 +118,6 @@ const Header = () => {
               window.open(metarangUrl(), "_blank");
             }}
           />
-
           <TitleBody
             noMargin
             small
@@ -190,13 +159,7 @@ const Header = () => {
           <ThemeMenuModule />
         </Headerbtn>
       </ContainerMain>
-      <BtnOpenCloseMenu
-        onClick={toggleMenu}
-        $isOpen={isOpen}
-        aria-label={isOpen ? "open menu" : "close menu"}
-        aria-expanded={isOpen}
-      >
-        <Icon $isOpen={isOpen} $isPersian={isRtl} aria-hidden="true" />
+
       <BtnOpenCloseMenu
         onClick={toggleMenu}
         $isOpen={isOpen}
