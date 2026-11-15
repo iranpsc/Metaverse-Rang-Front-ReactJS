@@ -1,0 +1,30 @@
+# Lefthook runs the same full-project quality checks locally and in CI.
+# Install the required CLIs first; see the Code Quality section in README.md.
+
+pre-commit:
+  parallel: true
+  commands:
+    eslint-staged:
+      glob: "*.{js,jsx}"
+      run: npx eslint {staged_files}
+
+pre-push:
+  parallel: false
+  commands:
+    eslint:
+      run: npm run lint
+
+    knip:
+      run: npx --yes knip --no-progress
+
+    duplicate-code:
+      run: npx --yes jscpd src --min-lines 5 --min-tokens 50 --threshold 5 --reporters console
+
+    gitleaks:
+      run: gitleaks detect --source . --redact --no-banner
+
+    osv-scanner:
+      run: osv-scanner scan source --lockfile=./package-lock.json
+
+    semgrep:
+      run: semgrep scan --config p/react --config p/security-audit --error src
