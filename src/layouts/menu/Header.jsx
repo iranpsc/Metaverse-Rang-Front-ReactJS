@@ -44,10 +44,6 @@ const ContainerText = styled.div`
   white-space: nowrap;
   justify-content: center;
   flex-direction: column;
-
-  @media (max-width: 767px) {
-    padding-top: 2px;
-  }
 `;
 
 const BtnOpenCloseMenu = styled.button`
