@@ -37,13 +37,13 @@ const Headerbtn = styled.div`
     padding-top: 8px;
   }
 `;
-
 const ContainerText = styled.div`
   display: ${(props) => (props.$isOpen ? "flex" : "none")};
   align-items: start;
-  white-space: nowrap;
   justify-content: center;
   flex-direction: column;
+  white-space: nowrap;
+  gap: 0;
 `;
 
 const BtnOpenCloseMenu = styled.button`
@@ -113,6 +113,8 @@ const Header = () => {
         />
         <ContainerText $isOpen={isOpen}>
           <TitleBody
+              lineHeight={1.5}
+
             noMargin
             weight
             noWrap
@@ -122,6 +124,8 @@ const Header = () => {
             }}
           />
           <TitleBody
+              lineHeight={1}
+
             noMargin
             small
             mutedText

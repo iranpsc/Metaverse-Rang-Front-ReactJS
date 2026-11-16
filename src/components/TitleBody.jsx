@@ -13,6 +13,8 @@ const TitleName = styled.h4`
   white-space: ${({ $noWrap }) => ($noWrap ? "nowrap" : "normal")};
   ${({ $align }) => $align && `text-align: ${$align};`}
   ${({ $noMargin }) => $noMargin && "margin: 0; padding: 0;"}
+    line-height: ${({ $lineHeight }) => $lineHeight ?? "normal"};
+
   @media (min-width: 500px) and (max-width: 999px) {
     font-size: ${({ $size }) => getSize($size, "tablet")};
   }
@@ -35,7 +37,7 @@ const TitleBody = ({
   align,
   noMargin,
   weight = 400,
-  primary,
+  primary,lineHeight
 }) => (
   <TitleName
     $primary={primary}
@@ -48,6 +50,8 @@ const TitleBody = ({
     $mutedText={mutedText}
     $align={align}
     $noMargin={noMargin}
+          $lineHeight={lineHeight}
+
   >
     {title}
   </TitleName>
