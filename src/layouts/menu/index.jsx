@@ -25,49 +25,38 @@ const BlurOverlay = styled.div`
     display: none;
   }
 `;
+// Main side menu: the sidebar of the app layout, with a header, profile and login/action buttons. Width follows its content.
 const Container = styled.div`
   position: relative;
   display: ${({ show }) => (show ? "none" : "flex")};
   flex-direction: column;
   align-items: start;
-  flex: 1;
   justify-content: start;
-  width: ${({ isPersian, isOpen }) =>
-    isPersian ? (isOpen ? "35%" : "9%") : isOpen ? "38%" : "9%"};
+  flex: 0 0 auto;
+  width: fit-content;
   height: 100%;
   border-radius: 10px;
+  padding: ${(props) => (props.isOpen ? "5px" : "10px")};
+  padding-bottom: 10px;
+  background-color: ${(props) =>
+    props.theme.colors.newColors.otherColors.menuBg};
+  transition: all 0.3s ease 0s;
 
   @media (max-width: 832px) {
     max-width: 260px;
     position: ${({ isModalOpen }) => (isModalOpen ? "absolute" : "relative")};
     z-index: 1000;
-    height: ${({ isModalOpen, isOpen }) => {
-      if (isModalOpen && isOpen) return "100%";
-      if (!isModalOpen) return "100%";
-      return "98.5%";
-    }};
-    ${({ isPersian }) => (isPersian ? "right:0" : "left: 0")};
-
+    height: ${({ isModalOpen, isOpen }) =>
+      !isModalOpen || isOpen ? "100%" : "98.5%"};
+    ${({ isPersian }) => (isPersian ? "right: 0;" : "left: 0;")}
     top: ${({ isModalOpen, isOpen }) => isModalOpen && isOpen && "0"};
     border-radius: ${({ isModalOpen, isOpen }) => isModalOpen && isOpen && "0"};
   }
-  @media (min-width: 1024px) {
-    width: ${(props) => (props.isOpen ? "32%" : "6.1%")};
-    padding: 20px;
-    padding-bottom: 10px;
-  }
-  @media (min-width: 1536px) {
-    width: ${(props) => (props.isOpen ? "21.5%" : "4.1%")};
-    border-radius: 10px;
-    padding: 20px;
-    padding-bottom: 10px;
-  }
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.menuBg};
-  padding: ${(props) => (props.isOpen ? "5px" : "10px")};
-  padding-bottom: 10px;
 
-  transition: all 0.3s ease 0s;
+  @media (min-width: 1024px) {
+    padding: 20px;
+    padding-bottom: 10px;
+  }
 `;
 
 const Menu = () => {
