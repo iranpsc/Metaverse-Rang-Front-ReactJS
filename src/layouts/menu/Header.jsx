@@ -84,6 +84,9 @@ const Icon = styled(ArowMenu)`
 const ContainerMain = styled.div`
   display: flex;
   gap: 12px;
+  @media (min-width: 500px) and (max-width: 999px) {
+    gap: 5px;
+  }
 `;
 
 const Header = () => {
