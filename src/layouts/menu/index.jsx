@@ -34,7 +34,6 @@ const Container = styled.div`
   justify-content: start;
   width: ${({ isPersian, isOpen }) =>
     isPersian ? (isOpen ? "35%" : "9%") : isOpen ? "38%" : "9%"};
-  max-width: 250px;
   height: 100%;
   border-radius: 10px;
 
