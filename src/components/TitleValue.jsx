@@ -1,11 +1,11 @@
-import { useEffect, useRef, useState } from "react";
-import styled, { css, keyframes } from "styled-components";
+import styled from "styled-components";
 import TitleBody from "./TitleBody";
 import {
   ConvertJalali,
   convertToPersian,
   DATE_PATTERN,
 } from "../services/Utility";
+import MarqueeText from "./MarqueeText";
 
 const EMPTY = "";
 
@@ -41,11 +41,6 @@ const formatValue = (value) => {
     : convertToPersian(value);
 };
 
-const scrollText = keyframes`
-  from { transform: translateX(0); }
-  to { transform: translateX(50%); }
-`;
-
 const Wrapper = styled.div`
   display: flex;
   min-width: 0;
@@ -77,23 +72,8 @@ const Cell = styled.div`
 `;
 
 const ValueCell = styled(Cell)`
-  overflow-x: auto;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
   ${({ $small }) => $small && "p { font-size: 14px; }"}
   ${({ $veryLong }) => $veryLong && "p { font-size: 15px; }"}
-`;
-
-const ValueScroll = styled.span`
-  display: flex;
-  gap: 5px;
-  ${({ $animate }) =>
-    $animate &&
-    css`
-      animation: ${scrollText} 12s linear infinite;
-    `}
 `;
 
 const Tag = styled.span`
@@ -140,46 +120,27 @@ const TitleValue = ({
   tag = false,
   smallValue = false,
   very_long = false,
-}) => {
-  const boxRef = useRef(null);
-  const textRef = useRef(null);
-  const [animate, setAnimate] = useState(false);
-
-  // اگر متن از جعبه بیشتر بود، اسکرول خودکار شروع می‌شود (در حالت wrap لازم نیست)
-  useEffect(() => {
-    const box = boxRef.current;
-    const text = textRef.current;
-    setAnimate(!wrap && !!box && !!text && text.scrollWidth > box.clientWidth);
-  }, [value, tag, wrap]);
-
-  return (
-    <Wrapper $wrap={wrap} $full={full || long}>
-      <Cell $filled $wrap={wrap}>
-        {renderIcon(icon)}
-        <TitleBody noWrap title={title} />
-      </Cell>
-      <ValueCell
-        ref={boxRef}
-        $wrap={wrap}
-        $small={smallValue}
-        $veryLong={very_long}
-        onScroll={() => setAnimate(false)}
-      >
-        <ValueScroll ref={textRef} $animate={animate}>
-          {tag ? (
-            String(value ?? EMPTY)
-              .split(",")
-              .map((item, index) => (
-                <Tag key={index}>{formatValue(item.trim())}</Tag>
-              ))
-          ) : (
-            <TitleBody noWrap={!wrap} title={formatValue(value)} />
-          )}
-        </ValueScroll>
-        {valueIcon}
-      </ValueCell>
-    </Wrapper>
-  );
-};
+}) => (
+  <Wrapper $wrap={wrap} $full={full || long}>
+    <Cell $filled $wrap={wrap}>
+      {renderIcon(icon)}
+      <TitleBody noWrap title={title} />
+    </Cell>
+    <ValueCell $wrap={wrap} $small={smallValue} $veryLong={very_long}>
+      <MarqueeText disabled={wrap}>
+        {tag ? (
+          String(value ?? EMPTY)
+            .split(",")
+            .map((item, index) => (
+              <Tag key={index}>{formatValue(item.trim())}</Tag>
+            ))
+        ) : (
+          <TitleBody noWrap={!wrap} title={formatValue(value)} />
+        )}
+      </MarqueeText>
+      {valueIcon}
+    </ValueCell>
+  </Wrapper>
+);
 
 export default TitleValue;

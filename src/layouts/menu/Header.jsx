@@ -10,7 +10,8 @@ import ThemeMenuModule from "./ThemeMenuModule";
 import { getLanguagesMeta, subscribeLanguagesMeta } from "../../i18n/i18n";
 import { metarangUrl, getTranslation } from "../../services/Utility";
 import TitleBody from "../../components/TitleBody.jsx";
-
+import MarqueeText from "../../components/MarqueeText";
+const TEXT_MAX_WIDTH = 70;
 const Logo = styled.img`
   margin-top: 5px;
   height: 42px;
@@ -44,6 +45,7 @@ const ContainerText = styled.div`
   flex-direction: column;
   white-space: nowrap;
   gap: 0;
+  min-width: 0;
 `;
 
 const BtnOpenCloseMenu = styled.button`
@@ -112,26 +114,25 @@ const Header = () => {
           alt="متارنگ"
         />
         <ContainerText $isOpen={isOpen}>
-          <TitleBody
+          <MarqueeText maxWidth={TEXT_MAX_WIDTH}>
+            <TitleBody
               lineHeight={1.5}
-
-            noMargin
-            weight
-            noWrap
-            title={getTranslation(148)}
-            onClick={() => {
-              window.open(metarangUrl(), "_blank");
-            }}
-          />
-          <TitleBody
-              lineHeight={1}
-
-            noMargin
-            small
-            mutedText
-            noWrap
-            title={getTranslation(905)}
-          />
+              noMargin
+              weight={600}
+              noWrap
+              title={getTranslation(148)}
+            />
+          </MarqueeText>
+          <MarqueeText maxWidth={TEXT_MAX_WIDTH}>
+            <TitleBody
+              lineHeight={1.1}
+              noMargin
+              small
+              mutedText
+              noWrap
+              title={getTranslation(905)}
+            />
+          </MarqueeText>
         </ContainerText>
         <Headerbtn $isOpen={isOpen}>
           <LangContainer isOpen={isOpen}>
