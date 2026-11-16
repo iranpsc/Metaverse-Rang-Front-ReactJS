@@ -11,8 +11,7 @@ const DIV = styled.button`
   background-color: ${({ theme }) => theme.colors.newColors.shades.bg2};
   justify-content: space-between;
 `;
-const EDUCATION_MODAL_SIZE = { width: 550, height: 315 };
-
+const EDUCATION_MODAL_SIZE = { width: 550, height: 550, mobileHeight: 315 };
 const Education = ({
   setOpenEducation,
   adviserData,

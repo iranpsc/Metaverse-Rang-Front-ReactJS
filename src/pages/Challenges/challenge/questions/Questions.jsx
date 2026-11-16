@@ -156,7 +156,8 @@ const Prize = styled.div`
   }
 
   img {
-    width: 15px;
+    width: 22px;
+    height: 22px;
   }
 `;
 

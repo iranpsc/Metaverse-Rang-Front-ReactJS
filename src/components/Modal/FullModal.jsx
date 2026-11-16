@@ -26,8 +26,8 @@ const Overlay = styled.div`
 `;
 
 const StyledRnd = styled(Rnd)`
-  display: flex; 
-  
+  display: flex;
+
   flex-direction: column;
   box-sizing: border-box;
   background-color: ${(props) =>
@@ -110,11 +110,13 @@ const FullModal = ({
 
   const modalSize = useMemo(() => {
     const base = typeof size === "object" ? size : SIZES[size] || SIZES.md;
+    const height =
+      isMobile && base.mobileHeight ? base.mobileHeight : base.height;
     return {
       width: Math.min(base.width, winW - 20),
-      height: Math.min(base.height, winH - 20),
+      height: Math.min(height, winH - 20),
     };
-  }, [size, winW, winH]);
+  }, [size, winW, winH, isMobile]);
 
   useEffect(() => {
     if (!open) return;
@@ -161,9 +163,7 @@ const FullModal = ({
               title={title}
               setOpenEducation={onClose}
               isFullscreen={fullscreen}
-              onToggleFullscreen={
-                fullscreenable ? toggleFullscreen : undefined
-              }
+              onToggleFullscreen={fullscreenable ? toggleFullscreen : undefined}
             />
           </HeaderWrap>
           <Content>{content}</Content>
@@ -184,9 +184,7 @@ const FullModal = ({
               title={title}
               setOpenEducation={onClose}
               isFullscreen={fullscreen}
-              onToggleFullscreen={
-                fullscreenable ? toggleFullscreen : undefined
-              }
+              onToggleFullscreen={fullscreenable ? toggleFullscreen : undefined}
             />
           </HeaderWrap>
           <Content>{content}</Content>
