@@ -122,7 +122,7 @@ const Filter = styled.div`
   border-radius: 10px;
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
-
+z-index: 1;
   @media (min-width: 1400px) {
     padding: 20px;
     top: 60px;

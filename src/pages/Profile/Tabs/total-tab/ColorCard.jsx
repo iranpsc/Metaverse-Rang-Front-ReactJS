@@ -7,7 +7,7 @@ const Container = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  padding: 14px 24px;
+  padding: 8px 12px;
   border-radius: 10px;
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};

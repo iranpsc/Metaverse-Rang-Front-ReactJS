@@ -82,8 +82,9 @@ const Name = styled.div`
 const Field = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: ${({ $center }) => ($center ? "center" : "stretch")};
+  align-items: start;
   gap: 4px;
+  padding-inline-start: 5px;
   text-align: ${({ $center }) => ($center ? "center" : "start")};
 `;
 
@@ -218,7 +219,6 @@ const CardItem = ({
 
         {isForSale ? (
           <Button
-            full
             color="#c3000026"
             textColor="#c30000"
             label={getTranslation("736")}
@@ -227,7 +227,6 @@ const CardItem = ({
           />
         ) : (
           <Button
-            fit
             label={getTranslation("352")}
             onClick={() =>
               navigate(`/feature/${navigateId}/sell/PriceDefine`, {

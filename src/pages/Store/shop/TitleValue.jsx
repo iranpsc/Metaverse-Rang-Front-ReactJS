@@ -15,7 +15,7 @@ const TitleValue = ({ title, value, shop }) => {
   return (
     <Container shop={shop}>
       <TitleBody gray small title={title} />
-      <TitleBody title={convertToPersian(value)} />
+      <TitleBody noWrap title={convertToPersian(value)} />
     </Container>
   );
 };

@@ -11,7 +11,7 @@ const SIDEBAR_ITEMS = currencies.map((item, index) => ({
   to: `${CURRENCY_BASE_PATH}/${item.path}`,
   // آیتم اول برای مسیر پیش‌فرض /store/currency هم فعال است
   activeSegments: index === 0 ? [DEFAULT_CURRENCY_SEGMENT] : undefined,
-  renderTitle: () => `${getTranslation("504")} ${convertToPersian(item.id)}`,
+  renderTitle: () => `${getTranslation("504")} ${convertToPersian(item.number)} ${getTranslation("505")}`,
 }));
 
 const Wrapper = styled.div`

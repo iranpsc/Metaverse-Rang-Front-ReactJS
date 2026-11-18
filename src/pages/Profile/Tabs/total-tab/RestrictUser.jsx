@@ -55,13 +55,16 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px;
+  gap: 10px;
   margin-top: 20px;
-  padding: 20px;
+  padding: 10px;
   border: 1px solid #454545;
   border-radius: 10px;
 
   @media (min-width: 1024px) {
+    gap: 20px;
+    padding: 20px;
+
     flex-direction: row;
     gap: 0;
   }

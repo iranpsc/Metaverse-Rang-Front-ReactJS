@@ -20,13 +20,16 @@ const Container = styled.div`
   background-color: ${(props) =>
     props.theme.colors.newColors.otherColors.inputBg};
 
-  padding: 10px 20px 10px 15px;
+  padding: 15px;
   margin-top: 20px;
 
   display: grid;
   /* نوار لول بقیه‌ی فضا رو می‌گیره، نگین‌ها به اندازه‌ی خودشون تا حداکثر ۵۰٪ */
   grid-template-columns: minmax(0, 1fr) fit-content(50%);
   align-items: center;
+  @media (max-width: 1024px) {
+    padding: 8px;
+  }
 `;
 
 const Percent = styled.div`

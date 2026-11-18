@@ -8,7 +8,7 @@
   "name": "CARTO vector tiles",
   "format": "pbf",
   "id": "carto.streets/v1",
-  "attribution": "<p>قدرت گرفته از <a href=\"https://api-map.metarang.com/\" target=\"_blank\" rel=\"noopener noreferrer\">نقشه ملی</a></p>",
+  "attribution": "<p>قدرت گرفته از <a href=\"https://map.metarang.com/\" target=\"_blank\" rel=\"noopener noreferrer\">نقشه ملی</a></p>",
   "center": [-12.2168, 28.6135, 4],
   "description": "OpenStreetMap data packaged by OpenMapTiles",
   "maxzoom": 14,

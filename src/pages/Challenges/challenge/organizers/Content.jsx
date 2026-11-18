@@ -44,6 +44,8 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   padding: 15px;
+  margin-bottom: 70px;
+
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;

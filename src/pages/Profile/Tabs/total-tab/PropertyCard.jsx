@@ -10,6 +10,9 @@ const Container = styled.div`
   border-radius: 10px;
   background-color: ${({ theme }) =>
     theme.colors.newColors.otherColors.inputBg};
+      @media (max-width: 1024px) {
+  padding: 10px;
+  }
 `;
 
 const Info = styled.div`
@@ -32,8 +35,8 @@ const PropertyCard = ({ image, label, value, showUnit = true }) => {
     <Container>
       <img width={40} height={40} loading="lazy" alt={label} src={image} />
       <Info>
-        <TitleBody small title={label} />
-        <TitleBody title={valueText} />
+        <TitleBody noMargin noWrap small title={label} />
+        <TitleBody noMargin title={valueText} />
       </Info>
     </Container>
   );

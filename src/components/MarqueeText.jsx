@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 import useLanguage from "../hooks/useLanguage";
 
-const GAP = 5;
+const GAP = 20;
 const SPEED = 20; // px per second
 
 const scrollLtr = keyframes`

@@ -12,7 +12,7 @@ const rotate = keyframes`
 const Overlay = styled.div`
   position: fixed;
   inset: 0;
-  z-index: 9999;
+  z-index: 91212212999;
   display: none;
   flex-direction: column;
   justify-content: center;

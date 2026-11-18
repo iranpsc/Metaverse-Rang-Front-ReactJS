@@ -101,15 +101,15 @@ const Text = styled.p`
 `;
 
 const ValueBtn = styled.span`
-  width: 25px;
-  height: 25px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: #c90f0fff;
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 10px;
   position: ${(props) => (props.isOpen ? "inherit" : "absolute")};
   left: 1px;
   top: -3px;
