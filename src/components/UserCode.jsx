@@ -25,7 +25,7 @@ const UserCode = ({ code, size = "default" }) => {
 
   return (
     <Link
-      href={metarangUrlCitizen(code)}
+      href={metarangUrlCitizen(code.toLowerCase())}
       target="_blank"
       rel="noopener noreferrer"
       $size={size}

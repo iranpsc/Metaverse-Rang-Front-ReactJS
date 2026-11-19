@@ -45,7 +45,7 @@ const Body = styled.div`
   display: grid;
   grid-template-columns: 1fr 200px;
   gap: 8px;
-  height: calc(100% - 100px);
+  height: calc(100% - 90px);
   margin-top: 20px;
   padding: 0 10px;
   overflow-x: hidden;
@@ -57,7 +57,7 @@ const Body = styled.div`
   }
 
   @media (min-width: 500px) and (max-width: 1000px) {
-    grid-template-columns: 1fr 170px;
+    grid-template-columns: 1fr 250px;
     padding: 0 5px;
   }
 
@@ -84,8 +84,6 @@ const Sidebar = styled.div`
   flex-direction: column;
   gap: 10px;
   height: fit-content;
-  min-width: 190px;
-
   @media (max-width: 1280px) {
     p {
       font-size: 13px;
@@ -156,7 +154,8 @@ const Prize = styled.div`
   }
 
   img {
-    width: 15px;
+    width: 22px;
+    height: 22px;
   }
 `;
 

@@ -100,12 +100,12 @@ const SubMenu = styled.div`
     $isOpen && $isOpenDrop ? "block" : "none"};
   top: ${({ $isOpen }) => ($isOpen ? "0" : "10%")};
   margin-top: 5px;
+  align-self: start;
   white-space: nowrap;
   background-color: ${({ theme }) => theme.colors.newColors.primaryText};
   padding: ${({ isOpen }) => (isOpen ? "0" : "10px")};
   border-radius: ${({ isOpen }) => (isOpen ? "0" : "10px")};
-  width: ${({ isOpen }) => (isOpen ? "100%" : "16.6%")};
-  min-width: ${({ isOpen }) => (isOpen ? "" : "190px")};
+  width: ${({ isOpen }) => (isOpen ? "100%" : "95%")};
   overflow-y: ${({ isOpen }) => (isOpen ? "visible" : "auto")};
 `;
 
@@ -125,8 +125,9 @@ const Text = styled.p`
 `;
 
 const ImgUser = styled.img`
-  min-width: 30px;
+  width: 30px;
   height: 30px;
+  aspect-ratio: 1;
   margin: 5px 0;
   border-radius: 100%;
   border: 1px solid white;

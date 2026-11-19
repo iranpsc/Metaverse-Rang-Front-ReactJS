@@ -9,7 +9,7 @@ import React, {
 import { setWorkerUrl } from "maplibre-gl";
 import workerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url";
 import "maplibre-gl/dist/maplibre-gl.css";
-import Map from "react-map-gl/maplibre";
+import Map, { Marker } from "react-map-gl/maplibre";
 import { useNavigate } from "react-router";
 import { Container } from "./styles";
 import MapPolygons from "./MapPolygons";
@@ -20,7 +20,7 @@ import * as turf from "@turf/turf";
 import AuthMiddleware from "../../middleware/AuthMiddleware";
 import ZoomControls from "../../components/ZoomControls";
 import FullscreenControls from "../../components/FullscreenControls";
-import { Marker } from "react-map-gl/maplibre";
+import MapAttribution from "./MapAttribution";
 import { Skeleton } from "../../components/Skeletons/Skeleton";
 import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext.jsx";
 import { useTheme } from "../../services/reducers/ThemeContext.jsx";
@@ -28,14 +28,19 @@ import styleMapLight from "../../assets/styleMapLight.json";
 import styleMapDark from "../../assets/styleMapDark.json";
 import useMapUrlState, { showPolygons } from "../../hooks/useMapUrlState.js";
 import { flyToMapPosition } from "../../services/Utility/flyToMapPosition";
+import { isMobile } from "../../services/Utility/index.jsx";
+import useLanguage from "../../hooks/useLanguage.js";
+
 const TransactionContext = createContext(null);
 const MemoMapPolygons = React.memo(MapPolygons);
 const MemoMapFlag = React.memo(MapFlag);
 const Mark = React.lazy(() => import("./3dModelMap/Mark"));
 const MemoMark = React.memo(Mark);
-+setWorkerUrl(workerUrl);
+setWorkerUrl(workerUrl);
+
 const MapTreeD = () => {
   const { setMapState, getMapState } = useMapUrlState();
+  const { isRtl } = useLanguage();
   const [selectedTransaction, setSelectedTransaction] = useState([]);
   const mapRef = useRef(null);
   const mapContainerRef = useRef(null);
@@ -49,6 +54,7 @@ const MapTreeD = () => {
     confirmation && Boolean(selectedEnvironment?.id) && !hiddenModel;
   const isPersian = useIsRtl();
   const navigate = useNavigate();
+
   const handleZoomChange = useCallback((delta) => {
     if (!mapRef.current) return;
     const map = mapRef.current.getMap();
@@ -101,6 +107,7 @@ const MapTreeD = () => {
     },
     [isPlacementActive, navigate],
   );
+
   const { theme } = useTheme();
 
   useEffect(() => {
@@ -108,16 +115,7 @@ const MapTreeD = () => {
       screen.orientation.lock("landscape-primary").catch(() => {});
     }
   }, [isFullScreen]);
-  useEffect(() => {
-    const observer = new MutationObserver(() => {
-      const attrib = document.querySelector(".maplibregl-ctrl-attrib");
-      if (attrib?.classList.contains("maplibregl-compact-show")) {
-        attrib.classList.remove("maplibregl-compact-show");
-      }
-    });
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  }, []);
+
   const themeStyle = useMemo(
     () => (theme === "dark" ? styleMapDark : styleMapLight),
     [theme],
@@ -151,6 +149,9 @@ const MapTreeD = () => {
   const [initialStyle] = useState(() =>
     theme === "dark" ? styleMapDark : styleMapLight,
   );
+
+  const initializedRef = useRef(false);
+
   const handleMoveEnd = useCallback(() => {
     if (!initializedRef.current || !mapRef.current) return;
 
@@ -165,7 +166,6 @@ const MapTreeD = () => {
       pitch: map.getPitch(),
     });
   }, [setMapState]);
-  const initializedRef = useRef(false);
 
   useEffect(() => {
     if (!mapLoaded || !mapRef.current || initializedRef.current) return;
@@ -205,6 +205,7 @@ const MapTreeD = () => {
               canvasContextAttributes={{
                 antialias: true,
               }}
+              attributionControl={false}
               mapStyle={initialStyle}
               interactiveLayerIds={
                 isPlacementActive ? [] : ["polygon-fill-layer"]
@@ -236,10 +237,11 @@ const MapTreeD = () => {
                   <MemoMark />
                 </React.Suspense>
               )}
-
               <MemoMapPolygons />
               <MemoMapFlag />
             </Map>
+
+            <MapAttribution isRtl={isRtl} compact={isMobile} />
 
             <ZoomControls
               isPersian={isPersian}

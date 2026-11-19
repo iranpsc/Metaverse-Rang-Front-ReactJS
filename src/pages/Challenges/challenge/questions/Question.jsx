@@ -47,6 +47,7 @@ const Row = styled.div`
   gap: 10px;
 
   ${compactOnly("gap: 5px;")}
+  
 `;
 
 const Photo = styled.div`
@@ -70,7 +71,6 @@ const Photo = styled.div`
 const Body = styled.div`
   flex-grow: 1;
 `;
-
 
 const PercentRow = styled.div`
   display: flex;

@@ -2,12 +2,20 @@ import { cloneElement, useEffect, useId, useRef, useState } from "react";
 import styled from "styled-components";
 import { Tooltip } from "react-tooltip";
 import { isMobile } from "../../services/Utility";
+import { responsiveFontSize } from "../../styles/sizes.js";
 
 import "react-tooltip/dist/react-tooltip.css";
+const toCssSize = (value, fallback) => {
+  if (value === "auto") return "auto";
+  return `${value || fallback}px`;
+};
 
 const TooltipContainer = styled.div`
-  width: ${(props) => props.$width || 170}px;
-  height: ${(props) => props.$height || 40}px;
+  width: ${({ $width }) => toCssSize($width, 170)};
+  height: ${({ $height }) => toCssSize($height, 40)};
+  min-height: 40px;
+  max-width: min(90vw, 400px);
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -19,14 +27,18 @@ const TooltipContainer = styled.div`
 
   border-radius: 10px;
 
-  color: ${(props) =>
-    props.theme.colors.newColors.otherColors.headerMenu};
+  color: ${(props) => props.theme.colors.newColors.otherColors.headerMenu};
 
-  font-size: 16px;
+  ${responsiveFontSize}
   font-style: normal;
   font-weight: 400;
   line-height: 180%;
   text-transform: capitalize;
+
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-align: center;
 
   position: relative;
 
@@ -45,7 +57,6 @@ const TooltipContainer = styled.div`
     rotate: ${(props) => (props.$lang === "en" ? "0" : "180deg")};
   }
 `;
-
 const TooltipContainer2 = styled.div`
   display: flex;
   flex-direction: column;
@@ -57,7 +68,7 @@ const TooltipContainer2 = styled.div`
 `;
 
 const Title = styled.span`
-  font-size: 16px;
+  font-size: inherit;
 `;
 
 const Content = styled.p`
@@ -83,7 +94,7 @@ export default function ToolTip({
 
   const child = cloneElement(
     Chidren,
-    disabled ? {} : { "data-tooltip-id": tooltipId }
+    disabled ? {} : { "data-tooltip-id": tooltipId },
   );
 
   useEffect(() => {

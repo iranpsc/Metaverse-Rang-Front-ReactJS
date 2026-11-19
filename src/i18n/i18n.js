@@ -3,14 +3,8 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import axios from "axios";
-const isDevelopment =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1" ||
-  window.location.hostname.startsWith("dev-");
-const TRANSLATIONS_API = isDevelopment
-  ? "https://dev-admin.metarang.com/api/translations?active=true"
-  : "https://admin.metarang.com/api/translations?active=true";
-
+const TRANSLATIONS_API =
+  "https://admin.metarang.com/api/translations?active=true";
 const CACHE_PREFIX = "i18n_cache_";
 const META_KEY = `${CACHE_PREFIX}meta`;
 

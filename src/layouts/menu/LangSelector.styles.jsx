@@ -40,7 +40,6 @@ export const LangMenu = styled.div`
   position: absolute;
   top: 100%;
   margin-top: 8px;
-  width: 130px;
 
   display: flex;
   flex-direction: column;

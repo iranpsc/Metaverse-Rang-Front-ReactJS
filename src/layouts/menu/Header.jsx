@@ -1,3 +1,4 @@
+// Top header of the side menu: logo, title/subtitle, language and theme buttons and the open/close toggle, all in one horizontal row.
 import styled from "styled-components";
 import LogoIcon from "../../assets/images/brand/metarang-newLogo.webp";
 import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
@@ -10,46 +11,69 @@ import ThemeMenuModule from "./ThemeMenuModule";
 import { getLanguagesMeta, subscribeLanguagesMeta } from "../../i18n/i18n";
 import { metarangUrl, getTranslation } from "../../services/Utility";
 import TitleBody from "../../components/TitleBody.jsx";
+import MarqueeText from "../../components/MarqueeText";
+
+const GAP = "5px";
+const TEXT_MAX_WIDTH_MOBILE = 70;
+const TEXT_MAX_WIDTH_DESKTOP = 100;
+const DESKTOP_BREAKPOINT = 1024;
+
+const useIsDesktop = () => {
+  const [isDesktop, setIsDesktop] = useState(
+    () => window.innerWidth >= DESKTOP_BREAKPOINT,
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(min-width: ${DESKTOP_BREAKPOINT}px)`);
+    const onChange = (e) => setIsDesktop(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
+
+  return isDesktop;
+};
 
 const Logo = styled.img`
-  margin-top: 5px;
   height: 42px;
   width: 42px;
+  flex-shrink: 0;
   cursor: pointer;
+  @media (max-width: 1024px) {
+    height: 35px;
+    width: 35px;
+  }
 `;
 
 const Container = styled.div`
   display: flex;
-  align-items: start;
+  flex-direction: row;
+  align-items: center;
   justify-content: ${(props) => (props.$isOpen ? "space-between" : "center")};
-  gap: 5px;
+  gap: ${GAP};
   width: 100%;
   position: relative;
 `;
 
 const Headerbtn = styled.div`
-  flex-direction: row;
-  padding-top: 5px;
-  gap: 10px;
   display: ${(props) => (props.$isOpen ? "flex" : "none")};
-
-  @media (max-width: 767px) {
-    padding-top: 8px;
-  }
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 10px;
 `;
 
 const ContainerText = styled.div`
   display: ${(props) => (props.$isOpen ? "flex" : "none")};
-  align-items: start;
-  white-space: nowrap;
-  justify-content: center;
   flex-direction: column;
+  align-items: start;
+  justify-content: center;
+  min-width: 0;
 `;
 
 const BtnOpenCloseMenu = styled.button`
+  flex-shrink: 0;
   width: ${(p) => (p.$isOpen ? "17px" : "41px")};
   height: ${(p) => (p.$isOpen ? "17px" : "41px")};
-  margin-top: ${(p) => (p.$isOpen ? "10px" : "")};
   border-radius: 100%;
   display: flex;
   align-items: center;
@@ -81,16 +105,15 @@ const Icon = styled(ArowMenu)`
   transition: transform 0.3s ease;
 `;
 
-const ContainerMain = styled.div`
-  display: flex;
-  gap: 12px;
-`;
-
 const Header = () => {
   const { currentLang, changeLanguage, isRtl } = useLanguage();
   const [langArray, setLangArray] = useState(getLanguagesMeta);
   const [isLangOpen, setIsLangOpen] = useState(false);
   const { isOpen, toggleMenu } = useMenuContext();
+  const isDesktop = useIsDesktop();
+  const textMaxWidth = isDesktop
+    ? TEXT_MAX_WIDTH_DESKTOP
+    : TEXT_MAX_WIDTH_MOBILE;
   const currentLangObject =
     langArray.find((item) => item.code === currentLang) || langArray[0];
 
@@ -100,65 +123,66 @@ const Header = () => {
 
   return (
     <Container $isOpen={isOpen}>
-      <ContainerMain>
-        <Logo
-          onClick={() => {
-            window.open(metarangUrl(), "_blank");
-          }}
-          src={LogoIcon}
-          alt="متارنگ"
-        />
-        <ContainerText $isOpen={isOpen}>
+      <Logo
+        onClick={() => window.open(metarangUrl(), "_blank")}
+        src={LogoIcon}
+        alt="متارنگ"
+      />
+
+      <ContainerText $isOpen={isOpen}>
+        <MarqueeText maxWidth={textMaxWidth}>
           <TitleBody
+            lineHeight={1.5}
             noMargin
-            weight
+            weight={600}
             noWrap
             title={getTranslation(148)}
-            onClick={() => {
-              window.open(metarangUrl(), "_blank");
-            }}
           />
+        </MarqueeText>
+        <MarqueeText maxWidth={textMaxWidth}>
           <TitleBody
+            lineHeight={1.1}
             noMargin
             small
             mutedText
             noWrap
             title={getTranslation(905)}
           />
-        </ContainerText>
-        <Headerbtn $isOpen={isOpen}>
-          <LangContainer isOpen={isOpen}>
-            <LangButton onClick={() => setIsLangOpen(!isLangOpen)}>
-              <img
-                src={currentLangObject?.icon}
-                alt={currentLangObject?.native_name}
-                width={28}
-                height={28}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  borderRadius: "50%",
-                }}
-              />
-            </LangButton>
+        </MarqueeText>
+      </ContainerText>
 
-            {isLangOpen && (
-              <LangMenu>
-                <DropdownLanguageModule
-                  langArray={langArray}
-                  currentLangObject={currentLangObject}
-                  changeLanguage={changeLanguage}
-                  currentLang={currentLang}
-                  setIsLangOpen={setIsLangOpen}
-                  isLangOpen={isLangOpen}
-                />
-              </LangMenu>
-            )}
-          </LangContainer>
-          <ThemeMenuModule />
-        </Headerbtn>
-      </ContainerMain>
+      <Headerbtn $isOpen={isOpen}>
+        <LangContainer isOpen={isOpen}>
+          <LangButton onClick={() => setIsLangOpen(!isLangOpen)}>
+            <img
+              src={currentLangObject?.icon}
+              alt={currentLangObject?.native_name}
+              width={28}
+              height={28}
+              style={{
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                borderRadius: "50%",
+              }}
+            />
+          </LangButton>
+
+          {isLangOpen && (
+            <LangMenu>
+              <DropdownLanguageModule
+                langArray={langArray}
+                currentLangObject={currentLangObject}
+                changeLanguage={changeLanguage}
+                currentLang={currentLang}
+                setIsLangOpen={setIsLangOpen}
+                isLangOpen={isLangOpen}
+              />
+            </LangMenu>
+          )}
+        </LangContainer>
+        <ThemeMenuModule />
+      </Headerbtn>
 
       <BtnOpenCloseMenu
         onClick={toggleMenu}

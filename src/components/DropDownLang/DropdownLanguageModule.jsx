@@ -5,19 +5,18 @@ const Menu = styled.ul`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding-top: 8px;
+  padding-top: 1px;
 `;
 
 const Item = styled.li`
   display: flex;
   gap: 10px;
   width: 100%;
-  padding: 6px 0;
+  padding: 2px 0;
   cursor: pointer;
 `;
 
 const Name = styled.p`
-  overflow: hidden;
   color: ${({ $selected, theme }) =>
     $selected ? theme.colors.primary : "#858585"};
   white-space: nowrap;

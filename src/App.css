@@ -82,3 +82,7 @@ button {
 
 
 
+::-webkit-scrollbar:horizontal {
+  height: 0;
+  display: none;
+}

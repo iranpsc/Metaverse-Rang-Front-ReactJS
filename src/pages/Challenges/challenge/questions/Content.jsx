@@ -13,6 +13,9 @@ const Options = styled.div`
   flex-direction: column;
   gap: 15px;
   margin-top: 15px;
+  @media (max-width: 1024px) {
+    gap: 8px;
+  }
 `;
 
 const Content = ({
@@ -22,7 +25,7 @@ const Content = ({
   onSelectAnswer,
 }) => (
   <Container>
-    <TitleHeader small right title={title} />
+    <TitleHeader noMargin small right title={title} />
 
     <Options>
       {options.map(({ id, title, status, percent }) => (

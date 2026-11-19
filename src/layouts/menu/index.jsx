@@ -1,3 +1,4 @@
+// Main side menu: the sidebar of the app layout, with a header, profile and login/action buttons. Width follows its content.
 import styled from "styled-components";
 import Header from "./Header";
 import Profile from "./Profile";
@@ -9,81 +10,71 @@ import BtnLogin from "./BtnAction/BtnLogin";
 import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext.jsx";
 import { useIsRtl } from "../../services/reducers/LanguageContext.jsx";
 
+const PADDING = "10px";
+const PADDING_DESKTOP = "20px";
+
 const BlurOverlay = styled.div`
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  inset: 0;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(8px);
   background-color: rgba(58, 57, 57, 0.18);
   z-index: 999;
-  display: ${({ show }) => (show ? "block" : "none")};
+  display: ${({ $show }) => ($show ? "block" : "none")};
 
   @media (min-width: 833px) {
     display: none;
   }
 `;
+
 const Container = styled.div`
   position: relative;
-  display: ${({ show }) => (show ? "none" : "flex")};
+  display: ${({ $hidden }) => ($hidden ? "none" : "flex")};
   flex-direction: column;
   align-items: start;
-  flex: 1;
   justify-content: start;
-  width: ${({ isPersian, isOpen }) =>
-    isPersian ? (isOpen ? "35%" : "9%") : isOpen ? "38%" : "9%"};
-  max-width: 250px;
+  flex: 0 0 auto;
+  width: fit-content;
   height: 100%;
+  box-sizing: border-box;
+  padding: ${PADDING};
   border-radius: 10px;
+  background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
+  transition: all 0.3s ease 0s;
 
   @media (max-width: 832px) {
     max-width: 260px;
-    position: ${({ isModalOpen }) => (isModalOpen ? "absolute" : "relative")};
+    position: ${({ $isModalOpen }) => ($isModalOpen ? "absolute" : "relative")};
     z-index: 1000;
-    height: ${({ isModalOpen, isOpen }) => {
-      if (isModalOpen && isOpen) return "100%";
-      if (!isModalOpen) return "100%";
-      return "98.5%";
-    }};
-    ${({ isPersian }) => (isPersian ? "right:0" : "left: 0")};
-
-    top: ${({ isModalOpen, isOpen }) => isModalOpen && isOpen && "0"};
-    border-radius: ${({ isModalOpen, isOpen }) => isModalOpen && isOpen && "0"};
+    height: ${({ $isModalOpen, $isOpen }) =>
+      !$isModalOpen || $isOpen ? "100%" : "98.5%"};
+    ${({ $isPersian }) => ($isPersian ? "right: 0;" : "left: 0;")}
+    ${({ $isModalOpen, $isOpen }) =>
+      $isModalOpen && $isOpen && "top: 0; border-radius: 0;"}
   }
+
   @media (min-width: 1024px) {
-    width: ${(props) => (props.isOpen ? "32%" : "6.1%")};
-    padding: 20px;
-    padding-bottom: 10px;
+    padding: ${PADDING_DESKTOP};
   }
-  @media (min-width: 1536px) {
-    width: ${(props) => (props.isOpen ? "21.5%" : "4.1%")};
-    border-radius: 10px;
-    padding: 20px;
-    padding-bottom: 10px;
+  @media (max-width: 1023px) {
+    ${({ $hiddenOnMobile }) => $hiddenOnMobile && "display: none;"}
   }
-  background-color: ${(props) =>
-    props.theme.colors.newColors.otherColors.menuBg};
-  padding: ${(props) => (props.isOpen ? "5px" : "10px")};
-  padding-bottom: 10px;
-
-  transition: all 0.3s ease 0s;
 `;
 
 const Menu = () => {
-  const { isOpen } = useMenuContext();
+  const { isOpen, isHiddenOnMobile } = useMenuContext();
   const { isModalOpen, isGlobalFullScreenMap } = useScrollDirectionContext();
   const isPersian = useIsRtl();
+
   return (
     <>
-      <BlurOverlay show={isModalOpen && isOpen} />
-
+      <BlurOverlay $show={isModalOpen && isOpen && !isHiddenOnMobile} />
       <Container
-        isOpen={isOpen}
-        isModalOpen={isModalOpen}
-        isPersian={isPersian}
-        show={isGlobalFullScreenMap}
+        $isOpen={isOpen}
+        $isModalOpen={isModalOpen}
+        $isPersian={isPersian}
+        $hidden={isGlobalFullScreenMap}
+        $hiddenOnMobile={isHiddenOnMobile}
       >
         <Header />
         <PrivateComponent>
