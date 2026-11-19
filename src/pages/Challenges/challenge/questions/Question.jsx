@@ -47,6 +47,7 @@ const Row = styled.div`
   gap: 10px;
 
   ${compactOnly("gap: 5px;")}
+  
 `;
 
 const Photo = styled.div`

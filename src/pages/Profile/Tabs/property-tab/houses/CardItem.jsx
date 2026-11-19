@@ -1,12 +1,11 @@
 // کارت نمایش یک ملک در لیست دارایی‌ها (عکس، نام، آدرس، پایداری، قیمت فروش) با دکمه‌ی تعیین قیمت یا لغو درخواست فروش؛ مناسب لیست املاک من یا املاک یک بازیکن
 
 import styled from "styled-components";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import Button from "../../../../../components/Button.jsx";
 import LandText from "../../../../../components/LandText.jsx";
 import TitleBody from "../../../../../components/TitleBody.jsx";
-import ToolTip from "../../../../../components/Tooltip/Tooltip.jsx";
 import useRequest from "../../../../../hooks/useRequest.js";
 import {
   convertToPersian,
@@ -14,6 +13,7 @@ import {
   getTranslation,
 } from "../../../../../services/Utility/index.jsx";
 import { COLOR_CONFIG } from "../../../../../services/constants/colorConfig.js";
+import TruncatedText from "../../../../../components/TruncatedText.jsx";
 
 const formatPrice = (value) => convertToPersian(formatNumber(value));
 
@@ -45,6 +45,10 @@ const Left = styled.div`
   grid-template-columns: 1fr 1fr 130px;
   align-items: center;
   white-space: wrap;
+`;
+const ButtonContainer = styled.div`
+  display: flex;
+  justify-content: end;
 `;
 
 const PhotoName = styled.div`
@@ -88,20 +92,6 @@ const Field = styled.div`
   text-align: ${({ $center }) => ($center ? "center" : "start")};
 `;
 
-// آدرس بیشتر از دو خط با سه‌نقطه کوتاه می‌شود
-const AddressClamp = styled.div`
-  min-width: 0;
-
-  & > * {
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
-    overflow: hidden;
-
-    overflow-wrap: anywhere;
-  }
-`;
-
 const Prices = styled.div`
   display: flex;
   gap: 12px;
@@ -130,24 +120,9 @@ const CardItem = ({
   const { Request, HTTP_METHOD, checkSecurity } = useRequest();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const addressRef = useRef(null);
 
   const [isForSale, setIsForSale] = useState(Number(forSale) === 1);
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
-  const [isTruncated, setIsTruncated] = useState(false);
-
-  // فقط وقتی آدرس واقعاً بریده شده تولتیپ فعال می‌شود
-  useLayoutEffect(() => {
-    const el = addressRef.current?.firstElementChild;
-    if (!el) return;
-
-    const check = () => setIsTruncated(el.scrollHeight > el.clientHeight);
-    check();
-
-    const observer = new ResizeObserver(check);
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [address]);
 
   const handleDelete = () => {
     if (isDeleteLoading || !checkSecurity()) return;
@@ -169,26 +144,14 @@ const CardItem = ({
           </ImageWrapper>
 
           <Name>
-            <TitleBody weight title={getTranslation(name)} />
-            <LandText to={`/feature/${navigateId}/info`} label={id} />
+            <TitleBody noWrap weight title={getTranslation(name)} />
+            <LandText to={`/feature/${navigateId}/info`} label={id} noWrap />
           </Name>
         </PhotoName>
 
         <Field>
           <TitleBody weight title={getTranslation(59)} />
-
-          <ToolTip
-            content={address}
-            place="top"
-            width="auto"
-            height="auto"
-            disabled={!isTruncated}
-            Chidren={
-              <AddressClamp ref={addressRef}>
-                <TitleBody small title={address} />
-              </AddressClamp>
-            }
-          />
+          <TruncatedText text={address} reservedSpace={20} />
         </Field>
       </Right>
 
@@ -216,25 +179,27 @@ const CardItem = ({
         ) : (
           <div />
         )}
-
-        {isForSale ? (
-          <Button
-            color="#c3000026"
-            textColor="#c30000"
-            label={getTranslation("736")}
-            disabled={isDeleteLoading ? "pending" : false}
-            onClick={handleDelete}
-          />
-        ) : (
-          <Button
-            label={getTranslation("352")}
-            onClick={() =>
-              navigate(`/feature/${navigateId}/sell/PriceDefine`, {
-                state: { from: pathname },
-              })
-            }
-          />
-        )}
+        <ButtonContainer>
+          {" "}
+          {isForSale ? (
+            <Button
+              color="#c3000026"
+              textColor="#c30000"
+              label={getTranslation("736")}
+              disabled={isDeleteLoading ? "pending" : false}
+              onClick={handleDelete}
+            />
+          ) : (
+            <Button
+              label={getTranslation("352")}
+              onClick={() =>
+                navigate(`/feature/${navigateId}/sell/PriceDefine`, {
+                  state: { from: pathname },
+                })
+              }
+            />
+          )}
+        </ButtonContainer>
       </Left>
     </Container>
   );

@@ -2,7 +2,7 @@ import { lazy, Suspense, useContext, useEffect } from "react";
 import Menu from "./menu";
 import StatusBar from "./statusBar";
 import { useLocation, useNavigate } from "react-router";
-import { MenuContextProvider } from "../services/reducers/MenuContext";
+import { MenuContextProvider, useMenuContext } from "../services/reducers/MenuContext";
 import styled from "styled-components";
 import { Outlet } from "react-router";
 import { UserContext } from "../services/reducers/UserContext";
@@ -46,6 +46,17 @@ const Container = styled.section`
 
   transition: all 0.3s ease 0s;
 `;
+const MapSlot = styled.div`
+  display: contents;
+
+  @media (max-width: 1023px) {
+    ${({ $hidden }) => $hidden && "display: none;"}
+  }
+`;
+const HideableMap = ({ children }) => {
+  const { isHiddenOnMobile } = useMenuContext();
+  return <MapSlot $hidden={isHiddenOnMobile}>{children}</MapSlot>;
+};
 const MainLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -77,36 +88,38 @@ const MainLayout = () => {
     });
   }, [user, usertoken, location.search, navigate]);
   return (
-    <Container>
-      <MenuContextProvider>
+    <MenuContextProvider>
+      <Container>
         <Menu />
-      </MenuContextProvider>
-      <Suspense
-        fallback={
-          <MapFallback role="status">
-            <img src={spiner} width={100} height={100} alt="" />
-            <TitleBody big color="#FFC700" title={getTranslation(1951)} />
-          </MapFallback>
-        }
-      >
-        <MapProvider>
-          <Suspense
-            fallback={
-              <MapFallback role="status">
-                <img src={spiner} width={100} height={100} alt="" />{" "}
-                <TitleBody big color="#FFC700" title={getTranslation(1951)} />
-              </MapFallback>
-            }
-          >
-            <MapTreeD />
-          </Suspense>
-          <Suspense fallback={<RouteSkeleton />}>
-            <Outlet />
-          </Suspense>
-        </MapProvider>
-      </Suspense>
-      <StatusBar />
-    </Container>
+        <Suspense
+          fallback={
+            <MapFallback role="status">
+              <img src={spiner} width={100} height={100} alt="" />
+              <TitleBody big color="#FFC700" title={getTranslation(1951)} />
+            </MapFallback>
+          }
+        >
+         <MapProvider>
+  <HideableMap>
+    <Suspense
+      fallback={
+        <MapFallback role="status">
+          <img src={spiner} width={100} height={100} alt="" />
+          <TitleBody big color="#FFC700" title={getTranslation(1951)} />
+        </MapFallback>
+      }
+    >
+      <MapTreeD />
+    </Suspense>
+  </HideableMap>
+  <Suspense fallback={<RouteSkeleton />}>
+    <Outlet />
+  </Suspense>
+</MapProvider>
+        </Suspense>
+        <StatusBar />
+      </Container>{" "}
+    </MenuContextProvider>
   );
 };
 

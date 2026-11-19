@@ -39,8 +39,7 @@ const Container = styled.div`
   box-sizing: border-box;
   padding: ${PADDING};
   border-radius: 10px;
-  background-color: ${({ theme }) =>
-    theme.colors.newColors.otherColors.menuBg};
+  background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
   transition: all 0.3s ease 0s;
 
   @media (max-width: 832px) {
@@ -57,22 +56,25 @@ const Container = styled.div`
   @media (min-width: 1024px) {
     padding: ${PADDING_DESKTOP};
   }
+  @media (max-width: 1023px) {
+    ${({ $hiddenOnMobile }) => $hiddenOnMobile && "display: none;"}
+  }
 `;
 
 const Menu = () => {
-  const { isOpen } = useMenuContext();
+  const { isOpen, isHiddenOnMobile } = useMenuContext();
   const { isModalOpen, isGlobalFullScreenMap } = useScrollDirectionContext();
   const isPersian = useIsRtl();
 
   return (
     <>
-      <BlurOverlay $show={isModalOpen && isOpen} />
-
+      <BlurOverlay $show={isModalOpen && isOpen && !isHiddenOnMobile} />
       <Container
         $isOpen={isOpen}
         $isModalOpen={isModalOpen}
         $isPersian={isPersian}
         $hidden={isGlobalFullScreenMap}
+        $hiddenOnMobile={isHiddenOnMobile}
       >
         <Header />
         <PrivateComponent>

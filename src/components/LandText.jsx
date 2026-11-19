@@ -8,7 +8,7 @@ const Link = styled.span`
   color: #ffc700;
   text-transform: uppercase;
   cursor: pointer;
-
+  white-space: ${({ $noWrap }) => ($noWrap ? "nowrap" : "wrap")};
   @media (min-width: 500px) and (max-width: 999px) {
     font-size: ${({ $size }) => getSize($size, "tablet")};
   }
@@ -18,7 +18,7 @@ const Link = styled.span`
   }
 `;
 
-const LandText = ({ to, label, children, size = "default" }) => {
+const LandText = ({ to, label, children, size = "default", noWrap }) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
 
@@ -29,6 +29,7 @@ const LandText = ({ to, label, children, size = "default" }) => {
       role="link"
       tabIndex={0}
       $size={size}
+      $noWrap={noWrap}
       onClick={goTo}
       onKeyDown={(e) => e.key === "Enter" && goTo()}
     >

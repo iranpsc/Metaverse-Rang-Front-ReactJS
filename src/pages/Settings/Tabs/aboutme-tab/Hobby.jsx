@@ -53,7 +53,7 @@ const SIZES = {
 
 const getSize = (key) => SIZES.default[key];
 
-const Counter = styled.h4`
+const Counter = styled.h5`
   font-weight: 400;
   margin: 0;
   font-size: ${getSize("base")};

@@ -40,7 +40,6 @@ const Tab = styled.h3`
         ? props.theme.colors.primary
         : props.theme.colors.newColors.otherColors.inputBorder};
   transition: all 250ms cubic-bezier(0.4, 0, 0.2, 1);
-  overflow: hidden;
   &:hover {
     color: ${(props) => props.theme.colors.primary};
     border-bottom-color: ${(props) => props.theme.colors.primary};
@@ -51,6 +50,7 @@ const TabContainer = styled.div`
   display: flex;
   flex-shrink: 0;
   overflow-x: auto;
+  overflow-y: hidden;
   min-height: 50px;
   border-bottom: 1px solid
     ${(props) => props.theme.colors.newColors.otherColors.inputBorder};

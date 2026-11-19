@@ -44,14 +44,14 @@ const Container = styled.div`
   width: 100%;
   height: 100%;
   padding: 15px;
-  margin-bottom: 70px;
 
   overflow-y: auto;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 
-  @media (max-height: 500px) and (max-width: 1000px) {
+  @media (max-width: 1024px) {
     padding: 5px;
+    margin-bottom: 30px;
   }
 `;
 
