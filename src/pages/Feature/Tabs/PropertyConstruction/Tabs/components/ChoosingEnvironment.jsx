@@ -15,10 +15,11 @@ const Container = styled.div`
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px;
   width: 100%;
-margin-bottom: 30px;
+  margin-bottom: 60px;
   @media (max-width: 1024px) {
     padding: 10px;
     gap: 8px;
+    margin-bottom: 0px;
   }
 `;
 
@@ -28,7 +29,7 @@ const ImgHolder = styled.div`
   height: 180px;
   border-radius: 10px;
 
-  @media (max-width: 768px) {
+  @media (max-width: 1024px) {
     height: 120px;
   }
 `;

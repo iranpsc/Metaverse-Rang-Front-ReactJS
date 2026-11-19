@@ -9,7 +9,7 @@ import BtnsAfterLogin from "./BtnsAfterLogin";
 import BtnLogin from "./BtnAction/BtnLogin";
 import { useScrollDirectionContext } from "../../services/reducers/ScrollDirectionContext.jsx";
 import { useIsRtl } from "../../services/reducers/LanguageContext.jsx";
-
+import LogoutButton from "./LogoutButton.jsx";
 const PADDING = "10px";
 const PADDING_DESKTOP = "20px";
 
@@ -55,6 +55,7 @@ const Container = styled.div`
 
   @media (min-width: 1024px) {
     padding: ${PADDING_DESKTOP};
+    padding-bottom: 15px;
   }
   @media (max-width: 1023px) {
     ${({ $hiddenOnMobile }) => $hiddenOnMobile && "display: none;"}
@@ -87,6 +88,10 @@ const Menu = () => {
         <PublicComponent>
           <BtnLogin />
         </PublicComponent>
+          <PrivateComponent>
+          <LogoutButton />
+        </PrivateComponent>
+
       </Container>
     </>
   );

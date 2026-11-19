@@ -121,6 +121,7 @@ const Notifications = () => {
         key={notif.id}
         id={notif.id}
         data={notif}
+        notifications={notifications}
         setNotifications={setNotifications}
       />
     ));

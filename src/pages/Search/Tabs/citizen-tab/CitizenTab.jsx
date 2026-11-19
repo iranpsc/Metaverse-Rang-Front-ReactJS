@@ -19,7 +19,7 @@ const Results = styled.div`
   }
 `;
 
-const EmptyText = styled.p`
+const EmptyText = styled.div`
   margin-top: 20px;
   text-align: center;
 `;

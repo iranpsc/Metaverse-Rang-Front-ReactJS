@@ -27,7 +27,7 @@ const Pricing = ({ type, amount, color, index, gift }) => {
   return (
     <Container>
       <div>
-        <TitleBody gray small title={getTranslation(770)} />
+        <TitleBody gray small title={getTranslation(60)} />
         {!(index === 2 && amount === 0) && (
           <img src={icons[type]} alt={type} width={18} height={18} />
         )}

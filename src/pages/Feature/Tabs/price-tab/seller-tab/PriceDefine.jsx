@@ -40,7 +40,6 @@ const PriceDefine = () => {
     Request("sell-requests")
       .then((res) => {
         const sellRequests = res?.data?.data || [];
-
         const currentSellRequest = sellRequests.find(
           (item) => Number(item.feature_id) === Number(feature?.id),
         );
@@ -53,9 +52,7 @@ const PriceDefine = () => {
           setPsc(currentSellRequest.price_psc || 0);
         }
       })
-      .catch((error) => {
-        console.error("Error fetching sell requests:", error);
-      });
+
   }, [feature?.id]);
 
   const validateAndSubmit = () => {
@@ -81,7 +78,8 @@ const PriceDefine = () => {
       `sell-requests/store/${feature?.id}`,
       HTTP_METHOD.POST,
       formData,
-    ).then(() => {
+    ).then((res) => {
+      setData(res.data.data)
       ToastSuccess(getTranslation(1650));
 
       setAssign(true);
@@ -112,6 +110,7 @@ const PriceDefine = () => {
             validateAndSubmit={validateAndSubmit}
             errors={errors}
             setAssign={setAssign}
+            setData={setData}
           />
         )}
 
@@ -123,6 +122,7 @@ const PriceDefine = () => {
             setPsc={setPsc}
             setAssign={setAssign}
             id={data?.id}
+            
           />
         )}
       </Wrapper>

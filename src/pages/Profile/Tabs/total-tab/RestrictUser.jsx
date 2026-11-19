@@ -33,9 +33,7 @@ const OPTION_KEYS = ICONS.filter(({ disabled }) => !disabled).map(
   ({ slug }) => slug,
 );
 
-const INITIAL_OPTIONS = Object.fromEntries(
-  ICONS.map(({ slug }) => [slug, false]),
-);
+const INITIAL_OPTIONS = Object.fromEntries(ICONS.map(({ slug }) => [slug, true]));
 
 const JSON_HEADERS = {
   "Content-Type": "application/json",
@@ -49,8 +47,7 @@ const extractData = (response) => response?.data?.data ?? response?.data;
 
 // فقط کلیدهای قابل ارسال را برمی‌گرداند و مقدارشان را به بولین تبدیل می‌کند
 const pickOptions = (source = {}) =>
-  Object.fromEntries(OPTION_KEYS.map((key) => [key, source[key] === true]));
-
+  Object.fromEntries(OPTION_KEYS.map((key) => [key, source[key] !== false]));
 const Container = styled.div`
   display: flex;
   align-items: center;
@@ -198,11 +195,11 @@ const RestrictUser = () => {
             place="top"
             disabled={disabled}
             Chidren={
-              <IconWrapper
-                $disabled={disabled}
-                $active={!disabled && options[slug]}
-                onClick={disabled ? undefined : () => handleToggle(slug)}
-              >
+        <IconWrapper
+  $disabled={disabled}
+  $active={!disabled && !options[slug]}
+  onClick={disabled ? undefined : () => handleToggle(slug)}
+>
                 {icon}
               </IconWrapper>
             }

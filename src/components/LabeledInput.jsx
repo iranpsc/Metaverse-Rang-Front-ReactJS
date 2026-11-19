@@ -5,13 +5,12 @@ import TitleBody from "./TitleBody";
 import { convertToPersian, convertToEnglish } from "../services/Utility";
 import { inputFontSize, responsiveFontSize } from "../styles/sizes";
 
-const INVALID_BORDER = "red";
-const EDGE_GAP = 12; // فاصله‌ی آیکون و متن کناری از لبه‌ی فیلد
+const INVALID_BORDER = "rgba(224, 49, 49, 0.50)";
+const EDGE_GAP = 12; 
 const BORDER_WIDTH = 1;
 const DEFAULT_ADORNMENT_WIDTH = 24;
 const DEFAULT_MAX_LENGTH = 50;
 
-// استایل فیلد وقتی مرورگر مقدار پیشنهادی (autofill) را پر می‌کند
 const autofillStyle = css`
   -webkit-text-fill-color: ${({ theme }) =>
     theme.colors.newColors.shades.title};
@@ -42,6 +41,8 @@ const InputElement = styled.input`
   font-family: inherit;
   font-weight: 400;
   outline: none;
+  transition: 0.2s;
+
   border: ${BORDER_WIDTH}px solid
     ${({ $error, theme }) =>
       $error ? INVALID_BORDER : theme.colors.newColors.otherColors.inputBorder};
@@ -92,12 +93,13 @@ const Adornment = styled.span`
 // متن واحد از همان نقطه‌ای شروع می‌شود که متن فیلد شروع می‌شود و بعد از کپی نامرئی مقدار می‌آید
 const Unit = styled.span`
   position: absolute;
-  top: 50%;
+  inset-block: 0;
   inset-inline-start: ${({ $offset }) => $offset}px;
-  transform: translateY(-50%);
   display: flex;
+  align-items: center;
   gap: 4px;
   font-weight: 400;
+  line-height: 1;
   white-space: pre;
   color: ${({ theme }) => theme.colors.newColors.otherColors.gray};
   pointer-events: none;

@@ -99,7 +99,7 @@ const HistoryItem = ({
             ) : (
               <>
                 <HiOutlineUser size={20} />
-                <TitleBody title={getTranslation(572)} />
+                <TitleBody noWrap noMargin title={getTranslation(572)} />
               </>
             )}
           </Div>

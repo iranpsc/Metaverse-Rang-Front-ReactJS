@@ -16,7 +16,6 @@ const SIDEBAR_ITEMS = currencies.map((item, index) => ({
 
 const Wrapper = styled.div`
   display: flex;
-  gap: 20px;
   height: 100vh;
   overflow-y: hidden;
 `;

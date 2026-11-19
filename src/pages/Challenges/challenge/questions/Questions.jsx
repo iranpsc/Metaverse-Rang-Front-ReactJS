@@ -42,8 +42,7 @@ const Container = styled.div`
 `;
 
 const Body = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 200px;
+  display: flex;
   gap: 8px;
   height: calc(100% - 90px);
   margin-top: 20px;
@@ -56,21 +55,8 @@ const Body = styled.div`
     border-radius: 10px;
   }
 
-  @media (min-width: 500px) and (max-width: 1000px) {
-    grid-template-columns: 1fr 250px;
-    padding: 0 5px;
-  }
-
-  @media (min-width: 998px) {
-    height: calc(100% - 130px);
-  }
-
-  @media (min-width: 1180px) {
-    padding-right: 0;
-  }
-
   @media (min-width: 1280px) {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 20px;
     height: calc(100% - 150px);
     padding-right: 15px;
@@ -105,6 +91,10 @@ const Sidebar = styled.div`
   @media (min-width: 1280px) {
     position: static;
   }
+  @media (max-width: 1024px) {
+    width: 90%;
+    overflow-y: hidden;
+  }
 `;
 
 const Video = styled.video`
@@ -125,7 +115,7 @@ const TimerBar = styled.div`
   color: ${({ theme }) => theme.colors.newColors.shades.title};
   background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
 
-  @media (max-width: 1280px) {
+  @media (max-width: 1024px) {
     display: flex;
   }
 `;

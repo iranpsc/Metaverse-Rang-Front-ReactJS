@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import DefaultProfile from "../../../../assets/images/avatars/defulte-profile.webp";
-import { getTranslation } from "../../../../services/Utility";
+import { convertToPersian, getTranslation } from "../../../../services/Utility";
 import TitleBody from "../../../../components/TitleBody";
 import UserCode from "../../../../components/UserCode";
 const STATS = [
@@ -35,7 +35,7 @@ const Stats = styled.div`
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
-  padding: 0 20px;
+  width: 100%;
 `;
 
 const Stat = styled.div`
@@ -69,7 +69,7 @@ const Bio = ({ user }) => (
       {STATS.map(({ id, titleId, field }) => (
         <Stat key={id}>
           <TitleBody title={getTranslation(titleId)} />
-          <TitleBody title={field ? user?.[field] : "-"} />
+          <TitleBody title={field ? convertToPersian(user?.[field]) : "-"} />
         </Stat>
       ))}
     </Stats>

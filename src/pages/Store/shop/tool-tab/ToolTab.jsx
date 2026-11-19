@@ -18,7 +18,6 @@ const SIDEBAR_ITEMS = tools.map((item, index) => ({
 
 const Wrapper = styled.div`
   display: flex;
-  gap: 20px;
   overflow: hidden;
 `;
 
