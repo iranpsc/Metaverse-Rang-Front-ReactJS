@@ -1,22 +1,35 @@
-import styled from "styled-components";
+// بخش متن و توضیحات کارت آموزش (عنوان و توضیحات HTML)؛ در حالت عادی ارتفاعش به اندازهٔ محتوا است و با سقف اسکرول می‌گیرد، در حالت تمام‌صفحه کل فضای باقی‌مانده را می‌گیرد
+
+import styled, { css } from "styled-components";
 import TitleHeader from "../../components/TitleHeader";
 import { getSize } from "../../styles/sizes";
 import HtmlContent from "../../components/HtmlContent";
+
 const Container = styled.div`
   padding: 0 5px;
   overflow-y: auto;
-  height: 210px;
-  @media (max-width: 1400px) {
-  }
+
+  ${({ $fullscreen }) =>
+    $fullscreen
+      ? css`
+          flex: 1;
+          min-height: 0;
+        `
+      : css`
+          max-height: 210px;
+
+          @media (max-width: 1000px) {
+            flex-shrink: 0;
+            max-height: 70px;
+          }
+        `}
+
   @media (min-width: 1401px) {
     padding-right: 15px;
   }
 
   @media (max-width: 1000px) {
     padding: 0 8px;
-    flex-shrink: 0;
-            height: 70px;
-
   }
 
   p {
@@ -25,9 +38,9 @@ const Container = styled.div`
     font-weight: 500;
     line-height: 1.6;
     text-align: justify;
+
     @media (min-width: 500px) and (max-width: 999px) {
       font-size: ${getSize("default", "tablet")};
-
     }
 
     @media (min-width: 1280px) {
@@ -36,20 +49,11 @@ const Container = styled.div`
   }
 `;
 
-const Description = styled(HtmlContent)`
-  @media (max-width: 1400px) {
-    display: block;
-  }
-`;
-
-const Content = ({ data }) => {
-  return (
-    <Container>
-      {data?.title && <TitleHeader noMargin title={data?.title} />}
-
-      <Description html={data?.description} />
-    </Container>
-  );
-};
+const Content = ({ data, isFullscreen }) => (
+  <Container $fullscreen={isFullscreen}>
+    {data?.title && <TitleHeader noMargin title={data?.title} />}
+    <HtmlContent html={data?.description} />
+  </Container>
+);
 
 export default Content;

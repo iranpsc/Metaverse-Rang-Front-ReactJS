@@ -1,7 +1,7 @@
 // Map attribution that mimics the native MapLibre control: text and side follow the page language; on mobile (`compact`) it collapses behind an (i) button, on desktop it is always open without a button.
 import { useState } from "react";
 import styled from "styled-components";
-
+import { getTranslation } from "../../services/Utility";
 const infoIcon =
   "url(\"data:image/svg+xml;charset=utf-8,%3Csvg viewBox='0 0 20 20' width='20' height='20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' d='M4 10a6 6 0 1 0 12 0 6 6 0 1 0-12 0m5-3a1 1 0 1 0 2 0 1 1 0 1 0-2 0m0 3a1 1 0 1 1 2 0v3a1 1 0 1 1-2 0'/%3E%3C/svg%3E\")";
 
@@ -65,7 +65,7 @@ const MapAttribution = ({ isRtl, compact }) => {
       )}
       {expanded && (
         <Link href="https://map.metarang.com/" target="_blank" rel="noreferrer">
-          {isRtl ? "قدرت گرفته از نقشه ملی" : "Powered by National Map"}
+          {getTranslation(1952)}
         </Link>
       )}
     </Wrapper>

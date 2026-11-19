@@ -1,4 +1,13 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+// مدال شناور و قابل درگ (react-rnd) با اندازه‌ی ثابت یا ارتفاع auto طبق محتوا و حالت تمام‌صفحه؛ مناسب مدال‌های آموزش، راهنما و هر پنجره‌ی شناور مشابه
+
+import {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback,
+  useRef,
+  useLayoutEffect,
+} from "react";
 import { createPortal } from "react-dom";
 import { Rnd } from "react-rnd";
 import styled from "styled-components";
@@ -27,14 +36,14 @@ const Overlay = styled.div`
 
 const StyledRnd = styled(Rnd)`
   display: flex;
-
   flex-direction: column;
   box-sizing: border-box;
+  max-height: calc(100vh - 20px);
   background-color: ${(props) =>
     props.theme?.colors?.newColors?.shades?.background ||
     props.theme.colors.newColors.shades.bg2};
-  border-radius: ${({ $fullscreen }) => ($fullscreen ? "0" : "10px")};
-  padding: ${({ $fullscreen }) => ($fullscreen ? "10px" : "15px 20px")};
+  border-radius: 10px;
+  padding: 15px 20px;
   overflow: hidden;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 `;
@@ -106,17 +115,49 @@ const FullModal = ({
   const { width: winW, height: winH } = useWindowSize();
   const isMobile = winW < MOBILE_BREAKPOINT;
 
+  const rndRef = useRef(null);
+  const userMovedRef = useRef(false);
+
   const toggleFullscreen = useCallback(() => setFullscreen((p) => !p), []);
 
   const modalSize = useMemo(() => {
     const base = typeof size === "object" ? size : SIZES[size] || SIZES.md;
-    const height =
+    const rawHeight =
       isMobile && base.mobileHeight ? base.mobileHeight : base.height;
     return {
       width: Math.min(base.width, winW - 20),
-      height: Math.min(height, winH - 20),
+      height: rawHeight === "auto" ? "auto" : Math.min(rawHeight, winH - 20),
     };
   }, [size, winW, winH, isMobile]);
+
+  const isAutoHeight = modalSize.height === "auto";
+
+  const position = {
+    x: Math.max((winW - modalSize.width) / 2, 0),
+    y: isAutoHeight ? 0 : Math.max((winH - modalSize.height) / 2, 0),
+  };
+
+  // وقتی ارتفاع auto است، بعد از اندازه‌گیری واقعی مدال را وسط صفحه می‌گذارد
+  // و تا وقتی کاربر درگ نکرده با تغییر ارتفاع محتوا (لود ویدیو، متن و...) وسط نگه می‌دارد
+  useLayoutEffect(() => {
+    if (!open || fullscreen || !isAutoHeight) return;
+    const el = rndRef.current?.resizableElement?.current;
+    if (!el) return;
+
+    userMovedRef.current = false;
+
+    const center = () => {
+      if (userMovedRef.current) return;
+      const y = Math.max((winH - el.offsetHeight) / 2, 0);
+      rndRef.current?.updatePosition({ x: position.x, y });
+    };
+
+    center();
+
+    const observer = new ResizeObserver(center);
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [open, fullscreen, isAutoHeight, winH, position.x]);
 
   useEffect(() => {
     if (!open) return;
@@ -138,15 +179,20 @@ const FullModal = ({
 
   const canDrag = !fullscreen && draggable && !isMobile;
 
-  const position = {
-    x: Math.max((winW - modalSize.width) / 2, 0),
-    y: Math.max((winH - modalSize.height) / 2, 0),
-  };
-
   const content =
     typeof children === "function"
       ? children({ isFullscreen: fullscreen, toggleFullscreen })
       : children;
+
+  const header = (
+    <Header
+      loading={loading}
+      title={title}
+      setOpenEducation={onClose}
+      isFullscreen={fullscreen}
+      onToggleFullscreen={fullscreenable ? toggleFullscreen : undefined}
+    />
+  );
 
   return createPortal(
     <Overlay
@@ -157,19 +203,12 @@ const FullModal = ({
     >
       {fullscreen ? (
         <FullscreenPanel>
-          <HeaderWrap>
-            <Header
-              loading={loading}
-              title={title}
-              setOpenEducation={onClose}
-              isFullscreen={fullscreen}
-              onToggleFullscreen={fullscreenable ? toggleFullscreen : undefined}
-            />
-          </HeaderWrap>
+          <HeaderWrap>{header}</HeaderWrap>
           <Content>{content}</Content>
         </FullscreenPanel>
       ) : (
         <StyledRnd
+          ref={rndRef}
           default={{ ...position, ...modalSize }}
           size={modalSize}
           bounds="parent"
@@ -177,15 +216,12 @@ const FullModal = ({
           disableDragging={!canDrag}
           dragHandleClassName={DRAG_HANDLE}
           cancel={CANCEL_SELECTOR}
+          onDragStart={() => {
+            userMovedRef.current = true;
+          }}
         >
           <HeaderWrap className={DRAG_HANDLE} $draggable={canDrag}>
-            <Header
-              loading={loading}
-              title={title}
-              setOpenEducation={onClose}
-              isFullscreen={fullscreen}
-              onToggleFullscreen={fullscreenable ? toggleFullscreen : undefined}
-            />
+            {header}
           </HeaderWrap>
           <Content>{content}</Content>
         </StyledRnd>

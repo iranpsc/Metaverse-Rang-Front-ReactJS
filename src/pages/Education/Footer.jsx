@@ -74,12 +74,16 @@ const Right = styled.div`
   min-width: 0;
 `;
 const Footer = ({ data }) => {
+  console.log("data",data)
   const { Request, HTTP_METHOD } = useRequest();
   const [reaction, setReaction] = useState(null); // "like" | "dislike" | null
 
   const react = async (type) => {
     if (reaction === type) return;
-    await Request(`tutorials/${data.id}/interactions`, HTTP_METHOD.POST);
+
+    await Request(`tutorials/${data.id}/interactions`, HTTP_METHOD.POST, {
+      like: type === "like" ? 1 : 0,
+    });
     setReaction(type);
   };
 

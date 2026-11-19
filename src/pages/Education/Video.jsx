@@ -1,52 +1,28 @@
-import { useRef } from "react";
+// پخش‌کنندهٔ ویدیوی آموزش با نسبت تصویر ثابت و سقف ارتفاع؛ در حالت تمام‌صفحه کل فضای والد را می‌گیرد
+
 import styled from "styled-components";
 
 const Container = styled.div`
-  flex: ${({ $fullscreen }) => ($fullscreen ? "1" : "0 0 220px")};
-  min-height: ${({ $fullscreen }) => ($fullscreen ? "0" : "220px")};
-  height: ${({ $fullscreen }) => ($fullscreen ? "100%" : "220px")};
-  border-radius: 10px;
-  position: relative;
-  margin: ${({ $fullscreen }) => ($fullscreen ? "0" : "5px")};
-  background-color: #000000;
-  margin-top: ${({ $fullscreen }) => ($fullscreen ? "0" : "20px")};
-  @media (max-width: 1000px) {
-    flex: ${({ $fullscreen }) =>
-      $fullscreen ? "1" : "0 0 clamp(110px, 38vw, 130px)"};
-    min-height: ${({ $fullscreen }) =>
-      $fullscreen ? "0" : "clamp(110px, 38vw, 130px)"};
-    height: ${({ $fullscreen }) =>
-      $fullscreen ? "100%" : "clamp(110px, 38vw, 130px)"};
-  }
-
-  video {
-    /* object-fit: contain !important; */
-  }
+  display: flex;
+  padding-top: 10px;
+  height: 40vh;
 `;
 
-const Video = ({ isFullscreen, video }) => {
-  const videoRef = useRef(null);
+const StyledVideo = styled.video`
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  cursor: pointer;
+  object-fit: contain;
+`;
 
-  return (
-    <Container $fullscreen={isFullscreen}>
-      <video
-        ref={videoRef}
-        width={450}
-        height={200}
-        alt="education"
-        style={{
-          borderRadius: "10px",
-          cursor: "pointer",
-          objectFit: "contain",
-          height: "100%",
-          width: "100%",
-        }}
-        controls
-      >
-        <source type="video/mp4" src={video} />
-      </video>
-    </Container>
-  );
-};
+const Video = ({ isFullscreen, video }) => (
+  <Container $fullscreen={isFullscreen}>
+    <StyledVideo controls>
+      <source type="video/mp4" src={video} />
+    </StyledVideo>
+  </Container>
+);
 
 export default Video;
