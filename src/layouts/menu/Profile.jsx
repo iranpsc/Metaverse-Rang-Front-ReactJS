@@ -125,8 +125,9 @@ const Text = styled.p`
 `;
 
 const ImgUser = styled.img`
-  min-width: 30px;
+  width: 30px;
   height: 30px;
+  aspect-ratio: 1;
   margin: 5px 0;
   border-radius: 100%;
   border: 1px solid white;
