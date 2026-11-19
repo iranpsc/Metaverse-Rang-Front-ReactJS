@@ -6,9 +6,9 @@ const Container = styled.div`
   display: flex;
   padding-top: 10px;
   height: 30vh;
-    @media (max-width: 1024px) {
-  height: 40vh;
-    }
+  @media (max-width: 1024px) {
+    height: 40vh;
+  }
 `;
 
 const StyledVideo = styled.video`
