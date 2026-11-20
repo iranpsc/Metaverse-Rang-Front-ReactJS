@@ -134,7 +134,7 @@ const ChangeCard = ({
   availableResetMobileResets = 0,
   onResetMobileSuccess,
 }) => {
-  const { Request, HTTP_METHOD } = useRequest();
+  const { Request, HTTP_METHOD, checkSecurity } = useRequest();
 
   const [step, setStep] = useState(STEP.PHONE);
   const [busy, setBusy] = useState(false);
@@ -201,6 +201,7 @@ const ChangeCard = ({
 
   // ارسال کد: هم برای مرحله‌ی اول و هم برای ارسال مجدد
   const sendCode = async () => {
+    if (!checkSecurity()) return;
     const rawPhone = getValue(PHONE_INPUT_ID);
 
     if (!rawPhone) {
