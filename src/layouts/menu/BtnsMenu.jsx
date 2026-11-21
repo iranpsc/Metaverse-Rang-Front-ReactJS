@@ -17,14 +17,11 @@ import NotifIcon from "../../assets/svg/notif.svg";
 import ReportIcon from "../../assets/svg/report.svg";
 import Wallet from "../../assets/svg/wallet.svg";
 import GiftIcon from "../../assets/svg/gifts.svg";
-import LogoutIcon from "../../assets/svg/logout.svg";
 import { useMenuContext } from "../../services/reducers/MenuContext.jsx";
 import { useNavigate, useLocation } from "react-router";
 import { useTranslation } from "react-i18next";
 import { UserContext } from "../../services/reducers/UserContext";
 import ToolTip from "../../components/Tooltip/Tooltip.jsx";
-import useRequest from "../../hooks/useRequest.js";
-import { removeItem } from "../../services/Utility/LocalStorage";
 import { getSize } from "../../styles/sizes";
 
 const Container = styled.div`
@@ -122,7 +119,6 @@ const BtnsMenu = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const lang = useTranslation();
   const [user] = useContext(UserContext);
-  const { Request, HTTP_METHOD } = useRequest();
 
   useEffect(() => {
     const currentItem = menuItems.find(
@@ -135,16 +131,6 @@ const BtnsMenu = () => {
     }
   }, [location.pathname]);
 
-  const logoutHandler = () => {
-    Request("auth/logout", HTTP_METHOD.POST, {}, {}, "development")
-      .then(() => {
-        removeItem("user");
-        window.location.reload();
-      })
-      .catch((err) => {
-        console.error("logout error", err);
-      });
-  };
 
   const handleClick = (item) => {
     if (item.onClick) {
@@ -227,12 +213,7 @@ const BtnsMenu = () => {
       translationId: user?.has_wallet ? "1781" : "1668",
       navigate: "connectWallet",
     },
-    {
-      icon: LogoutIcon,
-      translationId: "230",
-      onClick: logoutHandler,
-      isDanger: true,
-    },
+   
   ];
 
   return (

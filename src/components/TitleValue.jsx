@@ -61,7 +61,7 @@ const Cell = styled.div`
   display: flex;
   align-items: center;
   gap: 8px;
-  min-width: 0;
+  flex-shrink: 0; /* هرگز از اندازه‌ی محتوایش کوچک‌تر نمی‌شود */
   padding: ${({ $wrap }) => ($wrap ? "6px 10px" : "0 10px")};
   background-color: ${({ $filled, theme }) =>
     $filled ? theme.colors.newColors.otherColors.inputBg : "transparent"};
@@ -72,10 +72,12 @@ const Cell = styled.div`
 `;
 
 const ValueCell = styled(Cell)`
+  flex: 1 1 0; /* باقی فضا را می‌گیرد */
+  flex-shrink: 1; /* سلول مقدار می‌تواند کوچک شود (Marquee/wrap) */
+  min-width: 0; /* لازم برای Marquee و بریده شدن درست متن */
   ${({ $small }) => $small && "p { font-size: 14px; }"}
   ${({ $veryLong }) => $veryLong && "p { font-size: 15px; }"}
 `;
-
 const Tag = styled.span`
   display: inline-flex;
   align-items: center;

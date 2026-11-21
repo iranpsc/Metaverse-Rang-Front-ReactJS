@@ -16,7 +16,7 @@ const Results = styled.div`
   margin-top: 15px;
 `;
 
-const EmptyText = styled.p`
+const EmptyText = styled.div`
   margin-top: 20px;
   text-align: center;
 `;

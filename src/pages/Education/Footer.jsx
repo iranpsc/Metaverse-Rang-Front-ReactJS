@@ -74,7 +74,6 @@ const Right = styled.div`
   min-width: 0;
 `;
 const Footer = ({ data }) => {
-  console.log("data",data)
   const { Request, HTTP_METHOD } = useRequest();
   const [reaction, setReaction] = useState(null); // "like" | "dislike" | null
 

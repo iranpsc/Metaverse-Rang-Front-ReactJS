@@ -1,22 +1,11 @@
-import { useContext, useState } from "react";
-import { useNavigate } from "react-router";
+// Controlled general-info form (activity, name, address, postal code, website, description); used in the feature build step
+
 import styled from "styled-components";
-import Button from "../../../../../../components/Button";
 import IsicSelect from "../../../../../../components/IsicCode/IsicSelect.jsx";
 import LabeledInput from "../../../../../../components/LabeledInput.jsx";
-import { useSelectedEnvironment } from "../../../../../../services/reducers/SelectedEnvironmentContext.jsx";
-import { getTranslation, ToastError } from "../../../../../../services/Utility";
-import { FeatureContext } from "../../../../Context/FeatureProvider";
+import { getTranslation } from "../../../../../../services/Utility";
+import TitleBody from "../../../../../../components/TitleBody.jsx";
 const POSTAL_CODE_LENGTH = 10;
-
-const INITIAL_INPUTS = {
-  activity_line: "",
-  name: "",
-  address: "",
-  postal_code: "",
-  website: "",
-  description: "",
-};
 
 const parseActivities = (value) =>
   (value || "")
@@ -32,7 +21,6 @@ const Container = styled.div`
   width: 100%;
 `;
 
-// ستون‌ها از بیرون تعیین میشن؛ پیش‌فرض دو ستون مساوی
 const Row = styled.div`
   display: grid;
   grid-template-columns: ${({ $columns }) => $columns || "1fr 1fr"};
@@ -49,43 +37,9 @@ const Row = styled.div`
   }
 `;
 
-const Note = styled.p`
-  color: ${({ theme }) => theme.colors.newColors.otherColors.text};
-  font-size: 16px;
-  font-weight: 400;
-`;
-
-const InputsGeneralDefault = () => {
-  const { updateFormState, toggleConfirmation, isSelectable } =
-    useSelectedEnvironment() || {};
-  const [feature] = useContext(FeatureContext) || [{}];
-  const navigate = useNavigate();
-
-  const [inputs, setInputs] = useState(INITIAL_INPUTS);
-  const isNameValid = inputs.name.trim().length >= 4;
-
-  const updateField = (field, value) =>
-    setInputs((prev) => ({ ...prev, [field]: value }));
-
+const InputsGeneralDefault = ({ inputs, updateField,isNameValid  }) => {
   const handleChange = (field) => (e) => updateField(field, e.target.value);
 
-  const handleButtonClick = () => {
-    if (!isNameValid) return;
-
-    if (inputs.postal_code && inputs.postal_code.length < POSTAL_CODE_LENGTH) {
-      ToastError(getTranslation("1602"));
-      return;
-    }
-
-    if (!isSelectable) {
-      ToastError(getTranslation("1611"));
-      return;
-    }
-
-    updateFormState?.({ ...inputs, featureId: feature?.id ?? "" });
-    toggleConfirmation?.();
-    navigate("/", { replace: true });
-  };
   return (
     <Container>
       <Row $columns="2fr 1fr">
@@ -95,11 +49,12 @@ const InputsGeneralDefault = () => {
             updateField("activity_line", activities.join(","))
           }
         />
-        <LabeledInput
-          value={inputs.name}
-          onChange={handleChange("name")}
-          placeholder={getTranslation("361")}
-        />
+<LabeledInput
+  value={inputs.name}
+  onChange={handleChange("name")}
+  placeholder={getTranslation("361")}
+  error={!isNameValid}
+/>
       </Row>
 
       <LabeledInput
@@ -130,14 +85,7 @@ const InputsGeneralDefault = () => {
         placeholder={getTranslation("365")}
         onChange={handleChange("description")}
       />
-
-      <Note>{getTranslation("366")}</Note>
-
-      <Button
-        label={getTranslation("367")}
-        onClick={handleButtonClick}
-        disabled={!isNameValid}
-      />
+      <TitleBody title={getTranslation(366)} />
     </Container>
   );
 };
