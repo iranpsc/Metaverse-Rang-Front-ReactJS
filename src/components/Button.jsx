@@ -110,7 +110,7 @@ const iconVariant = css`
   height: auto;
   padding: 2px 20px 1px;
   border-radius: 7px;
-  gap: 10px;
+  gap: ${({ $iconOnly }) => ($iconOnly ? "0" : "10px")};
 
   ${({ $fill, color, grayTheme, theme }) =>
     !color &&
@@ -139,6 +139,11 @@ const iconVariant = css`
   }
 
   ${({ $pill }) => $pill && pillVariant}
+   > span:first-child {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 `;
 
 const Label = styled.span`
@@ -162,11 +167,13 @@ const Label = styled.span`
 const Spinner = styled.span`
   width: 18px;
   height: 18px;
+  flex-shrink: 0;
   border: 2px solid rgba(255, 255, 255, 0.5);
   border-top: 2px solid white;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
-  display: inline-block;
+  display: block;
+  box-sizing: border-box;
 
   @keyframes spin {
     0% {
@@ -214,6 +221,8 @@ const Button = ({
 }) => {
   const [explosion, setExplosion] = useState(null);
   const buttonRef = useRef(null);
+  const iconOnly = Boolean(icon) && !label;
+  const isPending = disabled === "pending";
 
   useEffect(() => {
     if (!explode || !buttonRef.current) return;
@@ -250,16 +259,21 @@ const Button = ({
       style={style}
       $size={size}
       $withIcon={Boolean(icon)}
+      $iconOnly={iconOnly}
       $fill={fill}
       $grow={grow}
       $pill={pill}
     >
-      {icon && <span>{renderIcon(icon)}</span>}
-
-      {icon ? (
-        <Label $size={size} $pill={pill}>
-          {label}
-        </Label>
+  {icon && (
+        <span>{isPending && iconOnly ? <Spinner /> : renderIcon(icon)}</span>
+      )}
+      
+         {icon ? (
+        label && (
+          <Label $size={size} $pill={pill}>
+            {label}
+          </Label>
+        )
       ) : (
         label
       )}
@@ -279,7 +293,7 @@ const Button = ({
         </ExplosionLayer>
       )}
 
-      {disabled === "pending" && <Spinner />}
+      {isPending && !iconOnly && <Spinner />}
     </ButtonElement>
   );
 };

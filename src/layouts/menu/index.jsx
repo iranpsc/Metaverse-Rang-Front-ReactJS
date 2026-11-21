@@ -12,6 +12,8 @@ import { useIsRtl } from "../../services/reducers/LanguageContext.jsx";
 import LogoutButton from "./LogoutButton.jsx";
 const PADDING = "10px";
 const PADDING_DESKTOP = "20px";
+const PADDING_DESKTOP_BOTTOM = "15px";
+const PADDING_CLOSED = "20px 15px 15px";
 
 const BlurOverlay = styled.div`
   position: fixed;
@@ -40,7 +42,7 @@ const Container = styled.div`
   padding: ${PADDING};
   border-radius: 10px;
   background-color: ${({ theme }) => theme.colors.newColors.otherColors.menuBg};
-  transition: all 0.3s ease 0s;
+  transition: all 0.5s ease 0s;
 
   @media (max-width: 832px) {
     max-width: 260px;
@@ -53,9 +55,10 @@ const Container = styled.div`
       $isModalOpen && $isOpen && "top: 0; border-radius: 0;"}
   }
 
-  @media (min-width: 1024px) {
-    padding: ${PADDING_DESKTOP};
-    padding-bottom: 15px;
+   @media (min-width: 1024px) {
+    padding: ${({ $isOpen }) => ($isOpen ? PADDING_DESKTOP : PADDING_CLOSED)};
+    padding-bottom: ${({ $isOpen }) =>
+      $isOpen ? PADDING_DESKTOP_BOTTOM : "15px"};
   }
   @media (max-width: 1023px) {
     ${({ $hiddenOnMobile }) => $hiddenOnMobile && "display: none;"}
@@ -88,10 +91,9 @@ const Menu = () => {
         <PublicComponent>
           <BtnLogin />
         </PublicComponent>
-          <PrivateComponent>
+        <PrivateComponent>
           <LogoutButton />
         </PrivateComponent>
-
       </Container>
     </>
   );

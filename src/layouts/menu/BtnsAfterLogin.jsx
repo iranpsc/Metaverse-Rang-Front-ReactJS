@@ -22,24 +22,6 @@ const Container = styled.div`
   width: 100%;
   white-space: nowrap;
   overflow-y: auto;
-
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background-color: ${(props) => props.theme.colors.primary};
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background-color: ${(props) => props.theme.colors.primary};
-    border-radius: 10px;
-  }
-
-  &::-webkit-scrollbar-thumb:hover {
-    background-color: #999;
-  }
-
   margin-bottom: auto;
   margin-top: 25px;
 `;
